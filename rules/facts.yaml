@@ -1,0 +1,444 @@
+# 계산기가 받는 사실. 정해진 값 밖의 입력은 거부한다. 모든 사실은 UNKNOWN(모름)을 받는다.
+# cost: USER(담당자가 바로 앎) < DOCUMENT(서류 확인) < TEST(시험·분석 필요)
+# how_to_check: 사용자가 모를 때 안내할 확인 방법. basis가 없는 안내는 "실무 안내"로 표시된다.
+
+# ---------- S0 폐기물 해당 여부 ----------
+no_longer_needed:
+  type: bool
+  cost: USER
+  question: 이 물질은 사업활동에 더 이상 필요 없게 되어 내보내는(버리거나 넘기는) 것인가요?
+  how_to_check:
+    - text: 판매용 제품으로 생산한 것인지, 공정에서 남거나 나와 내보내는 것인지 확인하세요.
+  note:
+    text: 재활용이 가능하거나 재활용된다는 이유만으로 폐기물에서 빠지지 않습니다.
+    source: GUIDE23-QA
+    quote: 생산공정에서 발생되는 불량품·자투리 등이 재활용이 가능하거나 재활용된다 하여 폐기물에서 제외되는 것은 아니며
+
+direct_reinput:
+  type: bool
+  cost: USER
+  question: 별도의 처리공정 없이, 같은 사업장의 같은 공정에 원료로 바로 다시 넣나요?
+  how_to_check:
+    - text: 이 물질을 세척·파쇄 등 따로 처리하지 않고 발생한 그 공정에 원료로 다시 투입하는지 공정도로 확인하세요.
+
+circular_resource_recognized:
+  type: bool
+  cost: DOCUMENT
+  question: 이 물질에 대해 순환자원 인정서를 받았나요?
+  how_to_check:
+    - text: 기후에너지환경부(유역·지방환경청)가 발급한 순환자원 인정서가 있는지, 유효기간 안인지 확인하세요.
+
+# ---------- S1 폐기물관리법 적용 제외 ----------
+law_exclusion:
+  type: enum
+  cost: USER
+  question: 이 물질이 아래 중 하나에 해당하나요?
+  values:
+    none: 해당 없음
+    radioactive: 원자력안전법에 따른 방사성 물질 또는 그로 오염된 물질
+    uncontained_gas: 용기에 들어 있지 않은 기체
+    wastewater: 수질오염방지시설로 들어가거나 공공수역으로 배출되는 폐수
+    livestock_manure: 가축분뇨
+    sewage_nightsoil: 하수도법에 따른 하수·분뇨
+    livestock_disease: 가축전염병예방법이 적용되는 가축 사체·오염 물건 등
+    aquatic_disease: 수산생물질병 관리법이 적용되는 수산동물 사체 등
+    military_ammo: 군수품관리법에 따라 폐기되는 탄약
+    pet_funeral: 허가받은 동물장묘시설에서 처리되는 동물 사체
+    fisheries_byproduct_unmixed: 다른 폐기물과 섞이지 않은 수산부산물
+  how_to_check:
+    - text: 액체라면 수질오염방지시설로 보내는지(폐수), 위탁업체에 폐기물로 넘기는지 확인하세요.
+
+# ---------- S2 사업장폐기물 여부 ----------
+emission_facility:
+  type: bool
+  cost: DOCUMENT
+  question: 이 사업장에 대기·수질·소음진동 배출시설 설치허가를 받았거나 신고를 했나요?
+  how_to_check:
+    - text: 배출시설 설치허가증 또는 설치신고증명서를 확인하세요.
+    - text: 서류를 찾을 수 없으면 관할 시·군·구 환경 담당 부서에 배출시설 허가·신고 여부를 문의하세요.
+
+public_facility:
+  type: enum
+  cost: USER
+  question: 이 사업장이 아래 공공처리시설을 설치·운영하는 곳인가요?
+  values:
+    none: 해당 없음
+    public_wastewater: 물환경보전법에 따른 공공폐수처리시설
+    public_sewage: 하수도법에 따른 공공하수처리시설
+    nightsoil: 하수도법에 따른 분뇨처리시설
+    livestock_public: 가축분뇨법에 따른 공공처리시설
+
+waste_facility:
+  type: bool
+  cost: USER
+  question: 이 사업장이 폐기물처리시설을 설치·운영하는 곳인가요? (폐기물처리업 허가 시설 포함)
+  how_to_check:
+    - text: 폐기물처리시설 설치 승인·신고서류 또는 폐기물처리업 허가증을 확인하세요.
+
+designated_waste_emitted:
+  type: bool
+  cost: DOCUMENT
+  question: 이 사업장에서 지정폐기물을 배출하나요?
+  how_to_check:
+    - text: 지정폐기물 처리계획 확인서, 올바로시스템의 지정폐기물 인계 기록을 확인하세요.
+    - text: 유해물질 함유량에 따라 지정폐기물이 될 수 있는 폐기물은 폐기물분석전문기관의 분석결과서로 확인합니다.
+      source: GUIDE-REPORT
+      quote: 사업장에서 발생하는 폐기물 중 유해물질 함유량에 따라 지정폐기물로 분류될 수 있는 폐기물에 대해서는 폐기물분석전문기관에 의뢰하여 지정폐기물 해당여부를 미리 확인
+  note:
+    text: 지정폐기물 해당 여부를 판정하는 단계(S3)는 아직 계산기에 없습니다.
+
+daily_avg_kg:
+  type: number
+  unit: kg/일
+  cost: DOCUMENT
+  question: 이 사업장의 폐기물 배출량은 하루 평균 몇 kg인가요?
+  how_to_check:
+    - text: 올바로시스템 인계 기록이나 위탁 계량표로 일정 기간의 배출량 합계를 구한 뒤 조업일수로 나누세요.
+  note:
+    text: 하루 평균 300kg을 산정하는 기간·포함 범위를 직접 정한 근거는 아직 확보하지 못했습니다(실무 안내).
+
+work_type:
+  type: enum
+  cost: USER
+  question: 이 폐기물이 공사나 일회성 작업에서 나온 것인가요?
+  values:
+    none: 아니요 (평상시 사업장 운영)
+    construction: 건설산업기본법에 따른 건설공사
+    series: "그 밖의 일련의 공사 또는 작업 (예: 저장탱크 정기 청소)"
+
+work_total_ton:
+  type: number
+  unit: 톤
+  cost: DOCUMENT
+  question: 그 공사·작업을 시작할 때부터 마칠 때까지 나오는(나온) 폐기물은 모두 몇 톤인가요?
+  how_to_check:
+    - text: 공사·작업 계획서의 폐기물 발생 예정량 또는 위탁 계량표 합계를 확인하세요.
+
+# ---------- S2 보조: 이 폐기물이 지정폐기물인지 (S3 판정 결과로만 정해짐, 사용자 입력 불가) ----------
+this_waste_designated:
+  type: bool
+  cost: USER
+  derived_from: S3
+  question: 이 폐기물이 지정폐기물인가요? (아래 지정폐기물 판정 단계의 결과로 정해집니다)
+
+# ---------- S3 지정폐기물 여부 ----------
+waste_kind:
+  type: enum
+  cost: USER
+  question: 이 폐기물은 아래 중 무엇에 가장 가깝나요?
+  values:
+    synthetic_resin: 폐합성수지(플라스틱·수지류)
+    synthetic_rubber: 폐합성고무
+    sludge_wastewater: 폐수처리 오니
+    sludge_process: 공정 오니
+    pesticide: 폐농약
+    acid: 폐산(산성 폐액)
+    alkali: 폐알칼리(알칼리성 폐액, 수산화나트륨·수산화칼륨 포함)
+    slag: 광재(슬래그)
+    dust: 분진
+    foundry_sand: 폐주물사·샌드블라스트 폐사
+    refractory: 폐내화물·재벌구이 전 유약 바른 도자기 조각
+    incineration_ash: 소각재
+    stabilized: 안정화·고형화·고화 처리물
+    catalyst: 폐촉매
+    adsorbent: 폐흡착제·폐흡수제
+    organic_solvent: 폐유기용제
+    paint: 폐페인트·폐래커
+    paint_solvent_mix: 페인트·래커와 유기용제가 섞인 것
+    paint_cleaning_solvent: 페인트 보관용기의 페인트를 제거하려고 유기용제와 섞은 것
+    paint_container: 폐페인트 용기
+    waste_oil: 폐유(윤활유·절삭유·작동유 등 기름 자체)
+    edible_oil: 폐식용유와 그 잔재물
+    asbestos_demolition: 석면 함유 제품·설비의 해체·제거 시 나온 것
+    asbestos_processing: 슬레이트 등 석면 제품의 연마·절단·가공 부스러기·집진 분진
+    asbestos_work_items: 석면 제거작업에 쓴 비닐시트·방진마스크·작업복 등
+    mercury_product: 수은 함유 폐램프(폐형광등 제외)·폐계측기기·폐전지 등
+    mercury_separated: 수은함유폐기물에서 분리한 수은·그 화합물
+    mercury_residue: 수은함유폐기물 처리잔재물(폐형광등 재활용 잔재물 포함)
+    medical: 의료기관·시험검사기관 등의 의료폐기물
+    norm_product: 안전기준에 맞지 않는 천연방사성 가공제품의 폐기물
+    battery: 폐전지(일차전지·이차전지·태양전지 등)
+    other: 위 목록에 없음 (금속·종이·목재·유리 스크랩 등)
+  how_to_check:
+    - text: 폐기물이 나온 공정·설비와 원래 물건이 무엇이었는지로 고르세요. 여러 종류가 섞였으면 종류별로 따로 판정하세요.
+
+physical_state:
+  type: enum
+  cost: USER
+  question: 배출할 때 이 폐기물의 상태는?
+  values:
+    solid: 고체
+    liquid: 액체(흐름)
+    semisolid: 반고체·점성·슬러지 상태
+  how_to_check:
+    - text: 배출 시점의 실제 상태로 고르세요. 경계가 애매하면 '모름'으로 답하세요.
+
+sludge_water_pct:
+  type: number
+  unit: "%"
+  cost: TEST
+  question: 이 오니의 수분함량은 몇 %인가요?
+  test:
+    item: 수분 및 고형물
+    method: 폐기물공정시험기준(국립환경과학원고시 제2025-21호) 수분·고형물 시험
+    report: 수분함량(%)과 고형물함량(%)
+  note:
+    text: 법은 "수분함량 95% 미만이거나 고형물함량 5% 이상"을 요구합니다. 계산기는 수분함량으로 받습니다(고형물 = 100 − 수분으로 보는 해석).
+
+sludge_facility_notified:
+  type: bool
+  cost: DOCUMENT
+  question: 이 오니가 나온 시설이 기후에너지환경부장관이 고시한 오니 발생시설에 해당하나요?
+  how_to_check:
+    - text: 오니 발생시설을 정한 기후에너지환경부 고시(2025-10-01 시행)의 시설 목록과 사업장 배출시설을 대조하세요.
+
+pesticide_from_maker_seller:
+  type: bool
+  cost: USER
+  question: 이 폐농약이 농약 제조업소나 판매업소에서 나온 것인가요?
+
+ph:
+  type: number
+  unit: ""
+  cost: TEST
+  question: 이 폐액의 pH(수소이온 농도지수)는 얼마인가요?
+  test:
+    item: 수소이온농도(pH)
+    method: 폐기물공정시험기준 ES 06304.1 수소이온농도-유리전극법
+    report: pH 값(0.01 단위), 측정 온도, 시료 채취일
+
+alkali_solid_naoh_koh:
+  type: bool
+  cost: USER
+  question: 이 폐알칼리가 고체 상태의 수산화나트륨이나 수산화칼륨인가요?
+
+blast_furnace_iron_slag:
+  type: bool
+  cost: USER
+  question: 이 광재가 철광 원석을 사용한 고로(용광로)에서 나온 고로슬래그인가요?
+
+dust_from_apc:
+  type: bool
+  cost: USER
+  question: 이 분진이 대기오염 방지시설(집진기 등)에서 포집된 것인가요?
+
+dust_from_incinerator:
+  type: bool
+  cost: USER
+  question: 이 분진이 소각시설에서 나온 것인가요?
+
+paint_mixed_source:
+  type: enum
+  cost: USER
+  question: 페인트·래커와 유기용제가 섞인 이 폐기물은 어디서 나왔나요?
+  values:
+    maker: 페인트·래커 제조업
+    coating_large: 용적 5세제곱미터 이상 또는 동력 3마력 이상의 도장시설
+    recycling: 폐기물을 재활용하는 시설
+    other: 위에 해당하지 않음
+  how_to_check:
+    - text: 도장시설의 용적·동력은 배출시설 허가·신고서류에서 확인하세요.
+
+paint_dried:
+  type: bool
+  cost: USER
+  question: 용기 안에 남은 페인트가 완전히 건조되어 있나요?
+
+paint_residue_mm:
+  type: number
+  unit: mm
+  cost: USER
+  question: 용기 바닥에 남은 페인트는 몇 mm인가요?
+
+oil_presence:
+  type: enum
+  cost: USER
+  question: 이 폐기물에 기름(윤활유·절삭유·작동유 등)이 묻어 있거나 섞여 있나요?
+  values:
+    none: 기름이 묻거나 섞이지 않음
+    present: 기름이 묻어 있거나 섞여 있음
+  how_to_check:
+    - text: 사용한 공정에서 절삭유·윤활유를 쓰는지, 겉에 기름막이나 기름 냄새가 있는지 확인하세요. 확실하지 않으면 '모름'으로 답하세요.
+
+oil_content_pct:
+  type: number
+  unit: "%"
+  cost: TEST
+  question: 기름성분 함량은 몇 %(중량)인가요?
+  test:
+    item: 기름성분
+    method: 폐기물공정시험기준 ES 06302.1b 기름성분-중량법
+    report: 기름성분(%), 시료 채취일, 분석기관
+
+asbestos_pct:
+  type: number
+  unit: "%"
+  cost: TEST
+  question: 건조고형물 기준 석면 함량은 몇 %인가요?
+  test:
+    item: 석면
+    method: 폐기물공정시험기준 석면 시험
+    report: 석면 함량(%, 건조고형물 기준)
+
+pcb_possible:
+  type: bool
+  cost: DOCUMENT
+  question: 이 폐기물이 PCB(폴리클로리네이티드비페닐)를 쓴 변압기·콘덴서·절연유 등과 관련이 있나요?
+  how_to_check:
+    - text: 변압기·콘덴서 명판의 절연유 종류와 제조연도, 기존 PCB 분석 기록을 확인하세요.
+
+pcb_mg_l:
+  type: number
+  unit: mg/L
+  cost: TEST
+  question: (액체) PCB 함량은 1리터당 몇 mg인가요?
+  test:
+    item: 폴리클로리네이티드비페닐(PCBs)
+    method: 폐기물공정시험기준 PCBs 시험
+    report: mg/L
+
+pcb_leach_mg_l:
+  type: number
+  unit: mg/L
+  cost: TEST
+  question: (액체 외) PCB 용출액 농도는 1리터당 몇 mg인가요?
+  test:
+    item: 폴리클로리네이티드비페닐(PCBs) 용출
+    method: 폐기물공정시험기준 용출시험 + PCBs 시험
+    report: 용출액 mg/L
+
+toxic_chemical_discard:
+  type: bool
+  cost: DOCUMENT
+  question: 화학물질관리법상 유해화학물질(인체급성·인체만성·생태유해성물질, 허가·제한·금지물질, 사고대비물질)을 폐기하는 것인가요?
+  how_to_check:
+    - text: 폐기하려는 화학물질의 물질안전보건자료(MSDS)와 화학물질정보시스템에서 해당 물질 지정 여부를 확인하세요.
+
+norm_bq_g:
+  type: number
+  unit: Bq/g
+  cost: TEST
+  question: 이 천연방사성제품 폐기물의 방사능 농도는 그램당 몇 베크렐인가요?
+  test:
+    item: 방사능 농도
+    method: 생활주변방사선 안전관리법에 따른 측정
+    report: Bq/g
+
+# ---------- S3 용출시험 결과 (시행규칙 별표 1) ----------
+leach_pb:
+  type: number
+  unit: mg/L
+  cost: TEST
+  question: 용출시험 결과 납 농도는 용출액 1리터당 몇 mg인가요?
+  test:
+    item: 납 용출
+    method: 폐기물공정시험기준 용출시험
+    report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
+leach_cu:
+  type: number
+  unit: mg/L
+  cost: TEST
+  question: 용출시험 결과 구리 농도는 용출액 1리터당 몇 mg인가요?
+  test:
+    item: 구리 용출
+    method: 폐기물공정시험기준 용출시험
+    report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
+leach_as:
+  type: number
+  unit: mg/L
+  cost: TEST
+  question: 용출시험 결과 비소 농도는 용출액 1리터당 몇 mg인가요?
+  test:
+    item: 비소 용출
+    method: 폐기물공정시험기준 용출시험
+    report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
+leach_hg:
+  type: number
+  unit: mg/L
+  cost: TEST
+  question: 용출시험 결과 수은 농도는 용출액 1리터당 몇 mg인가요?
+  test:
+    item: 수은 용출
+    method: 폐기물공정시험기준 용출시험
+    report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
+leach_cd:
+  type: number
+  unit: mg/L
+  cost: TEST
+  question: 용출시험 결과 카드뮴 농도는 용출액 1리터당 몇 mg인가요?
+  test:
+    item: 카드뮴 용출
+    method: 폐기물공정시험기준 용출시험
+    report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
+leach_cr6:
+  type: number
+  unit: mg/L
+  cost: TEST
+  question: 용출시험 결과 6가크롬 농도는 용출액 1리터당 몇 mg인가요?
+  test:
+    item: 6가크롬 용출
+    method: 폐기물공정시험기준 용출시험
+    report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
+leach_cn:
+  type: number
+  unit: mg/L
+  cost: TEST
+  question: 용출시험 결과 시안화합물 농도는 용출액 1리터당 몇 mg인가요?
+  test:
+    item: 시안화합물 용출
+    method: 폐기물공정시험기준 용출시험
+    report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
+leach_op:
+  type: number
+  unit: mg/L
+  cost: TEST
+  question: 용출시험 결과 유기인화합물 농도는 용출액 1리터당 몇 mg인가요?
+  test:
+    item: 유기인화합물 용출
+    method: 폐기물공정시험기준 용출시험
+    report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
+leach_pce:
+  type: number
+  unit: mg/L
+  cost: TEST
+  question: 용출시험 결과 테트라클로로에틸렌 농도는 용출액 1리터당 몇 mg인가요?
+  test:
+    item: 테트라클로로에틸렌 용출
+    method: 폐기물공정시험기준 용출시험
+    report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
+leach_tce:
+  type: number
+  unit: mg/L
+  cost: TEST
+  question: 용출시험 결과 트리클로로에틸렌 농도는 용출액 1리터당 몇 mg인가요?
+  test:
+    item: 트리클로로에틸렌 용출
+    method: 폐기물공정시험기준 용출시험
+    report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
+
+battery_damaged:
+  type: bool
+  cost: USER
+  question: 이 폐이차전지에 침수·화재·변형·파손이 있거나, 셀이 훼손되어 유해물질 유출·화재·폭발 위험이 있나요?
+
+# ---------- S4 분류번호 (시행규칙 별표 4) ----------
+general_group:
+  type: enum
+  cost: USER
+  values_from: annex4_general_groups
+  question: 시행규칙 별표 4의 사업장일반폐기물 분류 중 어디에 해당하나요?
+  how_to_check:
+    - text: 폐기물의 재질·발생 공정으로 고르세요. 2023 「폐기물 분류체계 및 분류방법 설명서」 부록 2의 항목별 설명을 참고할 수 있습니다(구판 기준).
+
+code:
+  type: enum
+  cost: USER
+  values_from: annex4_codes
+  question: 아래 세부분류 중 이 폐기물에 해당하는 번호는?
+  how_to_check:
+    - text: 명칭과 괄호 안의 한정·제외 문구를 대조해 고르세요. 기존 배출자신고서·올바로 인계서에 적힌 번호가 있으면 함께 확인하세요.
+
+no_specific_code_applies:
+  type: bool
+  cost: USER
+  question: 같은 분류 안의 다른 세부 번호에는 하나도 해당하지 않나요? ('그 밖의' 번호는 다른 번호에 해당하지 않을 때만 씁니다)

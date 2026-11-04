@@ -1,0 +1,23 @@
+[project]
+name = "wastecalc"
+version = "0.1.0"
+description = "사업장폐기물 법적 지위 계산기 (규칙 엔진 + MCP 서버)"
+requires-python = ">=3.11"
+dependencies = ["pyyaml>=6", "mcp>=1.10"]
+
+[project.optional-dependencies]
+test = ["pytest>=8", "pymupdf>=1.23"]
+
+[project.scripts]
+wastecalc-mcp = "wastecalc.server:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

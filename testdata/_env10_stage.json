@@ -1,0 +1,320 @@
+{
+  "cases": [
+    {
+      "raw": {
+        "case_id": "ENV10-P150",
+        "source_id": "ENV10",
+        "doc_title": "질의회신 사례집 (환경부, 2010.11)",
+        "page_or_url": "인쇄 p.150 (PDF 168) | https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1883270&boardMasterId=232&menuId=1025",
+        "answered_on": "NOT_FOUND",
+        "agency": "환경부",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "○ 제품생산 공정과정에서 수거된 오니와 폐수처리시설 중간단계(저장조, 유량조정조)에서 수거된 오니는 진흙 정도의 고상인 바, - 이 상태의 오니를 물에 적셔 pH를 확인해보니 pH가 약 2-3 정도의 산성으로 나왔을 때는 어떠한 방법으로 처리하여야 하는지? 또한 품목을 폐산 고상으로 보아야 하는지? 일반 오니로 보아야 하는지? - 또한, 제품생산 공정과정에서 수거 된 오니는 폐수처리오니와 공정오니 중 어떤 것으로 하여야 하는지?",
+        "answer_quote": "○ 폐기물관리법상에서 공정오니와 폐수처리오니에 대하여 별도로 정의 하고 있지는 않으나, 일반적으로 제품생산 공정과정에서 발생된 슬러지는 공정오니로 분류되며, 폐수처리공정(폐수 집수조 및 유량조정조 포함) 에서 발생되는 슬러지는 폐수처리오니로 분류됩니다. ○ 폐산은 액체상태의 폐기물로서 수소이온 농도지수가 2.0 이하인 경우 에만 해당하며, 고상의 폐기물은 수소이온 농도지수에 관계없이 폐산에 해당하지 않습니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "원주지방환경청 2026-08-11 환경분야별 질의회신 사례집 첨부 1 / 기존 보유본 / 폐산·폐알칼리·폐합성수지·폐유기용제·폐기물 해당 여부 본문 검색",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "answer": {
+        "case_id": "ENV10-P150",
+        "answer_type": "OTHER",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "",
+        "answer_quote": "○ 폐기물관리법상에서 공정오니와 폐수처리오니에 대하여 별도로 정의 하고 있지는 않으나, 일반적으로 제품생산 공정과정에서 발생된 슬러지는 공정오니로 분류되며, 폐수처리공정(폐수 집수조 및 유량조정조 포함) 에서 발생되는 슬러지는 폐수처리오니로 분류됩니다. ○ 폐산은 액체상태의 폐기물로서 수소이온 농도지수가 2.0 이하인 경우 에만 해당하며, 고상의 폐기물은 수소이온 농도지수에 관계없이 폐산에 해당하지 않습니다."
+      },
+      "facts": [
+        {
+          "case_id": "ENV10-P150",
+          "fact": "waste_family",
+          "value": "sludge",
+          "quote": "수거된 오니"
+        },
+        {
+          "case_id": "ENV10-P150",
+          "fact": "physical_state",
+          "value": "solid",
+          "quote": "진흙 정도의 고상"
+        },
+        {
+          "case_id": "ENV10-P150",
+          "fact": "process",
+          "value": "제품생산 공정과정",
+          "quote": "제품생산 공정과정"
+        },
+        {
+          "case_id": "ENV10-P150",
+          "fact": "process",
+          "value": "폐수처리시설 중간단계(저장조, 유량조정조)",
+          "quote": "폐수처리시설 중간단계(저장조, 유량조정조)"
+        },
+        {
+          "case_id": "ENV10-P150",
+          "fact": "ph",
+          "value": "2-3",
+          "quote": "pH가 약 2-3 정도"
+        }
+      ]
+    },
+    {
+      "raw": {
+        "case_id": "ENV10-P153",
+        "source_id": "ENV10",
+        "doc_title": "질의회신 사례집 (환경부, 2010.11)",
+        "page_or_url": "인쇄 p.153 (PDF 171) | https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1883270&boardMasterId=232&menuId=1025",
+        "answered_on": "NOT_FOUND",
+        "agency": "환경부",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "○ 반도체 생산과정 중 발생한 규격미달 Chip을 세관에 폐기 신고 후 폐기물처리업체에 소각하고 있는 업체로서 고부가가치 제품(규격미달 Chip)이 용량은 작지만 반도체 제품으로 생산이 가능한데 제품화하지 않고 폐기한다는 것은 국가나 회사적으로 큰 손실이라고 판단되어 규격 미달 Chip을 세관장의 장외작업 허가를 받은 외주업체에 공급하여 반도체 제조공정을 걸쳐 완제품으로 생산하려고 하는 바, 생산과정 중 제품화가 불가능한 Chip이나 부산물을 외주업체로 공급하는 경우, 동 물질이 폐기물에 해당되는지?",
+        "answer_quote": "○ 폐기물관리법상에서는 폐기물을 “사업활동에 필요하지 아니하게 된 물질”이라고 정의하고 있습니다. 따라서 생산된 제품이 불량품이라 하더라도 원래의 용도로 사용하는 경우에는 폐기물에 해당하지 않으나, 성상 그대로 사용할 수 없어 재가공하거나 분쇄 등을 통하여 제품의 원료로 사용하는 경우에는 폐기물에 해당합니다. - 즉, 수거한 규격(용량)미달의 Chip(반도체)을 원형 그대로 이용하여 다시 원래 목적의 제품(용량이 작은 반도체)을 생산하는 경우라면 폐기물에 해당하지 않는다 할 것입니다. - 다만, 외주업체에 공급하는 규격미달 Chip 중 그 일부만 원래 목적의 제품 으로 생산하고 대부분을 폐기하는 경우라면 폐기물로 보아야 할 것입니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "원주지방환경청 2026-08-11 환경분야별 질의회신 사례집 첨부 1 / 기존 보유본 / 폐산·폐알칼리·폐합성수지·폐유기용제·폐기물 해당 여부 본문 검색",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "answer": {
+        "case_id": "ENV10-P153",
+        "answer_type": "OTHER",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "",
+        "answer_quote": "○ 폐기물관리법상에서는 폐기물을 “사업활동에 필요하지 아니하게 된 물질”이라고 정의하고 있습니다. 따라서 생산된 제품이 불량품이라 하더라도 원래의 용도로 사용하는 경우에는 폐기물에 해당하지 않으나, 성상 그대로 사용할 수 없어 재가공하거나 분쇄 등을 통하여 제품의 원료로 사용하는 경우에는 폐기물에 해당합니다. - 즉, 수거한 규격(용량)미달의 Chip(반도체)을 원형 그대로 이용하여 다시 원래 목적의 제품(용량이 작은 반도체)을 생산하는 경우라면 폐기물에 해당하지 않는다 할 것입니다. - 다만, 외주업체에 공급하는 규격미달 Chip 중 그 일부만 원래 목적의 제품 으로 생산하고 대부분을 폐기하는 경우라면 폐기물로 보아야 할 것입니다."
+      },
+      "facts": [
+        {
+          "case_id": "ENV10-P153",
+          "fact": "process",
+          "value": "반도체 생산과정",
+          "quote": "반도체 생산과정"
+        },
+        {
+          "case_id": "ENV10-P153",
+          "fact": "material",
+          "value": "규격미달 Chip",
+          "quote": "규격미달 Chip"
+        },
+        {
+          "case_id": "ENV10-P153",
+          "fact": "form",
+          "value": "조각·러너·불량품",
+          "quote": "규격미달 Chip"
+        },
+        {
+          "case_id": "ENV10-P153",
+          "fact": "is_waste_claim",
+          "value": "부산물",
+          "quote": "Chip이나 부산물"
+        }
+      ]
+    },
+    {
+      "raw": {
+        "case_id": "ENV10-P175",
+        "source_id": "ENV10",
+        "doc_title": "질의회신 사례집 (환경부, 2010.11)",
+        "page_or_url": "인쇄 p.175 (PDF 193) | https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1883270&boardMasterId=232&menuId=1025",
+        "answered_on": "NOT_FOUND",
+        "agency": "환경부",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "○ 강관파이프 제조과정에서 발생하는 숏트용접시 용접똥이 발생하는데 고철업체에서는 고철성분이 없어서 무상으로 가져간다고 하는데 동 물질이 폐기물에 해당 되는지? 아니면 고철로 처리해도 되는지?",
+        "answer_quote": "○ 비산우려가 있는 용접잔재물ㆍ산화철 또는 철스케일 등은 고철에 해당 하지 않습니다. - 이러한 폐기물은 폐기물관리법 제18조의 규정에 의거 배출자 스스로 처리하거나, 같은 법 제25조 및 제46조의 규정에 따라 폐기물처리업 허가를 받은 자 또는 재활용신고를 한 자에게 위탁처리하여야 합니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "원주지방환경청 2026-08-11 환경분야별 질의회신 사례집 첨부 1 / 기존 보유본 / 폐산·폐알칼리·폐합성수지·폐유기용제·폐기물 해당 여부 본문 검색",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "answer": {
+        "case_id": "ENV10-P175",
+        "answer_type": "OTHER",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "",
+        "answer_quote": "○ 비산우려가 있는 용접잔재물ㆍ산화철 또는 철스케일 등은 고철에 해당 하지 않습니다. - 이러한 폐기물은 폐기물관리법 제18조의 규정에 의거 배출자 스스로 처리하거나, 같은 법 제25조 및 제46조의 규정에 따라 폐기물처리업 허가를 받은 자 또는 재활용신고를 한 자에게 위탁처리하여야 합니다."
+      },
+      "facts": [
+        {
+          "case_id": "ENV10-P175",
+          "fact": "process",
+          "value": "강관파이프 제조과정",
+          "quote": "강관파이프 제조과정"
+        },
+        {
+          "case_id": "ENV10-P175",
+          "fact": "process",
+          "value": "숏트용접",
+          "quote": "숏트용접시"
+        },
+        {
+          "case_id": "ENV10-P175",
+          "fact": "material",
+          "value": "용접똥",
+          "quote": "용접똥이 발생"
+        },
+        {
+          "case_id": "ENV10-P175",
+          "fact": "other",
+          "value": "무상으로 가져간다",
+          "quote": "무상으로 가져간다고"
+        }
+      ]
+    },
+    {
+      "raw": {
+        "case_id": "ENV10-P229",
+        "source_id": "ENV10",
+        "doc_title": "질의회신 사례집 (환경부, 2010.11)",
+        "page_or_url": "인쇄 p.229 (PDF 247) | https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1883270&boardMasterId=232&menuId=1025",
+        "answered_on": "NOT_FOUND",
+        "agency": "환경부",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "○ 폐유기용제를 재활용하는 업체로써 폐유와 폐유기용제의 혼합 시 폐유 또는 폐용제의 처리기준이 있는지?",
+        "answer_quote": "○ 두 종류 이상의 폐기물이 혼합된 상태로 발생되어 분리가 불가능한 폐기물은 보다 엄격한 수집ㆍ운반ㆍ보관ㆍ처리기준을 가진 폐기물의 처리방법에 따라야 합니다. - 따라서 폐유와 폐유기용제가 혼합되어 배출되는 경우 폐유기용제로 처리하여야 합니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "원주지방환경청 2026-08-11 환경분야별 질의회신 사례집 첨부 1 / 기존 보유본 / 폐산·폐알칼리·폐합성수지·폐유기용제·폐기물 해당 여부 본문 검색",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "answer": {
+        "case_id": "ENV10-P229",
+        "answer_type": "OTHER",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "",
+        "answer_quote": "○ 두 종류 이상의 폐기물이 혼합된 상태로 발생되어 분리가 불가능한 폐기물은 보다 엄격한 수집ㆍ운반ㆍ보관ㆍ처리기준을 가진 폐기물의 처리방법에 따라야 합니다. - 따라서 폐유와 폐유기용제가 혼합되어 배출되는 경우 폐유기용제로 처리하여야 합니다."
+      },
+      "facts": [
+        {
+          "case_id": "ENV10-P229",
+          "fact": "waste_family",
+          "value": "solvent",
+          "quote": "폐유기용제"
+        },
+        {
+          "case_id": "ENV10-P229",
+          "fact": "waste_family",
+          "value": "oil",
+          "quote": "폐유와 폐유기용제의 혼합"
+        },
+        {
+          "case_id": "ENV10-P229",
+          "fact": "mixed_with",
+          "value": "폐유와 폐유기용제",
+          "quote": "폐유와 폐유기용제의 혼합"
+        }
+      ]
+    },
+    {
+      "raw": {
+        "case_id": "ENV10-P245",
+        "source_id": "ENV10",
+        "doc_title": "질의회신 사례집 (환경부, 2010.11)",
+        "page_or_url": "인쇄 p.245–246 (PDF 263–264) | https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1883270&boardMasterId=232&menuId=1025",
+        "answered_on": "NOT_FOUND",
+        "agency": "환경부",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "○ 폐실리콘수지를 당사로 반입하여 그 안에 섞인 불순물(돌가루, 염료, 먼지 등)을 제거하는 공정을 거쳐 순수한 원래의 성분(우리 몸에 무해 하고 우리 생활에 유익함)을 가진 제품을 만드는 (폐기물 재활용) 행위를 하고자 하는 업체입니다. ○ 폐기물관리법 시행령 별표1(지정폐기물의 종류) 제1호 ‘가’목 2)에 “폐합성수지(고체상태의 것은 제외한다)”라고 되어 있는데 여기서 “고체상태”라고 판단하는 기준은. - 외관상으로 유동성(흐름성) 유무인지? 아니면 수분함량 85% 초과 여부로 하는 것인지? ○ 폐기물관리법 시행규칙 별표5(폐기물의 수집ㆍ운반ㆍ보관ㆍ처리에 관한 구체적 기준 및 방법) 제3호 ‘나’목 3)에 “액상(수분함량이 85%를 초과하는 것을 말한다. 이하 같다)의 사업장일반폐기물은 누출의 우려가 없는 전용의 탱크ㆍ용기ㆍ파이프 또는 이와 비슷한 설비를 사용하여야 한다.”라는 규정이 있는 바, 이것은 “수분함량이 85% 이하는 사업장 일반폐기물이 아니라”는 의미인지?",
+        "answer_quote": "○ 폐기물관리법 시행령 별표1 지정폐기물의 종류 중 폐합성수지의 경우 “고체상태의 것은 제외한다.”라고 규정하고 있으므로 고체상태 외의 폐합성수지는 지정폐기물로 보아야 합니다. - 즉, 고체상태라 함은 일정한 모양과 부피가 있으며 쉽게 변형되지 않는 물질(예 : 나무, 돌, 쇠 등)을 말하므로, 유동성이 있거나 액체 상태인 경우와 겔(Gel : 유동성을 잃고 약간의 탄성과 견고성을 가진 고체나 반고체의 상태로 굳어진 물질)상태의 폐합성수지는 지정폐기물 에 해당한다고 하겠습니다. - 폐실리콘수지는 수분이 함유되지 않아 수분의 함량으로 액․고상을 판단할 수 없으며, 상기의 기준에 따라 액․고상을 판단하여야 할 것입니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "원주지방환경청 2026-08-11 환경분야별 질의회신 사례집 첨부 1 / 기존 보유본 / 폐산·폐알칼리·폐합성수지·폐유기용제·폐기물 해당 여부 본문 검색",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "answer": {
+        "case_id": "ENV10-P245",
+        "answer_type": "DESIGNATED_ONLY",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "고체상태 외의 폐합성수지는 지정폐기물로 보아야 합니다.",
+        "answer_quote": "○ 폐기물관리법 시행령 별표1 지정폐기물의 종류 중 폐합성수지의 경우 “고체상태의 것은 제외한다.”라고 규정하고 있으므로 고체상태 외의 폐합성수지는 지정폐기물로 보아야 합니다. - 즉, 고체상태라 함은 일정한 모양과 부피가 있으며 쉽게 변형되지 않는 물질(예 : 나무, 돌, 쇠 등)을 말하므로, 유동성이 있거나 액체 상태인 경우와 겔(Gel : 유동성을 잃고 약간의 탄성과 견고성을 가진 고체나 반고체의 상태로 굳어진 물질)상태의 폐합성수지는 지정폐기물 에 해당한다고 하겠습니다. - 폐실리콘수지는 수분이 함유되지 않아 수분의 함량으로 액․고상을 판단할 수 없으며, 상기의 기준에 따라 액․고상을 판단하여야 할 것입니다."
+      },
+      "facts": [
+        {
+          "case_id": "ENV10-P245",
+          "fact": "waste_family",
+          "value": "plastic",
+          "quote": "폐실리콘수지"
+        },
+        {
+          "case_id": "ENV10-P245",
+          "fact": "material",
+          "value": "폐실리콘수지",
+          "quote": "폐실리콘수지를 당사로 반입"
+        },
+        {
+          "case_id": "ENV10-P245",
+          "fact": "contamination",
+          "value": "돌가루, 염료, 먼지 등",
+          "quote": "불순물(돌가루, 염료, 먼지 등)"
+        },
+        {
+          "case_id": "ENV10-P245",
+          "fact": "process",
+          "value": "불순물을 제거하는 공정",
+          "quote": "불순물(돌가루, 염료, 먼지 등)을 제거하는 공정"
+        }
+      ]
+    },
+    {
+      "raw": {
+        "case_id": "ENV10-P447",
+        "source_id": "ENV10",
+        "doc_title": "질의회신 사례집 (환경부, 2010.11)",
+        "page_or_url": "인쇄 p.447 (PDF 465) | https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1883270&boardMasterId=232&menuId=1025",
+        "answered_on": "NOT_FOUND",
+        "agency": "환경부",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "○ 폐수배출시설에서 배출되는 액상은 폐수로 분류되어 폐수처리업자 및 폐수재이용 업자에게 위탁 처리가 가능하다고 알고 있는데, pH 2.0 이하인 폐산 및 pH 12.5 이상인 폐알칼리 액도 폐수처리업, 폐수재 이용 업체에 위탁 처리가 가능한지?",
+        "answer_quote": "○ 수질 및 수생태계 보전에 관한 법률 시행규칙 제3조에 의하여 폐수 배출시설에서 배출되는 폐산, 폐알카리는 수소이온 농도(pH)에 관계 없이 폐수로 분류하고 있으며, - 자체 폐수처리시설에서 처리하거나, 폐수처리업자에게 위탁하여 처리할 수 있습니다. - 참고로 폐수의 성상이 지정폐기물에 해당하는 경우(폐산 pH 2.0 이하, 폐알칼리 pH 12.5 이상)에는 지정폐기물처리업자에게도 위탁처리가 가능합니다. ○ 그리고 폐수배출시설이 아닌 사업장에서 배출되는 폐산, 폐알카리는 폐기물관리법에 의하여 폐기물처리업자로 하여금 적정처리하여야 할 것입니다.",
+        "set": "MAIN",
+        "related_codes_mentioned": "",
+        "searched_via": "원주지방환경청 2026-08-11 환경분야별 질의회신 사례집 첨부 1 / 기존 보유본 / 폐산·폐알칼리·폐합성수지·폐유기용제·폐기물 해당 여부 본문 검색",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "answer": {
+        "case_id": "ENV10-P447",
+        "answer_type": "OTHER",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "",
+        "answer_quote": "○ 수질 및 수생태계 보전에 관한 법률 시행규칙 제3조에 의하여 폐수 배출시설에서 배출되는 폐산, 폐알카리는 수소이온 농도(pH)에 관계 없이 폐수로 분류하고 있으며, - 자체 폐수처리시설에서 처리하거나, 폐수처리업자에게 위탁하여 처리할 수 있습니다. - 참고로 폐수의 성상이 지정폐기물에 해당하는 경우(폐산 pH 2.0 이하, 폐알칼리 pH 12.5 이상)에는 지정폐기물처리업자에게도 위탁처리가 가능합니다. ○ 그리고 폐수배출시설이 아닌 사업장에서 배출되는 폐산, 폐알카리는 폐기물관리법에 의하여 폐기물처리업자로 하여금 적정처리하여야 할 것입니다."
+      },
+      "facts": [
+        {
+          "case_id": "ENV10-P447",
+          "fact": "process",
+          "value": "폐수배출시설",
+          "quote": "폐수배출시설에서 배출"
+        },
+        {
+          "case_id": "ENV10-P447",
+          "fact": "physical_state",
+          "value": "liquid",
+          "quote": "배출되는 액상"
+        },
+        {
+          "case_id": "ENV10-P447",
+          "fact": "waste_family",
+          "value": "acid",
+          "quote": "pH 2.0 이하인 폐산"
+        },
+        {
+          "case_id": "ENV10-P447",
+          "fact": "waste_family",
+          "value": "alkali",
+          "quote": "pH 12.5 이상인 폐알칼리 액"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "환경부 2010.11 사례집은 기존 PDF를 사용했다. 인쇄 p.150, 153, 175, 229, 245–246, 447의 질의·답변 전체와 회신이 인용한 당시 제도를 보존했다. 개별 회신일·법령 판은 원문에서 확인하지 못했다."
+  ],
+  "pairs": []
+}

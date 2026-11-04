@@ -1,0 +1,760 @@
+{
+  "cases": [
+    {
+      "raw": {
+        "case_id": "WONJU26-01",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.1, PDF p.7, 사례 1",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "(질의 1) 폐황산이 포함된 2차 폐축전지’의 무게의 기준이 폐축전지의 무게인지 폐축전지에 포함된 폐황산만의 무게인지 궁금합니다.\n\n(질의 2) 위에 해당하는 폐기물이 연간 지속적으로 배출되지 않고 연 1회 일시적으로 배출될 경우 해당 배출량을 12개월로 나누어 월 평균 배출량으로 보는지 궁금합니다.\n\n(질의 3) 법 제17조제5항에 따르면 지정폐기물 처리계획을 확인받아야 하는 경우 “폐기물분석전문기관이 작성한 폐기물분석결과서”를 제출하게 되어 있습니다. 2차 폐축전지는 구성성분이 규정되어 있는 제품(기성품)인데 축전지를 배출할 때에도 폐기물전문분석기관에 분석을 맡겨야 하는지, 아니면 축전지 내의 구성성분을 확인할 수 있는 증빙자료로 대체할 수 있는지 질의드립니다.",
+        "answer_quote": "(답변 1) 「폐기물관리법 시행령」 별표1(지정폐기물의 종류) 및 동법 시행규칙 별표 4(폐기물의 종류별 세부분류)에 따라 폐황산이 포함된 2차폐축전지는 지정폐기물에 해당합니다. 따라서 귀하의 사업장에서 폐황산이 포함된 2차폐축전지를 배출할 경우「폐기물관리법 시행규칙」제18조의2 제1항에서 규정하는 지정폐기물의 무게는 폐축전지를 기준으로 합니다.\n\n(답변 2) 폐기물 발생량 산정 시 조업기간을 고려하여 월 평균 배출량을 산정하나, 일련의 공사나 작업 등으로 일시적으로 폐기물이 발생하는 경우에는 실제 발생하는 월을 기준으로 폐기물 평균 발생량을 산정합니다.\n\n(답변 3) ‘사업장폐기물 배출자신고 및 처리계획 확인 업무처리지침’(환경부 예규 제602호, ‘17.4.17)에 의하면 불가피한 사유로 분석이 불가능하여 성분분석을 실시할 수 없는 경우, 폐기물분석결과서는 물질안전보건자료(MSDS) 등 해당 물질의 성분 및 유해성을 입증할 수 있는 서류로 대체할 수 있습니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-01",
+          "fact": "material",
+          "value": "황산",
+          "quote": "폐황산이 포함된 2차 폐축전지"
+        },
+        {
+          "case_id": "WONJU26-01",
+          "fact": "form",
+          "value": "2차 폐축전지",
+          "quote": "폐황산이 포함된 2차 폐축전지"
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-01",
+        "answer_type": "DESIGNATED_ONLY",
+        "answered_code": "",
+        "answered_designated": "Y",
+        "conditions_quote": "",
+        "answer_quote": "(답변 1) 「폐기물관리법 시행령」 별표1(지정폐기물의 종류) 및 동법 시행규칙 별표 4(폐기물의 종류별 세부분류)에 따라 폐황산이 포함된 2차폐축전지는 지정폐기물에 해당합니다. 따라서 귀하의 사업장에서 폐황산이 포함된 2차폐축전지를 배출할 경우「폐기물관리법 시행규칙」제18조의2 제1항에서 규정하는 지정폐기물의 무게는 폐축전지를 기준으로 합니다.\n\n(답변 2) 폐기물 발생량 산정 시 조업기간을 고려하여 월 평균 배출량을 산정하나, 일련의 공사나 작업 등으로 일시적으로 폐기물이 발생하는 경우에는 실제 발생하는 월을 기준으로 폐기물 평균 발생량을 산정합니다.\n\n(답변 3) ‘사업장폐기물 배출자신고 및 처리계획 확인 업무처리지침’(환경부 예규 제602호, ‘17.4.17)에 의하면 불가피한 사유로 분석이 불가능하여 성분분석을 실시할 수 없는 경우, 폐기물분석결과서는 물질안전보건자료(MSDS) 등 해당 물질의 성분 및 유해성을 입증할 수 있는 서류로 대체할 수 있습니다."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-03",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.3, PDF p.9, 사례 3",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "비철금속인 구리스크랩을 ‘그밖에 공정오니(01-02-99)’로 처리하고 있습니다. 비철금속인 구리 스크랩이 구리 함량이 높다는 이유로 지정폐기물로 처리를 해야합니까?",
+        "answer_quote": "「폐기물관리법」시행규칙 별표1 지정폐기물에 함유된 유해물질 제1호나목에 의하면 오니류 폐기물 중 구리 또는 그 화합물 함량이 3ppm 이상인 것은 지정폐기물로 분류됩니다.\n\n따라서 귀하의 사업장 공정오니 중 구리(화합물) 함량이 이 기준범위에 들어오면 지정폐기물로 처리해야 하고, 「폐기물관리법」제17조제5항 및 동법 시행규칙 제18조의2(지정폐기물 처리계획의 확인) 규정에 따라 오니를 월평균 500킬로그램 이상 배출한다면 폐기물을 배출하기 전에 폐기물처리계획서를 관할 환경청에 제출하여 확인 받아야 합니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "01-02-99",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-03",
+          "fact": "waste_family",
+          "value": "metal",
+          "quote": "비철금속인 구리스크랩"
+        },
+        {
+          "case_id": "WONJU26-03",
+          "fact": "material",
+          "value": "구리",
+          "quote": "비철금속인 구리스크랩"
+        },
+        {
+          "case_id": "WONJU26-03",
+          "fact": "form",
+          "value": "구리스크랩",
+          "quote": "비철금속인 구리스크랩"
+        },
+        {
+          "case_id": "WONJU26-03",
+          "fact": "other",
+          "value": "‘그밖에 공정오니(01-02-99)’로 처리",
+          "quote": "‘그밖에 공정오니(01-02-99)’로 처리하고 있습니다."
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-03",
+        "answer_type": "TEST_REQUIRED",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "오니류 폐기물 중 구리 또는 그 화합물 함량이 3ppm 이상인 것은 지정폐기물로 분류됩니다.\n\n귀하의 사업장 공정오니 중 구리(화합물) 함량이 이 기준범위에 들어오면 지정폐기물로 처리해야 하고",
+        "answer_quote": "「폐기물관리법」시행규칙 별표1 지정폐기물에 함유된 유해물질 제1호나목에 의하면 오니류 폐기물 중 구리 또는 그 화합물 함량이 3ppm 이상인 것은 지정폐기물로 분류됩니다.\n\n따라서 귀하의 사업장 공정오니 중 구리(화합물) 함량이 이 기준범위에 들어오면 지정폐기물로 처리해야 하고, 「폐기물관리법」제17조제5항 및 동법 시행규칙 제18조의2(지정폐기물 처리계획의 확인) 규정에 따라 오니를 월평균 500킬로그램 이상 배출한다면 폐기물을 배출하기 전에 폐기물처리계획서를 관할 환경청에 제출하여 확인 받아야 합니다."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-12",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.12, PDF p.18, 사례 12",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "에탄올을 사용하고 난후 20L 철재 에탄올 용기가 남게 됩니다. 이 용기를 [폐기물관리법 시행규칙 별표1 지정폐기물에 함유된 유해물질]에 대한 항목을 분석하여 기준치 이하일 경우에는 고철로 재활용하여 처리함이 적법한지 확인 요청드립니다. 함량 기준 없이 유기용제 용기였다면, 무조건 지정폐기물인지가 궁금합니다.",
+        "answer_quote": "폐유기용제는 지정폐기물에 해당(「폐기물관리법 시행령」[별표1])하고 이러한 지정폐기물이 묻어있는 용기도 지정폐기물로 분류됩니다.\n\n만약 용기를 세척하여 유기용제가 완전히 제거된다면 용기의 재질에 따라 사업장일반폐기물로 분류할 수 있을 것입니다. 다만, 이 경우 해당 사업장에 수질오염방지시설이 설치되어 있어야 할 것이고, 관할기관(지자체)에서 그 처리를 인정받아야 합니다.(「폐기물관리법 시행규칙」제10조)",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-12",
+          "fact": "waste_family",
+          "value": "metal",
+          "quote": "철재 에탄올 용기"
+        },
+        {
+          "case_id": "WONJU26-12",
+          "fact": "material",
+          "value": "철",
+          "quote": "20L 철재 에탄올 용기"
+        },
+        {
+          "case_id": "WONJU26-12",
+          "fact": "form",
+          "value": "용기·드럼",
+          "quote": "에탄올을 사용하고 난후 20L 철재 에탄올 용기가 남게 됩니다."
+        },
+        {
+          "case_id": "WONJU26-12",
+          "fact": "other",
+          "value": "에탄올을 사용하고 난후",
+          "quote": "에탄올을 사용하고 난후"
+        },
+        {
+          "case_id": "WONJU26-12",
+          "fact": "other",
+          "value": "20L",
+          "quote": "20L 철재 에탄올 용기"
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-12",
+        "answer_type": "DESIGNATED_ONLY",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "이러한 지정폐기물이 묻어있는 용기도 지정폐기물로 분류됩니다.\n\n만약 용기를 세척하여 유기용제가 완전히 제거된다면 용기의 재질에 따라 사업장일반폐기물로 분류할 수 있을 것입니다. 다만, 이 경우 해당 사업장에 수질오염방지시설이 설치되어 있어야 할 것이고, 관할기관(지자체)에서 그 처리를 인정받아야 합니다.",
+        "answer_quote": "폐유기용제는 지정폐기물에 해당(「폐기물관리법 시행령」[별표1])하고 이러한 지정폐기물이 묻어있는 용기도 지정폐기물로 분류됩니다.\n\n만약 용기를 세척하여 유기용제가 완전히 제거된다면 용기의 재질에 따라 사업장일반폐기물로 분류할 수 있을 것입니다. 다만, 이 경우 해당 사업장에 수질오염방지시설이 설치되어 있어야 할 것이고, 관할기관(지자체)에서 그 처리를 인정받아야 합니다.(「폐기물관리법 시행규칙」제10조)"
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-18",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.18, PDF p.24, 사례 18",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "소량의 폐유가 남아있는 드럼통은 고철로 재활용이 되는지, 분철이나, 목재 파렛트에 묻은 폐유 지정폐기물로 처리해야하는지 궁금합니다.",
+        "answer_quote": "폐유 잔량이 남아있거나 오염된 빈 용기, 스크랩, 파렛트 등은 모두 지정폐기물인 폐유(고상)로 분류되고 이를 영업 대상 폐기물로 허가받은 처리업체에 위탁해서 처리해야 합니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-18",
+          "fact": "form",
+          "value": "용기·드럼",
+          "quote": "소량의 폐유가 남아있는 드럼통"
+        },
+        {
+          "case_id": "WONJU26-18",
+          "fact": "contamination",
+          "value": "기름",
+          "quote": "소량의 폐유가 남아있는 드럼통"
+        },
+        {
+          "case_id": "WONJU26-18",
+          "fact": "other",
+          "value": "분철이나, 목재 파렛트에 묻은 폐유",
+          "quote": "분철이나, 목재 파렛트에 묻은 폐유"
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-18",
+        "answer_type": "DESIGNATED_ONLY",
+        "answered_code": "",
+        "answered_designated": "Y",
+        "conditions_quote": "폐유 잔량이 남아있거나 오염된 빈 용기, 스크랩, 파렛트 등은 모두 지정폐기물인 폐유(고상)로 분류되고",
+        "answer_quote": "폐유 잔량이 남아있거나 오염된 빈 용기, 스크랩, 파렛트 등은 모두 지정폐기물인 폐유(고상)로 분류되고 이를 영업 대상 폐기물로 허가받은 처리업체에 위탁해서 처리해야 합니다."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-27",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.27, PDF p.33, 사례 27",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "당사에서 제조된 화학물질(액상)을 금속재질의 용기에 담고 이를 고객사에 납품후 사용이 완료된 금속재질의 용기는 다시 회수하여 용기내의 잔류물은 폐기물처리업체에 위탁하고 있습니다. 고객사에서 납품한 용기를 회수할때 잔류물은 폐기처리를 하므로 폐기물수집운반업을 보유한 차량으로 이동해야하는지를 문의드립니다.",
+        "answer_quote": "업체에서 귀 사가 판매한 용액을 사용하고 폐액과 폐액이 묻은 용기가 발생한 경우 업체가 폐기물 배출자가 되어 사업장폐기물 배출자의 의무(「폐기물관리법」제17조)를 이행해야 합니다.\n\n사업장폐기물 배출자는 그의 사업장에서 발생하는 폐기물을 스스로 처리하거나 폐기물처리업 허가를 받은 자, 폐기물처리 신고자 등에게 위탁하여 처리해야 하고(동법 제18조제1항), 폐기물을 적정하게 처분, 재활용 또는 보관할 수 있는 장소 외의 장소로 운반해서는 안됩니다.(동법 시행령 제7조제1항 제3호)\n\n따라서 귀 사에서 폐액과 폐액이 묻은 용기를 수거하고 사업장폐기물 배출자가 되어 폐액 등을 수집·운반하거나, 위탁처리하는 것은 현행「폐기물관리법」상 허용될 수 없을 것으로 판단됩니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-27",
+          "fact": "material",
+          "value": "금속재질",
+          "quote": "금속재질의 용기"
+        },
+        {
+          "case_id": "WONJU26-27",
+          "fact": "form",
+          "value": "용기·드럼",
+          "quote": "금속재질의 용기"
+        },
+        {
+          "case_id": "WONJU26-27",
+          "fact": "other",
+          "value": "화학물질(액상)",
+          "quote": "제조된 화학물질(액상)을 금속재질의 용기에 담고"
+        },
+        {
+          "case_id": "WONJU26-27",
+          "fact": "other",
+          "value": "용기는 다시 회수",
+          "quote": "금속재질의 용기는 다시 회수하여"
+        },
+        {
+          "case_id": "WONJU26-27",
+          "fact": "other",
+          "value": "용기내의 잔류물은 폐기물처리업체에 위탁",
+          "quote": "용기내의 잔류물은 폐기물처리업체에 위탁하고 있습니다."
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-27",
+        "answer_type": "OTHER",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "",
+        "answer_quote": "업체에서 귀 사가 판매한 용액을 사용하고 폐액과 폐액이 묻은 용기가 발생한 경우 업체가 폐기물 배출자가 되어 사업장폐기물 배출자의 의무(「폐기물관리법」제17조)를 이행해야 합니다.\n\n사업장폐기물 배출자는 그의 사업장에서 발생하는 폐기물을 스스로 처리하거나 폐기물처리업 허가를 받은 자, 폐기물처리 신고자 등에게 위탁하여 처리해야 하고(동법 제18조제1항), 폐기물을 적정하게 처분, 재활용 또는 보관할 수 있는 장소 외의 장소로 운반해서는 안됩니다.(동법 시행령 제7조제1항 제3호)\n\n따라서 귀 사에서 폐액과 폐액이 묻은 용기를 수거하고 사업장폐기물 배출자가 되어 폐액 등을 수집·운반하거나, 위탁처리하는 것은 현행「폐기물관리법」상 허용될 수 없을 것으로 판단됩니다."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-36",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.36, PDF p.42, 사례 36",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "폐유를 담아두는 집유조엔 슬러지가 쌓이게 되는데 이 슬러지를 액상으로 구분하는지 고상으로 구분하는지 알고싶습니다.",
+        "answer_quote": "폐기물의 성상은 「폐기물관리법 시행규칙」 제10조제1호에 따라 수분함량이 85%를 초과하는 것은 액상, 고형물함량이 15% 이상인 것은 고상으로 구분되고, 지정폐기물을 함유한 폐용기류와 절연유를 함유한 폐변압기는 기타 성상으로 구분됩니다.[‘사업장폐기물 배출자신고 및 처리계획 확인 업무처리지침’(환경부예규 제686호, 2021.3.30.)]\n\n따라서, 질의하신 슬러지가 고형물 함량이 15퍼센트 미만이거나, 흘러내리는 정도의 유동성을 갖고 있는 경우 유출로 인한 환경오염 사고 등을 예방하기 위해 액상 폐기물로 관리하여야 할 것입니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-36",
+          "fact": "physical_state",
+          "value": "sludge",
+          "quote": "집유조엔 슬러지가 쌓이게 되는데"
+        },
+        {
+          "case_id": "WONJU26-36",
+          "fact": "other",
+          "value": "폐유를 담아두는 집유조",
+          "quote": "폐유를 담아두는 집유조"
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-36",
+        "answer_type": "OTHER",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "질의하신 슬러지가 고형물 함량이 15퍼센트 미만이거나, 흘러내리는 정도의 유동성을 갖고 있는 경우 유출로 인한 환경오염 사고 등을 예방하기 위해 액상 폐기물로 관리하여야 할 것입니다.",
+        "answer_quote": "폐기물의 성상은 「폐기물관리법 시행규칙」 제10조제1호에 따라 수분함량이 85%를 초과하는 것은 액상, 고형물함량이 15% 이상인 것은 고상으로 구분되고, 지정폐기물을 함유한 폐용기류와 절연유를 함유한 폐변압기는 기타 성상으로 구분됩니다.[‘사업장폐기물 배출자신고 및 처리계획 확인 업무처리지침’(환경부예규 제686호, 2021.3.30.)]\n\n따라서, 질의하신 슬러지가 고형물 함량이 15퍼센트 미만이거나, 흘러내리는 정도의 유동성을 갖고 있는 경우 유출로 인한 환경오염 사고 등을 예방하기 위해 액상 폐기물로 관리하여야 할 것입니다."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-37",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.37, PDF p.43, 사례 37",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "유리식각공정오니 매립 가능 여부에 문의 하고자 합니다. 유리식각공정오니의 경우 지정폐기물 01-02-02 유리식각공정오니와 사업장폐기물 51-02-07 유리식각공정오니로 구분되어 있는데 ph가 ph1 또는 ph2인 강산일 경우 중화처리 없이 매립이 가능한지 궁금 합니다.",
+        "answer_quote": "유리식각공정에서 발생한 무기성공정오니는 유해물질 함유량에 따라 지정폐기물과 사업장일반폐기물로 분류될 수 있으며,\n\n사업장일반폐기물은 소각 또는 수분함량 85%이하로 탈수‧건조한 후 관리형매립시설 에 매립하고, 지정폐기물은 소각, 고형화 처분, 수분함량 85%이하로 하여, 안정화 처분, 관리형매립시설에 매립하도록 규정되어 있습니다.(「폐기물관리법 시행규칙」[별표5])\n\n다만, 강산의 유리식각 잔재물이 포함된 무기성 공정오니는「화재, 폭발 또는 유독가스 발생우려 폐기물의 종류 등에 관한 고시」에 따라 폐산에 준하여 관리하고, 매립시설이 나 침출수 처리시설의 성능에 지장을 초래하지 않도록 중화 등의 방법으로 중간처분하여 매립하는 것이 타당할 것으로 판단됩니다.",
+        "set": "OUT_OF_SCOPE",
+        "related_codes_mentioned": "01-02-02 | 51-02-07",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-37",
+          "fact": "waste_family",
+          "value": "sludge",
+          "quote": "유리식각공정오니"
+        },
+        {
+          "case_id": "WONJU26-37",
+          "fact": "physical_state",
+          "value": "sludge",
+          "quote": "유리식각공정오니"
+        },
+        {
+          "case_id": "WONJU26-37",
+          "fact": "process",
+          "value": "유리식각공정",
+          "quote": "유리식각공정오니"
+        },
+        {
+          "case_id": "WONJU26-37",
+          "fact": "other",
+          "value": "ph가 ph1 또는 ph2인 강산일 경우",
+          "quote": "ph가 ph1 또는 ph2인 강산일 경우"
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-37",
+        "answer_type": "TEST_REQUIRED",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "유해물질 함유량에 따라 지정폐기물과 사업장일반폐기물로 분류될 수 있으며",
+        "answer_quote": "유리식각공정에서 발생한 무기성공정오니는 유해물질 함유량에 따라 지정폐기물과 사업장일반폐기물로 분류될 수 있으며,\n\n사업장일반폐기물은 소각 또는 수분함량 85%이하로 탈수‧건조한 후 관리형매립시설 에 매립하고, 지정폐기물은 소각, 고형화 처분, 수분함량 85%이하로 하여, 안정화 처분, 관리형매립시설에 매립하도록 규정되어 있습니다.(「폐기물관리법 시행규칙」[별표5])\n\n다만, 강산의 유리식각 잔재물이 포함된 무기성 공정오니는「화재, 폭발 또는 유독가스 발생우려 폐기물의 종류 등에 관한 고시」에 따라 폐산에 준하여 관리하고, 매립시설이 나 침출수 처리시설의 성능에 지장을 초래하지 않도록 중화 등의 방법으로 중간처분하여 매립하는 것이 타당할 것으로 판단됩니다."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-41",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.41, PDF p.47, 사례 41",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "사업장 폐기물 배출 시 도장시설의 집진기에 포집된 폐페인트 가루는 배출자 신고 시, 폐기물 세부분류상 일반폐기물(7항목 기준이내) 분진(집진기에서 포집된것으로 한정)으로 폐기물 배출자 신고를 해야 하는지 지정폐기물 폐페인트로 폐기물 처리계획 확인을 받아야 하는지 질의 드립니다.",
+        "answer_quote": "귀하께서 질의하신 도장시설의 집진기가 「대기환경보전법」에 따른 대기오염 방지시설에 해당한다면, 해당 대기오염 방지시설에서 포집된 물질이 「폐기물관리법」에 따른 유해물질 함유기준 이상인 경우에는 지정폐기물(분진)에 해당합니다.\n\n아울러, 「폐기물관리법」 제17조제5항 및 같은 법 시행규칙 제18조의2에 따라 지정폐기물을 배출하는 사업자는 지정폐기물을 처리하기 전에 폐기물처리계획서, 같은 법 제17조의2제1항에 따른 폐기물분석전문기관이 작성한 폐기물분석결과서, 지정폐기물 처리를 위탁하는 경우에는 수탁처리자의 수탁확인서를 유역(지방)환경청에 제출하여 확인받아야 합니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-41",
+          "fact": "process",
+          "value": "도장시설의 집진기에 포집",
+          "quote": "도장시설의 집진기에 포집된 폐페인트 가루"
+        },
+        {
+          "case_id": "WONJU26-41",
+          "fact": "material",
+          "value": "폐페인트",
+          "quote": "폐페인트 가루"
+        },
+        {
+          "case_id": "WONJU26-41",
+          "fact": "form",
+          "value": "가루",
+          "quote": "폐페인트 가루"
+        },
+        {
+          "case_id": "WONJU26-41",
+          "fact": "other",
+          "value": "일반폐기물(7항목 기준이내)",
+          "quote": "일반폐기물(7항목 기준이내)"
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-41",
+        "answer_type": "TEST_REQUIRED",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "도장시설의 집진기가 「대기환경보전법」에 따른 대기오염 방지시설에 해당한다면, 해당 대기오염 방지시설에서 포집된 물질이 「폐기물관리법」에 따른 유해물질 함유기준 이상인 경우에는 지정폐기물(분진)에 해당합니다.",
+        "answer_quote": "귀하께서 질의하신 도장시설의 집진기가 「대기환경보전법」에 따른 대기오염 방지시설에 해당한다면, 해당 대기오염 방지시설에서 포집된 물질이 「폐기물관리법」에 따른 유해물질 함유기준 이상인 경우에는 지정폐기물(분진)에 해당합니다.\n\n아울러, 「폐기물관리법」 제17조제5항 및 같은 법 시행규칙 제18조의2에 따라 지정폐기물을 배출하는 사업자는 지정폐기물을 처리하기 전에 폐기물처리계획서, 같은 법 제17조의2제1항에 따른 폐기물분석전문기관이 작성한 폐기물분석결과서, 지정폐기물 처리를 위탁하는 경우에는 수탁처리자의 수탁확인서를 유역(지방)환경청에 제출하여 확인받아야 합니다."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-42",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.42, PDF p.48, 사례 42",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "(질의 1) 동물실험에 따른 동물 마취 시 사용하는 갈색 유리병의 마취제를 폐기하는 경우 병리계에 해당하는지 손상성에 해당하는지 궁금합니다.\n\n(질의 2) 내용물을 씻어내어 실험실 폐수로 폐기한 후, 내용물이 남아있지 않은 유리병은 생활폐기물로 분리배출 가능한지 궁금합니다.",
+        "answer_quote": "의료폐기물은 폐기물관리법 시행규칙 [별표3]의 의료폐기물 발생 의료기관 및 시험·검사기관 등에서 발생하는 것으로 한정됩니다.\n\n따라서, 귀 기관이 의료폐기물 발생기관에 해당하고, 질의하신 마취제가 폐기물관리법 시행령 [별표2]의 폐백신, 폐항암제, 폐화학치료제에 해당한다면 마취제가 담겨있던 유리병은 의료폐기물(생물화학폐기물)로 분류됩니다.\n\n또한, 마취제가 생물‧화학폐기물에 해당하지 않더라도 유리병이 동물 실험 중 혈액·체액·분비물·배설물 등 의료폐기물과 혼합되거나 접촉된 경우 해당 의료폐기물과 같은 폐기물로 처리하여야 합니다.\n\n아울러, 기업부설연구소가 의료폐기물 발생기관 및 시험·검사기관에 해당하지 않고, 「폐기물관리법 시행령」 제2조에 따른 사업장에 해당한다면, 마취제 성분에 따라 지정폐기물 또는 사업장일반폐기물로 분류될 수 있으며,\n\n지정폐기물을 보관하던 용기는 용기 내 지정폐기물의 잔량이 남아 있거나 묻어 있는 경우 해당 지정폐기물로 분류해야 하나, 세척 등을 통해 지정폐기물 성분이 완전히 제거된다면 재질에 따라 사업장일반폐기물로 분류할 수 있을 것입니다.\n\n다만, 이 경우 해당 사업장에 수질오염방지시설이 설치되어 있어야 할 것이고, 관할 기관에서 그 처리를 인정받아야 합니다.(「폐기물관리법 시행규칙」 제10조)",
+        "set": "OUT_OF_SCOPE",
+        "related_codes_mentioned": "",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-42",
+          "fact": "form",
+          "value": "용기·드럼",
+          "quote": "갈색 유리병의 마취제"
+        },
+        {
+          "case_id": "WONJU26-42",
+          "fact": "material",
+          "value": "유리",
+          "quote": "갈색 유리병"
+        },
+        {
+          "case_id": "WONJU26-42",
+          "fact": "process",
+          "value": "동물실험에 따른 동물 마취",
+          "quote": "동물실험에 따른 동물 마취 시"
+        },
+        {
+          "case_id": "WONJU26-42",
+          "fact": "other",
+          "value": "내용물을 씻어내어 실험실 폐수로 폐기한 후",
+          "quote": "내용물을 씻어내어 실험실 폐수로 폐기한 후"
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-42",
+        "answer_type": "DESIGNATED_ONLY",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "귀 기관이 의료폐기물 발생기관에 해당하고, 질의하신 마취제가 폐기물관리법 시행령 [별표2]의 폐백신, 폐항암제, 폐화학치료제에 해당한다면 마취제가 담겨있던 유리병은 의료폐기물(생물화학폐기물)로 분류됩니다.\n\n또한, 마취제가 생물‧화학폐기물에 해당하지 않더라도 유리병이 동물 실험 중 혈액·체액·분비물·배설물 등 의료폐기물과 혼합되거나 접촉된 경우 해당 의료폐기물과 같은 폐기물로 처리하여야 합니다.\n\n아울러, 기업부설연구소가 의료폐기물 발생기관 및 시험·검사기관에 해당하지 않고, 「폐기물관리법 시행령」 제2조에 따른 사업장에 해당한다면, 마취제 성분에 따라 지정폐기물 또는 사업장일반폐기물로 분류될 수 있으며,\n\n지정폐기물을 보관하던 용기는 용기 내 지정폐기물의 잔량이 남아 있거나 묻어 있는 경우 해당 지정폐기물로 분류해야 하나, 세척 등을 통해 지정폐기물 성분이 완전히 제거된다면 재질에 따라 사업장일반폐기물로 분류할 수 있을 것입니다.\n\n다만, 이 경우 해당 사업장에 수질오염방지시설이 설치되어 있어야 할 것이고, 관할 기관에서 그 처리를 인정받아야 합니다.",
+        "answer_quote": "의료폐기물은 폐기물관리법 시행규칙 [별표3]의 의료폐기물 발생 의료기관 및 시험·검사기관 등에서 발생하는 것으로 한정됩니다.\n\n따라서, 귀 기관이 의료폐기물 발생기관에 해당하고, 질의하신 마취제가 폐기물관리법 시행령 [별표2]의 폐백신, 폐항암제, 폐화학치료제에 해당한다면 마취제가 담겨있던 유리병은 의료폐기물(생물화학폐기물)로 분류됩니다.\n\n또한, 마취제가 생물‧화학폐기물에 해당하지 않더라도 유리병이 동물 실험 중 혈액·체액·분비물·배설물 등 의료폐기물과 혼합되거나 접촉된 경우 해당 의료폐기물과 같은 폐기물로 처리하여야 합니다.\n\n아울러, 기업부설연구소가 의료폐기물 발생기관 및 시험·검사기관에 해당하지 않고, 「폐기물관리법 시행령」 제2조에 따른 사업장에 해당한다면, 마취제 성분에 따라 지정폐기물 또는 사업장일반폐기물로 분류될 수 있으며,\n\n지정폐기물을 보관하던 용기는 용기 내 지정폐기물의 잔량이 남아 있거나 묻어 있는 경우 해당 지정폐기물로 분류해야 하나, 세척 등을 통해 지정폐기물 성분이 완전히 제거된다면 재질에 따라 사업장일반폐기물로 분류할 수 있을 것입니다.\n\n다만, 이 경우 해당 사업장에 수질오염방지시설이 설치되어 있어야 할 것이고, 관할 기관에서 그 처리를 인정받아야 합니다.(「폐기물관리법 시행규칙」 제10조)"
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-43",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.43, PDF p.49, 사례 43",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "폐기물 조성은 폴리에틸렌 40%, 오일 60%로 되어 있습니다. 이러한 폐기물 처리 시 폐기물 종류를 지정폐기물 액상 또는 고상, 어느 폐기물 종류로 위탁 처리 해야 하는지 질의합니다.",
+        "answer_quote": "폐기물의 성상은 「폐기물관리법 시행규칙」 제10조제1호에 따라 수분함량이 85%를 초과하는 것은 액상, 고형물함량이 15% 이상인 것은 고상으로 구분되고, 지정폐기물을 함유한 폐용기류와 절연유를 함유한 폐변압기는 기타 성상으로 구분됩니다.[‘사업장폐기물 배출자신고 및 처리계획 확인 업무처리지침’(환경부예규 제686호, 2021.3.30.)]\n\n귀하께서 질의하신 폴리에틸렌 40%, 오일 60%로 구성된 시트의 오일이 지정폐기물 (폐유)에 해당한다면 오일이 묻어 있는 시트는 해당 지정폐기물로 분류되며, 수분함량 및 고형물함량 등을 고려하여 액상 또는 고상으로 구분하여야 할 것입니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-43",
+          "fact": "waste_family",
+          "value": "plastic",
+          "quote": "폴리에틸렌 40%, 오일 60%"
+        },
+        {
+          "case_id": "WONJU26-43",
+          "fact": "material",
+          "value": "PE",
+          "quote": "폴리에틸렌 40%"
+        },
+        {
+          "case_id": "WONJU26-43",
+          "fact": "oil_content_pct",
+          "value": "60",
+          "quote": "오일 60%"
+        },
+        {
+          "case_id": "WONJU26-43",
+          "fact": "mixed_with",
+          "value": "오일 60%",
+          "quote": "폴리에틸렌 40%, 오일 60%"
+        },
+        {
+          "case_id": "WONJU26-43",
+          "fact": "other",
+          "value": "폴리에틸렌 40%",
+          "quote": "폴리에틸렌 40%"
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-43",
+        "answer_type": "DESIGNATED_ONLY",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "오일이 지정폐기물 (폐유)에 해당한다면 오일이 묻어 있는 시트는 해당 지정폐기물로 분류되며, 수분함량 및 고형물함량 등을 고려하여 액상 또는 고상으로 구분하여야 할 것입니다.",
+        "answer_quote": "폐기물의 성상은 「폐기물관리법 시행규칙」 제10조제1호에 따라 수분함량이 85%를 초과하는 것은 액상, 고형물함량이 15% 이상인 것은 고상으로 구분되고, 지정폐기물을 함유한 폐용기류와 절연유를 함유한 폐변압기는 기타 성상으로 구분됩니다.[‘사업장폐기물 배출자신고 및 처리계획 확인 업무처리지침’(환경부예규 제686호, 2021.3.30.)]\n\n귀하께서 질의하신 폴리에틸렌 40%, 오일 60%로 구성된 시트의 오일이 지정폐기물 (폐유)에 해당한다면 오일이 묻어 있는 시트는 해당 지정폐기물로 분류되며, 수분함량 및 고형물함량 등을 고려하여 액상 또는 고상으로 구분하여야 할 것입니다."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-51",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.51, PDF p.57, 사례 51",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "각 종류별로 폐램프에 대한 처리가 지정폐기물에 해당되어 등기구로부터 분리하여 지정폐기물로 처리를 하여야 하는지에 대하여 각 램프종류별로 답을 주시면 감사하겠습니다.",
+        "answer_quote": "폐램프가 수은과 그 화합물을 함유하고 있다면(폐형광등 제외) 수은함유폐기물로서 지정폐기물로 처리하여야하며, 폐형광등(수은이 들어 있는 형광등 제조용 반제품인 램프 포함)이나 폐발광다이오드(LED) 조명인 경우 사업장 일반 폐기물로 분류가 가능합니다.\n\n폐기물 분류에 관한 보다 상세한 내용은 ｢폐기물 분류체계 및 분류방법 설명서(2023, 국립환경과학원)｣을 참고하시기 바랍니다.\n\n수은함유폐기물 수집·운반 및 처리업체 현황은 환경부 홈페이지에서 확인이 가능함을 알려드립니다(환경부 홈페이지 – 법령·정책 – 환경정책 – 자원순환 – 수은함유폐기물 수집·운반 및 처리업체 현황)",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-51",
+          "fact": "form",
+          "value": "폐램프",
+          "quote": "각 종류별로 폐램프"
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-51",
+        "answer_type": "DESIGNATED_ONLY",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "폐램프가 수은과 그 화합물을 함유하고 있다면(폐형광등 제외) 수은함유폐기물로서 지정폐기물로 처리하여야하며, 폐형광등(수은이 들어 있는 형광등 제조용 반제품인 램프 포함)이나 폐발광다이오드(LED) 조명인 경우 사업장 일반 폐기물로 분류가 가능합니다.",
+        "answer_quote": "폐램프가 수은과 그 화합물을 함유하고 있다면(폐형광등 제외) 수은함유폐기물로서 지정폐기물로 처리하여야하며, 폐형광등(수은이 들어 있는 형광등 제조용 반제품인 램프 포함)이나 폐발광다이오드(LED) 조명인 경우 사업장 일반 폐기물로 분류가 가능합니다.\n\n폐기물 분류에 관한 보다 상세한 내용은 ｢폐기물 분류체계 및 분류방법 설명서(2023, 국립환경과학원)｣을 참고하시기 바랍니다.\n\n수은함유폐기물 수집·운반 및 처리업체 현황은 환경부 홈페이지에서 확인이 가능함을 알려드립니다(환경부 홈페이지 – 법령·정책 – 환경정책 – 자원순환 – 수은함유폐기물 수집·운반 및 처리업체 현황)"
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-52",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.52, PDF p.58, 사례 52",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "폐수배출시설에서 발생되는 수질오염물질(크롬산 폐수)의 성상(pH2)이 [폐기물관리법] 제2조 제4호에 따른 지정폐기물에 해당이 되는 경우에는 본 수질오염물질 (크롬산폐수)은 지정폐기물 처리업체로 위탁처리해야 하는지, 아니면 폐수에 해당되어 폐수처리업체에 위탁 처리해야 하는지 알고싶습니다.",
+        "answer_quote": "귀하의 사업장에서 발생하는 크롬산 폐수가 pH 2.0이하인 액체상태의 폐기물로서 폐산(지정폐기물)인 것으로 판단되나, ｢폐기물관리법 시행규칙｣ 제10조에 따라 폐산·폐알칼리 등 액체상태의 폐기물을 ｢물환경보전법｣ 제2조제12호에 따른 수질오염방지시설 에 직접 유입하여 처리하는 경우로서 그 배출시설의 설치허가권자 또는 신고수리권자가 그 처리를 인정하는 경우라면 폐기물처리시설 외의 장소에서 폐기물 처리가 가능함을 알려드립니다.",
+        "set": "MAIN",
+        "related_codes_mentioned": "",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-52",
+          "fact": "waste_family",
+          "value": "acid",
+          "quote": "수질오염물질(크롬산 폐수)"
+        },
+        {
+          "case_id": "WONJU26-52",
+          "fact": "material",
+          "value": "크롬산",
+          "quote": "크롬산 폐수"
+        },
+        {
+          "case_id": "WONJU26-52",
+          "fact": "ph",
+          "value": "2",
+          "quote": "성상(pH2)"
+        },
+        {
+          "case_id": "WONJU26-52",
+          "fact": "process",
+          "value": "폐수배출시설",
+          "quote": "폐수배출시설에서 발생되는"
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-52",
+        "answer_type": "DESIGNATED_ONLY",
+        "answered_code": "",
+        "answered_designated": "Y",
+        "conditions_quote": "",
+        "answer_quote": "귀하의 사업장에서 발생하는 크롬산 폐수가 pH 2.0이하인 액체상태의 폐기물로서 폐산(지정폐기물)인 것으로 판단되나, ｢폐기물관리법 시행규칙｣ 제10조에 따라 폐산·폐알칼리 등 액체상태의 폐기물을 ｢물환경보전법｣ 제2조제12호에 따른 수질오염방지시설 에 직접 유입하여 처리하는 경우로서 그 배출시설의 설치허가권자 또는 신고수리권자가 그 처리를 인정하는 경우라면 폐기물처리시설 외의 장소에서 폐기물 처리가 가능함을 알려드립니다."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-56-Q3",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.56, PDF p.62, 사례 56 질의 3",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND (구판 폐산 항목 또는 항목명 인용)",
+        "question_quote": "(질의 3) 염산, 질산, 황산, 불산은 폐기물 세부분류로 나뉘어져 있습니다. 그러나 인산, 과수 등을 염산(폐산 단일세부분류)과 폐기시 폐기물 세부분류는 그밖의 폐산 (단일폐기물)으로 구분하면 되나요?",
+        "answer_quote": "(답변 3) 폐기물의 종류별 세부분류(｢폐기물관리법 시행규칙｣ 별표4)에서 귀하의 사업장에서 발생하는 폐산이 02-01-01부터 02-01-06에 해당하지 않는다면 02-01-99(그 밖의 폐산)로 분류가 가능할 것입니다.",
+        "set": "MAIN",
+        "related_codes_mentioned": "02-01-01 | 02-01-06 | 02-01-99",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-56-Q3",
+          "fact": "waste_family",
+          "value": "acid",
+          "quote": "염산(폐산 단일세부분류)"
+        },
+        {
+          "case_id": "WONJU26-56-Q3",
+          "fact": "material",
+          "value": "염산",
+          "quote": "염산(폐산 단일세부분류)"
+        },
+        {
+          "case_id": "WONJU26-56-Q3",
+          "fact": "mixed_with",
+          "value": "인산, 과수 등",
+          "quote": "인산, 과수 등을 염산(폐산 단일세부분류)과 폐기시"
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-56-Q3",
+        "answer_type": "CODE_CONDITIONAL",
+        "answered_code": "02-01-99",
+        "answered_designated": "",
+        "conditions_quote": "귀하의 사업장에서 발생하는 폐산이 02-01-01부터 02-01-06에 해당하지 않는다면",
+        "answer_quote": "(답변 3) 폐기물의 종류별 세부분류(｢폐기물관리법 시행규칙｣ 별표4)에서 귀하의 사업장에서 발생하는 폐산이 02-01-01부터 02-01-06에 해당하지 않는다면 02-01-99(그 밖의 폐산)로 분류가 가능할 것입니다."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-56-Q4",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.56, PDF p.62, 사례 56 질의 4",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "(질의 4) 사업장 내 용제 폐기시 혼동되는 경우가 많습니다. 아세트산은 폐산 혹은 폐유기용제 어느 폐기물로 구분하여야 하나요?",
+        "answer_quote": "(답변 4) 액체상태의 폐기물로서 수소이온 농도지수가 2.0 이하인 경우는 폐산으로, 수소이온 농도지수가 폐산에 해당하지 않으며 유기용매와 혼합된 폐기물이라면 폐유기용제로 분류할 수 있을 것입니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-56-Q4",
+          "fact": "material",
+          "value": "아세트산",
+          "quote": "아세트산은 폐산 혹은 폐유기용제"
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-56-Q4",
+        "answer_type": "OTHER",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "액체상태의 폐기물로서 수소이온 농도지수가 2.0 이하인 경우는 폐산으로, 수소이온 농도지수가 폐산에 해당하지 않으며 유기용매와 혼합된 폐기물이라면 폐유기용제로 분류할 수 있을 것입니다.",
+        "answer_quote": "(답변 4) 액체상태의 폐기물로서 수소이온 농도지수가 2.0 이하인 경우는 폐산으로, 수소이온 농도지수가 폐산에 해당하지 않으며 유기용매와 혼합된 폐기물이라면 폐유기용제로 분류할 수 있을 것입니다."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-62",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.62, PDF p.68, 사례 62",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND",
+        "question_quote": "유기용제를 담았던 용기(폐공드럼) 내부 바닥면에 잔량이 묻어 있는데, 폐기물 처리시 계근 후 전체 무게기준으로 폐기물 배출량을 산정해야 하는지 문의드립니다.",
+        "answer_quote": "｢폐기물관리법｣에서는 지정폐기물의 배출량 산정방법을 별도로 규정하고 있지 않으나, 지정폐기물이 아닌 물질에 지정폐기물이 남아있거나 묻어 있는 경우 해당 폐기물로 분류하여 처리하여야 합니다. 따라서, 폐유기용제를 담았던 해당 용기의 무게를 기준으로 배출량을 산정하는 것이 타당할 것으로 판단됩니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-62",
+          "fact": "form",
+          "value": "용기·드럼",
+          "quote": "유기용제를 담았던 용기(폐공드럼)"
+        },
+        {
+          "case_id": "WONJU26-62",
+          "fact": "contamination",
+          "value": "용제",
+          "quote": "유기용제를 담았던 용기(폐공드럼) 내부 바닥면에 잔량이 묻어 있는데"
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-62",
+        "answer_type": "DESIGNATED_ONLY",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "지정폐기물이 아닌 물질에 지정폐기물이 남아있거나 묻어 있는 경우 해당 폐기물로 분류하여 처리하여야 합니다.",
+        "answer_quote": "｢폐기물관리법｣에서는 지정폐기물의 배출량 산정방법을 별도로 규정하고 있지 않으나, 지정폐기물이 아닌 물질에 지정폐기물이 남아있거나 묻어 있는 경우 해당 폐기물로 분류하여 처리하여야 합니다. 따라서, 폐유기용제를 담았던 해당 용기의 무게를 기준으로 배출량을 산정하는 것이 타당할 것으로 판단됩니다."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "WONJU26-63",
+        "source_id": "WONJU26",
+        "doc_title": "지정폐기물 질의·회신 사례집",
+        "page_or_url": "https://www.mcee.go.kr/wonju/web/board/read.do?boardId=1862850&boardMasterId=232&condition.hideCate=1&menuId=1025 | 인쇄 p.63, PDF p.69, 사례 63",
+        "answered_on": "NOT_FOUND",
+        "agency": "원주지방환경청",
+        "law_version_at_time": "NOT_FOUND (구판 폐산 항목 또는 항목명 인용)",
+        "question_quote": "지정폐기물 종류에서 부식성폐기물 중 02-01 폐산 코드가 있습니다. 세부분류에서 02-01-99 그 밖의 폐산은 어떤 기준에 맞아야 배출 코드로 사용할 수 있는지 궁금합니다.",
+        "answer_quote": "지정폐기물 중 그 밖의 폐산(02-01-99)은 폐산의 세분화된 분류(폐염산, 폐황산, 폐질산, 폐불산, LCD·반도체공정폐산, 폐황산이 포함된 2차폐축전지) 외의 산을 말합니다(｢ 폐기물 분류체계 및 분류방법 설명서(2023, 국립환경과학원)｣ 참고, 환경과학원 환경정보도서관에서 열람 가능)\n\n따라서, 귀하의 사업장에서 발생한 물질이 다른 성분을 함유한 폐황산(02-01-02)이라면 폐황산(02-01-02)으로 분류하여 처리하는 것이 타당할 것으로 판단됩니다.",
+        "set": "MAIN",
+        "related_codes_mentioned": "02-01 | 02-01-99 | 02-01-02",
+        "searched_via": "data/interpretation_sources.csv의 보유 PDF 원문 전수 검토 | 원주지방환경청 부서별자료 공식 게시물 URL 직접 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "WONJU26-63",
+          "fact": "waste_family",
+          "value": "acid",
+          "quote": "부식성폐기물 중 02-01 폐산 코드"
+        }
+      ],
+      "answer": {
+        "case_id": "WONJU26-63",
+        "answer_type": "CODE_CONDITIONAL",
+        "answered_code": "02-01-02",
+        "answered_designated": "",
+        "conditions_quote": "귀하의 사업장에서 발생한 물질이 다른 성분을 함유한 폐황산(02-01-02)이라면",
+        "answer_quote": "지정폐기물 중 그 밖의 폐산(02-01-99)은 폐산의 세분화된 분류(폐염산, 폐황산, 폐질산, 폐불산, LCD·반도체공정폐산, 폐황산이 포함된 2차폐축전지) 외의 산을 말합니다(｢ 폐기물 분류체계 및 분류방법 설명서(2023, 국립환경과학원)｣ 참고, 환경과학원 환경정보도서관에서 열람 가능)\n\n따라서, 귀하의 사업장에서 발생한 물질이 다른 성분을 함유한 폐황산(02-01-02)이라면 폐황산(02-01-02)으로 분류하여 처리하는 것이 타당할 것으로 판단됩니다."
+      }
+    }
+  ],
+  "notes": [
+    "원주지방환경청 「지정폐기물 질의·회신 사례집」(2026-05-11 게시) 보유 PDF 108쪽의 번호가 붙은 질의·회신 64건(인쇄 p.1–64, PDF p.7–70)을 전수 검토했다. 뒤쪽 교육자료의 설명용 문답(예: 인쇄 p.70 유기용제 용기, 폐유독물질/폐유기용제) 및 위반 사진은 개별 민원 질의·회신이 아니어서 사례에서 제외했다.",
+    "해당 문서는 머리말상 2021~2025년 기후에너지환경부에 제기된 질의를 일부 수정·편집한 자료다. 개별 회신일과 법령 판은 미표기다. 배출·보관·인계·표지 절차만 묻는 사례(예: 20·23·39·48·49·61)는 분류 사례에서 제외했다. 사례 56은 독립된 문답 3·4를 각각 수록했으며, 유해성 정보자료 작성 절차만 다룬 문답 1·2는 제외했다.",
+    "WONJU26-56-Q3의 회신에는 02-01-06이 있고, WONJU26-63의 회신에는 해당 구판 항목명(폐황산이 포함된 2차폐축전지)이 등장한다. WONJU26-01에도 폐황산 포함 2차 폐축전지의 지정폐기물 취급이 있으나 번호는 나오지 않는다. 현행 판 적용을 추정하지 않았다.",
+    "WONJU26-03은 질의가 구리스크랩으로 쓰였으나 회신은 공정오니의 유해물질 함량 조건을 답한다. WONJU26-43의 시트 형태, WONJU26-52의 액체상태 표현, WONJU26-63의 폐황산 및 혼합 성분은 회신에만 명시되어 해당 질의 fact에 옮기지 않았다. WONJU26-63에서 02-01-99는 일반 정의에 나오고 02-01-02는 별도 조건부 결론이다.",
+    "문서 단위 DEV. 사례 37·42는 각각 산성 오니·의료폐기물 경계의 범위 밖 시험용으로 선정했다. 사례 41은 폐페인트와 분진 분류가 직접 충돌하는 주변 사례이며 51은 폐전자제품에 인접한 폐조명 분류다. 폐기물 특성 이외에 다른 변수가 함께 바뀌는 사례 간에는 쌍을 만들지 않았다."
+  ],
+  "pairs": []
+}

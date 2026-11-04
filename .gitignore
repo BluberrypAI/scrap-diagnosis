@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+build/
+dist/
+
+# 1MB가 넘는 원본은 저장소에 넣지 않는다 (URL·SHA-256은 data/*.csv, collect/collected.csv에 기록됨)
+# 판정 규칙·테스트에 쓰는 법령 원문(1MB 미만)은 저장소에 포함한다.
+sources/raw/add-guide-waste-report-hwpx.hwpx
+sources/raw/tc-moe-qa-casebook-2025-07.pdf
+sources/raw/wonju-environment-qa-posted-2026-08-11.pdf
+sources/raw/classification-guide-2023.pdf
+sources/raw/wonju-qa-2026.pdf
+sources/raw/nier-test-2025.zip
+sources/raw/wonju-recycling-qa-posted-2026-08-11.pdf
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store

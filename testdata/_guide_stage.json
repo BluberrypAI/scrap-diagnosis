@@ -1,0 +1,504 @@
+{
+  "cases": [
+    {
+      "raw": {
+        "case_id": "GUIDE23-050-01",
+        "source_id": "GUIDE23",
+        "doc_title": "폐기물 분류체계 및 분류방법 설명서",
+        "page_or_url": "https://clik.nanet.go.kr/clikr-collection/policyinfo/228/1076/2024/CLIKC5377732233452870_attach_1.pdf#page=56 (인쇄 p.50, PDF 56쪽, 4.2.1 해석사례 첫째 항목)",
+        "answered_on": "NOT_FOUND",
+        "agency": "NOT_FOUND",
+        "law_version_at_time": "UNKNOWN",
+        "question_quote": "원목 제재 및 가공 과정에서 발생하는 수피(나무껍데기) 또는 톱밥이 폐기물인지?",
+        "answer_quote": "폐기물이란 사람의 생활이나 사업활동에 필요하지 아니한 물질로 정의함. 따라서 사업활동과정에서 발생한 부산물인 수피와 톱밥은 폐기물에 해당함",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "기존 data/interpretation_sources.csv 경로; PDF 전체 346쪽 텍스트에서 사례·해석사례·질의요지·회신내용 표제(글꼴 인코딩 포함) 검색 및 사례 상자 이미지 대조; 국회도서관 원본 PDF URL 열기 확인; 웹 검색: 폐기물 질의·회신 사례집 2014.12 환경부 수피 슬래그; 환경부 발간 사례집의 디지털집현전 서지 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "GUIDE23-050-01",
+          "fact": "process",
+          "value": "원목 제재 및 가공 과정",
+          "quote": "원목 제재 및 가공 과정"
+        },
+        {
+          "case_id": "GUIDE23-050-01",
+          "fact": "material",
+          "value": "수피(나무껍데기) 또는 톱밥",
+          "quote": "수피(나무껍데기) 또는 톱밥"
+        }
+      ],
+      "answer": {
+        "case_id": "GUIDE23-050-01",
+        "answer_type": "OTHER",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "",
+        "answer_quote": "폐기물이란 사람의 생활이나 사업활동에 필요하지 아니한 물질로 정의함. 따라서 사업활동과정에서 발생한 부산물인 수피와 톱밥은 폐기물에 해당함"
+      }
+    },
+    {
+      "raw": {
+        "case_id": "GUIDE23-050-02",
+        "source_id": "GUIDE23",
+        "doc_title": "폐기물 분류체계 및 분류방법 설명서",
+        "page_or_url": "https://clik.nanet.go.kr/clikr-collection/policyinfo/228/1076/2024/CLIKC5377732233452870_attach_1.pdf#page=56 (인쇄 p.50, PDF 56쪽, 4.2.1 해석사례 둘째 항목)",
+        "answered_on": "NOT_FOUND",
+        "agency": "NOT_FOUND",
+        "law_version_at_time": "UNKNOWN",
+        "question_quote": "동(銅)제련 공정에서 발생한 부산물인 슬래그를 밀폐된 연속공정을 통해 시멘트 제조, 콘크리트 골재생산 공정의 원료로 투입하여 폐기물관리법에 따른 규격 또는 품질에 적합하게 제조하여 판매 중인데 해당 슬래그가 폐기물에 해당하는지?",
+        "answer_quote": "동 제련 공정에서 발생된 부산물인 슬래그를 별도 가공·처리없이 슬래그 발생시설에서 연속공정으로 다른 제품 제조의 원료로 사용하는 경우 폐기물관리법에 따른 폐기물로 보기 어려움",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "기존 data/interpretation_sources.csv 경로; PDF 전체 346쪽 텍스트에서 사례·해석사례·질의요지·회신내용 표제(글꼴 인코딩 포함) 검색 및 사례 상자 이미지 대조; 국회도서관 원본 PDF URL 열기 확인; 웹 검색: 폐기물 질의·회신 사례집 2014.12 환경부 수피 슬래그; 환경부 발간 사례집의 디지털집현전 서지 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "GUIDE23-050-02",
+          "fact": "process",
+          "value": "동(銅)제련 공정",
+          "quote": "동(銅)제련 공정"
+        },
+        {
+          "case_id": "GUIDE23-050-02",
+          "fact": "material",
+          "value": "슬래그",
+          "quote": "부산물인 슬래그"
+        },
+        {
+          "case_id": "GUIDE23-050-02",
+          "fact": "is_waste_claim",
+          "value": "부산물",
+          "quote": "부산물인 슬래그"
+        },
+        {
+          "case_id": "GUIDE23-050-02",
+          "fact": "is_waste_claim",
+          "value": "판매",
+          "quote": "제조하여 판매 중인데"
+        },
+        {
+          "case_id": "GUIDE23-050-02",
+          "fact": "other",
+          "value": "밀폐된 연속공정을 통해 시멘트 제조, 콘크리트 골재생산 공정의 원료로 투입",
+          "quote": "밀폐된 연속공정을 통해 시멘트 제조, 콘크리트 골재생산 공정의 원료로 투입"
+        },
+        {
+          "case_id": "GUIDE23-050-02",
+          "fact": "other",
+          "value": "폐기물관리법에 따른 규격 또는 품질에 적합하게 제조",
+          "quote": "폐기물관리법에 따른 규격 또는 품질에 적합하게 제조"
+        }
+      ],
+      "answer": {
+        "case_id": "GUIDE23-050-02",
+        "answer_type": "NOT_WASTE",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "별도 가공·처리없이 슬래그 발생시설에서 연속공정으로 다른 제품 제조의 원료로 사용하는 경우",
+        "answer_quote": "동 제련 공정에서 발생된 부산물인 슬래그를 별도 가공·처리없이 슬래그 발생시설에서 연속공정으로 다른 제품 제조의 원료로 사용하는 경우 폐기물관리법에 따른 폐기물로 보기 어려움"
+      }
+    },
+    {
+      "raw": {
+        "case_id": "GUIDE23-117-01",
+        "source_id": "GUIDE23",
+        "doc_title": "폐기물 분류체계 및 분류방법 설명서",
+        "page_or_url": "https://clik.nanet.go.kr/clikr-collection/policyinfo/228/1076/2024/CLIKC5377732233452870_attach_1.pdf#page=123 (인쇄 p.117, PDF 123쪽, 부록 2 사례 1, 분류 예시)",
+        "answered_on": "NOT_FOUND",
+        "agency": "국립환경과학원 (예시 작성기관)",
+        "law_version_at_time": "폐기물관리법 제18853호(2023-04-27 시행), 시행규칙 별표 4(2023-08-11 개정)",
+        "question_quote": "폐전자스크랩 중 칩 등이 없는 상태의 인쇄회로기판(PCB)은",
+        "answer_quote": "폐합성수지류(51-03-01)로 분류",
+        "set": "MAIN",
+        "related_codes_mentioned": "51-03-01",
+        "searched_via": "기존 data/interpretation_sources.csv 경로; PDF 전체 346쪽 텍스트에서 사례·해석사례·질의요지·회신내용 표제(글꼴 인코딩 포함) 검색 및 사례 상자 이미지 대조; 국회도서관 원본 PDF URL 열기 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "GUIDE23-117-01",
+          "fact": "form",
+          "value": "판재·부품",
+          "quote": "인쇄회로기판(PCB)"
+        },
+        {
+          "case_id": "GUIDE23-117-01",
+          "fact": "other",
+          "value": "폐전자스크랩",
+          "quote": "폐전자스크랩"
+        },
+        {
+          "case_id": "GUIDE23-117-01",
+          "fact": "other",
+          "value": "칩 등이 없는 상태",
+          "quote": "칩 등이 없는 상태"
+        }
+      ],
+      "answer": {
+        "case_id": "GUIDE23-117-01",
+        "answer_type": "CODE_GIVEN",
+        "answered_code": "51-03-01",
+        "answered_designated": "",
+        "conditions_quote": "",
+        "answer_quote": "폐합성수지류(51-03-01)로 분류"
+      }
+    },
+    {
+      "raw": {
+        "case_id": "GUIDE23-117-02",
+        "source_id": "GUIDE23",
+        "doc_title": "폐기물 분류체계 및 분류방법 설명서",
+        "page_or_url": "https://clik.nanet.go.kr/clikr-collection/policyinfo/228/1076/2024/CLIKC5377732233452870_attach_1.pdf#page=123 (인쇄 p.117, PDF 123쪽, 부록 2 사례 2, 분류 예시)",
+        "answered_on": "NOT_FOUND",
+        "agency": "국립환경과학원 (예시 작성기관)",
+        "law_version_at_time": "폐기물관리법 제18853호(2023-04-27 시행), 시행규칙 별표 4(2023-08-11 개정)",
+        "question_quote": "금속 표면에 페인트 도포나 도금된 상태가 아니라 플라스틱 등 합성수지가 금속에 부착된 상태라면",
+        "answer_quote": "폐합성수지류(51-03-01)로 분류",
+        "set": "MAIN",
+        "related_codes_mentioned": "51-03-01",
+        "searched_via": "기존 data/interpretation_sources.csv 경로; PDF 전체 346쪽 텍스트에서 사례·해석사례·질의요지·회신내용 표제(글꼴 인코딩 포함) 검색 및 사례 상자 이미지 대조; 국회도서관 원본 PDF URL 열기 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "GUIDE23-117-02",
+          "fact": "material",
+          "value": "금속",
+          "quote": "금속 표면"
+        },
+        {
+          "case_id": "GUIDE23-117-02",
+          "fact": "material",
+          "value": "플라스틱 등 합성수지",
+          "quote": "플라스틱 등 합성수지"
+        },
+        {
+          "case_id": "GUIDE23-117-02",
+          "fact": "other",
+          "value": "페인트 도포나 도금된 상태가 아니라",
+          "quote": "페인트 도포나 도금된 상태가 아니라"
+        },
+        {
+          "case_id": "GUIDE23-117-02",
+          "fact": "other",
+          "value": "플라스틱 등 합성수지가 금속에 부착된 상태",
+          "quote": "플라스틱 등 합성수지가 금속에 부착된 상태"
+        }
+      ],
+      "answer": {
+        "case_id": "GUIDE23-117-02",
+        "answer_type": "CODE_CONDITIONAL",
+        "answered_code": "51-03-01",
+        "answered_designated": "",
+        "conditions_quote": "금속 표면에 페인트 도포나 도금된 상태가 아니라 플라스틱 등 합성수지가 금속에 부착된 상태라면",
+        "answer_quote": "폐합성수지류(51-03-01)로 분류"
+      }
+    },
+    {
+      "raw": {
+        "case_id": "GUIDE23-118-SPONGE",
+        "source_id": "GUIDE23-QA",
+        "doc_title": "폐기물 분류체계 및 분류방법 설명서",
+        "page_or_url": "https://clik.nanet.go.kr/clikr-collection/policyinfo/228/1076/2024/CLIKC5377732233452870_attach_1.pdf#page=124 (인쇄 p.118, PDF 124쪽, 부록 2 사례)",
+        "answered_on": "NOT_FOUND",
+        "agency": "NOT_FOUND",
+        "law_version_at_time": "UNKNOWN",
+        "question_quote": "스펀지 제조 시 발생되는 스펀지 불량품, 스펀지 부산물 등을 다시 스펀지로 재생하기 위해 자신의 공장에 사용하거나, 다른 사업장에 판매하는 경우 폐기물 해당 여부",
+        "answer_quote": "생산공정에서 발생되는 불량품·자투리 등이 재활용이 가능하거나 재활용된다 하여 폐기물에서 제외되는 것은 아니며, 재활용 용도 및 방법에 적합한 재활용과정을 거쳐 제품으로 생산되어야 폐기물에서 제외될 수 있을 것입니다. 따라서, 별도의 처리공정을 거친 후 생산공정에 재투입 하거나, 스펀지 재생 등의 사업을 하는 다른 사업장에 판매하는 경우라 하더라도 폐기물에 해당되므로 폐기물의 관리 및 처리(재활용 포함) 기준에 따라 적정하게 관리 및 처리하여야 합니다. 다만, 별도의 처리공정을 거치지 않고 바로 동일 사업장의 동일공정에 원료로 재투입하는 경우에는 폐기물에 해당되지 않습니다.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "기존 data/interpretation_sources.csv 경로; PDF 전체 346쪽 텍스트에서 사례·해석사례·질의요지·회신내용 표제(글꼴 인코딩 포함) 검색 및 사례 상자 이미지 대조; 국회도서관 원본 PDF URL 열기 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "GUIDE23-118-SPONGE",
+          "fact": "source_type",
+          "value": "factory",
+          "quote": "자신의 공장"
+        },
+        {
+          "case_id": "GUIDE23-118-SPONGE",
+          "fact": "process",
+          "value": "스펀지 제조",
+          "quote": "스펀지 제조"
+        },
+        {
+          "case_id": "GUIDE23-118-SPONGE",
+          "fact": "material",
+          "value": "스펀지",
+          "quote": "스펀지 불량품"
+        },
+        {
+          "case_id": "GUIDE23-118-SPONGE",
+          "fact": "form",
+          "value": "조각·러너·불량품",
+          "quote": "스펀지 불량품"
+        },
+        {
+          "case_id": "GUIDE23-118-SPONGE",
+          "fact": "is_waste_claim",
+          "value": "부산물",
+          "quote": "스펀지 부산물"
+        },
+        {
+          "case_id": "GUIDE23-118-SPONGE",
+          "fact": "is_waste_claim",
+          "value": "판매",
+          "quote": "다른 사업장에 판매하는 경우"
+        },
+        {
+          "case_id": "GUIDE23-118-SPONGE",
+          "fact": "other",
+          "value": "다시 스펀지로 재생하기 위해 자신의 공장에 사용",
+          "quote": "다시 스펀지로 재생하기 위해 자신의 공장에 사용"
+        }
+      ],
+      "answer": {
+        "case_id": "GUIDE23-118-SPONGE",
+        "answer_type": "OTHER",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "별도의 처리공정을 거치지 않고 바로 동일 사업장의 동일공정에 원료로 재투입하는 경우",
+        "answer_quote": "생산공정에서 발생되는 불량품·자투리 등이 재활용이 가능하거나 재활용된다 하여 폐기물에서 제외되는 것은 아니며, 재활용 용도 및 방법에 적합한 재활용과정을 거쳐 제품으로 생산되어야 폐기물에서 제외될 수 있을 것입니다. 따라서, 별도의 처리공정을 거친 후 생산공정에 재투입 하거나, 스펀지 재생 등의 사업을 하는 다른 사업장에 판매하는 경우라 하더라도 폐기물에 해당되므로 폐기물의 관리 및 처리(재활용 포함) 기준에 따라 적정하게 관리 및 처리하여야 합니다. 다만, 별도의 처리공정을 거치지 않고 바로 동일 사업장의 동일공정에 원료로 재투입하는 경우에는 폐기물에 해당되지 않습니다."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "GUIDE23-129-02",
+        "source_id": "GUIDE23-QA",
+        "doc_title": "폐기물 분류체계 및 분류방법 설명서",
+        "page_or_url": "https://clik.nanet.go.kr/clikr-collection/policyinfo/228/1076/2024/CLIKC5377732233452870_attach_1.pdf#page=135 (인쇄 p.129, PDF 135쪽, 부록 2 동물사체 사례)",
+        "answered_on": "NOT_FOUND",
+        "agency": "NOT_FOUND",
+        "law_version_at_time": "UNKNOWN",
+        "question_quote": "반려동물이 아닌 소, 말 등의 가축의 사체도 폐기물관리법에 따른 동물의 사체로 처리해야 하는지 여부",
+        "answer_quote": "동물의 사체는 폐기물관리법 제2조에 따른 폐기물에 해당됨 다만, 가축전염병예방법이 적용되는 동물의 사체는 폐기물관리법이 아닌 가축전염병예방법에 따라 처리하도록 하고 있음",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "기존 data/interpretation_sources.csv 경로; PDF 전체 346쪽 텍스트에서 사례·해석사례·질의요지·회신내용 표제(글꼴 인코딩 포함) 검색 및 사례 상자 이미지 대조; 국회도서관 원본 PDF URL 열기 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "GUIDE23-129-02",
+          "fact": "other",
+          "value": "반려동물이 아닌 소, 말 등의 가축의 사체",
+          "quote": "반려동물이 아닌 소, 말 등의 가축의 사체"
+        }
+      ],
+      "answer": {
+        "case_id": "GUIDE23-129-02",
+        "answer_type": "OTHER",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "가축전염병예방법이 적용되는 동물의 사체",
+        "answer_quote": "동물의 사체는 폐기물관리법 제2조에 따른 폐기물에 해당됨 다만, 가축전염병예방법이 적용되는 동물의 사체는 폐기물관리법이 아닌 가축전염병예방법에 따라 처리하도록 하고 있음"
+      }
+    },
+    {
+      "raw": {
+        "case_id": "GUIDE23-130-01",
+        "source_id": "GUIDE23-QA",
+        "doc_title": "폐기물 분류체계 및 분류방법 설명서",
+        "page_or_url": "https://clik.nanet.go.kr/clikr-collection/policyinfo/228/1076/2024/CLIKC5377732233452870_attach_1.pdf#page=136 (인쇄 p.130, PDF 136쪽, 부록 2 난각 사례)",
+        "answered_on": "NOT_FOUND",
+        "agency": "NOT_FOUND",
+        "law_version_at_time": "UNKNOWN",
+        "question_quote": "난가공 전문 업체로부터 세척·분쇄 등 공정을 거친 난각(계란껍질)을 공급받아 칼슘분말을 제조·판매 하고자 하는 경우, 폐기물 여부 등을 환경부에 확인 필요 여부",
+        "answer_quote": "식약청 소관 법 상 난각이 칼슘분말 제조 원료의 기준 및 규격에 적합한 원료로 인정되고, 관련 규정에 따라 제조·유통되는 등 관리가 되는 경우 폐기물 관련 법령 적용대상에서 제외됨.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "기존 data/interpretation_sources.csv 경로; PDF 전체 346쪽 텍스트에서 사례·해석사례·질의요지·회신내용 표제(글꼴 인코딩 포함) 검색 및 사례 상자 이미지 대조; 국회도서관 원본 PDF URL 열기 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "GUIDE23-130-01",
+          "fact": "process",
+          "value": "세척·분쇄",
+          "quote": "세척·분쇄 등 공정"
+        },
+        {
+          "case_id": "GUIDE23-130-01",
+          "fact": "material",
+          "value": "난각(계란껍질)",
+          "quote": "난각(계란껍질)"
+        },
+        {
+          "case_id": "GUIDE23-130-01",
+          "fact": "other",
+          "value": "칼슘분말을 제조·판매 하고자 하는 경우",
+          "quote": "칼슘분말을 제조·판매 하고자 하는 경우"
+        }
+      ],
+      "answer": {
+        "case_id": "GUIDE23-130-01",
+        "answer_type": "OTHER",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "난각이 칼슘분말 제조 원료의 기준 및 규격에 적합한 원료로 인정되고, 관련 규정에 따라 제조·유통되는 등 관리가 되는 경우",
+        "answer_quote": "식약청 소관 법 상 난각이 칼슘분말 제조 원료의 기준 및 규격에 적합한 원료로 인정되고, 관련 규정에 따라 제조·유통되는 등 관리가 되는 경우 폐기물 관련 법령 적용대상에서 제외됨."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "GUIDE23-131-01",
+        "source_id": "GUIDE23-QA",
+        "doc_title": "폐기물 분류체계 및 분류방법 설명서",
+        "page_or_url": "https://clik.nanet.go.kr/clikr-collection/policyinfo/228/1076/2024/CLIKC5377732233452870_attach_1.pdf#page=137 (인쇄 p.131, PDF 137쪽, 부록 2 초본류 사례 1)",
+        "answered_on": "NOT_FOUND",
+        "agency": "NOT_FOUND",
+        "law_version_at_time": "UNKNOWN",
+        "question_quote": "‘숲가꾸기’ 행위로 인해 발생되는 벌목잔재(원목, 가지, 잎)가 폐기물에 해당되는지 여부",
+        "answer_quote": "“숲가꾸기” 작업 과정에서 발생한 임지잔재를 그대로 산지 내에 적치하거나 산업용 원료로 사용하기 위해 외부로 반출하여 적정하게 사용하는 경우 폐기물에 해당되지 않으나, 반출 후 적정 보관장소 외의 장소에 버려지거나 운반 중 사용장소 외의 장소에 보관되거나 당초 계획된 원료로 사용되지 못하고 버려진 임지잔재와 장마·홍수 등으로 산지에서 쓸려 내려온 임지잔재 등은 「폐기물관리법」에 따른 폐기물에 해당됨.",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "기존 data/interpretation_sources.csv 경로; PDF 전체 346쪽 텍스트에서 사례·해석사례·질의요지·회신내용 표제(글꼴 인코딩 포함) 검색 및 사례 상자 이미지 대조; 국회도서관 원본 PDF URL 열기 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "GUIDE23-131-01",
+          "fact": "process",
+          "value": "숲가꾸기",
+          "quote": "‘숲가꾸기’ 행위"
+        },
+        {
+          "case_id": "GUIDE23-131-01",
+          "fact": "material",
+          "value": "벌목잔재(원목, 가지, 잎)",
+          "quote": "벌목잔재(원목, 가지, 잎)"
+        }
+      ],
+      "answer": {
+        "case_id": "GUIDE23-131-01",
+        "answer_type": "OTHER",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "그대로 산지 내에 적치하거나 산업용 원료로 사용하기 위해 외부로 반출하여 적정하게 사용하는 경우",
+        "answer_quote": "“숲가꾸기” 작업 과정에서 발생한 임지잔재를 그대로 산지 내에 적치하거나 산업용 원료로 사용하기 위해 외부로 반출하여 적정하게 사용하는 경우 폐기물에 해당되지 않으나, 반출 후 적정 보관장소 외의 장소에 버려지거나 운반 중 사용장소 외의 장소에 보관되거나 당초 계획된 원료로 사용되지 못하고 버려진 임지잔재와 장마·홍수 등으로 산지에서 쓸려 내려온 임지잔재 등은 「폐기물관리법」에 따른 폐기물에 해당됨."
+      }
+    },
+    {
+      "raw": {
+        "case_id": "GUIDE23-132-01",
+        "source_id": "GUIDE23",
+        "doc_title": "폐기물 분류체계 및 분류방법 설명서",
+        "page_or_url": "https://clik.nanet.go.kr/clikr-collection/policyinfo/228/1076/2024/CLIKC5377732233452870_attach_1.pdf#page=138 (인쇄 p.132, PDF 138쪽, 부록 2 사례, 분류 예시)",
+        "answered_on": "NOT_FOUND",
+        "agency": "국립환경과학원 (예시 작성기관)",
+        "law_version_at_time": "폐기물관리법 제18853호(2023-04-27 시행), 시행규칙 별표 4(2023-08-11 개정)",
+        "question_quote": "폐전자스크랩 중 각종 칩이나 메모리 등은",
+        "answer_quote": "폐전기전자제품류(51-18)로 분류",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "51-18",
+        "searched_via": "기존 data/interpretation_sources.csv 경로; PDF 전체 346쪽 텍스트에서 사례·해석사례·질의요지·회신내용 표제(글꼴 인코딩 포함) 검색 및 사례 상자 이미지 대조; 국회도서관 원본 PDF URL 열기 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "GUIDE23-132-01",
+          "fact": "form",
+          "value": "판재·부품",
+          "quote": "각종 칩이나 메모리"
+        },
+        {
+          "case_id": "GUIDE23-132-01",
+          "fact": "other",
+          "value": "폐전자스크랩",
+          "quote": "폐전자스크랩"
+        },
+        {
+          "case_id": "GUIDE23-132-01",
+          "fact": "other",
+          "value": "각종 칩이나 메모리",
+          "quote": "각종 칩이나 메모리"
+        }
+      ],
+      "answer": {
+        "case_id": "GUIDE23-132-01",
+        "answer_type": "CODE_GIVEN",
+        "answered_code": "51-18",
+        "answered_designated": "",
+        "conditions_quote": "",
+        "answer_quote": "폐전기전자제품류(51-18)로 분류"
+      }
+    },
+    {
+      "raw": {
+        "case_id": "GUIDE23-133-01",
+        "source_id": "GUIDE23-QA",
+        "doc_title": "폐기물 분류체계 및 분류방법 설명서",
+        "page_or_url": "https://clik.nanet.go.kr/clikr-collection/policyinfo/228/1076/2024/CLIKC5377732233452870_attach_1.pdf#page=139 (인쇄 p.133, PDF 139쪽, 부록 2 목재 팔레트 사례)",
+        "answered_on": "NOT_FOUND",
+        "agency": "NOT_FOUND",
+        "law_version_at_time": "UNKNOWN",
+        "question_quote": "원료 및 자재 납품 과정에서 발생하는 목재 팔레트를 납품업체에서 수거하여 동일 용도로 반복 사용하는 경우 폐기물 해당 여부",
+        "answer_quote": "제품이나 원자재의 운반 등을 목적으로 다시 사용할 수 있는 형태로 제작된 목재 팔레트를 별도의 수리·수선·가공 등의 과정없이 그대로 동일한 용도로 사용하는 경우에는 폐기물에 해당되지 않음",
+        "set": "PERIPHERAL",
+        "related_codes_mentioned": "",
+        "searched_via": "기존 data/interpretation_sources.csv 경로; PDF 전체 346쪽 텍스트에서 사례·해석사례·질의요지·회신내용 표제(글꼴 인코딩 포함) 검색 및 사례 상자 이미지 대조; 국회도서관 원본 PDF URL 열기 확인",
+        "checked_on": "2026-11-04",
+        "review_state": "UNVERIFIED"
+      },
+      "facts": [
+        {
+          "case_id": "GUIDE23-133-01",
+          "fact": "process",
+          "value": "원료 및 자재 납품 과정",
+          "quote": "원료 및 자재 납품 과정"
+        },
+        {
+          "case_id": "GUIDE23-133-01",
+          "fact": "material",
+          "value": "목재",
+          "quote": "목재 팔레트"
+        },
+        {
+          "case_id": "GUIDE23-133-01",
+          "fact": "other",
+          "value": "목재 팔레트",
+          "quote": "목재 팔레트"
+        },
+        {
+          "case_id": "GUIDE23-133-01",
+          "fact": "other",
+          "value": "동일 용도로 반복 사용하는 경우",
+          "quote": "동일 용도로 반복 사용하는 경우"
+        }
+      ],
+      "answer": {
+        "case_id": "GUIDE23-133-01",
+        "answer_type": "NOT_WASTE",
+        "answered_code": "",
+        "answered_designated": "",
+        "conditions_quote": "별도의 수리·수선·가공 등의 과정없이 그대로 동일한 용도로 사용하는 경우",
+        "answer_quote": "제품이나 원자재의 운반 등을 목적으로 다시 사용할 수 있는 형태로 제작된 목재 팔레트를 별도의 수리·수선·가공 등의 과정없이 그대로 동일한 용도로 사용하는 경우에는 폐기물에 해당되지 않음"
+      }
+    }
+  ],
+  "notes": [
+    "2023년 국립환경과학원 설명서 346쪽 전수 텍스트에서 사례/해석사례/질의요지/회신내용 표제와 해당 글꼴의 깨진 글자열을 찾고 후보 11쪽을 렌더링해 사례 상자 13개와 사례 항목 14건을 확인했다. DEV 10건(질의·회신 및 해석사례 7건, 공식 분류 예시 3건)을 수록했다.",
+    "인쇄 p.117 사례 1·2와 p.132의 분류 예시는 별도의 질의·회신이 없다. question_quote에 해당 예시 문장의 전제 부분, answer_quote에 분류 결론 부분을 그대로 옮겼다. 회신일은 NOT_FOUND로 두었으며 agency는 예시 작성기관이다. p.132의 번호는 원문에 표시된 그룹 번호 51-18이다.",
+    "본문 p.50 해석사례 2건은 설명서가 환경부 발간 『폐기물 질의·회신 사례집(2014.12)』에서 인용한 사례다. 디지털집현전 서지(https://k-knowledge.kr/srch/read.jsp?id=291027229)상 원 사례집 수록 기간은 2013.1~2014.11이다. 설명서에 개별 회신일·기관·적용 법령 판이 없어 미확인 처리했다.",
+    "부록 2에 수록된 질의·회신의 원 회신일·회신기관·법령 판은 확인되지 않았다. 설명서 발간기관과 회신기관을 구분했다. p.118 스펀지 등은 분류번호 제목 아래 배치되어도 해당 번호가 질의·회신에 없으므로 결론에 옮기지 않았다.",
+    "제외 4건은 인쇄 p.116(PDF 122쪽) 하수준설토(51-02-04) 분류 예시, p.120(126쪽) 용접잔재물(51-04-99) 분류 예시, p.129(135쪽) 폐식용유(51-16-00) 분류 예시, p.143(149쪽) 시추선 진흙의 육상 처리 질의·회신이다. 앞 3건은 범위 밖 예시이며, 마지막 1건은 범위 밖 사례 5건 상한을 전체 자료에 적용해 제외했다.",
+    "p.117 사례 1과 p.132 예시에는 모두 폐전자스크랩이 나오지만, 칩 없는 인쇄회로기판과 칩·메모리는 대상 물품도 달라 단일 사실 차이 쌍으로 표시하지 않았다.",
+    "법령 판 유의 대상은 2023년 설명서의 분류 예시 3건, 2013~2014 사례집을 인용한 본문 2건, 회신 판 미상의 부록 질의·회신 5건이다."
+  ],
+  "pairs": []
+}

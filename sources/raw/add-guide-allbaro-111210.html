@@ -1,0 +1,4208 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="ko">
+<head>
+<!-- 2023 홈페이지 리뉴얼 include : common.jsp-->
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=0">
+
+
+<!-- 2023. 홈페이지개선 공통 head. -->
+<!-- <link rel="stylesheet" href="/common/work_assets/plugins/jquery/jquery-ui.css"> -->
+<link rel="stylesheet" href="/common/assets/css/swiper.min.css">
+<link rel="stylesheet" href="/common/assets/css/common.css">
+<link rel="stylesheet" href="/common/assets/css/jquery-ui.css">
+<link rel="stylesheet" href="/common/assets/css/layout.css?ver=1.1">
+<link rel="stylesheet" href="/common/assets/css/main.css">
+<link rel="stylesheet" href="/common/assets/css/allbaro.css">
+
+<!--<script src="/common/assets/jquery/jquery-1.12.4.js"></script>-->
+<!--  jquery 버전 변경 -->
+<script src="/tutorial/basic_user/js/jquery-3.6.0.js"></script>
+<script>jQuery.migrateMute = true;</script>
+<script src="/tutorial/basic_user/js/jquery-migrate-3.3.2.js"></script>
+
+
+<script src="/common/assets/jquery/allbaro-ui.js"></script>
+
+<script src="/common/assets/jquery/swiper.min.js"></script>
+<script src="/common/assets/jquery/jquery-ui.js"></script>
+
+
+<!-- <script src="/common/assets/js/2023_renew_common.js"></script> -->
+
+<!-- 로그인관련 -->
+<script src="/js/lib.map.js"></script>
+<script src="/js/lib.form.js"></script>
+<script src="/js/lib.validate.js"></script>
+<script src="/js/lib.invoke.js"></script>
+<script src="/common/js/jslb_ajax.js"></script>
+<!-- 로그인관련 -->
+<script src="/js/script.js"></script>
+<script src="/js/lib.common.js"></script>
+<script src="/common/assets/js/common.js"></script>
+<!-- <script src="/js/lib.domUtil.js"></script> -->
+
+
+<!-- 공동인증서관련 -->
+<script src="/signkorea/BR_4.1.7/SKCertService/app/library/json3.min.js"></script>
+<script src="/signkorea/BR_4.1.7/SKCertService/app/library/iecompatibility.js"></script>
+<script src="/signkorea/BR_4.1.7/SKCertService/app/vestsign.js"></script>
+<script src="/signkorea/BR_4.1.7/SKCertService/app/js/koscom.js"></script>
+<script src="/signkorea/BR_4.1.7/SKCertService/app/activexAdp.js"></script>
+<script src="/js/lib.signkorea.js?ver=1.1.4"></script>
+<!-- 공동인증서관련 -->	
+
+<title>Allbaro 시스템에 오신것을 환영합니다!</title>
+
+
+
+<body
+	
+	>
+	<!-- 템플릿 시작 -->
+	<div id="layout-wrap">
+		<!-- HEADER START -->
+		
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<script>
+$(document).ready(function() {
+	if(window.location.pathname.indexOf('/01')!= -1)
+		$("#header-tab1").addClass("active");
+	else if(window.location.pathname.indexOf('/02')!= -1)
+		$("#header-tab2").addClass("active");
+	else if(window.location.pathname.indexOf('/03')!= -1)
+		$("#header-tab3").addClass("active");
+	else if(window.location.pathname.indexOf('/04')!= -1)
+		$("#header-tab4").addClass("active");
+	else if(window.location.pathname.indexOf('/05')!= -1)	
+		$("#header-tab5").addClass("active");
+	else if(window.location.pathname.indexOf('/06')!= -1)	
+		$("#header-tab6").addClass("active");
+	else if(window.location.pathname.indexOf('/07')!= -1)	
+		$("#header-tab7").addClass("active");
+	else if(window.location.pathname.indexOf('/07')!= -1)	
+		$("#header-tab8").addClass("active");
+});
+
+	var dupMessage = "";
+	if (dupMessage != "" && dupMessage != null) {
+		alert(dupMessage + "\n중복사용자로 인해 로그아웃 처리됩니다.");
+
+		location.href = "/logout.html";
+		//removeMessage();
+	}
+
+	var chgMsg = "";
+
+	/* 현장 전환 메세지 */
+	if (chgMsg != null && chgMsg != "") {
+		chgMsg = chgMsg.replace(/\</g, "&lt;");
+		chgMsg = chgMsg.replace(/\>/g, "&gt;");
+
+		alert(chgMsg);
+	}
+
+	function removeMessage() {
+		var url = '/main.removeMessage.do';
+		var param = ""; // 폼 밸류 처리
+		sendRequest(messageCallback, param, 'POST', url, false, true);
+	}
+
+	function messageCallback(obj) {
+	}
+
+	function fnChgEntn(usid) {
+
+		var url = "/unity/unity.chgEntnLogin.do";
+
+		var chgForm = document.createElement("form");
+		chgForm.name = "chgForm";
+		chgForm.action = url;
+		chgForm.method = "post";
+
+		var inputUsid = document.createElement("input");
+		inputUsid.setAttribute("type", "hidden");
+		inputUsid.setAttribute("name", "usid");
+		inputUsid.setAttribute("value", usid);
+		chgForm.appendChild(inputUsid);
+
+		document.body.appendChild(chgForm);
+		chgForm.submit();
+
+	}
+</script>
+
+
+
+<!-- // 웹접근성 적절한 링크 텍스트 오류 요소 주석처리 -->
+<a href="javascript:void(0)" id="ab-etc-atag1"
+	style="position: absolute; top: -100px; width: 0px; height: 0px;"><span
+	style="display: none;">ab-etc-atag1 링크스크립트요소</span></a>
+
+	<header class="header">
+		<div class="headerbox">
+			<div class="headerin">
+				<a class="header-logo" href="/"></a>
+				<ul class="menu">
+					<li><a id ="header-tab1" href="/01_wsi/wsi_system_intro.vm">올바로 소개</a></li>
+					<li><a id ="header-tab2" href="/02_wga/wga_info.vm">일반/지정폐기물</a></li>
+					<li><a id ="header-tab3" href="/03_wcons/wcons_info.vm">건설폐기물</a></li>
+					<li><a id ="header-tab4" href="/04_wmedi/wmedi_intro.vm">의료폐기물</a></li>
+					<li><a id ="header-tab5" href="/05_wsb/wsb_info_001.vm">수출입폐기물</a></li>
+					<li><a id ="header-tab6" href="/06_wsc/wsc_fax_list.do">고객지원</a></li>
+					<li><a id ="header-tab7" href="/07_wsc/wsc_notice_list.do?board_name=01">통합자료실</a></li>
+				
+				</ul>
+				<p class="allview">
+					<a href="#"><span>사이트맵</span></a>
+				</p>
+				<!-- 로그인 창 이동 -->
+				<div class="login-before">
+					<a href="#" class="login open">열기</a>
+				</div>
+			</div>
+		</div>
+	</header>
+
+<!-- 사이트맵 레이어 팝업 시작// -->
+	<div class="sitemap">
+		<div class="sitemap_in">
+			<a href="#" class="allview_close"><span>사이트맵 닫기</span></a>
+			<div>
+				<div class="menu_list">
+					<a href="/01_wsi/wsi_system_intro.vm">올바로 소개</a>
+					<ul>
+						<li><a href="/01_wsi/wsi_system_intro.vm">시스템 소개</a>
+							<ol>
+								<li><a href="/01_wsi/wsi_system_intro.vm?tabId=1" tabindex="1">도입배경</a></li>
+								<li><a href="/01_wsi/wsi_system_intro.vm?tabId=2" tabindex="2">법률근거 및 사용대상</a></li>
+								<li><a href="/01_wsi/wsi_system_intro.vm?tabId=3" tabindex="3">연혁</a></li>
+								<li><a href="/01_wsi/wsi_system_intro.vm?tabId=4" tabindex="4">시스템 구성</a></li>
+								<li><a href="/01_wsi/wsi_system_intro.vm?tabId=5" tabindex="5">CI정보</a></li>
+							</ol></li>
+						<li><a href="/01_wsi/wsi_organization.vm">시스템 사용절차</a>
+							<ol>
+								<li><a href="/01_wsi/wsi_organization.vm?tabId=1" tabindex="1">폐기물 증명서 발급</a></li>
+								<li><a href="/01_wsi/wsi_organization.vm?tabId=2" tabindex="2">회원가입</a></li>
+								<li><a href="/01_wsi/wsi_organization.vm?tabId=3" tabindex="3">공동인증서 관리</a></li>
+								<li><a href="/01_wsi/wsi_organization.vm?tabId=4" tabindex="4">폐기물인계정보관리</a></li>
+								<li><a href="/01_wsi/wsi_organization.vm?tabId=5" tabindex="5">폐기물대장관리</a></li>
+								<li><a href="/01_wsi/wsi_organization.vm?tabId=6" tabindex="6">폐기물실적보고</a></li>
+							</ol></li>
+						<li><a href="#" onclick="userGuide_first();">처음사용자용 가이드</a>
+						</li>
+						<!--li><a href="#" onclick="userGuide_general();">일반사용자용 가이드</a></li-->
+					</ul>
+				</div>
+				<div class="menu_list">
+					<a href="/02_wga/wga_info.vml">일반/지정폐기물</a>
+					<ul>
+						<li><a href="/02_wga/wga_info.vm">제도 소개</a>
+						</li>
+						<li><a href="/02_wga/wga_process.vm">업무처리 절차</a>
+							<ol>
+								<li><a href="/02_wga/wga_process.vm?tabId=1" tabindex="1">인계서 작성</a></li>
+								<li><a href="/02_wga/wga_process.vm?tabId=2" tabindex="2">대장관리</a></li>
+								<li><a href="/02_wga/wga_process.vm?tabId=3" tabindex="3">실적보고</a></li>
+								<li><a href="/02_wga/wga_process.vm?tabId=4" tabindex="4">업무흐름도</a></li>
+							</ol></li>
+						<li><a href="/02_wga/wga_manual.do?board_name=07&gubun=0701">업무 매뉴얼</a></li>
+					</ul>
+				</div>
+				<div class="menu_list">
+					<a href="/03_wcons/wcons_info.vm">건설폐기물</a>
+					<ul>
+						<li><a href="/03_wcons/wcons_info.vm">제도 소개</a></li>
+						<li><a href="/03_wcons/wcons_process.vm">업무처리 절차</a>
+							<ol>
+								<li><a href="/03_wcons/wcons_process.vm?tabId=1" tabindex="1">인계서 작성</a></li>
+								<li><a href="/03_wcons/wcons_process.vm?tabId=2" tabindex="2">대장관리</a></li>
+								<li><a href="/03_wcons/wcons_process.vm?tabId=3" tabindex="3">실적보고</a></li>
+								<li><a href="/03_wcons/wcons_process.vm?tabId=4" tabindex="4">업무흐름도</a></li>
+							</ol></li>
+						<li><a href="/03_wcons/wcons_manual.do?board_name=07&gubun=0702">업무 매뉴얼</a></li>
+						<li><a href="/03_wcons/wcons_recycledagg.vm">순환골재</a>
+							<ol>
+								<li><a href="/03_wcons/wcons_recycledagg.vm?tabId=1" tabindex="1">개요</a></li>
+								<li><a href="/03_wcons/wcons_recycledagg.do?tabId=2" tabindex="2">업체탐방</a></li>
+							</ol></li>
+					</ul>
+				</div>
+				<div class="menu_list">
+					<a href="/04_wmedi/wmedi_intro.vm">의료폐기물</a>
+					<ul>
+						<li><a href="/04_wmedi/wmedi_intro.vm">제도 소개</a></li>
+						<li><a href="/04_wmedi/wmedi_process.vm">업무처리 절차</a>
+							<ol>
+								<li><a href="/04_wmedi/wmedi_process.vm?tabId=1" tabindex="1">인계서 작성</a></li>
+								<li><a href="/04_wmedi/wmedi_process.vm?tabId=2" tabindex="2">대장관리</a></li>
+								<li><a href="/04_wmedi/wmedi_process.vm?tabId=3" tabindex="3">실적보고</a></li>
+								<li><a href="/04_wmedi/wmedi_process.vm?tabId=4" tabindex="4">업무흐름도</a></li>
+							</ol></li>
+						<li><a href="/04_wmedi/wmedi_manual.do?board_name=28">업무 매뉴얼</a></li>
+						<li><a href="/04_wmedi/wmedi_rfid_as.vm">RFID 장비공급 및 A/S업체</a></li>
+					</ul>
+				</div>
+				<div class="menu_list">
+					<a href="/05_wsb/wsb_info_001.vm">수출입폐기물</a>
+					<ul>
+						<li><a href="/05_wsb/wsb_info_001.vm">제도 소개</a></li>
+						<li><a href="/05_wsb/wsb_info_002.vm">수출입폐기물 허가</a>
+							<ol>
+								<li><a href="/05_wsb/wsb_info_002.vm?tabId=1" tabindex="1">수출허가</a></li>
+								<li><a href="/05_wsb/wsb_info_002.vm?tabId=2" tabindex="2">수입허가</a></li>
+								<li><a href="/05_wsb/wsb_info_002.vm?tabId=3" tabindex="3">수출입폐기물허가품목</a></li>
+							</ol></li>
+						<li><a href="/05_wsb/wsb_info_003.vm">수출입폐기물 신고</a>
+							<ol>
+								<li><a href="/05_wsb/wsb_info_003.vm?tabId=1" tabindex="1">수출입신고</a></li>
+								<li><a href="/05_wsb/wsb_info_003.vm?tabId=2" tabindex="2">수출입폐기물신고품목</a></li>
+							</ol></li>
+						<li><a href="/05_wsb/wsb_info_004.vm">관련법령</a>
+							<ol>
+								<li><a href="/05_wsb/wsb_info_004.vm?tabId=1" tabindex="1">국내법령</a></li>
+								<li><a href="/05_wsb/wsb_info_004.vm?tabId=2" tabindex="2">바젤협약</a></li>
+							</ol></li>
+						<li><a href="/05_wsb/wsb_info_005.vm">업무절차</a>
+							<ol>
+								<li><a href="/05_wsb/wsb_info_005.vm?tabId=1" tabindex="1">업무흐름도</a></li>
+								<li><a href="/05_wsb/wsb_info_005.vm?tabId=2" tabindex="2">수출입폐기물 허가&middot;신고</a></li>
+								<li><a href="/05_wsb/wsb_info_005.vm?tabId=3" tabindex="3">수출입폐기물 요건확인신청 및 승인</a></li>
+								<li><a href="/05_wsb/wsb_info_005.vm?tabId=4" tabindex="4">전자인계서 작성</a></li>
+								<li><a href="/05_wsb/wsb_info_005.vm?tabId=5" tabindex="5">대장관리</a></li>
+								<li><a href="/05_wsb/wsb_info_005.vm?tabId=6" tabindex="6">수출입폐기물 실적보고</a></li>
+							</ol></li>
+						<li><a href="/05_wsb/wsb_info_006.do?board_name=07&gubun=0704">업무 매뉴얼</a></li>
+					</ul>
+				</div>
+				<div class="menu_list">
+					<a href="/06_wsc/wsc_fax_list.do">고객지원</a>
+					<ul>
+						<li><a href="/06_wsc/wsc_fax_list.do">전자팩스 수신조회</a></li>
+						<li><a href="/06_wsc/wsc_remote.vm">원격지원서비스</a></li>
+						<li><a href="/06_wsc/wsc_call.vm">연락처 안내</a></li>
+						<li><a href="/06_wsc/wsc_notiExecPenalty.do">행정처분사실통보</a></li>
+					</ul>
+				</div>
+				<div class="menu_list">
+					<a href="/07_wsc/wsc_notice_list.do?board_name=01">통합자료실</a>
+					<ul>
+						<li><a href="/07_wsc/wsc_notice_list.do?board_name=01">공지사항</a></li>
+						<li><a href="/07_wsc/wsc_law.vm">법령/고시/훈령/예규</a></li>
+						<li><a href="/07_wsc/wsd_form_list.do?board_name=06&gubun=">자료실</a>
+							<ol>
+								<li><a href="/07_wsc/wsd_form_list.do?board_name=06&gubun=&tabId=1" tabindex="1">업무자료</a></li>
+								<li><a href="/07_wsc/wsd_form_list.do?board_name=06&gubun=&tabId=2" tabindex="2">프로그램</a></li>
+							</ol></li>
+						<li><a href="/07_wsc/wsd_statistics_list.vm">통계</a></li>
+						<li><a href="/07_wsc/wsc_faq_list.do?board_name=04">자주묻는 질문</a></li>
+					</ul>
+				</div>
+								
+			</div>
+		</div>
+	</div>
+	<!-- //사이트맵 레이어 팝업 끝 -->
+	
+	<!-- 기본 alert창 공통 레이어팝업 -->
+	<div class="layerUserPop" id="comlayerpop" style="display:none;">
+	   <div class="wid1">
+	       <a href="#" id="comlayerpopExit" class="exit"><span>레이어 팝업 닫기</span></a>
+	       <h4 id="layertitle"></h4>
+	       <p id="layertext" class="msg" style="font-size: 1.6rem;">
+	       </p>
+	       <div class="btnbox center">
+                <button id="oKclose">확인</button>
+            </div>
+	    </div>
+	</div>
+	<script>
+	// 레이어 열기 함수
+	function openLayer(text1,text2) {
+	  document.getElementById("layertitle").textContent = text1;
+	  document.getElementById("layertext").textContent = text2;
+	  document.getElementById("comlayerpop").style.display = "block";
+	}
+	
+	// 레이어 닫기 함수
+	function closeLayer() {
+	  document.getElementById("comlayerpop").style.display = "none";
+	}
+	
+	// 확인버튼으로 레이어 팝업 닫기
+    $("#oKclose").click(function(event){
+    	closeLayer()
+    });
+	
+    $("#comlayerpopExit").click(function(event){
+    	closeLayer()
+    });
+	
+	// 레이어 호출 함수
+	function callLayer(title, text) {
+	  openLayer(title, text);
+	}
+	</script>
+	<!-- 기본 alert창 공통 레이어팝업 끝 -->
+
+		<!-- HEADER END -->
+		
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<script type="text/javascript">
+var timer = null;
+var isRunning = false;
+
+function startTimer(count, display) {  
+	var minutes, seconds;
+  	
+	timer = setInterval(function () {
+        minutes = parseInt(count / 60, 10);
+        seconds = parseInt(count % 60, 10);
+    
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+    
+        display.html("<b>  " + minutes + ":" + seconds + "</b>");
+    
+        // 타이머 끝
+        if (--count < 0) {
+        	clearInterval(timer);
+          	display.html("");
+          	document.getElementById("cert_button1").style.display = "";
+          	isRunning = false;
+        }
+  	}, 1000);
+	
+  	isRunning = true;
+}
+
+function init() {
+	Init_IE();
+}
+
+function Init_NS() {
+	alert("Nescape Navigator는 사용할 수 없습니다.\n\nInternet Explorer만 가능합니다.");
+// 	history.back();
+	return false;
+}
+
+function Init_IE() {
+	// 설치중이면 설치다하고 아래 호출, 설치 불가면 바로 아래 호출
+	SKCertManXObject = ModuleInstallCheck();
+	if (!SKCertManXObject) {
+		//객체가 없으니까 설치페이지로
+		top.location.replace("../signkorea/certificate_YN.jsp?window=main");
+	}
+	//객체가 있으면 그냥 실행.. ok?
+	//인증서 로그인 호출.. ok?
+	certLogin();
+}
+
+$(document).ready(function() {
+	//쿠키에 저장된 ID값 불러오기
+	getCookie();
+	showErr();
+});
+function showErr(){
+	
+}
+
+//쿠키관련 추가 start
+function setCookie(userid, value, expiredays) {
+	var today = new Date();
+	today.setDate(today.getDate() + expiredays);
+
+	document.cookie = userid + "=" + escape(value) + ";path=/;expires="
+			+ today.toGMTString() + ";";
+}
+
+function saveLogin(id) {
+	if (id != "") {
+		//userid 쿠키에 id값을 7일간 저장
+		setCookie("userid", id, 7);
+	} else {
+		//userid 쿠키 삭제
+		setCookie("userid", id, -1);
+	}
+}
+
+function getCookie() {
+	var key = "userid";
+	var cook = document.cookie + ";";
+	var idx = cook.indexOf(key, 0);
+	var val = "";
+
+	if (idx != -1) {
+		cook = cook.substring(idx, cook.length);
+		begin = cook.indexOf("=", 0) + 1;
+		end = cook.indexOf(";", begin);
+		val = unescape(cook.substring(begin, end));
+	}
+
+	//가져온 쿠키값이 있으면
+	if (val != "") {
+		$("#usid").val(val);
+		$("input:checkbox[id='idcheck']").prop("checked", true);
+	}
+}
+//쿠키관련 추가 end
+
+function login(id) {
+	var form = validForm(id);
+	if (form) {
+		if (loginFrm.idcheck.checked) {
+			//쿠키에 ID값 저장
+			saveLogin(loginFrm.usid.value);
+		} else {
+			//쿠키 ID 삭제
+			saveLogin("");
+		}
+
+		form.submit();
+	} else {
+		//alert( message);
+	}
+}
+
+function certLogin() {
+	GenSignedData_init(document.loginFrm, function() {
+		document.loginFrm.submit();
+	});
+}
+
+function certLogin2() {
+	GenSignedData2(document.loginFrm, function() {
+		document.loginFrm.submit();
+	});
+}
+//간편인증
+function simpleCertLogin() {
+	
+	var url="/authCheck/authCheck.ajax.getSimpleVerifiAccessInfo.do";
+    var parameters='';
+    sendRequest(checkCallback, parameters, 'post', url, true, true);
+}
+
+/*인증모듈이 없을때 설치화면으로전환 */
+var bSKinstall = false;
+var ManualInstallErrorMsg = "보안프로그램이 설치되지 않았습니다.\n\n다음에 나타나는 설치 화면에 따라서 설치해 주십시오.\n\n확인버튼을 누르세요.";
+
+function ModuleInstallCheck() {
+	var CertManX = document.getElementById("CertManX");
+	try {
+		var Err = CertManX.GetLastErrorMsg();
+		return true;
+	} catch (ex) {
+		alert(ManualInstallErrorMsg);
+		return false;
+	}
+}
+
+//로그인관련 함수
+function login(id) {
+	if (document.loginFrm.usid.value == "") {
+		callLayer("오류메세지", "id를 입력하여주세요");
+		return;
+	}
+	// 아이디 비밀번호 입력후 엔터키로 로그인 
+	if (window.event.keyCode == 13) {
+        // 로그인 버튼 클릭 이벤트를 실행
+        document.getElementById("loginButton").click();
+    }
+	var form = validForm(id);
+	if (form) {
+		form.submit();
+	} else {
+		// alert( message);
+	}
+}
+
+
+/* 로그인 버튼 전환 */
+function changelogin() {
+	if (document.loginFrm.agree.checked) {
+		id_login.style.display = "none";
+		in_login.style.display = "inline";
+	} else {
+		id_login.style.display = "inline";
+		in_login.style.display = "none";
+	}
+}
+
+/*인증모듈이 없을때 설치화면으로전환 */
+
+var bSKinstall = false;
+var ManualInstallErrorMsg = "보안프로그램이 설치되지 않았습니다.\n\n다음에 나타나는 설치 화면에 따라서 설치해 주십시오.\n\n확인버튼을 누르세요.";
+
+function ModuleInstallCheck() {
+	var CertManX = document.getElementById("CertManX");
+
+	try {
+		var Err = CertManX.GetLastErrorMsg();
+
+		return true;
+	} catch (ex) {
+		alert(ManualInstallErrorMsg);
+		return false;
+	}
+}
+	
+$(document).ready(function() {
+	//자세히보기-레이어 팝업 열림
+	$(".layerUserPop").hide();
+
+	//자세히보기-레이어 팝업 닫기
+	$(".layerUserPop .exit").click(function(e) {
+		$(this).parent().parent().hide();
+		e.preventDefault();
+		clear();
+	});
+});
+
+// 등록전 비밀번호 찾기 클릭시 기존 입력 내역 초기화
+function userFindPw(){
+	$('.layerUserPop').hide();
+	$('.userFindPw').show();
+	$('.workgoStart').hide();
+	
+	$(".findPW [id ^= userfindpw_]").val(""); // 등록전 PW 찾기 내용 초기화
+	$(".findPW [id ^= compfindpw_]").val(""); // 등록후 PW 찾기 내용 초기화
+}
+
+function compFindPw(){
+	$('.layerUserPop').hide();
+	$('.compFindPw').show();
+	$('.workgoStart').hide();
+	
+	$(".findPW [id ^= userfindpw_]").val(""); // 등록전 PW 찾기 내용 초기화
+	$(".findPW [id ^= compfindpw_]").val(""); // 등록후 PW 찾기 내용 초기화
+}
+// 업무 바로가기 클릭시 
+function workgo(){
+	var firstLoginYn = null;
+// 	alert("최초로그인::"+firstLoginYn);
+	// 최초로그인 여부 확인
+	if(!!firstLoginYn && firstLoginYn == 'Y'){
+		workgoStart();
+	}else{
+		location.href = "/main.gotoStartUrl.do";
+	} 
+}
+
+function workgoStart(){
+	$('.layerUserPop').hide();
+	$('.compFindPw').hide();
+	$('.workgoStart').show();
+	$('.findStart_after').hide();
+	
+	var grpEntnYn = null;
+// 	var grpEntnYnEtc600 = sessionStorage.getItem('grpEntnYnEtc600');
+	
+	var check1= (!!grpEntnYn && grpEntnYn =='N');
+// 	var check2 = ( grpEntnYnEtc600 == 'N');
+// 	alert(check1+'이게 null 이면 진자 최초여서 숨기고, null이 아니면 N이여야 보여지게함');
+// 	alert(check2+"얘는 존재하는지가 더 중요하니까 존재할 경우 N이 아니면 false");
+	
+	if(check1)
+	{
+		$('.findStart_after').show();
+	}
+	
+}
+function workgoStart1(){
+	location.href = "/main/etc600.apply4admission.basicForms.do"; // 업체정보 입력화면
+}
+function workgoStart2(){
+	var firstLoginYn = null;
+	location.href = "/bas/bas7000.applyadmission.NewbasicNext.do"; // 증명서정보 입력화면
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 등록 전 아이디 찾기 //
+function userfindidcheck() {
+	if (validChk()) {
+		var url = "/08_wsm/wsm_idpw.ajax.idCheck.do";
+		var usna = document.getElementById("userfindid_usna").value; // 등록전 아이디찾기 = 사용자명
+		var birthday = document.findfrm.birthday.value; // 등록전 아이디찾기 = 생년월일
+
+        var param = "&&usna=" +usna+"&&birthday="+ birthday; // 폼 밸류 처리
+        sendRequest(userfindidcheckCallback, param, 'POST', url, true, true); 
+	}
+}
+
+// 회원정보수정 진입시 패스워드 체크 
+function confirmPWcheck() {
+	var url = "/main/etc600.ajax.confirmPass.do";
+	var confirmPw = document.findfrm.confirmPw.value; // 패스워드 입력
+
+    var param = "&&confirmPw=" +confirmPw; // 폼 밸류 처리
+    sendRequest(confirmPWcheckCallback, param, 'POST', url, true, true); 		
+}
+
+function userfindidcheckCallback(obj) {	
+	eval(obj.responseText);
+	if (result == "ERR") {
+		alert("입력하신 정보로 가입된 정보가 없습니다. \n입력한 내용이 맞는지 확인하여 주시기 바랍니다");
+		
+	} else {
+		document.getElementById("msgUsid").innerText = usid;
+		
+		$('.findID').hide();
+		$('.findIDRe').show();
+		clear();
+	}
+}
+
+function confirmPWcheckCallback(obj) {
+	eval(obj.responseText);
+	
+	if (result == "ERR") {
+		alert("패스워드가 틀립니다.\n확인후 다시 입력해주십시오.");		
+	} else {			
+		$('.layerUserPop').hide();
+		
+		document.findfrm.confirmPass.value = confirmPass;		
+		document.findfrm.action = "/main/wsm_changeInfo.do";
+    	document.findfrm.submit();				
+	}
+}
+
+//등록 후 아이디 찾기 시작 //
+function compfindidcheck() {
+	if (validChk2()) {
+		
+		if (document.getElementById("compFindID_Ssn").value == '1'){ 			// **사업자****************
+			var usty_gb = document.getElementById("compFindID_Ssn").value;
+			var usna = document.getElementById("compfindid_usna").value; 		// 사용자명
+			
+			// 나누어진 input 합치기(사업자등록번호) 
+			var busn_regn1 = document.findfrm.compfindid_busn_regn1.value;
+			var busn_regn2 = document.findfrm.compfindid_busn_regn2.value;
+			var busn_regn3 = document.findfrm.compfindid_busn_regn3.value;
+			var busn_regn = busn_regn1+busn_regn2+busn_regn3;   				// 사업자등록번호	
+			//업체명 제외		
+			//var firm_name = document.findfrm.compfindid_firm_name.value;  		// 업체명
+			
+			var param = "&&usna=" + usna + "&&busn_regn=" + busn_regn + "&&usty_gb=" + usty_gb; 			// 폼 밸류 처리
+			
+		}
+		else if (document.getElementById("compFindID_Ssn").value == '2'){  		// **개인****************
+			var usty_gb = document.getElementById("compFindID_Ssn").value;
+			var usna = document.getElementById("compfindid_usna").value; 		// 사용자명
+			//var birthday = document.findfrm.birthday.value; 			 		// 생년월일
+			
+			// 나누어진 input 합치기(핸드폰번호) 
+			var hand_phone1 = document.findfrm.compfindid_indi_phone1.value;
+			var hand_phone2 = document.findfrm.compfindid_indi_phone2.value;
+			var hand_phone3 = document.findfrm.compfindid_indi_phone3.value;
+			var hand_phone = hand_phone1+hand_phone2+hand_phone3;   			// 핸드폰번호
+			
+			var param = "&&usna=" + usna + "&&hand_phone=" + hand_phone + "&&usty_gb=" + usty_gb; 	// 폼 밸류 처리
+		}
+		else if (document.getElementById("compFindID_Ssn").value == '3'){   	// **관할관청****************
+			var usty_gb = document.getElementById("compFindID_Ssn").value;
+			var usna = document.getElementById("compfindid_usna").value; 		// 사용자명
+			
+			// 나누어진 input 합치기(핸드폰번호) 
+			var hand_phone1 = document.findfrm.compfindid_phone1.value;
+			var hand_phone2 = document.findfrm.compfindid_phone2.value;
+			var hand_phone3 = document.findfrm.compfindid_phone3.value;
+			var hand_phone = hand_phone1+hand_phone2+hand_phone3;   			// 핸드폰번호
+			var cmpt_auth_name = document.findfrm.compfindid_auth_name.value;	// 시도/시군구/관할관청
+			var param = "&&usna=" + usna + "&&hand_phone=" + hand_phone + "&&cmpt_auth_name=" + cmpt_auth_name + "&&usty_gb=" + usty_gb; // 폼 밸류 처리
+		}
+		var usna = document.getElementById("compfindid_usna").value; 			// 사용자명 (공통)
+		
+		url = "/08_wsm/wsm_idpw.ajax.idCheck.do";
+       	sendRequest(compfindidcheckCallback, param, 'POST', url, true, true); 
+	}
+}
+
+
+function compfindidcheckCallback(obj) {
+	eval(obj.responseText);
+	if (result == "ERR") {
+		alert("입력하신 정보로 가입된 정보가 없습니다. \n입력한 내용이 맞는지 확인하여 주시기 바랍니다");
+	} else {
+		document.getElementById("msgUsid").innerText = usid;
+
+		$('.findID').hide();
+		$('.findIDRe').show();
+		clear();
+	}
+}
+//  등록 전 비밀번호 찾기 시작 //
+function userfindpwcheck(){
+	if (validChk3()) {
+		
+		// 확인버튼으로 레이어 팝업 닫기
+	    $("#exit").click(function(event){
+	    	document.getElementById("userfind_send_sms").style.display = "none";
+	        document.getElementById("userfind_send_sms1").style.display = "";
+	    });
+        
+		var url = "/08_wsm/wsm_idpw.ajax.pw_search_send.do"; 					//비밀번호찾기 임시비밀번호 전송/발송
+		
+ 		var usid = document.getElementById("userfindpw_id").value; 				// 등록전 비밀번호찾기 = 아이디
+ 		var usna = document.getElementById("userfindpw_usna").value; 			// 등록전 비밀번호찾기 = 사용자명
+ 		var birthday = document.findfrm.birthday.value; 						// 등록전 아이디찾기 = 생년월일
+
+		// 나누어진 input 합치기(핸드폰번호) 
+		var hand_phone1 = document.findfrm.userfindpw_phone1.value;
+		var hand_phone2 = document.findfrm.userfindpw_phone2.value;
+		var hand_phone3 = document.findfrm.userfindpw_phone3.value;
+		var hand_phone = hand_phone1+hand_phone2+hand_phone3;   				// 핸드폰번호
+
+        var param = "&&usid=" +usid+"&&usna=" +usna+"&&birthday=" +birthday+"&&hand_phone=" +hand_phone; // 폼 밸류 처리
+        sendRequest(userfindpwcheckCallback, param, 'POST', url, true, true); 
+	}
+}
+
+function userfindpwcheckCallback (obj){
+	eval(obj.responseText);
+	if (result == "ERR") {
+		alert("입력하신 정보로 가입된 정보가 없습니다. \n입력한 내용이 맞는지 확인하여 주시기 바랍니다");
+	} else if(result =="SUC") {
+		document.querySelector('.findID').style.display = 'none';
+		$('.findID').hide();
+		$('.findPWRe').show();
+		clear(); 				//초기화
+    } else {
+        alert("전송이 실패하였습니다");
+    }
+}
+
+
+//등록 후 비밀번호 찾기 시작 //
+function compfindpwcheck(){
+	if (validChk4()) {
+		document.getElementById("compfind_send_sms").style.display = "none";
+        document.getElementById("compfind_send_sms1").style.display = "";
+        
+		var usty_gb = document.getElementById("compFindPw_Ssn").value;			// 사업자등록번호 유무 구분
+		var usid = document.getElementById("compfindpw_id").value; 				// 아이디
+		var usna = document.getElementById("compfindpw_usna").value; 			// 사용자명
+		// 나누어진 input 합치기(핸드폰번호) 
+		var hand_phone1 = document.findfrm.compfindpw_phone1.value;
+		var hand_phone2 = document.findfrm.compfindpw_phone2.value;
+		var hand_phone3 = document.findfrm.compfindpw_phone3.value;
+		var hand_phone = hand_phone1+hand_phone2+hand_phone3;   				// 핸드폰번호
+		
+		if (document.getElementById("compFindPw_Ssn").value == '1'){ 			// **사업자****************************		
+			// 나누어진 input 합치기(사업자등록번호) 
+			var busn_regn1 = document.findfrm.compfindpw_busn_regn1.value;
+			var busn_regn2 = document.findfrm.compfindpw_busn_regn2.value;
+			var busn_regn3 = document.findfrm.compfindpw_busn_regn3.value;
+			var busn_regn = busn_regn1+busn_regn2+busn_regn3;   				// 사업자등록번호	
+			// 업체명 제외		
+			//var firm_name = document.findfrm.compfindpw_firm_name.value;  		// 업체명
+			
+			var param = "&&usid=" + usid + "&&usna=" + usna + "&&busn_regn=" + busn_regn + "&&hand_phone="+ hand_phone + "&&usty_gb=" + usty_gb; 			// 폼 밸류 처리
+			
+		}
+		else if (document.getElementById("compFindPw_Ssn").value == '2'){  		// **개인****************************
+			//var birthday = document.findfrm.birthday.value; 			   		// 생년월일
+			// 생년월일 대신 핸드폰번호 사용
+			var param = "&&usid=" + usid + "&&usna=" + usna + "&&hand_phone=" + hand_phone +"&&usty_gb=" + usty_gb; 			// 폼 밸류 처리
+		}
+		else if (document.getElementById("compFindPw_Ssn").value == '3'){   	// **관할관청****************************
+
+			var cmpt_auth_name = document.findfrm.compfindpw_auth_name.value;	// 시도/시군구/관할관청
+			var param = "&&usid=" + usid + "&&usna=" + usna + "&&hand_phone=" + hand_phone + "&&cmpt_auth_name=" + cmpt_auth_name + "&&usty_gb=" + usty_gb; // 폼 밸류 처리
+		}		
+		
+			var url = "/08_wsm/wsm_idpw.ajax.pw_search_send.do"; 					//비밀번호찾기 임시비밀번호 전송/발송
+	       	sendRequest(compfindpwcheckCallback, param, 'POST', url, true, true); 
+	}
+}
+
+//등록 후 비밀번호 찾기 시작 (공동인증서 추가)//
+function compfindpwcertcheck(){
+	if (validChk4()) {
+		document.getElementById("compfind_send_sms").style.display = "none";
+        document.getElementById("compfind_send_sms1").style.display = "";
+        
+		var usty_gb = document.getElementById("compFindPw_Ssn").value;			// 사업자등록번호 유무 구분
+		var usid = document.getElementById("compfindpw_id").value; 				// 아이디
+		var usna = document.getElementById("compfindpw_usna").value; 			// 사용자명
+		document.findfrm.usty_gb.value = usty_gb;
+		document.findfrm.pw_usid.value = usid;
+		document.findfrm.pw_usna.value = usna;
+		
+		// 나누어진 input 합치기(핸드폰번호) 
+		var hand_phone1 = document.findfrm.compfindpw_phone1.value;
+		var hand_phone2 = document.findfrm.compfindpw_phone2.value;
+		var hand_phone3 = document.findfrm.compfindpw_phone3.value;
+		var hand_phone = hand_phone1+hand_phone2+hand_phone3;   				// 핸드폰번호
+		document.findfrm.pw_hand_phone.value = hand_phone;
+		
+		if (document.getElementById("compFindPw_Ssn").value == '1'){ 			// **사업자****************************		
+			// 나누어진 input 합치기(사업자등록번호) 
+			var busn_regn1 = document.findfrm.compfindpw_busn_regn1.value;
+			var busn_regn2 = document.findfrm.compfindpw_busn_regn2.value;
+			var busn_regn3 = document.findfrm.compfindpw_busn_regn3.value;
+			var busn_regn = busn_regn1+busn_regn2+busn_regn3;   				// 사업자등록번호
+			document.findfrm.pw_busn_regn.value = busn_regn;
+			
+			// 업체명 제외		
+			//var firm_name = document.findfrm.compfindpw_firm_name.value;  		// 업체명			
+		}
+		else if (document.getElementById("compFindPw_Ssn").value == '2'){  		// **개인****************************
+			//var birthday = document.findfrm.birthday.value; 			   		// 생년월일
+			// 생년월일 대신 핸드폰번호 사용
+		}
+		else if (document.getElementById("compFindPw_Ssn").value == '3'){   	// **관할관청****************************
+			var cmpt_auth_name = document.findfrm.pw_compfindpw_auth_name.value;	// 시도/시군구/관할관청
+			document.findfrm.pw_cmpt_auth_name.value = cmpt_auth_name;
+		}
+		
+		GenSignedData_init(document.findfrm, function() {
+			document.findfrm.action = "/08_wsm/wsm_idpw.pw_search_cert_send.do";
+	    	document.findfrm.submit();
+		});
+	}
+}
+
+//업체명 
+function checkFirm(){
+	// var url = "/bas/bas100.P.searchBasByEntnType.do"; 
+ 	popWin('/bas/bas100.P.searchBasByEntnType.do?mode=search&entn_type=all&searchByID=M', 800, 700, 'basic', 1); 
+ 	sendRequest(callSearchBasByEntnType1, param, 'POST', url, true, true);
+}
+
+// 업체명 콜백함수
+function callSearchBasByEntnType1(map)
+{
+    document.getElementById("compfindid_firm_name").value = map.get("firm_name");
+    document.getElementById("s_entn").value = map.get("entn");
+}
+
+
+//등록 후 비밀번호 찾기 콜백
+function compfindpwcheckCallback (obj){
+	eval(obj.responseText);
+	if (result == "ERR") {
+		alert("입력하신 정보로 가입된 정보가 없습니다. \n입력한 내용이 맞는지 확인하여 주시기 바랍니다");
+	} else if(result =="SUC") {
+		document.querySelector('.findID').style.display = 'none';
+		$('.findID').hide();
+		$('.findPWRe').show();
+		clrar(); 				//초기화
+    } else {
+        alert("전송이 실패하였습니다");
+    }
+}
+
+// 관할조직코드 콜백 
+function setCmpt_cityInfoCallBack( map ){
+	setValueById("cmpt_auth", map.get("cmpt_auth"));
+	document.getElementById("compfindid_auth_name").value = map.get("cmpt_auth_name"); // 등록 후 아이디 찾기 관할조직코드
+	document.getElementById("compfindpw_auth_name").value = map.get("cmpt_auth_name"); // 등록 후 비밀번호 찾기 관할조직코드
+}
+
+
+
+
+//아이디찾기 등록 전  validChk ////////////////////////////////////////////////////
+function validChk() {
+	
+	if (document.findfrm.userfindid_usna.value == "") {
+		alert("사용자명을 입력해주시기 바랍니다.");
+		return false;
+	}
+	if (document.findfrm.birthday.value == ""|| document.findfrm.birthday.value.length != 8) {
+		alert("생년월일을 입력하여 주시기 바랍니다.");
+		return false;
+	}
+	return true;
+}
+
+//아이디찾기 등록 후  validChk ////////////////////////////////////////////////////
+function validChk2() {
+	// 사업자 : 1
+	if (document.getElementById("compFindID_Ssn").value == '1'){ 
+		if (document.getElementById("compfindid_usna").value == "") {
+			alert("사용자명을 입력해주시기 바랍니다.");
+			return false;
+		}
+		
+		if(document.findfrm.compfindid_busn_regn1.value.length == 0||document.findfrm.compfindid_busn_regn2.value.length == 0||document.findfrm.compfindid_busn_regn3.value.length == 0)
+	     {
+	         alert("사업자등록번호를 입력해주시기 바랍니다.");
+	         return false;
+	     }
+		
+		
+	 	return true;
+ 	 // 개인 : 2
+	}else if(document.getElementById("compFindID_Ssn").value == '2'){
+		if (document.getElementById("compfindid_usna").value == "") {
+			alert("사용자명을 입력해주시기 바랍니다.");
+			return false;
+		}
+	
+		
+		
+		if(document.findfrm.compfindid_indi_phone1.value.length <3 || 
+		   document.findfrm.compfindid_indi_phone2.value.length <4 || 
+		   document.findfrm.compfindid_indi_phone3.value.length <4 ){
+			alert("핸드폰번호를 입력해주시기 바랍니다.");
+			return false;
+		}
+		
+		return true;
+		
+	}else if(document.getElementById("compFindID_Ssn").value == '3'){ // 환경청: 3
+		if (document.getElementById("compfindid_usna").value == "") {
+			alert("사용자명을 입력해주시기 바랍니다.");
+			return false;
+		}
+		
+		if(document.findfrm.compfindid_phone1.value.length <3 || 
+		   document.findfrm.compfindid_phone2.value.length <4 || 
+		   document.findfrm.compfindid_phone3.value.length <4 ){
+			alert("핸드폰번호를 입력해주시기 바랍니다.");
+			return false;
+		}
+		return true;
+	}
+}
+
+//비밀번호 찾기 등록 전  validChk ////////////////////////////////////////////////////
+function validChk3() {
+
+	if (document.getElementById("userfindpw_id").value == "") {
+		alert("아이디를 입력해주시기 바랍니다.");
+		return false;
+	}
+	if (document.getElementById("userfindpw_usna").value == "") {
+		alert("사용자명을 입력해주시기 바랍니다.");
+		return false;
+	}
+	if (document.findfrm.birthday.value == ""|| document.findfrm.birthday.value.length != 8) {
+		alert("생년월일을 입력하여 주시기 바랍니다.");
+		return false;
+	}
+	
+	if (document.findfrm.userfindpw_phone1.value.length <3 || 
+	    document.findfrm.userfindpw_phone2.value.length <4 || 
+	    document.findfrm.userfindpw_phone3.value.length <4 ){
+		alert("핸드폰번호를 입력해주시기 바랍니다.");
+		return false;
+	}
+	return true;
+}
+
+//아이디찾기 등록 후  validChk ////////////////////////////////////////////////////
+function validChk4() {
+	if (document.getElementById("compfindpw_id").value == "") {
+		alert("아이디를 입력해주시기 바랍니다.");
+		return false;
+	}
+	if (document.getElementById("compfindpw_usna").value == "") {
+		alert("사용자명을 입력해주시기 바랍니다.");
+		return false;
+	}
+	if (document.findfrm.compfindpw_phone1.value.length <3 || 
+	    document.findfrm.compfindpw_phone2.value.length <4 || 
+	    document.findfrm.compfindpw_phone3.value.length <4 )
+	{
+		alert("핸드폰번호를 입력해주시기 바랍니다.");
+		return false;
+	}
+	
+	// 사업자 : 1
+	if (document.getElementById("compFindPw_Ssn").value == '1'){		
+		if(document.findfrm.compfindpw_busn_regn1.value.length == 0 ||
+		   document.findfrm.compfindpw_busn_regn2.value.length == 0 ||
+		   document.findfrm.compfindpw_busn_regn3.value.length == 0 )
+	     {
+	         alert("사업자등록번호를 입력해주시기 바랍니다.");
+	         return false;
+	     }
+	     
+	 	return true;
+	 	
+ 	 // 개인 : 2
+	}else if(document.getElementById("compFindPw_Ssn").value == '2'){
+		
+		return true;
+		
+	}else if(document.getElementById("compFindPw_Ssn").value == '3'){ // 환경청: 3
+		
+		//시군구 넣어야함
+		
+		return true;
+	}
+	
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+</script>
+<form id ="simple_frm" name ="simple_frm" method="post" action="/main.login.do">
+ 		<input type="hidden" id ="accKey" 	name ="accKey" 		value =""/>
+ 		<input type="hidden" id ="accToken" name ="accToken" 	value =""/>
+		<input type="hidden" id="jsonData"  name ="jsonData" 	value ="" />
+ 	</form>
+
+
+<!--- 로그인 메인이미지 영역 시작 -->
+<form id="loginFrm" name="loginFrm" method="post" action="/main.login.do">
+	<input type="hidden" id="signed_data" 	name="signed_data" 	value="">
+	<input type="hidden"	 id="retn" 		name="retn" 		value="">
+	<input type="hidden" 					name="exec" 		value="Y">
+	<input type="hidden" 					name="goURL" 		value="MAIN">
+	<input type="hidden" id="name" 			name="name" 		value="">
+	<input type="hidden" id="ceo_year"		name="ceo_year" 	value="">
+	<input type="hidden" id="ceo_month" 	name="ceo_month" 	value="">
+	<input type="hidden" id="ceo_day" 		name="ceo_day" 		value="">
+	<input type="hidden" id="ceo_day1" 		name="ceo_day1" 	value="">
+	<input type="hidden" id="ceo_day2" 		name="ceo_day2" 	value="">
+	<input type="hidden" id="ceo_day3" 		name="ceo_day3" 	value="">
+	<input type="hidden" id="hp1" 			name="hp1" 			value="">
+	<input type="hidden" id="hp2" 			name="hp2" 			value="">
+	<input type="hidden" id="hp3" 			name="hp3" 			value="">
+	<input type="hidden" id="usty" 			name="usty" 		value="">
+	<input type="hidden" id="work_gb" 		name="work_gb" 		value="">
+
+	<input type="hidden" id="first_login_yn" name="first_login_yn" value="">
+	
+	
+	<div id="layout-wrap">
+		<!-- 로그인  -->
+		<div class="login-after">
+			<div class="empbox">
+				<div class="empboxin">
+					<div class="close1">
+						<a href="#" class="login close">닫기</a>
+						<a href="#"  onclick="location.href='/index.jsp'" class="home_white" alt="로고 이미지" title="홈으로 이동"></a>
+					</div>	
+					
+					<div class="loginbox login_related">
+						<p class="usid">
+							<label for="usid">아이디</label> 
+							<input type="text" id="usid" class="ab-bnum4 engNum_ ime-disabled" maxlength='25' name="usid" onkeyup="onActionKey('usid');" title="아이디 영문숫자 혼합" placeholder="아이디를 입력해주세요" value="">
+						</p>
+						<p class="password">
+							<label for="uspw">비밀번호</label> 
+							<input type="password" id="uspw" class="ab-bnum4 password" maxlength='20' name="uspw" onkeyup="onActionKey('login');" title="비밀번호"placeholder="비밀번호를 입력해주세요" value="">
+						</p>
+						<button type="button" class="login1" id="loginButton" onclick="login('loginFrm')">로그인</button>
+						<button type="button" class="login1 simpleLogin" onclick="simpleCertLogin()" title="[회원가입]을 통해 본인인증을 수행한 신규회원만 간편인증을 이용하실 수 있습니다."><span style="position: relative; top: -8px;">간편인증 로그인</span></button>
+						<!--button type="button" class="login1" onclick="popWin('/main/etc600.P.passLoginSign.do', '', '', 'passLoginSign', 1);" title="[회원가입]을 통해 본인인증을 수행한 신규회원만 Pass인증을 이용하실 수 있습니다.">(임시)간편인증 로그인<br><span style="font-size: 13px;"> * 간편인증 로그인 복구 시 까지 사용 가능</span></span></button-->
+						<button type="button" class="login2" onclick="certLogin()" title="인증서 조회가 안될경우 바로 아래 공동인증서관리를 확인하여 인증서 경로를 바꿔주세요">공동인증서 로그인</button>
+						<div class="user_related">
+							<a href="javascript:idPwSelect('id');" class="find1">아이디 찾기</a> 
+							<a href="javascript:idPwSelect('pw')" class="find2">비밀번호 찾기</a> 
+							<a href="javascript:applyCheck();" class="apply">회원가입</a>
+						</div>
+					</div>
+					<a href="http://www.allbaro.or.kr/siren" target="_blank" title="새창" class="btn_quick">현장정보관리시스템</a>			
+					<a href="https://www.allbaro.or.kr/help" target="_blank" title="새창" class="btn_quick">폐기물 불법투기 신고상담센터</a>
+					<!-- <a href="https://www.recycling-info.or.kr/" target="_blank" title="새창" class="btn_quick">환경통계정보</a>	 -->
+					<a href="https://www.allbaro.or.kr/wasteex/" target="_blank" title="새창" class="btn_quick">폐기물 불법수출 신고상담센터</a>		
+					<a onclick ="popWin('/prc/prc1710.P.baroS.do', 100, 100, 'prc1710baroS', 1);" title="팝업" class="btn_quick" style="cursor: pointer;">폐기물 실적보고 (실명인증)</a>
+					<a onclick ="chatbot();" title="챗봇" class="btn_quick_org" style="cursor: pointer;">올바로 챗봇 서비스</a>
+					
+				</div>
+				<div class="quick_info">
+					<table class ="call_info">
+						<colgroup> 
+					    	<col style="width: 50%;"/> 
+					        <col style="width: 50%;"/> 
+					    </colgroup> 
+    					<tbody> 
+							<tr>
+								<td class ="point">고객센터</td>
+								<td><div>운영시간 ｜ 평일 09:00 ~ 18:00</div><div>점심시간 ｜ 평일 12:00 ~ 13:00</div></td>
+							</tr>
+							<tr>
+								<td><span>◇</span> 지정·일반·건설 폐기물</td>
+								<td>1644-0007</td>
+							</tr>
+							<tr>
+								<td><span>◇</span> 폐기물 현장정보 전송</td>
+								<td>1800-2224</td>
+							</tr>							
+							<tr>
+								<td><span>◇</span> 의료 폐기물</td>
+								<td>032-590-4277~8</td>
+							</tr>
+							<tr>
+								<td><span>◇</span> 의료 비콘태그</td>
+								<td>032-590-4262, 4266</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+<script>
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+<!-- 아이디찾기, 비밀번호찾기 레이어 팝업// -->
+    function idPwSelect(gubun) {
+
+        var i = gubun;        
+        $(".layerUserPop").hide();
+
+        if(i == 'id') $('.findIDStart').show();
+        else if(i == 'pw') $('.findPWStart').show();
+        else if(i == 'cpw') $('.confirmPw').show();
+//         else if(i == 'workgo') $('.workgoStart').show();
+        
+        else return false;
+    }
+
+    function applyCheck() {
+    	$(".layerUserPop").hide();
+        $(".checkStart").show();
+    }
+
+    $(document).ready(function(){ 
+        //자세히보기-레이어 팝업 열림
+        $(".layerUserPop").hide();
+        
+        //자세히보기-레이어 팝업 닫기
+        $(".layerUserPop .exit").click(function(e){
+            $(this).parent().parent().hide();
+            document.findfrm.value ="";
+            e.preventDefault();
+            clear();
+        });
+    });	
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+/* 등록전 아이디 찾기 년월일 컨트롤 */
+//생년월일 년도 선택시 월일 초기화
+function userFindIdBirthY(year)
+{
+    document.findfrm.userfindid_birthM.value ="";
+    document.findfrm.userfindid_birthD28.style.display ="none";
+    document.findfrm.userfindid_birthD29.style.display ="none";
+    document.findfrm.userfindid_birthD30.style.display ="none";
+    document.findfrm.userfindid_birthD31.style.display ="none";
+}
+
+//년을 받아서 윤달을 계산함.
+function userFindIdBirthM(month)
+{
+    //일을 초기화 시킴
+    document.findfrm.userfindid_birthD28.value ="";
+    document.findfrm.userfindid_birthD29.value ="";
+    document.findfrm.userfindid_birthD30.value ="";
+    document.findfrm.userfindid_birthD31.value ="";
+    //윤달 계산을 위한 년을 가져옴
+    var year = document.findfrm.userfindid_birthY.value ;
+    if(year!="")//""이 아닐경우에 계산
+    {
+        if(month =="2")//2월달일경우
+        {
+            if((year%4)==0&&(year%100) !=0 ||(year%400)==0)//2윤달이면 29일까지
+            {
+                document.getElementById("userfindid_birthD28").style.display ="none";
+                document.getElementById("userfindid_birthD29").style.display ="";
+                document.getElementById("userfindid_birthD30").style.display ="none";
+                document.getElementById("userfindid_birthD31").style.display ="none";
+            }
+            else//윤달이 아닐경우 28일까지
+            {
+                document.getElementById("userfindid_birthD28").style.display ="";
+                document.getElementById("userfindid_birthD29").style.display ="none";
+                document.getElementById("userfindid_birthD30").style.display ="none";
+                document.getElementById("userfindid_birthD31").style.display ="none";
+            }
+        }
+        else if(month=="4"||month=="6"||month=="9"||month=="11")//30일까지 있는 달
+        {
+            document.getElementById("userfindid_birthD28").style.display ="none";
+            document.getElementById("userfindid_birthD29").style.display ="none";
+            document.getElementById("userfindid_birthD30").style.display ="";
+            document.getElementById("userfindid_birthD31").style.display ="none";
+        }
+        else//31일까지 있는 달
+        {
+            document.getElementById("userfindid_birthD28").style.display ="none";
+            document.getElementById("userfindid_birthD29").style.display ="none";
+            document.getElementById("userfindid_birthD30").style.display ="none";
+            document.getElementById("userfindid_birthD31").style.display ="";
+        }
+        
+    }
+}
+//일을 선택하면 년월일을 합쳐서 birthIdDay에 담음.
+function userbirthDayIdFind(day)
+{
+	var birthday = '';
+    var year  = document.findfrm.userfindid_birthY.value;
+    var month = document.findfrm.userfindid_birthM.value;
+    
+    if(month<10)//10보다 작을경우 0X로 표시하기 위함.
+    {
+        month = "0" + month;
+    }
+    if(day<10)//10보다 작을경우 0X로 표시하기 위함.
+    {
+        day = "0" + day;
+    }
+    var birthday = year + month + day;
+    document.findfrm.birthday.value = birthday;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+/* 등록전 비밀번호 찾기 년월일 컨트롤 시작 */
+//생년월일 년도 선택시 월일 초기화
+function userFindPwBirthY(year)
+{
+    document.findfrm.userfindpw_birthM.value ="";
+    document.findfrm.userfindpw_birthD28.style.display ="none";
+    document.findfrm.userfindpw_birthD29.style.display ="none";
+    document.findfrm.userfindpw_birthD30.style.display ="none";
+    document.findfrm.userfindpw_birthD31.style.display ="none";
+}
+
+//년을 받아서 윤달을 계산함.
+function userFindPwBirthM(month)
+{
+    //일을 초기화 시킴
+    document.findfrm.userfindpw_birthD28.value ="";
+    document.findfrm.userfindpw_birthD29.value ="";
+    document.findfrm.userfindpw_birthD30.value ="";
+    document.findfrm.userfindpw_birthD31.value ="";
+    //윤달 계산을 위한 년을 가져옴
+    var year = document.findfrm.userfindpw_birthY.value ;
+    if(year!="")//""이 아닐경우에 계산
+    {
+        if(month =="2")//2월달일경우
+        {
+            if((year%4)==0&&(year%100) !=0 ||(year%400)==0)//2윤달이면 29일까지
+            {
+                document.getElementById("userfindpw_birthD28").style.display ="none";
+                document.getElementById("userfindpw_birthD29").style.display ="";
+                document.getElementById("userfindpw_birthD30").style.display ="none";
+                document.getElementById("userfindpw_birthD31").style.display ="none";
+            }
+            else//윤달이 아닐경우 28일까지
+            {
+                document.getElementById("userfindpw_birthD28").style.display ="";
+                document.getElementById("userfindpw_birthD29").style.display ="none";
+                document.getElementById("userfindpw_birthD30").style.display ="none";
+                document.getElementById("userfindpw_birthD31").style.display ="none";
+            }
+        }
+        else if(month=="4"||month=="6"||month=="9"||month=="11")//30일까지 있는 달
+        {
+            document.getElementById("userfindpw_birthD28").style.display ="none";
+            document.getElementById("userfindpw_birthD29").style.display ="none";
+            document.getElementById("userfindpw_birthD30").style.display ="";
+            document.getElementById("userfindpw_birthD31").style.display ="none";
+        }
+        else//31일까지 있는 달
+        {
+            document.getElementById("userfindpw_birthD28").style.display ="none";
+            document.getElementById("userfindpw_birthD29").style.display ="none";
+            document.getElementById("userfindpw_birthD30").style.display ="none";
+            document.getElementById("userfindpw_birthD31").style.display ="";
+        }
+        
+    }
+}
+//일을 선택하면 년월일을 합쳐서 birthDay에 담음.
+function userbirthDayPwFind(day)
+{
+	var birthday = '';
+    var year  = document.findfrm.userfindpw_birthY.value;
+    var month = document.findfrm.userfindpw_birthM.value;
+    
+    if(month<10)//10보다 작을경우 0X로 표시하기 위함.
+    {
+        month = "0" + month;
+    }
+    if(day<10)//10보다 작을경우 0X로 표시하기 위함.
+    {
+        day = "0" + day;
+    }
+    var birthday = year + month + day;
+    document.findfrm.birthday.value = birthday;
+}
+/* 등록전!!! 비밀번호 찾기 년월일 컨트롤 끝 */
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* 등록후!!! 아이디 찾기 년월일 컨트롤  시작*/
+//생년월일 년도 선택시 월일 초기화
+function compFindIdBirthY(year)
+{
+    document.findfrm.compfindid_birthM.value ="";
+    document.findfrm.compfindid_birthD28.style.display ="none";
+    document.findfrm.compfindid_birthD29.style.display ="none";
+    document.findfrm.compfindid_birthD30.style.display ="none";
+    document.findfrm.compfindid_birthD31.style.display ="none";
+}
+
+//년을 받아서 윤달을 계산함.
+function compFindIdBirthM(month)
+{
+    //일을 초기화 시킴
+    document.findfrm.compfindid_birthD28.value ="";
+    document.findfrm.compfindid_birthD29.value ="";
+    document.findfrm.compfindid_birthD30.value ="";
+    document.findfrm.compfindid_birthD31.value ="";
+    //윤달 계산을 위한 년을 가져옴
+    var year = document.findfrm.compfindid_birthY.value ;
+    if(year!="")//""이 아닐경우에 계산
+    {
+        if(month =="2")//2월달일경우
+        {
+            if((year%4)==0&&(year%100) !=0 ||(year%400)==0)//2윤달이면 29일까지
+            {
+                document.getElementById("compfindid_birthD28").style.display ="none";
+                document.getElementById("compfindid_birthD29").style.display ="";
+                document.getElementById("compfindid_birthD30").style.display ="none";
+                document.getElementById("compfindid_birthD31").style.display ="none";
+            }
+            else//윤달이 아닐경우 28일까지
+            {
+                document.getElementById("compfindid_birthD28").style.display ="";
+                document.getElementById("compfindid_birthD29").style.display ="none";
+                document.getElementById("compfindid_birthD30").style.display ="none";
+                document.getElementById("compfindid_birthD31").style.display ="none";
+            }
+        }
+        else if(month=="4"||month=="6"||month=="9"||month=="11")//30일까지 있는 달
+        {
+            document.getElementById("compfindid_birthD28").style.display ="none";
+            document.getElementById("compfindid_birthD29").style.display ="none";
+            document.getElementById("compfindid_birthD30").style.display ="";
+            document.getElementById("compfindid_birthD31").style.display ="none";
+        }
+        else//31일까지 있는 달
+        {
+            document.getElementById("compfindid_birthD28").style.display ="none";
+            document.getElementById("compfindid_birthD29").style.display ="none";
+            document.getElementById("compfindid_birthD30").style.display ="none";
+            document.getElementById("compfindid_birthD31").style.display ="";
+        }
+        
+    }
+}
+//일을 선택하면 년월일을 합쳐서 birthIdDay에 담음.
+function compbirthDayIdFind(day)
+{
+	var birthday = '';
+    var year  = document.findfrm.compfindid_birthY.value;
+    var month = document.findfrm.compfindid_birthM.value;
+    
+    if(month<10)//10보다 작을경우 0X로 표시하기 위함.
+    {
+        month = "0" + month;
+    }
+    if(day<10)//10보다 작을경우 0X로 표시하기 위함.
+    {
+        day = "0" + day;
+    }
+    var birthday = year + month + day;
+    document.findfrm.birthday.value = birthday;
+    
+}
+/////////////////////////////////////////////////////////////////////////////
+/* 등록후 비밀번호 찾기 년월일 컨트롤 시작 */
+//생년월일 년도 선택시 월일 초기화
+function compFindPwBirthY(year)
+{
+    document.findfrm.compfindpw_birthM.value ="";
+    document.findfrm.compfindpw_birthD28.style.display ="none";
+    document.findfrm.compfindpw_birthD29.style.display ="none";
+    document.findfrm.compfindpw_birthD30.style.display ="none";
+    document.findfrm.compfindpw_birthD31.style.display ="none";
+}
+
+//년을 받아서 윤달을 계산함.
+function compFindPwBirthM(month)
+{
+    //일을 초기화 시킴
+    document.findfrm.compfindpw_birthD28.value ="";
+    document.findfrm.compfindpw_birthD29.value ="";
+    document.findfrm.compfindpw_birthD30.value ="";
+    document.findfrm.compfindpw_birthD31.value ="";
+    //윤달 계산을 위한 년을 가져옴
+    var year = document.findfrm.compfindpw_birthY.value ;
+    if(year!="")//""이 아닐경우에 계산
+    {
+        if(month =="2")//2월달일경우
+        {
+            if((year%4)==0&&(year%100) !=0 ||(year%400)==0)//2윤달이면 29일까지
+            {
+                document.getElementById("compfindpw_birthD28").style.display ="none";
+                document.getElementById("compfindpw_birthD29").style.display ="";
+                document.getElementById("compfindpw_birthD30").style.display ="none";
+                document.getElementById("compfindpw_birthD31").style.display ="none";
+            }
+            else//윤달이 아닐경우 28일까지
+            {
+                document.getElementById("compfindpw_birthD28").style.display ="";
+                document.getElementById("compfindpw_birthD29").style.display ="none";
+                document.getElementById("compfindpw_birthD30").style.display ="none";
+                document.getElementById("compfindpw_birthD31").style.display ="none";
+            }
+        }
+        else if(month=="4"||month=="6"||month=="9"||month=="11")//30일까지 있는 달
+        {
+            document.getElementById("compfindpw_birthD28").style.display ="none";
+            document.getElementById("compfindpw_birthD29").style.display ="none";
+            document.getElementById("compfindpw_birthD30").style.display ="";
+            document.getElementById("compfindpw_birthD31").style.display ="none";
+        }
+        else//31일까지 있는 달
+        {
+            document.getElementById("compfindpw_birthD28").style.display ="none";
+            document.getElementById("compfindpw_birthD29").style.display ="none";
+            document.getElementById("compfindpw_birthD30").style.display ="none";
+            document.getElementById("compfindpw_birthD31").style.display ="";
+        }
+        
+    }
+}
+//일을 선택하면 년월일을 합쳐서 birthDay에 담음.
+function compbirthDayPwFind(day)
+{
+	var birthday = '';
+    var year  = document.findfrm.compfindpw_birthY.value;
+    var month = document.findfrm.compfindpw_birthM.value;
+    
+    if(month<10)//10보다 작을경우 0X로 표시하기 위함.
+    {
+        month = "0" + month;
+    }
+    if(day<10)//10보다 작을경우 0X로 표시하기 위함.
+    {
+        day = "0" + day;
+    }
+    var birthday = year + month + day;
+    document.findfrm.birthday.value = birthday;
+}
+/* 등록후!!! 비밀번호 찾기 년월일 컨트롤 끝 */
+    
+    
+//비밀번호 찾기 sms 전송버튼
+    function certSend(sms)
+    {
+        document.findfrm.hp.value = document.findfrm.userfindpw_phone1.value + document.findfrm.userfindpw_phone2.value
+        					  		+ document.findfrm.userfindpw_phone3.value;
+        document.getElementById("compfind_send_sms").style.display = "none";
+        document.getElementById("compfind_send_sms1").style.display = "";
+        document.getElementById("userfind_send_sms").style.display = "none";
+        document.getElementById("userfind_send_sms1").style.display = "";
+        url = "/08_wsm/wsm_idpw.ajax.pw_search_send.do";
+        var param = '&&hp'+hp; // 폼 밸류 처리
+        sendRequest(pw_search_sendCallback, param , 'POST', url, true, true);
+    }
+    
+    function pw_search_sendCallback( obj )
+    {
+        eval(obj.responseText);
+        if(result =="SUC")
+        {
+    		$('.findPWRe').show();
+    		// clrar(); --초기화
+        }
+        else if(result =="ERR")
+        {
+            alert("입력하신 정보로 가입된 정보가 없습니다. \n입력한 내용이 맞는지 확인하여 주시기 바랍니다.");
+        }
+        else
+        {
+            alert("전송이 실패하였습니다");
+        }
+    }
+    
+    
+    function chatbot(){
+    	
+    	var objRmtWin = window.open("https://cb.allbaro.or.kr:8443/chat/R2ehGbSxF0YoMzmPj/18a917d91f2a4v1", "CHATBOT", "left=300,top=100, height=800,width=450,status=no,toolbar=no,menubar=no,location=no,resizable=no,scrollbars=no");
+		
+		
+			objRmtWin.focus( );
+    	
+    }
+    
+/////////////////////////////////////////////////////////////////////////////
+    /* 등록전 비밀번호 찾기 년월일 컨트롤 시작 */
+    //생년월일 년도 선택시 월일 초기화
+    function certBirthY(year)
+    {
+        document.findfrm.cert_birthM.value ="";
+        document.findfrm.cert_birthD28.style.display ="none";
+        document.findfrm.cert_birthD29.style.display ="none";
+        document.findfrm.cert_birthD30.style.display ="none";
+        document.findfrm.cert_birthD31.style.display ="none";
+    }
+
+    //년을 받아서 윤달을 계산함.
+    function certBirthM(month)
+    {
+        //일을 초기화 시킴
+        document.findfrm.cert_birthD28.value ="";
+        document.findfrm.cert_birthD29.value ="";
+        document.findfrm.cert_birthD30.value ="";
+        document.findfrm.cert_birthD31.value ="";
+        //윤달 계산을 위한 년을 가져옴
+        var year = document.findfrm.cert_birthY.value ;
+        if(year!="")//""이 아닐경우에 계산
+        {
+            if(month =="2")//2월달일경우
+            {
+                if((year%4)==0&&(year%100) !=0 ||(year%400)==0)//2윤달이면 29일까지
+                {
+                    document.getElementById("cert_birthD28").style.display ="none";
+                    document.getElementById("cert_birthD29").style.display ="";
+                    document.getElementById("cert_birthD30").style.display ="none";
+                    document.getElementById("cert_birthD31").style.display ="none";
+                }
+                else//윤달이 아닐경우 28일까지
+                {
+                    document.getElementById("cert_birthD28").style.display ="";
+                    document.getElementById("cert_birthD29").style.display ="none";
+                    document.getElementById("cert_birthD30").style.display ="none";
+                    document.getElementById("cert_birthD31").style.display ="none";
+                }
+            }
+            else if(month=="4"||month=="6"||month=="9"||month=="11")//30일까지 있는 달
+            {
+                document.getElementById("cert_birthD28").style.display ="none";
+                document.getElementById("cert_birthD29").style.display ="none";
+                document.getElementById("cert_birthD30").style.display ="";
+                document.getElementById("cert_birthD31").style.display ="none";
+            }
+            else//31일까지 있는 달
+            {
+                document.getElementById("cert_birthD28").style.display ="none";
+                document.getElementById("cert_birthD29").style.display ="none";
+                document.getElementById("cert_birthD30").style.display ="none";
+                document.getElementById("cert_birthD31").style.display ="";
+            }
+            
+        }
+    }
+    //일을 선택하면 년월일을 합쳐서 birthDay에 담음.
+    function certBirthD(day)
+    {
+        document.findfrm.cert_birthD.value = day;
+    	var birthday = '';
+        var year  = document.findfrm.cert_birthY.value;
+        var month = document.findfrm.cert_birthM.value;
+        
+        if(month<10)//10보다 작을경우 0X로 표시하기 위함.
+        {
+            month = "0" + month;
+        }
+        if(day<10)//10보다 작을경우 0X로 표시하기 위함.
+        {
+            day = "0" + day;
+        }
+        var birthday = year + month + day;
+        document.findfrm.birthday.value = birthday;
+    }
+    /* 등록전!!! 비밀번호 찾기 년월일 컨트롤 끝 */    
+    
+/////////////////////////////////////////////////////////////////////////////
+
+//회원가입 SMS 인증번호 발송
+function certSendHp()
+{
+	if(checkHpValid())
+	{
+		document.getElementById("cert_button").style.display ="none";
+		document.getElementById("cert_button1").style.display ="none";
+		
+		var url = "/prc/prc1710.P.baroS.do?cert_send=";
+		document.findfrm.cert_hp.value = document.findfrm.cert_hand_phone1.value +'-'+document.findfrm.cert_hand_phone2.value +'-'+document.findfrm.cert_hand_phone3.value;
+		var param = '&&'+FormQueryStringForAjax(document.findfrm);
+		sendRequest(certSendHpCallback, param , 'POST', url, true, true);
+	}
+}
+
+//회원가입 SMS 인증번호 발송 콜백
+function certSendHpCallback( obj )
+{	
+	document.getElementById('cert_num').style.display ="";
+	
+    var display = $(".time");
+    
+	// 유효시간 설정
+    var leftSec = 180;
+    
+    // 버튼 클릭 시 시간 연장
+    if (isRunning){
+    	clearInterval(timer);
+        display.html("");
+        startTimer(leftSec, display);
+    }else{
+      	startTimer(leftSec, display);
+    }		
+}
+
+//회원가입 SMS 인증번호 valid chk
+function checkHpValid(){
+	//사용자명 체크
+	if (getValueById("cert_usna")=="") 
+	{
+		alert("사용자명을 입력해 주세요");
+		getElementById("cert_usna").focus();
+		return false;
+	}
+	//생년월일 체크
+	if(getValueById("cert_birthY") ==""  || getValueById("cert_birthM") =="" ){
+		alert("생년월일을 정확히 선택하여 주시기 바랍니다");
+		return false;
+	}else if (getValueById("cert_birthD28") ==""  && getValueById("cert_birthD29") =="" && getValueById("cert_birthD30") ==""  && getValueById("cert_birthD31") ==""){
+		alert("생년월일을 정확히 선택하여 주시기 바랍니다");
+		return false;
+	}
+	//휴대폰 번호 체크
+	if (getValueById("cert_hand_phone1")=="" || getValueById("cert_hand_phone1")=="" || getValueById("cert_hand_phone1")=="") {
+		alert("휴대폰 번호를 정확하게 입력해 주세요");
+		getElementById("cert_hand_phone1").focus();
+		return false;
+	}
+	return true;
+}
+
+//회원가입 SMS 인증자 정보 확인
+function certCheck()
+{
+	var url = "/prc/prc1710.ajax.baroS.do?cert_check=";
+   	var param = '&&'+FormQueryStringForAjax(document.findfrm);
+   	sendRequest(certCheckCallback, param , 'POST', url, true, true);
+}
+
+//회원가입 SMS 인증자 정보 확인 콜백
+function certCheckCallback( obj )
+{
+	eval(obj.responseText);
+	if(cert_msg[0] !="SUC")
+    {
+       alert("인증번호를 확인하여 주시기 바랍니다.");
+    }
+	else
+	{
+		alert("인증 되었습니다.");
+		document.findfrm.action = "/main/wsm_insertInfo.do?snewRst";
+    	document.findfrm.submit();
+	}
+}
+
+</script>
+
+<form method="post" id="findfrm" name="findfrm" action="">
+	<input type='hidden' id="userfindidbirthday" name="birthday" value="" title="생년월일">
+	<input type="hidden" name="usty_gb" id="usty_gb" value ="1"/>
+	<input type="hidden" name="cmpt_auth" id="cmpt_auth" value ="" title="관할시군구"/>
+	<input type="hidden" name="s_entn" id="s_entn" value ="" />
+	<input type="hidden" name="hp" id="hp" value ="" />
+	<input type="hidden" name="cert_hp" value=""><!--인증번호 발송 구분 -->
+	<input type="hidden" name="sms_cert_nums" value=""><!--회원가입 인증번호 발송 구분 -->
+	<input type="hidden" name="cert_birthD" value=""><!--회원가입 인증 시 입력한 일 -->
+	<input type="hidden" name="confirmPass" id="confirmPass" value ="" />
+	<input type="hidden" name="signed_data"		 	id="signed_data" 		value ="" />	
+	<input type="hidden" name="pw_hand_phone"  		id="pw_hand_phone"  	value ="" />	
+	<input type="hidden" name="pw_busn_regn" 		id="pw_busn_regn"	 	value ="" />	
+	<input type="hidden" name="pw_usid" 			id="pw_usid" 			value ="" />	
+	<input type="hidden" name="pw_usna" 			id="pw_usna"		 	value ="" />	
+	<input type="hidden" name="pw_cmpt_auth_name" 	id="pw_cmpt_auth_name"	value ="" />
+	
+<!-- 아이디 찾기 선택화면 -->
+<div class="layerUserPop findIDStart">
+    <div class="wid4">
+        <a href="#" class="exit"><span>레이어 팝업 닫기</span></a>
+        <h4>아이디 찾기</h4>
+        <div class="findStart">
+            <a href="javascript:void(0);" onclick="$('.layerUserPop').hide();$('.userFindId').show();" class="findStart_before">
+                <strong>회원가입 승인 전</strong> 회원가입 신청 시 입력하셨던 정보로<br>아이디를 찾으실 수 있습니다.
+            </a>
+            <a href="javascript:void(0);" onclick="$('.layerUserPop').hide();$('.compFindId').show();" class="findStart_after">
+                <strong>회원가입 승인 후</strong> 기존 등록하셨던 업체정보로<br>아이디를 찾으실 수 있습니다.
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 비밀번호 찾기 선택화면 -->
+<div class="layerUserPop findPWStart">
+    <div class="wid4">
+        <a href="#" class="exit"><span>레이어 팝업 닫기</span></a>
+        <h4>비밀번호 찾기</h4>
+        <div class="findStart">
+            <a href="javascript:void(0);" onclick="userFindPw();" class="findStart_before">
+                <strong>회원가입 승인 전</strong> 회원가입 신청 시 입력하셨던 <br>아이디, 담당자 휴대전화 ,생년월일로 <br>비밀번호를 찾으실 수 있습니다.
+            </a>
+            <a href="javascript:void(0);" onclick="compFindPw();" class="findStart_after">
+                <strong>회원가입 승인 후</strong> 기존 등록하셨던 업체정보로<br>비밀번호를 찾으실 수 있습니다.
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 아이디 찾기 선택화면 -->
+<div class="layerUserPop checkStart">
+    <div class="wid4">
+        <a href="#" class="exit"><span>레이어 팝업 닫기</span></a>
+        <h4>인증방식 선택</h4>
+        <div class="findStart">
+            <a href="javascript:void(0);" onclick="location.href ='/main/wsm_insertInfo.do?inew';" class="findStart_before">
+                <strong>본인확인 인증</strong> - 본인확인기관을 통한 인증<br> - 간편인증 로그인 이용 가능
+            </a>
+            <a href="javascript:void(0);" onclick="location.href ='/main/wsm_insertInfo.do?snew';" class="findStart_after">
+                <strong>SMS 인증</strong> - 휴대폰 SMS를 통한 인증<br> - 간편인증 로그인 이용 불가
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.workgoStart .findStart a i{
+    width: 60px;
+    height: 50px;
+    display: block;
+    margin: 15px auto 13px;
+    overflow: hidden;
+    background: url(/common/assets/images/main/process_icon.png) no-repeat 10px 0;
+    }
+.layerUserPop .findStart strong {
+	width: 300px;
+}
+
+.simpleLogin {background: url(/common/assets/images/allbaro2023/main/simpleLogin2.png) center no-repeat; background-size: 123px 43px; background-position: bottom;}
+</style>
+
+<!-- 최초 로그인시 업체정보, 기초정보 선택화면 -->
+<div class="layerUserPop workgoStart">
+    <div class="wid4">
+        <a href="#" class="exit"><span>레이어 팝업 닫기</span></a>
+        <h4>최초 로그인 하셨습니다</h4>
+        <div class="findStart">
+            <a href="javascript:void(0);" onclick="workgoStart1();" class="findStart_before">
+            	<p style="width:100%;">STEP 01</p>
+            	<i></i>
+            	<div>
+                	<strong>업체정보</strong>
+                </div>
+            </a>
+            <a href="javascript:void(0);" onclick="workgoStart2();" class="findStart_after">
+            	<p style="width:100%;">STEP 02</p>
+            	<i></i>
+            	<div>
+                	<strong>기초정보</strong>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 등록 전!! 아이디 찾기  레이어 팝업시작-->
+<div class="layerUserPop findID userFindId">
+    <div class="wid4">
+        <a href="#" class="exit"><span>레이어 팝업 닫기</span></a>
+        <h4>아이디 찾기</h4>
+        <table class="tbl_type2">
+            <colgroup>
+                <col style="width:18.9rem">
+                <col>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th scope="row"><label for="userfindid_usna">담당자 성명</label></th>
+                    <td class="left">
+                        <input type="text" id="userfindid_usna" class="ab-flt-l ab-bnum4 inputFilter" name="userfindid_usna" title="사용자명">
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="userfindid_birthY">생년월일</label></th>
+                    <td class="left">
+                        <select id="userfindid_birthY" name="userfindid_birthY" style="width:12.3rem" onchange="userFindIdBirthY(this.value);">
+	                         <option value="">년도</option>
+					        
+					            <option value="2014">2014년</option>
+					        
+					            <option value="2013">2013년</option>
+					        
+					            <option value="2012">2012년</option>
+					        
+					            <option value="2011">2011년</option>
+					        
+					            <option value="2010">2010년</option>
+					        
+					            <option value="2009">2009년</option>
+					        
+					            <option value="2008">2008년</option>
+					        
+					            <option value="2007">2007년</option>
+					        
+					            <option value="2006">2006년</option>
+					        
+					            <option value="2005">2005년</option>
+					        
+					            <option value="2004">2004년</option>
+					        
+					            <option value="2003">2003년</option>
+					        
+					            <option value="2002">2002년</option>
+					        
+					            <option value="2001">2001년</option>
+					        
+					            <option value="2000">2000년</option>
+					        
+					            <option value="1999">1999년</option>
+					        
+					            <option value="1998">1998년</option>
+					        
+					            <option value="1997">1997년</option>
+					        
+					            <option value="1996">1996년</option>
+					        
+					            <option value="1995">1995년</option>
+					        
+					            <option value="1994">1994년</option>
+					        
+					            <option value="1993">1993년</option>
+					        
+					            <option value="1992">1992년</option>
+					        
+					            <option value="1991">1991년</option>
+					        
+					            <option value="1990">1990년</option>
+					        
+					            <option value="1989">1989년</option>
+					        
+					            <option value="1988">1988년</option>
+					        
+					            <option value="1987">1987년</option>
+					        
+					            <option value="1986">1986년</option>
+					        
+					            <option value="1985">1985년</option>
+					        
+					            <option value="1984">1984년</option>
+					        
+					            <option value="1983">1983년</option>
+					        
+					            <option value="1982">1982년</option>
+					        
+					            <option value="1981">1981년</option>
+					        
+					            <option value="1980">1980년</option>
+					        
+					            <option value="1979">1979년</option>
+					        
+					            <option value="1978">1978년</option>
+					        
+					            <option value="1977">1977년</option>
+					        
+					            <option value="1976">1976년</option>
+					        
+					            <option value="1975">1975년</option>
+					        
+					            <option value="1974">1974년</option>
+					        
+					            <option value="1973">1973년</option>
+					        
+					            <option value="1972">1972년</option>
+					        
+					            <option value="1971">1971년</option>
+					        
+					            <option value="1970">1970년</option>
+					        
+					            <option value="1969">1969년</option>
+					        
+					            <option value="1968">1968년</option>
+					        
+					            <option value="1967">1967년</option>
+					        
+					            <option value="1966">1966년</option>
+					        
+					            <option value="1965">1965년</option>
+					        
+					            <option value="1964">1964년</option>
+					        
+					            <option value="1963">1963년</option>
+					        
+					            <option value="1962">1962년</option>
+					        
+					            <option value="1961">1961년</option>
+					        
+					            <option value="1960">1960년</option>
+					        
+					            <option value="1959">1959년</option>
+					        
+					            <option value="1958">1958년</option>
+					        
+					            <option value="1957">1957년</option>
+					        
+					            <option value="1956">1956년</option>
+					        
+					            <option value="1955">1955년</option>
+					        
+					            <option value="1954">1954년</option>
+					        
+					            <option value="1953">1953년</option>
+					        
+					            <option value="1952">1952년</option>
+					        
+					            <option value="1951">1951년</option>
+					        
+					            <option value="1950">1950년</option>
+					        
+					            <option value="1949">1949년</option>
+					        
+					            <option value="1948">1948년</option>
+					        
+					            <option value="1947">1947년</option>
+					        
+					            <option value="1946">1946년</option>
+					        
+					            <option value="1945">1945년</option>
+					        
+					            <option value="1944">1944년</option>
+					        
+					            <option value="1943">1943년</option>
+					        
+					            <option value="1942">1942년</option>
+					        
+					            <option value="1941">1941년</option>
+					        
+					            <option value="1940">1940년</option>
+					        
+					            <option value="1939">1939년</option>
+					        
+					            <option value="1938">1938년</option>
+					        
+					            <option value="1937">1937년</option>
+					        
+					            <option value="1936">1936년</option>
+					        
+					            <option value="1935">1935년</option>
+					        
+					            <option value="1934">1934년</option>
+					        
+					            <option value="1933">1933년</option>
+					        
+					            <option value="1932">1932년</option>
+					        
+					            <option value="1931">1931년</option>
+					        
+					            <option value="1930">1930년</option>
+					        
+					            <option value="1929">1929년</option>
+					        
+					            <option value="1928">1928년</option>
+					        
+					            <option value="1927">1927년</option>
+					        
+					            <option value="1926">1926년</option>
+					        
+					            <option value="1925">1925년</option>
+					        
+					            <option value="1924">1924년</option>
+					        
+					            <option value="1923">1923년</option>
+					        
+					            <option value="1922">1922년</option>
+					        
+					            <option value="1921">1921년</option>
+					        
+					            <option value="1920">1920년</option>
+					        
+					            <option value="1919">1919년</option>
+					        
+					            <option value="1918">1918년</option>
+					        
+					            <option value="1917">1917년</option>
+					        
+					            <option value="1916">1916년</option>
+					        
+					            <option value="1915">1915년</option>
+					        
+					            <option value="1914">1914년</option>
+					        
+					            <option value="1913">1913년</option>
+					        
+					            <option value="1912">1912년</option>
+					        
+					            <option value="1911">1911년</option>
+					        
+					            <option value="1910">1910년</option>
+					        
+					            <option value="1909">1909년</option>
+					        
+					            <option value="1908">1908년</option>
+					        
+					            <option value="1907">1907년</option>
+					        
+					            <option value="1906">1906년</option>
+					        
+					            <option value="1905">1905년</option>
+					        
+					            <option value="1904">1904년</option>
+					        
+					            <option value="1903">1903년</option>
+					        
+					            <option value="1902">1902년</option>
+					        
+					            <option value="1901">1901년</option>
+					        
+					            <option value="1900">1900년</option>
+					        
+                        </select>
+                        <select id="userfindid_birthM" name="userfindid_birthM" style="width:12.3rem" onchange="userFindIdBirthM(this.value);">
+                            <option value="">월</option>
+                            
+					            <option value="1">1월</option>
+					        
+					            <option value="2">2월</option>
+					        
+					            <option value="3">3월</option>
+					        
+					            <option value="4">4월</option>
+					        
+					            <option value="5">5월</option>
+					        
+					            <option value="6">6월</option>
+					        
+					            <option value="7">7월</option>
+					        
+					            <option value="8">8월</option>
+					        
+					            <option value="9">9월</option>
+					        
+					            <option value="10">10월</option>
+					        
+					            <option value="11">11월</option>
+					        
+					            <option value="12">12월</option>
+					        
+                        </select>
+                        <select id ="userfindid_birthD28"  style="display: none; width:12.3rem" onchange="userbirthDayIdFind(this.value);">
+                            <option value="" >일</option>
+                            
+					            <option value="1">1일</option>
+					        
+					            <option value="2">2일</option>
+					        
+					            <option value="3">3일</option>
+					        
+					            <option value="4">4일</option>
+					        
+					            <option value="5">5일</option>
+					        
+					            <option value="6">6일</option>
+					        
+					            <option value="7">7일</option>
+					        
+					            <option value="8">8일</option>
+					        
+					            <option value="9">9일</option>
+					        
+					            <option value="10">10일</option>
+					        
+					            <option value="11">11일</option>
+					        
+					            <option value="12">12일</option>
+					        
+					            <option value="13">13일</option>
+					        
+					            <option value="14">14일</option>
+					        
+					            <option value="15">15일</option>
+					        
+					            <option value="16">16일</option>
+					        
+					            <option value="17">17일</option>
+					        
+					            <option value="18">18일</option>
+					        
+					            <option value="19">19일</option>
+					        
+					            <option value="20">20일</option>
+					        
+					            <option value="21">21일</option>
+					        
+					            <option value="22">22일</option>
+					        
+					            <option value="23">23일</option>
+					        
+					            <option value="24">24일</option>
+					        
+					            <option value="25">25일</option>
+					        
+					            <option value="26">26일</option>
+					        
+					            <option value="27">27일</option>
+					        
+					            <option value="28">28일</option>
+					        
+                        </select>
+                        <select id ="userfindid_birthD29"  style="display: none; width:12.3rem" onchange="userbirthDayIdFind(this.value);">
+                            <option value="" >일</option>
+                            
+					            <option value="1">1일</option>
+					        
+					            <option value="2">2일</option>
+					        
+					            <option value="3">3일</option>
+					        
+					            <option value="4">4일</option>
+					        
+					            <option value="5">5일</option>
+					        
+					            <option value="6">6일</option>
+					        
+					            <option value="7">7일</option>
+					        
+					            <option value="8">8일</option>
+					        
+					            <option value="9">9일</option>
+					        
+					            <option value="10">10일</option>
+					        
+					            <option value="11">11일</option>
+					        
+					            <option value="12">12일</option>
+					        
+					            <option value="13">13일</option>
+					        
+					            <option value="14">14일</option>
+					        
+					            <option value="15">15일</option>
+					        
+					            <option value="16">16일</option>
+					        
+					            <option value="17">17일</option>
+					        
+					            <option value="18">18일</option>
+					        
+					            <option value="19">19일</option>
+					        
+					            <option value="20">20일</option>
+					        
+					            <option value="21">21일</option>
+					        
+					            <option value="22">22일</option>
+					        
+					            <option value="23">23일</option>
+					        
+					            <option value="24">24일</option>
+					        
+					            <option value="25">25일</option>
+					        
+					            <option value="26">26일</option>
+					        
+					            <option value="27">27일</option>
+					        
+					            <option value="28">28일</option>
+					        
+					            <option value="29">29일</option>
+					        
+                        </select>
+                        <select id ="userfindid_birthD30"  style="display: none; width:12.3rem" onchange="userbirthDayIdFind(this.value);">
+                            <option value="" >일</option>
+                            
+					            <option value="1">1일</option>
+					        
+					            <option value="2">2일</option>
+					        
+					            <option value="3">3일</option>
+					        
+					            <option value="4">4일</option>
+					        
+					            <option value="5">5일</option>
+					        
+					            <option value="6">6일</option>
+					        
+					            <option value="7">7일</option>
+					        
+					            <option value="8">8일</option>
+					        
+					            <option value="9">9일</option>
+					        
+					            <option value="10">10일</option>
+					        
+					            <option value="11">11일</option>
+					        
+					            <option value="12">12일</option>
+					        
+					            <option value="13">13일</option>
+					        
+					            <option value="14">14일</option>
+					        
+					            <option value="15">15일</option>
+					        
+					            <option value="16">16일</option>
+					        
+					            <option value="17">17일</option>
+					        
+					            <option value="18">18일</option>
+					        
+					            <option value="19">19일</option>
+					        
+					            <option value="20">20일</option>
+					        
+					            <option value="21">21일</option>
+					        
+					            <option value="22">22일</option>
+					        
+					            <option value="23">23일</option>
+					        
+					            <option value="24">24일</option>
+					        
+					            <option value="25">25일</option>
+					        
+					            <option value="26">26일</option>
+					        
+					            <option value="27">27일</option>
+					        
+					            <option value="28">28일</option>
+					        
+					            <option value="29">29일</option>
+					        
+					            <option value="30">30일</option>
+					        
+                        </select>
+                        <select id ="userfindid_birthD31"  style="display: none; width:12.3rem" onchange="userbirthDayIdFind(this.value);">
+                            <option value="" >일</option>
+                            
+					            <option value="1">1일</option>
+					        
+					            <option value="2">2일</option>
+					        
+					            <option value="3">3일</option>
+					        
+					            <option value="4">4일</option>
+					        
+					            <option value="5">5일</option>
+					        
+					            <option value="6">6일</option>
+					        
+					            <option value="7">7일</option>
+					        
+					            <option value="8">8일</option>
+					        
+					            <option value="9">9일</option>
+					        
+					            <option value="10">10일</option>
+					        
+					            <option value="11">11일</option>
+					        
+					            <option value="12">12일</option>
+					        
+					            <option value="13">13일</option>
+					        
+					            <option value="14">14일</option>
+					        
+					            <option value="15">15일</option>
+					        
+					            <option value="16">16일</option>
+					        
+					            <option value="17">17일</option>
+					        
+					            <option value="18">18일</option>
+					        
+					            <option value="19">19일</option>
+					        
+					            <option value="20">20일</option>
+					        
+					            <option value="21">21일</option>
+					        
+					            <option value="22">22일</option>
+					        
+					            <option value="23">23일</option>
+					        
+					            <option value="24">24일</option>
+					        
+					            <option value="25">25일</option>
+					        
+					            <option value="26">26일</option>
+					        
+					            <option value="27">27일</option>
+					        
+					            <option value="28">28일</option>
+					        
+					            <option value="29">29일</option>
+					        
+					            <option value="30">30일</option>
+					        
+					            <option value="31">31일</option>
+					        
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="msg3">
+            <p class="tit">※ 입력사항 기재방법</p>
+            <ul class="ldot">
+            	<li>시스템에 등록되어있는 담당자, 생년월일을 입력합니다.</li>
+                <li>아이디 검색으로 아이디를 찾을 수 없을 경우 <br>
+                    <em class="txt_em1">담당자 신원증빙서류(재직확인서 및 개인정보의 정보수집/제공/이용 동의서 양식 다운로드)</em> 사본을<br>
+                    관할 지역본부 또는 전화상담센터로 보낸 후 연락주시기 바랍니다.
+                    <ul class="dash">
+                        <li>고객지원 > 연락처안내 > 올바로시스템 연락처를 확인하시기 바랍니다.</li>
+                    </ul>
+                </li> 
+            </ul>
+        </div>
+        <div class="center">
+            <a href="javascript:void(0);" onclick="userfindidcheck();" class="btn_basic1">확인</a>
+            <a href="javascript:void(0);" onclick="$('.layerUserPop').hide();" class="btn_basic3">취소</a>
+        </div>
+    </div>
+</div>
+<!-- 등록 전!! 아이디 찾기  레이어 팝업끝-->
+
+
+<!-- 아이디 찾기 등록 후!! 사업자등록번호유무 selectbox option에 따른 ui 변경 -->
+<script>
+// input 초기화
+function clear(){
+
+	$(".findID [id ^= userfindid_]").val(""); // 등록전 ID 찾기 내용 초기화
+	$(".findID [id ^= compfindid_]").val(""); // 등록후 ID 찾기 내용 초기화
+	
+	$(".findPW [id ^= userfindpw_]").val(""); // 등록전 PW 찾기 내용 초기화
+	$(".findPW [id ^= compfindpw_]").val(""); // 등록후 PW 찾기 내용 초기화
+}
+    
+    function usty_gb_chk(str) {
+    	clear();
+        if(str == 1)//법인
+        {
+        	$("#compfindid_usna_th").text("담당자 성명"); 
+            $(".findID [id ^= form_corp]").show(); 
+            $(".findID #form_indi").hide(); 		
+            $(".findID [id ^= form_organ]").hide();
+        }
+        else if(str == 2)//개인
+        {
+        	$("#compfindid_usna_th").text("담당자 성명");
+            $(".findID [id ^= form_corp]").hide();
+            $(".findID #form_indi").show();
+            $(".findID [id ^= form_organ]").hide();
+        }
+        else
+        {
+        	$("#compfindid_usna_th").text("사용자 성명");
+            $(".findID [id ^= form_corp]").hide();
+            $(".findID #form_indi").hide();
+            $(".findID [id ^= form_organ]").show();
+        }
+    }
+</script>
+
+
+<!-- 등록 후!! 아이디 찾기  레이어 팝업시작 -->
+<div class="layerUserPop findID compFindId">
+    <div class="wid4">
+        <a href="#" class="exit"><span>레이어 팝업 닫기</span></a>
+        <h4>아이디 찾기</h4>
+        <table class="tbl_type2">
+            <colgroup>
+                <col style="width:18.9rem">
+                <col>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th scope="row"><label for="compFindID_Ssn">사업자등록번호 유무</label></th>
+                    <td class="left">
+                        <select id="compFindID_Ssn" onchange="javascript:usty_gb_chk(this.value)">
+                            <option value="1" selected="">있음(사업자)</option>
+                            <option value="2">없음(개인)</option>
+                            <option value="3">없음(시도/시군구/환경청)</option>
+                        </select>
+                    </td>
+                </tr>                
+                <tr>
+                    <th scope="row"><label for="compfindid_usna" id="compfindid_usna_th">담당자 성명</label></th>
+                    <td class="left">
+                        <input type="text" class="inputFilter" id="compfindid_usna" class="ab-flt-l ab-bnum4 inputFilter" name="compfindid_usna" title="담당자 성명">
+                    </td>
+                </tr>
+                <tr id="form_corp7">
+                    <th scope="row"><label for="compfindid_busn_regn1">사업자 등록번호</label></th>
+                    <td class="left">
+                        <input type="text" style="width:6.3rem" id="compfindid_busn_regn1" class="num" name="compfindid_busn_regn1" maxlength="3" onKeyUp="return autoTab(this, 3, event);" title="사업자등록번호1" /> -
+                        <input type="text" style="width:6.3rem" id="compfindid_busn_regn2" class="num" name="compfindid_busn_regn2" maxlength="2" onKeyUp="return autoTab(this, 2, event);" title="사업자등록번호2" /> -
+                        <input type="text" style="width:10.3rem" id="compfindid_busn_regn3" class="num" name="compfindid_busn_regn3" maxlength="5" title="사업자등록번호3" />
+                    </td>
+                </tr>                
+                <tr id="form_corp8">
+                	
+                </tr>
+                <tr id="form_indi" style="display:none;">
+                	<th scope="row"><label for="compfindid_indi_phone1">핸드폰번호</label></th>
+                    <td class="left">
+                        <input style="width:6.3rem" type="text" id="compfindid_indi_phone1" class="num" name="compfindid_indi_phone1" maxlength="3" size="3" onKeyUp="return autoTab(this, 3, event);" title="휴대전화번호 첫번째 자리"> -
+                        <input style="width:6.3rem" type="text" id="compfindid_indi_phone2" class="num" name="compfindid_indi_phone2" value="" maxlength="4" size="4" onKeyUp="return autoTab(this, 4, event);" title="휴대전화번호 두번째 자리"> -
+                        <input style="width:6.3rem" type="text" id="compfindid_indi_phone3" class="num" name="compfindid_indi_phone3" value="" maxlength="4" size="4" title="휴대전화번호 세번째 자리">
+                    </td>
+                
+                </tr>
+                <tr id="form_organ7" style="display:none;">
+                    <th scope="row"><label for="compfindid_phone1">핸드폰번호</label></th>
+                    <td class="left">
+                        <input style="width:6.3rem" type="text" id="compfindid_phone1" class="num" name="compfindid_phone1" maxlength="3" size="3" onKeyUp="return autoTab(this, 3, event);" title="휴대전화번호 첫번째 자리"> -
+                        <input style="width:6.3rem" type="text" id="compfindid_phone2" class="num" name="compfindid_phone2" value="" maxlength="4" size="4" onKeyUp="return autoTab(this, 4, event);" title="휴대전화번호 두번째 자리"> -
+                        <input style="width:6.3rem" type="text" id="compfindid_phone3" class="num" name="compfindid_phone3" value="" maxlength="4" size="4" title="휴대전화번호 세번째 자리">
+                    </td>
+                </tr>
+                <tr id="form_organ8" style="display:none;">
+                    <th scope="row"><label for="compfindid_auth_name">시도/시군구/환경청</label></th>
+                    <td class="left">
+                        <input type="text" id="compfindid_auth_name" name="compfindid_auth_name" value="" nm="관할관청" readonly="readonly">
+                        <button id="offTelCheck" type="button" onclick="popWin('/pop/popupCmpt.do?cmpt_type=10', 600, 500, 'zipcode', 1);">관할 환경청/시군구 조회</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="msg3">
+            <p class="tit">※ 입력사항 기재방법</p>
+            <ul class="ldot">
+                <li>아이디 검색으로 아이디를 찾을 수 없을 경우 <br>
+                    <em class="txt_em1">담당자 신원증빙서류(재직확인서 및 개인정보의 정보수집/제공/이용 동의서 양식 다운로드)</em> 사본을<br>
+                    관할 지역본부 또는 전화상담센터로 보낸 후 연락주시기 바랍니다.
+                    <ul class="dash">
+                        <li>고객지원 > 연락처안내 > 올바로시스템 연락처를 확인하시기 바랍니다.</li>
+                    </ul>
+                </li>
+                <li>사업자등록번호유무 : 사업자등록번호가 있을경우 있음(사업자), 그렇지 않을 경우 없음(개인)을 선택합니다.<br>
+                    시군구/환경청 담당 공무원일 경우 없음(시도/시군구/환경청)을 선택합니다.
+                    <ul class="dash">
+                        <li>있음(사업자) : 시스템에 등록되어있는 사업자등록번호(예:000-00-00000), 담당자명, 업체명을 입력합니다.</li>
+                        <li>없음(개인) : 시스템에 등록되어있는 담당자, 휴대전화번호를 입력합니다.</li>
+                        <li>없음(시도/시군구/환경청) : 시스템에 등록되어있는 담당자, 휴대전화번호, 관할시군구를 입력합니다.</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="center">
+            <a href="javascript:void(0);" onclick="compfindidcheck();" class="btn_basic1">확인</a>
+            <a href="javascript:void(0);" onclick="$('.layerUserPop').hide();" class="btn_basic3">취소</a>
+        </div>
+    </div>
+</div>
+<!-- 등록 후!! 아이디 찾기  레이어 팝업 끝 -->
+
+<!-- 찾기 성공 팝업 시작 -->
+<div class="layerUserPop findIDRe">
+    <div class="wid4">
+        <a href="#" class="exit"><span>레이어 팝업 닫기</span></a>
+        <h4>아이디 찾기</h4>
+        <div class="msg msgchk2">
+            입력하신 정보로 가입된 고객님의 아이디는 <strong id="msgUsid">--</strong> 입니다.
+        </div>
+        <div class="center">
+            <a href="javascript:void(0);" onclick="$('.findPWStart').show(),$('.findIDRe').hide();" class="btn_basic1">비밀번호 찾기</a>
+            <a href="javascript:void(0);" onclick="$('.layerUserPop').hide();" class="btn_basic3">확인</a>
+        </div>
+        <div class="msg3">
+            <p class="tit">※ 아이디 찾기로 확인이 어려우신가요?</p>
+            <ul class="ldot">
+                <li>고객정보 보호를 위해 신원확인 증빙자료(담당자 재직확인서류 : 생년월일 표기분 한함)로 본인 확인전에는 <br>
+                    아이디/비밀번호를 바로 안내해 드리기 어려운 점 양해 부탁 드립니다.<br>
+                    번거로우시겠지만 신원확인 증빙자료(담당자 재직확인서류 : 생년월일 표기분 한함) 사본을 관할 지역본부 또는 <br>
+                    올바로시스템 전화상담센터(1644-0007)로 FAX 송부 후 연락 주시면 아이디/비밀번호를 안내해 드리도록 하겠습니다.
+                    <ul class="dash">
+                        <li><i class="txt_em1">고객지원 > 연락처 안내</i>를 확인하시기 바랍니다.</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- 찾기 성공 팝업 끝 -->
+
+<!-- 비밀번호 찾기 등록 후!! 사업자등록번호유무 selectbox option에 따른 ui 변경 -->
+<script>
+    function usty_gb_chk2(str) {
+    	clear();
+        if(str == 1)//법인
+        {
+        	$("#compFindPw_usna_th").text("담당자 성명"); 
+        	$("#compFindPw_phone_th").text("핸드폰번호"); 
+        	
+            $(".findPW [id ^= form_corp]").show(); 
+            $(".findPW #form_indi2").hide();
+            $(".findPW [id ^= form_organ]").hide();
+        }
+        else if(str == 2)//개인
+        {
+        	$("#compFindPw_usna_th").text("담당자 성명");
+        	$("#compFindPw_phone_th").text("핸드폰번호");
+            $(".findPW [id ^= form_corp]").hide();
+            $(".findPW #form_indi2").show();
+            $(".findPW [id ^= form_organ]").hide();
+        }
+        else
+        {
+        	$("#compFindPw_usna_th").text("사용자 성명");
+        	$("#compFindPw_phone_th").text("핸드폰번호");
+        	
+            $(".findPW [id ^= form_corp]").hide();
+            $(".findPW #form_indi2").hide();
+            $(".findPW [id ^= form_organ]").show();
+        }
+    } 
+</script> 
+
+
+<!-- 등록 전!! 비밀번호 찾기  레이어 팝업시작 -->
+<div class="layerUserPop findPW userFindPw">
+    <div class="wid4">
+        <a href="#" class="exit"><span>레이어 팝업 닫기</span></a>
+        <h4>비밀번호 찾기</h4>
+        <table class="tbl_type2">
+            <colgroup>
+                <col style="width:18.9rem">
+                <col>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th scope="row"><label for="userfindpw_id">아이디</label></th>
+                    <td class="left">
+                        <input type="text" id="userfindpw_id" class="ab-bnum4 engNum_" maxlength='20' name="userfindpw_id" title="아이디" >
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="userfindpw_usna">담당자 성명</label></th>
+                    <td class="left">
+                        <input type="text" id="userfindpw_usna" class="ab-flt-l ab-bnum4 inputFilter" name="userfindpw_usna" title="담당자 성명">
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="userfindpw_birthY">생년월일</label></th>
+                    <td class="left">
+                        <select id="userfindpw_birthY" name="userfindpw_birthY" style="width:12.3rem" onchange="userFindPwBirthY(this.value);">
+	                         <option value="">년도</option>
+					        
+					            <option value="2014">2014년</option>
+					        
+					            <option value="2013">2013년</option>
+					        
+					            <option value="2012">2012년</option>
+					        
+					            <option value="2011">2011년</option>
+					        
+					            <option value="2010">2010년</option>
+					        
+					            <option value="2009">2009년</option>
+					        
+					            <option value="2008">2008년</option>
+					        
+					            <option value="2007">2007년</option>
+					        
+					            <option value="2006">2006년</option>
+					        
+					            <option value="2005">2005년</option>
+					        
+					            <option value="2004">2004년</option>
+					        
+					            <option value="2003">2003년</option>
+					        
+					            <option value="2002">2002년</option>
+					        
+					            <option value="2001">2001년</option>
+					        
+					            <option value="2000">2000년</option>
+					        
+					            <option value="1999">1999년</option>
+					        
+					            <option value="1998">1998년</option>
+					        
+					            <option value="1997">1997년</option>
+					        
+					            <option value="1996">1996년</option>
+					        
+					            <option value="1995">1995년</option>
+					        
+					            <option value="1994">1994년</option>
+					        
+					            <option value="1993">1993년</option>
+					        
+					            <option value="1992">1992년</option>
+					        
+					            <option value="1991">1991년</option>
+					        
+					            <option value="1990">1990년</option>
+					        
+					            <option value="1989">1989년</option>
+					        
+					            <option value="1988">1988년</option>
+					        
+					            <option value="1987">1987년</option>
+					        
+					            <option value="1986">1986년</option>
+					        
+					            <option value="1985">1985년</option>
+					        
+					            <option value="1984">1984년</option>
+					        
+					            <option value="1983">1983년</option>
+					        
+					            <option value="1982">1982년</option>
+					        
+					            <option value="1981">1981년</option>
+					        
+					            <option value="1980">1980년</option>
+					        
+					            <option value="1979">1979년</option>
+					        
+					            <option value="1978">1978년</option>
+					        
+					            <option value="1977">1977년</option>
+					        
+					            <option value="1976">1976년</option>
+					        
+					            <option value="1975">1975년</option>
+					        
+					            <option value="1974">1974년</option>
+					        
+					            <option value="1973">1973년</option>
+					        
+					            <option value="1972">1972년</option>
+					        
+					            <option value="1971">1971년</option>
+					        
+					            <option value="1970">1970년</option>
+					        
+					            <option value="1969">1969년</option>
+					        
+					            <option value="1968">1968년</option>
+					        
+					            <option value="1967">1967년</option>
+					        
+					            <option value="1966">1966년</option>
+					        
+					            <option value="1965">1965년</option>
+					        
+					            <option value="1964">1964년</option>
+					        
+					            <option value="1963">1963년</option>
+					        
+					            <option value="1962">1962년</option>
+					        
+					            <option value="1961">1961년</option>
+					        
+					            <option value="1960">1960년</option>
+					        
+					            <option value="1959">1959년</option>
+					        
+					            <option value="1958">1958년</option>
+					        
+					            <option value="1957">1957년</option>
+					        
+					            <option value="1956">1956년</option>
+					        
+					            <option value="1955">1955년</option>
+					        
+					            <option value="1954">1954년</option>
+					        
+					            <option value="1953">1953년</option>
+					        
+					            <option value="1952">1952년</option>
+					        
+					            <option value="1951">1951년</option>
+					        
+					            <option value="1950">1950년</option>
+					        
+					            <option value="1949">1949년</option>
+					        
+					            <option value="1948">1948년</option>
+					        
+					            <option value="1947">1947년</option>
+					        
+					            <option value="1946">1946년</option>
+					        
+					            <option value="1945">1945년</option>
+					        
+					            <option value="1944">1944년</option>
+					        
+					            <option value="1943">1943년</option>
+					        
+					            <option value="1942">1942년</option>
+					        
+					            <option value="1941">1941년</option>
+					        
+					            <option value="1940">1940년</option>
+					        
+					            <option value="1939">1939년</option>
+					        
+					            <option value="1938">1938년</option>
+					        
+					            <option value="1937">1937년</option>
+					        
+					            <option value="1936">1936년</option>
+					        
+					            <option value="1935">1935년</option>
+					        
+					            <option value="1934">1934년</option>
+					        
+					            <option value="1933">1933년</option>
+					        
+					            <option value="1932">1932년</option>
+					        
+					            <option value="1931">1931년</option>
+					        
+					            <option value="1930">1930년</option>
+					        
+					            <option value="1929">1929년</option>
+					        
+					            <option value="1928">1928년</option>
+					        
+					            <option value="1927">1927년</option>
+					        
+					            <option value="1926">1926년</option>
+					        
+					            <option value="1925">1925년</option>
+					        
+					            <option value="1924">1924년</option>
+					        
+					            <option value="1923">1923년</option>
+					        
+					            <option value="1922">1922년</option>
+					        
+					            <option value="1921">1921년</option>
+					        
+					            <option value="1920">1920년</option>
+					        
+					            <option value="1919">1919년</option>
+					        
+					            <option value="1918">1918년</option>
+					        
+					            <option value="1917">1917년</option>
+					        
+					            <option value="1916">1916년</option>
+					        
+					            <option value="1915">1915년</option>
+					        
+					            <option value="1914">1914년</option>
+					        
+					            <option value="1913">1913년</option>
+					        
+					            <option value="1912">1912년</option>
+					        
+					            <option value="1911">1911년</option>
+					        
+					            <option value="1910">1910년</option>
+					        
+					            <option value="1909">1909년</option>
+					        
+					            <option value="1908">1908년</option>
+					        
+					            <option value="1907">1907년</option>
+					        
+					            <option value="1906">1906년</option>
+					        
+					            <option value="1905">1905년</option>
+					        
+					            <option value="1904">1904년</option>
+					        
+					            <option value="1903">1903년</option>
+					        
+					            <option value="1902">1902년</option>
+					        
+					            <option value="1901">1901년</option>
+					        
+					            <option value="1900">1900년</option>
+					        
+                        </select>
+                        <select id="userfindpw_birthM" name="userfindpw_birthM" style="width:12.3rem" onchange="userFindPwBirthM(this.value);">
+                            <option value="">월</option>
+                            
+					            <option value="1">1월</option>
+					        
+					            <option value="2">2월</option>
+					        
+					            <option value="3">3월</option>
+					        
+					            <option value="4">4월</option>
+					        
+					            <option value="5">5월</option>
+					        
+					            <option value="6">6월</option>
+					        
+					            <option value="7">7월</option>
+					        
+					            <option value="8">8월</option>
+					        
+					            <option value="9">9월</option>
+					        
+					            <option value="10">10월</option>
+					        
+					            <option value="11">11월</option>
+					        
+					            <option value="12">12월</option>
+					        
+                        </select>
+                        <select id ="userfindpw_birthD28"  style="display: none; width:12.3rem" onchange="userbirthDayPwFind(this.value);">
+                            <option value="" >일</option>
+                            
+					            <option value="1">1일</option>
+					        
+					            <option value="2">2일</option>
+					        
+					            <option value="3">3일</option>
+					        
+					            <option value="4">4일</option>
+					        
+					            <option value="5">5일</option>
+					        
+					            <option value="6">6일</option>
+					        
+					            <option value="7">7일</option>
+					        
+					            <option value="8">8일</option>
+					        
+					            <option value="9">9일</option>
+					        
+					            <option value="10">10일</option>
+					        
+					            <option value="11">11일</option>
+					        
+					            <option value="12">12일</option>
+					        
+					            <option value="13">13일</option>
+					        
+					            <option value="14">14일</option>
+					        
+					            <option value="15">15일</option>
+					        
+					            <option value="16">16일</option>
+					        
+					            <option value="17">17일</option>
+					        
+					            <option value="18">18일</option>
+					        
+					            <option value="19">19일</option>
+					        
+					            <option value="20">20일</option>
+					        
+					            <option value="21">21일</option>
+					        
+					            <option value="22">22일</option>
+					        
+					            <option value="23">23일</option>
+					        
+					            <option value="24">24일</option>
+					        
+					            <option value="25">25일</option>
+					        
+					            <option value="26">26일</option>
+					        
+					            <option value="27">27일</option>
+					        
+					            <option value="28">28일</option>
+					        
+                        </select>
+                        <select id ="userfindpw_birthD29"  style="display: none; width:12.3rem" onchange="userbirthDayPwFind(this.value);">
+                            <option value="" >일</option>
+                            
+					            <option value="1">1일</option>
+					        
+					            <option value="2">2일</option>
+					        
+					            <option value="3">3일</option>
+					        
+					            <option value="4">4일</option>
+					        
+					            <option value="5">5일</option>
+					        
+					            <option value="6">6일</option>
+					        
+					            <option value="7">7일</option>
+					        
+					            <option value="8">8일</option>
+					        
+					            <option value="9">9일</option>
+					        
+					            <option value="10">10일</option>
+					        
+					            <option value="11">11일</option>
+					        
+					            <option value="12">12일</option>
+					        
+					            <option value="13">13일</option>
+					        
+					            <option value="14">14일</option>
+					        
+					            <option value="15">15일</option>
+					        
+					            <option value="16">16일</option>
+					        
+					            <option value="17">17일</option>
+					        
+					            <option value="18">18일</option>
+					        
+					            <option value="19">19일</option>
+					        
+					            <option value="20">20일</option>
+					        
+					            <option value="21">21일</option>
+					        
+					            <option value="22">22일</option>
+					        
+					            <option value="23">23일</option>
+					        
+					            <option value="24">24일</option>
+					        
+					            <option value="25">25일</option>
+					        
+					            <option value="26">26일</option>
+					        
+					            <option value="27">27일</option>
+					        
+					            <option value="28">28일</option>
+					        
+					            <option value="29">29일</option>
+					        
+                        </select>
+                        <select id ="userfindpw_birthD30"  style="display: none; width:12.3rem" onchange="userbirthDayPwFind(this.value);">
+                            <option value="" >일</option>
+                            
+					            <option value="1">1일</option>
+					        
+					            <option value="2">2일</option>
+					        
+					            <option value="3">3일</option>
+					        
+					            <option value="4">4일</option>
+					        
+					            <option value="5">5일</option>
+					        
+					            <option value="6">6일</option>
+					        
+					            <option value="7">7일</option>
+					        
+					            <option value="8">8일</option>
+					        
+					            <option value="9">9일</option>
+					        
+					            <option value="10">10일</option>
+					        
+					            <option value="11">11일</option>
+					        
+					            <option value="12">12일</option>
+					        
+					            <option value="13">13일</option>
+					        
+					            <option value="14">14일</option>
+					        
+					            <option value="15">15일</option>
+					        
+					            <option value="16">16일</option>
+					        
+					            <option value="17">17일</option>
+					        
+					            <option value="18">18일</option>
+					        
+					            <option value="19">19일</option>
+					        
+					            <option value="20">20일</option>
+					        
+					            <option value="21">21일</option>
+					        
+					            <option value="22">22일</option>
+					        
+					            <option value="23">23일</option>
+					        
+					            <option value="24">24일</option>
+					        
+					            <option value="25">25일</option>
+					        
+					            <option value="26">26일</option>
+					        
+					            <option value="27">27일</option>
+					        
+					            <option value="28">28일</option>
+					        
+					            <option value="29">29일</option>
+					        
+					            <option value="30">30일</option>
+					        
+                        </select>
+                        <select id ="userfindpw_birthD31"  style="display: none; width:12.3rem" onchange="userbirthDayPwFind(this.value);">
+                            <option value="" >일</option>
+                            
+					            <option value="1">1일</option>
+					        
+					            <option value="2">2일</option>
+					        
+					            <option value="3">3일</option>
+					        
+					            <option value="4">4일</option>
+					        
+					            <option value="5">5일</option>
+					        
+					            <option value="6">6일</option>
+					        
+					            <option value="7">7일</option>
+					        
+					            <option value="8">8일</option>
+					        
+					            <option value="9">9일</option>
+					        
+					            <option value="10">10일</option>
+					        
+					            <option value="11">11일</option>
+					        
+					            <option value="12">12일</option>
+					        
+					            <option value="13">13일</option>
+					        
+					            <option value="14">14일</option>
+					        
+					            <option value="15">15일</option>
+					        
+					            <option value="16">16일</option>
+					        
+					            <option value="17">17일</option>
+					        
+					            <option value="18">18일</option>
+					        
+					            <option value="19">19일</option>
+					        
+					            <option value="20">20일</option>
+					        
+					            <option value="21">21일</option>
+					        
+					            <option value="22">22일</option>
+					        
+					            <option value="23">23일</option>
+					        
+					            <option value="24">24일</option>
+					        
+					            <option value="25">25일</option>
+					        
+					            <option value="26">26일</option>
+					        
+					            <option value="27">27일</option>
+					        
+					            <option value="28">28일</option>
+					        
+					            <option value="29">29일</option>
+					        
+					            <option value="30">30일</option>
+					        
+					            <option value="31">31일</option>
+					        
+                        </select>
+                    </td>
+                </tr>
+                <tr style="display: none;">
+                    <th scope="row">방법선택</th>
+                    <td class="left">
+                        <input type="radio" id="userfindmobile_chk " name="userfindmobile_chk " value="1" title="SMS 수신" checked="checked"onClick="javascript:send_choice('sms');">
+                        <label for="userfindmobile_chk ">SMS 수신</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="userfindpw_phone1">휴대전화번호</label></th>
+                    <td class="left num">
+                        <input type="text" id="userfindpw_phone1" class="num" name="userFindpw_phone1" value="" title="휴대전화번호 첫번째 자리" maxlength="3" size="3" onKeyUp="return autoTab(this, 3, event);"> -
+                        <input type="text" id="userfindpw_phone2" class="num" name="userfindpw_phone2" value="" title="휴대전화번호 두번째 자리" maxlength="4" size="4" onKeyUp="return autoTab(this, 4, event);"> -
+                        <input type="text" id="userfindpw_phone3" class="num" name="userfindpw_phone3" value="" title="휴대전화번호 세번째 자리" maxlength="4" size="4">
+                        <p class="txt_infochk">※ 가입된 정보 확인을 통해 휴대전화번호로 초기화된 비밀번호를 전송합니다.</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="msg3">
+            <ul class="ldot">
+            	<li>시스템에 등록되어있는 담당자, 휴대전화번호를 입력합니다.</li>
+                <li>비밀번호 검색으로 비밀번호를 초기화 할 수 없을 경우<br>
+                    <em class="txt_em1">담당자 신원증빙서류(재직확인서 및 개인정보의 정보수집/제공/이용 동의서 양식 다운로드)</em> 사본을 관할 지역본부 또는<br>전화상담센터로 보낸 후 연락주시기 바랍니다.
+                    <ul class="dash">
+                        <li>고객지원 > 연락처안내 > 올바로시스템 연락처를 확인하시기 바랍니다.</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="center">
+            <a href="javascript:void(0);" id ="userfind_send_sms" class="btn_basic1" name="send_sms" value="sms"  onClick="userfindpwcheck();">SMS 전송</a>
+        	<a href="javascript:void(0);" id ="userfind_send_sms1" style ="display:none;" class="btn_basic1" onclick="userfindpwcheck()">다시 전송</a>
+            <a href="javascript:void(0);" onclick="$('.layerUserPop').hide();" class="btn_basic3">취소</a>
+        </div>
+    </div>
+</div>
+<!-- // 2023-07-17 selectbox option에 따른 필드 바뀜2 -->
+
+<!-- 등록 후!! 비밀번호 찾기  레이어 팝업시작 -->
+<div class="layerUserPop findPW compFindPw">
+    <div class="wid4">
+        <a href="#" class="exit"><span>레이어 팝업 닫기</span></a>
+        <h4>비밀번호 찾기</h4>
+        <table class="tbl_type2">
+            <colgroup>
+                <col style="width:18.9rem">
+                <col>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th scope="row"><label for="compFindPw_Ssn">사업자등록번호 유무</label></th>
+                    <td class="left">
+                        <select id="compFindPw_Ssn" onchange="javascript:usty_gb_chk2(this.value)">
+                            <option value="1" selected="">있음(사업자)</option>
+                            <option value="2">없음(개인)</option>
+                            <option value="3">없음(시도/시군구/환경청)</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="compfindpw_id">아이디</label></th>
+                    <td class="left">
+                        <input type="text" id="compfindpw_id" class="engNum_" name="compfindpw_id" title="아이디">
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="compfindpw_usna" id="compFindPw_usna_th">담당자 성명</label></th>
+                    <td class="left">
+                        <input type="text" id="compfindpw_usna" class="ab-flt-l ab-bnum4 inputFilter" name="compfindpw_usna" title="담당자 성명">
+                    </td>
+                </tr>
+                <tr id="form_corp11">
+                    <th scope="row"><label for="compfindpw_busn_regn1">사업자등록번호</label></th>
+                    <td class="left num">
+                        <input type="text" id="compfindpw_busn_regn1" class="num" name="compfindpw_busn_regn1" value="" maxlength="3" onKeyUp="return autoTab(this, 3, event);" title="사업자등록번호 첫번째 자리"> -
+                        <input type="text" id="compfindpw_busn_regn2" class="num" name="compfindpw_busn_regn2" value="" maxlength="2" onKeyUp="return autoTab(this, 2, event);"title="사업자등록번호 두번째 자리"> -
+                        <input type="text" id="compfindpw_busn_regn3" class="num" name="compfindpw_busn_regn3" value="" maxlength="5" title="사업자등록번호 세번째 자리">
+                    </td>
+                </tr>
+                <tr id="form_corp22">
+                	
+                </tr>
+               
+                <tr id="form_indi2" style="display:none;">
+                 
+                </tr>
+                
+                <tr id="form_organ" style="display:none;">
+                    <th scope="row"><label for="compfindpw_auth_name">시도/시군구/환경청</label></th>
+                    <td class="left">
+                        <input type="text" id="compfindpw_auth_name" name="compfindpw_auth_name"  nm="관할관청" readonly="readonly">                        
+                        <button id="compfindpw_auth_name_chk" type="button" onclick="popWin('/pop/popupCmpt.do?cmpt_type=10', 600, 500, 'zipcode', 1);">관할 환경청/시군구 조회</button>
+                    </td>
+                </tr>
+                <tr style="display:none">
+                    <th scope="row">방법선택</th>
+                    <td class="left">
+                        <input type="radio" id="mobile_chk" name="mobile_chk" value="" title="SMS 수신" checked="checked">
+                        <label for="mobile_chk">SMS 수신</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="compfindpw_phone1" id="compFindPw_phone_th">핸드폰번호</label></th>
+                    <td class="left num">
+                        <input type="text" id="compfindpw_phone1" class="num" name="compfindpw_phone1" value="" maxlength="3" size="3" onKeyUp="return autoTab(this, 3, event);" title="휴대전화번호 첫번째 자리"> -
+                        <input type="text" id="compfindpw_phone2" class="num" name="compfindpw_phone2" value="" maxlength="4" size="4" onKeyUp="return autoTab(this, 4, event);" title="휴대전화번호 두번째 자리"> -
+                        <input type="text" id="compfindpw_phone3" class="num" name="compfindpw_phone3" value="" maxlength="4" size="4" title="휴대전화번호 세번째 자리">
+                        
+                        <p class="txt_infochk">※ 가입된 정보 확인을 통해 휴대전화번호로 초기화된 비밀번호를 전송합니다.</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="msg3">
+            <ul class="ldot">
+                <li>
+                    보안 관련 사항<br>
+                    SMS 전송시 <em class="txt_em1">공동인증서 인증</em>이 필요합니다. (25년 5월 23일 부터)
+                </li>
+                <li>
+                    비밀번호 검색으로 비밀번호를 초기화 할 수 없을 경우<br>
+                    <em class="txt_em1">담당자 신원증빙서류(재직확인서 및 개인정보의 정보수집/제공/이용 동의서 양식 다운로드)</em> 사본을 관할 지역본부 또는<br>전화상담센터로 보낸 후 연락주시기 바랍니다.
+                    <ul class="dash">
+                        <li>고객지원 > 연락처안내 > 올바로시스템 연락처를 확인하시기 바랍니다.</li>
+                    </ul>
+                </li>
+                <li>사업자등록번호유무 : 사업자등록번호가 있을경우 있음(사업자), 그렇지 않을 경우 없음(개인)을 선택합니다.<br>
+                    시군구/환경청 담당 공무원일 경우 없음(시도/시군구/환경청)을 선택합니다.
+                    <ul class="dash">
+                        <li>있음(사업자) : 시스템에 등록되어있는 사업자등록번호(예:000-00-00000), 담당자명, 업체명을 입력합니다.</li>
+                        <li>없음(개인) : 시스템에 등록되어있는 담당자, 휴대전화번호를 입력합니다.</li>
+                        <li>없음(시도/시군구/환경청) : 시스템에 등록되어있는 담당자, 휴대전화번호, 관할시군구를 입력합니다.</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="center">
+        	<a id ="compfind_send_sms" class="btn_basic1" name="send_sms" value="sms"  onClick="compfindpwcertcheck();">SMS 전송</a>
+        	<a id ="compfind_send_sms1" style ="display:none;" class="btn_basic1" onclick="compfindpwcertcheck()">다시 전송</a>
+            <a href="javascript:void(0);" onclick="$('.layerUserPop').hide();" class="btn_basic3">취소</a>
+        </div>
+    </div>
+</div>
+<!-- 등록 후!! 비밀번호 찾기  레이어 팝업끝 -->
+
+<div class="layerUserPop findPWRe">
+    <div class="wid4">
+        <a href="#" class="exit" id="exit"><span>레이어 팝업 닫기</span></a>
+        <h4>비밀번호 찾기</h4>
+        <p class="msg msgchk2">
+			입력하신 휴대전화로 임시 비밀번호를 전송하였습니다.<br>
+			임시비밀번호로 로그인 후 비밀번호를 수정하시기 바랍니다. 
+        </p>
+        <div class="btnbox center">
+            <a href="javascript:void(0);" onclick="$('.layerUserPop').hide();" class="btn_basic3">확인</a>
+        </div>
+    </div>
+</div>
+<!-- //아이디찾기, 비밀번호찾기 레이어 팝업 -->
+
+<!-- ##sms본인 확인-->
+<div class="layerUserPop smsCheck" id="smsCheck">
+    <div class="wid3">
+        <a href="#" class="exit_black"><span>레이어 팝업 닫기</span></a>
+        <h4>휴대폰 번호 인증</h4>
+        <table class="tbl_type2">
+            <colgroup>
+                <col style="width:16rem">
+            </colgroup>
+            <tbody>
+				<tr>
+                <th scope="row">사용자명</th>
+                    <td class="left">
+                        <input type="text" style="width:23.9rem" id="cert_usna" name="cert_usna" value="" onKeyDown ="javascript:if(event.keyCode == 13)  certSendHp();">
+					</td>
+				</tr>
+            <tr>
+                <th scope="row"><label for="cert_birthY">생년월일</label></th>
+                <td class="left">
+                    <select id="cert_birthY" name="cert_birthY" style="width:12.3rem" onchange="certBirthY(this.value);">
+                      <option value="">년도</option>
+	        
+	            <option value="2014">2014년</option>
+	        
+	            <option value="2013">2013년</option>
+	        
+	            <option value="2012">2012년</option>
+	        
+	            <option value="2011">2011년</option>
+	        
+	            <option value="2010">2010년</option>
+	        
+	            <option value="2009">2009년</option>
+	        
+	            <option value="2008">2008년</option>
+	        
+	            <option value="2007">2007년</option>
+	        
+	            <option value="2006">2006년</option>
+	        
+	            <option value="2005">2005년</option>
+	        
+	            <option value="2004">2004년</option>
+	        
+	            <option value="2003">2003년</option>
+	        
+	            <option value="2002">2002년</option>
+	        
+	            <option value="2001">2001년</option>
+	        
+	            <option value="2000">2000년</option>
+	        
+	            <option value="1999">1999년</option>
+	        
+	            <option value="1998">1998년</option>
+	        
+	            <option value="1997">1997년</option>
+	        
+	            <option value="1996">1996년</option>
+	        
+	            <option value="1995">1995년</option>
+	        
+	            <option value="1994">1994년</option>
+	        
+	            <option value="1993">1993년</option>
+	        
+	            <option value="1992">1992년</option>
+	        
+	            <option value="1991">1991년</option>
+	        
+	            <option value="1990">1990년</option>
+	        
+	            <option value="1989">1989년</option>
+	        
+	            <option value="1988">1988년</option>
+	        
+	            <option value="1987">1987년</option>
+	        
+	            <option value="1986">1986년</option>
+	        
+	            <option value="1985">1985년</option>
+	        
+	            <option value="1984">1984년</option>
+	        
+	            <option value="1983">1983년</option>
+	        
+	            <option value="1982">1982년</option>
+	        
+	            <option value="1981">1981년</option>
+	        
+	            <option value="1980">1980년</option>
+	        
+	            <option value="1979">1979년</option>
+	        
+	            <option value="1978">1978년</option>
+	        
+	            <option value="1977">1977년</option>
+	        
+	            <option value="1976">1976년</option>
+	        
+	            <option value="1975">1975년</option>
+	        
+	            <option value="1974">1974년</option>
+	        
+	            <option value="1973">1973년</option>
+	        
+	            <option value="1972">1972년</option>
+	        
+	            <option value="1971">1971년</option>
+	        
+	            <option value="1970">1970년</option>
+	        
+	            <option value="1969">1969년</option>
+	        
+	            <option value="1968">1968년</option>
+	        
+	            <option value="1967">1967년</option>
+	        
+	            <option value="1966">1966년</option>
+	        
+	            <option value="1965">1965년</option>
+	        
+	            <option value="1964">1964년</option>
+	        
+	            <option value="1963">1963년</option>
+	        
+	            <option value="1962">1962년</option>
+	        
+	            <option value="1961">1961년</option>
+	        
+	            <option value="1960">1960년</option>
+	        
+	            <option value="1959">1959년</option>
+	        
+	            <option value="1958">1958년</option>
+	        
+	            <option value="1957">1957년</option>
+	        
+	            <option value="1956">1956년</option>
+	        
+	            <option value="1955">1955년</option>
+	        
+	            <option value="1954">1954년</option>
+	        
+	            <option value="1953">1953년</option>
+	        
+	            <option value="1952">1952년</option>
+	        
+	            <option value="1951">1951년</option>
+	        
+	            <option value="1950">1950년</option>
+	        
+	            <option value="1949">1949년</option>
+	        
+	            <option value="1948">1948년</option>
+	        
+	            <option value="1947">1947년</option>
+	        
+	            <option value="1946">1946년</option>
+	        
+	            <option value="1945">1945년</option>
+	        
+	            <option value="1944">1944년</option>
+	        
+	            <option value="1943">1943년</option>
+	        
+	            <option value="1942">1942년</option>
+	        
+	            <option value="1941">1941년</option>
+	        
+	            <option value="1940">1940년</option>
+	        
+	            <option value="1939">1939년</option>
+	        
+	            <option value="1938">1938년</option>
+	        
+	            <option value="1937">1937년</option>
+	        
+	            <option value="1936">1936년</option>
+	        
+	            <option value="1935">1935년</option>
+	        
+	            <option value="1934">1934년</option>
+	        
+	            <option value="1933">1933년</option>
+	        
+	            <option value="1932">1932년</option>
+	        
+	            <option value="1931">1931년</option>
+	        
+	            <option value="1930">1930년</option>
+	        
+	            <option value="1929">1929년</option>
+	        
+	            <option value="1928">1928년</option>
+	        
+	            <option value="1927">1927년</option>
+	        
+	            <option value="1926">1926년</option>
+	        
+	            <option value="1925">1925년</option>
+	        
+	            <option value="1924">1924년</option>
+	        
+	            <option value="1923">1923년</option>
+	        
+	            <option value="1922">1922년</option>
+	        
+	            <option value="1921">1921년</option>
+	        
+	            <option value="1920">1920년</option>
+	        
+	            <option value="1919">1919년</option>
+	        
+	            <option value="1918">1918년</option>
+	        
+	            <option value="1917">1917년</option>
+	        
+	            <option value="1916">1916년</option>
+	        
+	            <option value="1915">1915년</option>
+	        
+	            <option value="1914">1914년</option>
+	        
+	            <option value="1913">1913년</option>
+	        
+	            <option value="1912">1912년</option>
+	        
+	            <option value="1911">1911년</option>
+	        
+	            <option value="1910">1910년</option>
+	        
+	            <option value="1909">1909년</option>
+	        
+	            <option value="1908">1908년</option>
+	        
+	            <option value="1907">1907년</option>
+	        
+	            <option value="1906">1906년</option>
+	        
+	            <option value="1905">1905년</option>
+	        
+	            <option value="1904">1904년</option>
+	        
+	            <option value="1903">1903년</option>
+	        
+	            <option value="1902">1902년</option>
+	        
+	            <option value="1901">1901년</option>
+	        
+	            <option value="1900">1900년</option>
+	        
+                    </select>
+                    <select id="cert_birthM" name="cert_birthM" style="width:12.3rem" onchange="certBirthM(this.value);">
+                        <option value="">월</option>
+                        
+	            <option value="1">1월</option>
+	        
+	            <option value="2">2월</option>
+	        
+	            <option value="3">3월</option>
+	        
+	            <option value="4">4월</option>
+	        
+	            <option value="5">5월</option>
+	        
+	            <option value="6">6월</option>
+	        
+	            <option value="7">7월</option>
+	        
+	            <option value="8">8월</option>
+	        
+	            <option value="9">9월</option>
+	        
+	            <option value="10">10월</option>
+	        
+	            <option value="11">11월</option>
+	        
+	            <option value="12">12월</option>
+	        
+                    </select>
+                    <select id ="cert_birthD28"  style="display: none; width:12.3rem" onchange="certBirthD(this.value);">
+                        <option value="" >일</option>
+                        
+	            <option value="1">1일</option>
+	        
+	            <option value="2">2일</option>
+	        
+	            <option value="3">3일</option>
+	        
+	            <option value="4">4일</option>
+	        
+	            <option value="5">5일</option>
+	        
+	            <option value="6">6일</option>
+	        
+	            <option value="7">7일</option>
+	        
+	            <option value="8">8일</option>
+	        
+	            <option value="9">9일</option>
+	        
+	            <option value="10">10일</option>
+	        
+	            <option value="11">11일</option>
+	        
+	            <option value="12">12일</option>
+	        
+	            <option value="13">13일</option>
+	        
+	            <option value="14">14일</option>
+	        
+	            <option value="15">15일</option>
+	        
+	            <option value="16">16일</option>
+	        
+	            <option value="17">17일</option>
+	        
+	            <option value="18">18일</option>
+	        
+	            <option value="19">19일</option>
+	        
+	            <option value="20">20일</option>
+	        
+	            <option value="21">21일</option>
+	        
+	            <option value="22">22일</option>
+	        
+	            <option value="23">23일</option>
+	        
+	            <option value="24">24일</option>
+	        
+	            <option value="25">25일</option>
+	        
+	            <option value="26">26일</option>
+	        
+	            <option value="27">27일</option>
+	        
+	            <option value="28">28일</option>
+	        
+                    </select>
+                    <select id ="cert_birthD29"  style="display: none; width:12.3rem" onchange="certBirthD(this.value);">
+                        <option value="" >일</option>
+                        
+	            <option value="1">1일</option>
+	        
+	            <option value="2">2일</option>
+	        
+	            <option value="3">3일</option>
+	        
+	            <option value="4">4일</option>
+	        
+	            <option value="5">5일</option>
+	        
+	            <option value="6">6일</option>
+	        
+	            <option value="7">7일</option>
+	        
+	            <option value="8">8일</option>
+	        
+	            <option value="9">9일</option>
+	        
+	            <option value="10">10일</option>
+	        
+	            <option value="11">11일</option>
+	        
+	            <option value="12">12일</option>
+	        
+	            <option value="13">13일</option>
+	        
+	            <option value="14">14일</option>
+	        
+	            <option value="15">15일</option>
+	        
+	            <option value="16">16일</option>
+	        
+	            <option value="17">17일</option>
+	        
+	            <option value="18">18일</option>
+	        
+	            <option value="19">19일</option>
+	        
+	            <option value="20">20일</option>
+	        
+	            <option value="21">21일</option>
+	        
+	            <option value="22">22일</option>
+	        
+	            <option value="23">23일</option>
+	        
+	            <option value="24">24일</option>
+	        
+	            <option value="25">25일</option>
+	        
+	            <option value="26">26일</option>
+	        
+	            <option value="27">27일</option>
+	        
+	            <option value="28">28일</option>
+	        
+	            <option value="29">29일</option>
+	        
+                    </select>
+                    <select id ="cert_birthD30"  style="display: none; width:12.3rem" onchange="certBirthD(this.value);">
+                        <option value="" >일</option>
+                        
+	            <option value="1">1일</option>
+	        
+	            <option value="2">2일</option>
+	        
+	            <option value="3">3일</option>
+	        
+	            <option value="4">4일</option>
+	        
+	            <option value="5">5일</option>
+	        
+	            <option value="6">6일</option>
+	        
+	            <option value="7">7일</option>
+	        
+	            <option value="8">8일</option>
+	        
+	            <option value="9">9일</option>
+	        
+	            <option value="10">10일</option>
+	        
+	            <option value="11">11일</option>
+	        
+	            <option value="12">12일</option>
+	        
+	            <option value="13">13일</option>
+	        
+	            <option value="14">14일</option>
+	        
+	            <option value="15">15일</option>
+	        
+	            <option value="16">16일</option>
+	        
+	            <option value="17">17일</option>
+	        
+	            <option value="18">18일</option>
+	        
+	            <option value="19">19일</option>
+	        
+	            <option value="20">20일</option>
+	        
+	            <option value="21">21일</option>
+	        
+	            <option value="22">22일</option>
+	        
+	            <option value="23">23일</option>
+	        
+	            <option value="24">24일</option>
+	        
+	            <option value="25">25일</option>
+	        
+	            <option value="26">26일</option>
+	        
+	            <option value="27">27일</option>
+	        
+	            <option value="28">28일</option>
+	        
+	            <option value="29">29일</option>
+	        
+	            <option value="30">30일</option>
+	        
+                    </select>
+                    <select id ="cert_birthD31"  style="display: none; width:12.3rem" onchange="certBirthD(this.value);">
+                        <option value="" >일</option>
+                        
+	            <option value="1">1일</option>
+	        
+	            <option value="2">2일</option>
+	        
+	            <option value="3">3일</option>
+	        
+	            <option value="4">4일</option>
+	        
+	            <option value="5">5일</option>
+	        
+	            <option value="6">6일</option>
+	        
+	            <option value="7">7일</option>
+	        
+	            <option value="8">8일</option>
+	        
+	            <option value="9">9일</option>
+	        
+	            <option value="10">10일</option>
+	        
+	            <option value="11">11일</option>
+	        
+	            <option value="12">12일</option>
+	        
+	            <option value="13">13일</option>
+	        
+	            <option value="14">14일</option>
+	        
+	            <option value="15">15일</option>
+	        
+	            <option value="16">16일</option>
+	        
+	            <option value="17">17일</option>
+	        
+	            <option value="18">18일</option>
+	        
+	            <option value="19">19일</option>
+	        
+	            <option value="20">20일</option>
+	        
+	            <option value="21">21일</option>
+	        
+	            <option value="22">22일</option>
+	        
+	            <option value="23">23일</option>
+	        
+	            <option value="24">24일</option>
+	        
+	            <option value="25">25일</option>
+	        
+	            <option value="26">26일</option>
+	        
+	            <option value="27">27일</option>
+	        
+	            <option value="28">28일</option>
+	        
+	            <option value="29">29일</option>
+	        
+	            <option value="30">30일</option>
+	        
+	            <option value="31">31일</option>
+	        
+                    </select>
+                </td>
+            </tr>
+                <tr>
+                    <th scope="row">휴대폰 번호</th>
+                    <td class="left">
+                        <input type="text" class ="num" style="width:6.3rem" id="cert_hand_phone1" name="cert_hand_phone1" value="" onKeyUp ="return autoTab(this, 3, event);" onKeyDown ="javascript:if(event.keyCode == 13) certSendHp();" title="휴대폰번호 첫번째 자리"> -
+                        <input type="text" class ="num" style="width:6.3rem" id="cert_hand_phone2" name="cert_hand_phone2" value="" onKeyUp ="return autoTab(this, 4, event);" onKeyDown ="javascript:if(event.keyCode == 13) certSendHp();" title="휴대폰번호 두번째 자리"> -
+                        <input type="text" class ="num" style="width:6.3rem" id="cert_hand_phone3" name="cert_hand_phone3" value="" onKeyDown ="javascript:if(event.keyCode == 13) certSendHp();" maxlength='4' title="휴대폰번호 세번째 자리">
+  						<span class="time"></span>
+  						<button type="button" id ="cert_button" style ="display:;" class="abr-btn-bw1" onclick ="certSendHp();">인증번호 받기</button>                    
+						<button type="button" id ="cert_button1" style ="display:none;" class="abr-btn-bw1" onclick ="certSendHp();" onKeyDown ="javascript:if(event.keyCode == 13) certSendHp();">인증번호 다시 받기</button> 
+					 </td>
+                </tr>
+                <tr>
+                    <th scope="row">인증번호</th>
+                    <td class="left">
+                        <input type="text" style="width:21.9rem" id="cert_num" name="cert_num" value="" title="인증번호" onKeyDown ="javascript:if(event.keyCode == 13) certCheck();">	
+                        <button type="button" onclick ="certCheck();">인증번호 확인</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 비밀번호 확인 레이어 팝업시작 -->
+<div class="layerUserPop confirmPw" id="confirmPw">
+    <div class="wid4">
+        <a href="#" class="exit"><span>레이어 팝업 닫기</span></a>
+        <h4>비밀번호 확인</h4>
+        <table class="tbl_type2">
+            <colgroup>
+                <col style="width:18.9rem">
+                <col>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th scope="row">비밀번호</th>
+                    <td class="left">
+						<input type="password" id="confirmPw" name="confirmPw" class="password abr-input-text2" value="" maxlength="16" trim="trim" onKeyDown="javascript:shortKeyChecker(this, false, false);" onKeyPress ="pswd_numberMask(this);" placeholder ="비밀번호를 입력하여 주시기 바랍니다.">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="center" style="margin-top: 40px;">
+            <a href="javascript:void(0);" onclick="confirmPWcheck();" class="btn_basic1">확인</a>
+            <a href="javascript:void(0);" onclick="$('.layerUserPop').hide();" class="btn_basic3">취소</a>
+        </div>        
+    </div>
+</div>
+<!-- 비밀번호 확인 레이어 팝업끝 -->
+
+</form>
+
+<!-- 현장정보시스템 SSO 로그인 -->
+<script>
+   //현장정보시스템 토큰 생성
+	function ssoSirenLogin()
+	{
+		//var url = "/pop/ajax.ssoSirenLogin.do?";
+	   	//var param = '&&'+FormQueryStringForAjax(document.ssoSirenfrm);
+	   	
+	   	var change_user_yn = null;
+	   	
+	    if(!!change_user_yn && change_user_yn == 'Y'){
+	    alert("타 사용자 전환 해제 후, 현장정보관리시스템에 접속하실 수 있습니다.");
+	   	}else{
+	   	window.open('/passni/sample/tokenInfo.jsp', 'ssoSirenPop'); 
+	   	}
+	}	
+</script>
+		
+		<div class="page ab-g">
+			<!-- MAIN CONTENT START -->
+			<!-- MAIN CONTENT END -->
+		</div>
+<script>
+$(document).ready(function(){
+	document.oncontextmenu = null; //소스보기 금지 해제
+  	$('body').off('selectstart dragstart'); //본문긁어가기 금지 해제
+    init();
+});
+
+window.onload=init
+function init()
+{
+	}
+
+function read(No){
+    document.frm.action="/07_wsc/wsc_notice_view.do";
+    setValueById( "seq", No );
+    document.frm.submit();
+}
+   
+function previewFile(seq, fseq) {
+    if('Y' == 'N') {
+    	return alert('준비 중입니다.');
+    }
+    
+	var url = '/hom/hom002.P.docview.do?seq='+seq+'&file_seq='+fseq;
+	popWin(url, 840, 620, 'firm_pop', 1);
+}
+
+function clickPreview(api) {
+	let formId;
+	let convType;
+	
+	uploadDocument(/SynapDocViewServer/ +api, formId, previewDocumentViewer, previewDocumentFailViewer);
+}
+
+function goList()
+{
+    var searchStr 	= "";
+	var board_name  = "01";
+	var searchKind  = "";
+	var gubun 		= "";
+	var pageNum 	= "";
+	location.href = "/07_wsc/wsc_notice_list.do?board_name=" + board_name + "&searchKind=" + searchKind + "&searchStr=" + searchStr +"&gubun=" + gubun + "&pageNum=" + pageNum;
+}
+</script>
+
+<div id="content" class="content">
+	<form name="frm" method="post">
+	<input type="hidden" name="seq"  value="111210" />
+	<input type="hidden" name="board_name" value="01" />
+	<input type="hidden" name="orig_seq" value="111210" />
+	<input type="hidden" name="is_del" value="" />         
+	<input type="hidden" name="pageNum" value="" > 
+
+	<section>
+		<!-- 좌측 메뉴 시작// -->
+        <div class="lnavi">
+        	<h1>통합자료실</h1>
+            <ul class="h2">
+				<li><a href="/07_wsc/wsc_notice_list.do?board_name=01" class="on">공지사항</a></li>
+				<li><a href="/07_wsc/wsc_law.vm">법령/고시/훈령/예규</a></li>
+				<li><a href="/07_wsc/wsd_form_list.do?board_name=06&gubun=">자료실</a></li>
+				<li><a href="/07_wsc/wsd_statistics_list.vm">통계</a></li>
+				<li><a href="/07_wsc/wsc_faq_list.do?board_name=04">자주묻는 질문</a></li>
+            </ul>
+        </div>
+        <!-- //좌측 메뉴 끝 -->
+        <div class="cont">
+			<div class="h2_style1">
+			    <h2>공지사항</h2>
+			    <div class="breadcrumb">
+			        <ul>
+			            <li><a href="/" class="home">Home</a></li>
+						<li><a href="/07_wsc/wsc_notice_list.do?board_name=01">통합자료실</a></li>
+						<li><a href="/07_wsc/wsc_notice_list.do?board_name=01">공지사항</a></li>
+                    </ul>
+                </div>
+            </div>
+             <div class="tbl_view list_ico">
+                 <div class="info_view1">
+                 	<em class="ico_noti">공지</em>
+                  	                    <h3>관련법령 개정에 따른 폐기물 명, 분류번호 일부변경 알림(2025.12.30)</h3>
+                    <ul class="info_base">
+                        <li>작성일 : 2026-01-06</li>
+                        <li>조회수 : 7866</li>
+                    </ul>
+                 </div>
+                 <div class="info_view2">
+                    						<div class="cont">폐기물관리법 시행규칙 개정에 따른 폐기물의 종류별 세부분류(폐기물코드) 일부 변경 알림
+
+안녕하십니까, 올바로시스템 관리자입니다.
+일부개정(2025. 12. 30.)된 폐기물관리법 시행규칙이 시행(2025. 12. 30.)됨에 따라 폐기물의 종류별 세부분류(폐기물코드)가  아래와 같이 일부 변경됨을 알려드립니다.
+
+
+                                                                -                   아    래                -
+◇시행일자: 2025. 12. 30.(화)
+◇폐기물관리법 시행규칙 [별표 4] 폐기물의 종류별 세부분류 일부개정
+  - 총 17가지 폐기물 명 또는 분류번호 변경(신규 12종, 변경 3종, 삭제 2종)
+  - 주요내용: 폐전지, 폐이차전지 관련 일부 신설 및 변경, 동식물성 잔재물, 식재료 부산물 관련 일부 신설 및 변경
+  - 자세한 사항은 첨부파일을 확인하시기 바랍니다.
+
+※  인허가 변경관련 사항은 인·허가 발급기관에 문의하여 주시기 바랍니다.
+
+--------------------------2026. 1. 6(화) 16:01 추가안내-------------------------
+※ (배출자 변경신고 관련 참고사항)
+   「폐기물관리법」시행규칙 부칙<기후에너지환경부령 제18호, 2025. 12. 30.>
+   제3조(폐기물의 종류별 세부분류 변경에 관한 경과조치) 
+    ① 다음 각 호의 어느 하나에 해당하는 자로서 이 규칙 시행 이후 별표 4의 개정규정에 따라
+         그 세부분류가 변경된 폐기물을 배출하는 자는 2026년 12월 31일까지 해당 호에 규정된 서류에 별표 4의 개정규정에 따른 
+         폐기물의 종류별 세부분류 및 분류번호가 기재된 서류를 첨부하여 해당 호에 규정된 자에게 제출해야 한다.
+              1. 이 규칙 시행 전에 제18조제2항에 따라 사업장폐기물배출자 신고를 한 자: 
+                   사업장폐기물배출자 신고증명서, 특별자치시장ㆍ특별자치도지사ㆍ시장ㆍ군수ㆍ구청장
+              2. 이 규칙 시행 전에 제18조의2제6항에 따라 지정폐기물 처리계획 확인을 받은 자: 
+                   지정폐기물 처리계획 확인서, 지방환경관서의 장
+    ② 이 규칙 시행 전에 제67조제1항에 따라 폐기물처리 신고를 한 자로서 이 규칙 시행 이후 별표 4의 개정규정에 따라 
+         그 세부분류가 변경된 폐기물을 수집ㆍ운반 또는 재활용하는 자는 2026년 12월 31일까지 제67조제3항제1호나목 및 
+         같은 항 제2호나목에 따라 변경신고를 해야 한다.
+
+※  폐기물관리법 시행규칙 부칙에 따른 변경신고 대상에는 17가지 폐기물 명, 폐기물 분류번호 (신규, 변경, 삭제 모두 포함) 변경에 대한 사항이 모두 해당되오니 착오없으시기 바랍니다
+
+
+      감사합니다.</div>
+					                 </div>
+                                  <!-- 첨부파일 영역// -->
+                 <div class="info_view3">
+                     <p class="tit">첨부파일</p>
+                                          <div id="1_div">
+                         <span>
+                         	<a href="/hom/hom001.filedn.do?seq=111210&file_seq=1" class="infile">260101_폐기물관리법 개정안 시행에 따른 폐기물 분류번호 추가 및 변경.xlsx(12kb)</a>
+                         	<input type="image" class="preview-btn" src="/common/assets/images/board/copy-file2.png" title="미리보기" alt="미리보기" onclick="previewFile(111210, 1);return false;" style="margin: -4px 3px; width: 17px;" />
+                         </span>
+                     </div>
+                                      </div>
+                                  <!-- //첨부파일 영역 -->
+             </div>
+                    
+             <!-- 이전글/다음글 영역// -->
+			 <ul class="tbl_view2">
+							      			            				<li><strong class="txt prev">이전 글</strong>
+					<p class="tit">
+						<a href="/07_wsc/wsc_notice_view.do?board_name=01&seq=111190&gubun=&searchStr=&searchKind=">올바로시스템 일시중단[12.28.(일) 20:41 ~ 22:15] 및 예외처리 관련 알림</a>
+					</p>
+				</li> 							            				<li><strong class="txt next">다음 글</strong>
+					<p class="tit">
+						<a href="/07_wsc/wsc_notice_view.do?board_name=01&seq=111230&gubun=&searchStr=&searchKind=">&lt;(추가)2025년 사업장폐기물 실적보고 제출 및 대상등록 안내&gt;</a>
+					</p>
+				</li>
+																<li></li>
+							</ul>
+			<!-- //이전글/다음글 영역 -->                  
+            <div class="btnbox center">
+                <button type="button" class="btn_basic2" onClick="goList()">목록</a>
+            </div>
+            </div>
+    	</section>
+    </form>
+</div>
+<footer>
+		<!-- FOOTER START -->
+		
+
+
+
+
+
+
+<script>
+$(document).ready(function() {
+	//레이어 팝업(사용자 가이드) 닫기
+	$(".layerPop .guide_position>a").click(function() {
+		$(".layerPop").hide();
+	});
+
+	//풋터 - 관련사이트 바로가기
+	$(".family_site .family_link").click(function() {
+		if (!$(".family_site").hasClass("on")) {
+			$(".family_site").addClass("on");
+		} else {
+			$(".family_site").removeClass("on");
+		}
+	});
+	$(document).click(function(e) {
+		if (e.target.className == "family_link") {
+			return false;
+		}
+		$(".family_site").removeClass("on");
+	});
+
+});
+
+//레이어 팝업(사용자 가이드1) 열기
+function userGuide_first() {
+	var fj_tutorial_iframe = document.getElementById("fj_tutorial");
+	// iframe의 src 업데이트
+	document.getElementById("fj_tutorial").src = "/tutorial/f_tutorial_join.html";
+	$(".f_tutorial_join").show();
+}
+
+//레이어 팝업(사용자 가이드2) 열기
+function userGuide_general() {
+	var bu_tutorial_iframe = document.getElementById("bu_tutorial");
+	// iframe의 src 업데이트
+	bu_tutorial.src = "/hom/basic_user_tutorial.do";
+	$(".basic_user_tutorial").show();
+}
+</script>
+<style>.allbaro_foot2 .allbaro_related p + p {	margin: 0 0.7rem 0 2.0rem;	width: 22.0rem;	}.allbaro_foot2 .allbaro_related p + p:after {	  width: 22.0rem; 	  background: url("/common/assets/images/allbaro2023/footer/logo_me2.jpg") 	    no-repeat; 	  background-size: 22.0rem 3.4rem; 	} </style>
+
+<button class="btn_top" type="button" onclick="location.href='#content'">
+	<span class="hidden">위로 가기</span>
+</button>
+<footer class="footer sub">
+	
+	<div class= "footerbox">
+		<div class="allbaro_foot1">
+	
+				<ul class="base_info">
+					<li><a href="https://www.keco.or.kr/" target="_blank"
+						title="새창">운영기관 소개</a></li>
+					<li><a href="/main/wsr_service.vm">서비스 이용약관</a></li>
+					<li>
+					<!--  <a href="#"
+						onclick="window.open('/pop/privacy.P.info.vm', '', 'toolbar=no, scrollbars=yes, width=1450, height=800'); return false;"
+						class="privacy" style="color:#85B355;">개인정보처리방침</a>
+						 -->
+						<a href="#"
+						onclick="window.open('https://www.keco.or.kr/web/lay1/S1T1487C1348/contents.do', '', 'toolbar=no, scrollbars=yes, width=1450, height=800'); return false;"
+						class="privacy" style="color:#85B355;">개인정보처리방침</a>
+						</li>
+						
+						
+					<li><a href="/main/wsr_email.vm">이메일무단수집거부</a></li>
+				</ul>
+
+			<div class="family_site">
+				<a href="#family_list" class="family_link">관련사이트 바로가기</a>
+				<ul class="family_list">
+					<li><a href="http://www.mcee.go.kr" target="_blank" title="새창">기후에너지환경부</a></li>
+					
+					<li><a href="http://www.keco.or.kr/" target="_blank"
+						title="새창">한국환경공단</a></li>
+					<li><a href="http://www.molit.go.kr/" target="_blank"
+						title="새창">국토교통부</a></li>
+					<li><a href="http://www.krihs.re.kr/" target="_blank"
+						title="새창">국토연구원</a></li>
+					<li><a href="http://www.koras.org/" target="_blank" title="새창">한국건설자원협회</a></li>
+					<li><a href="http://www.cwa.or.kr/" target="_blank" title="새창">한국건설폐기물수집운반협회</a></li>
+					<li><a href="http://www.kict.re.kr/" target="_blank"
+						title="새창">한국건설기술연구원</a></li>
+					<li><a href="http://www.allbaro.or.kr/siren" target="_blank"
+						title="새창">폐기물처리 현장정보 관리시스템</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="allbaro_foot2">
+			<div class="allbaro_logo">Allbaro 폐기물적법처리시스템</div>
+			<div class="allbaro_info">
+				<ul>
+					<li>
+						<p class="address">22689 인천시 서해구 환경로 42(오류동 종합환경연구단지)</p>
+         
+															<!-- 4번 운영 was -->
+							<p class="tel">대표전화 1644-000<font color='green'>7</font></p>
+						
+						
+					</li>
+					<li class="copyright">Copyright (C) 2023. Allbaro. All rights
+						reserved.</li>
+				</ul>
+			</div>
+			<div class='allbaro_related'>
+				<p>한국환경공단</p>
+				<p>기후에너지환경부</p>
+			</div>	
+		</div>
+	</div>
+</footer>
+<!-- 페이지 열때마다 조회되어 주석처리 -->
+<!-- 가이드 레이어 팝업(기본:숨김)// -->
+<div class="layerPop f_tutorial_join" >
+	<div class="guide_position">
+		<iframe id="fj_tutorial" src="" class="guide" title="올바로 Tutorial(회원가입, 인증서 발급 및 등록, 인계서 작성 및 인계정보 관리 등)"></iframe>
+		<a href="#">가이드 팝업 닫기</a>
+	</div>
+</div>
+<div class="layerPop basic_user_tutorial" >
+	<div class="guide_position" >
+		<iframe id="bu_tutorial" src="" class="guide" title="올바로 Tutorial(올바로 일반사용자용 가이드)" ></iframe>
+		<a href="#">가이드 팝업 닫기</a>
+	</div>
+</div>
+<!-- //가이드 레이어 팝업(기본:숨김) -->
+		<!-- FOOTER END -->
+	</footer>
+	</div>
+	<!-- JS LOAD START -->
+	<script type="text/javascript" src="/common/assets/js/common.js"></script>
+
+	<!-- JS LOAD END -->
+	<!-- 템플릿 끝 -->
+</body>
+</html>

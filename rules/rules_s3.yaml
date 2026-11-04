@@ -1,0 +1,2900 @@
+# 자동 생성: tools/build_s3_rules.py — 직접 고치지 말고 생성기를 고친 뒤 다시 실행
+rules:
+- id: S3-1GA-SYNTHETIC_RESIN
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: synthetic_resin
+  - fact: physical_state
+    op: in
+    value:
+    - liquid
+    - semisolid
+  source: DEC-A1
+  location: 별표 1 제1호가목1)
+  quote: 폐합성 수지(고체상태의 것은 제외한다)
+  review: UNVERIFIED
+  item: 폐합성 수지(비고체)
+  gaps: &id001
+  - 시행령 별표 1 제1호 표제 '특정시설에서 발생되는 폐기물'의 '특정시설' 범위를 정한 규정을 확인하지 못함
+- id: S3-1GA-SYNTHETIC_RUBBER
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: synthetic_rubber
+  - fact: physical_state
+    op: in
+    value:
+    - liquid
+    - semisolid
+  source: DEC-A1
+  location: 별표 1 제1호가목2)
+  quote: 폐합성 고무(고체상태의 것은 제외한다)
+  review: UNVERIFIED
+  item: 폐합성 고무(비고체)
+  gaps: *id001
+- id: S3-1NA-SLUDGE_WASTEWATER-LEACH_PB
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_wastewater
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_pb
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제1호나목1)
+  quote: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호가목
+    quote: 용출액 1리터당 3밀리그램 이상의 납을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_WASTEWATER-LEACH_CU
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_wastewater
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_cu
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제1호나목1)
+  quote: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호나목
+    quote: 용출액 1리터당 3밀리그램 이상의 구리를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_WASTEWATER-LEACH_AS
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_wastewater
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_as
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제1호나목1)
+  quote: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호다목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 비소를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_WASTEWATER-LEACH_HG
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_wastewater
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_hg
+    op: gte
+    value: 0.005
+  source: DEC-A1
+  location: 별표 1 제1호나목1)
+  quote: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호라목
+    quote: 용출액 1리터당 0.005밀리그램 이상의 수은을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_WASTEWATER-LEACH_CD
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_wastewater
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_cd
+    op: gte
+    value: 0.3
+  source: DEC-A1
+  location: 별표 1 제1호나목1)
+  quote: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호마목
+    quote: 용출액 1리터당 0.3밀리그램 이상의 카드뮴을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_WASTEWATER-LEACH_CR6
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_wastewater
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_cr6
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제1호나목1)
+  quote: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호바목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 6가크롬을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_WASTEWATER-LEACH_CN
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_wastewater
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_cn
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제1호나목1)
+  quote: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호사목
+    quote: 용출액 1리터당 1밀리그램 이상의 시안화합물을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_WASTEWATER-LEACH_OP
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_wastewater
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_op
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제1호나목1)
+  quote: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호아목
+    quote: 용출액 1리터당 1밀리그램 이상의 유기인화합물을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_WASTEWATER-LEACH_PCE
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_wastewater
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_pce
+    op: gte
+    value: 0.1
+  source: DEC-A1
+  location: 별표 1 제1호나목1)
+  quote: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호자목
+    quote: 용출액 1리터당 0.1밀리그램 이상의 테트라클로로에틸렌을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_WASTEWATER-LEACH_TCE
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_wastewater
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_tce
+    op: gte
+    value: 0.3
+  source: DEC-A1
+  location: 별표 1 제1호나목1)
+  quote: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호차목
+    quote: 용출액 1리터당 0.3밀리그램 이상의 트리클로로에틸렌을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_WASTEWATER-OIL_CONTENT_PCT
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_wastewater
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: oil_content_pct
+    op: gte
+    value: 5
+  source: DEC-A1
+  location: 별표 1 제1호나목1)
+  quote: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호카목
+    quote: 기름성분(중량비를 기준으로 하여 유해물질을 5퍼센트 이상 함유한 경우만 해당한다)
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_PROCESS-LEACH_PB
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_process
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_pb
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제1호나목2)
+  quote: 공정 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호가목
+    quote: 용출액 1리터당 3밀리그램 이상의 납을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_PROCESS-LEACH_CU
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_process
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_cu
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제1호나목2)
+  quote: 공정 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호나목
+    quote: 용출액 1리터당 3밀리그램 이상의 구리를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_PROCESS-LEACH_AS
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_process
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_as
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제1호나목2)
+  quote: 공정 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호다목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 비소를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_PROCESS-LEACH_HG
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_process
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_hg
+    op: gte
+    value: 0.005
+  source: DEC-A1
+  location: 별표 1 제1호나목2)
+  quote: 공정 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호라목
+    quote: 용출액 1리터당 0.005밀리그램 이상의 수은을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_PROCESS-LEACH_CD
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_process
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_cd
+    op: gte
+    value: 0.3
+  source: DEC-A1
+  location: 별표 1 제1호나목2)
+  quote: 공정 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호마목
+    quote: 용출액 1리터당 0.3밀리그램 이상의 카드뮴을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_PROCESS-LEACH_CR6
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_process
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_cr6
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제1호나목2)
+  quote: 공정 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호바목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 6가크롬을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_PROCESS-LEACH_CN
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_process
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_cn
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제1호나목2)
+  quote: 공정 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호사목
+    quote: 용출액 1리터당 1밀리그램 이상의 시안화합물을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_PROCESS-LEACH_OP
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_process
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_op
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제1호나목2)
+  quote: 공정 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호아목
+    quote: 용출액 1리터당 1밀리그램 이상의 유기인화합물을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_PROCESS-LEACH_PCE
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_process
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_pce
+    op: gte
+    value: 0.1
+  source: DEC-A1
+  location: 별표 1 제1호나목2)
+  quote: 공정 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호자목
+    quote: 용출액 1리터당 0.1밀리그램 이상의 테트라클로로에틸렌을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_PROCESS-LEACH_TCE
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_process
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: leach_tce
+    op: gte
+    value: 0.3
+  source: DEC-A1
+  location: 별표 1 제1호나목2)
+  quote: 공정 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호차목
+    quote: 용출액 1리터당 0.3밀리그램 이상의 트리클로로에틸렌을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1NA-SLUDGE_PROCESS-OIL_CONTENT_PCT
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: sludge_process
+  - fact: sludge_facility_notified
+    op: eq
+    value: true
+  - fact: sludge_water_pct
+    op: lt
+    value: 95
+  - fact: oil_content_pct
+    op: gte
+    value: 5
+  source: DEC-A1
+  location: 별표 1 제1호나목2)
+  quote: 공정 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 오니류
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호카목
+    quote: 기름성분(중량비를 기준으로 하여 유해물질을 5퍼센트 이상 함유한 경우만 해당한다)
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-1DA-PESTICIDE
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: pesticide
+  - fact: pesticide_from_maker_seller
+    op: eq
+    value: true
+  source: DEC-A1
+  location: 별표 1 제1호다목
+  quote: 폐농약(농약의 제조·판매업소에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 폐농약
+- id: S3-2GA-ACID
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: acid
+  - fact: physical_state
+    op: eq
+    value: liquid
+  - fact: ph
+    op: lte
+    value: 2.0
+  source: DEC-A1
+  location: 별표 1 제2호가목
+  quote: 폐산(액체상태의 폐기물로서 수소이온 농도지수가 2.0 이하인 것으로 한정한다)
+  review: UNVERIFIED
+  item: 폐산
+- id: S3-2NA-ALKALI-LIQUID
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: alkali
+  - fact: physical_state
+    op: eq
+    value: liquid
+  - fact: ph
+    op: gte
+    value: 12.5
+  source: DEC-A1
+  location: 별표 1 제2호나목
+  quote: 폐알칼리(액체상태의 폐기물로서 수소이온 농도지수가 12.5 이상인 것으로 한정하며, 수산화칼륨 및 수산화나트륨을 포함한다)
+  review: UNVERIFIED
+  item: 폐알칼리
+- id: S3-2NA-ALKALI-NAOH-KOH
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: alkali
+  - fact: alkali_solid_naoh_koh
+    op: eq
+    value: true
+  source: DEC-A1
+  location: 별표 1 제2호나목
+  quote: 폐알칼리(액체상태의 폐기물로서 수소이온 농도지수가 12.5 이상인 것으로 한정하며, 수산화칼륨 및 수산화나트륨을 포함한다)
+  review: UNVERIFIED
+  item: 폐알칼리(수산화나트륨·수산화칼륨)
+- id: S3-3-SLAG-LEACH_PB
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: slag
+  - &id002
+    fact: blast_furnace_iron_slag
+    op: eq
+    value: false
+  - fact: leach_pb
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호가목
+  quote: 광재(鑛滓)[철광 원석의 사용으로 인한 고로(高爐)슬래그(slag)는 제외한다]
+  review: UNVERIFIED
+  item: 광재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호가목
+    quote: 용출액 1리터당 3밀리그램 이상의 납을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-SLAG-LEACH_CU
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: slag
+  - *id002
+  - fact: leach_cu
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호가목
+  quote: 광재(鑛滓)[철광 원석의 사용으로 인한 고로(高爐)슬래그(slag)는 제외한다]
+  review: UNVERIFIED
+  item: 광재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호나목
+    quote: 용출액 1리터당 3밀리그램 이상의 구리를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-SLAG-LEACH_AS
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: slag
+  - *id002
+  - fact: leach_as
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호가목
+  quote: 광재(鑛滓)[철광 원석의 사용으로 인한 고로(高爐)슬래그(slag)는 제외한다]
+  review: UNVERIFIED
+  item: 광재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호다목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 비소를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-SLAG-LEACH_HG
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: slag
+  - *id002
+  - fact: leach_hg
+    op: gte
+    value: 0.005
+  source: DEC-A1
+  location: 별표 1 제3호가목
+  quote: 광재(鑛滓)[철광 원석의 사용으로 인한 고로(高爐)슬래그(slag)는 제외한다]
+  review: UNVERIFIED
+  item: 광재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호라목
+    quote: 용출액 1리터당 0.005밀리그램 이상의 수은을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-SLAG-LEACH_CD
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: slag
+  - *id002
+  - fact: leach_cd
+    op: gte
+    value: 0.3
+  source: DEC-A1
+  location: 별표 1 제3호가목
+  quote: 광재(鑛滓)[철광 원석의 사용으로 인한 고로(高爐)슬래그(slag)는 제외한다]
+  review: UNVERIFIED
+  item: 광재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호마목
+    quote: 용출액 1리터당 0.3밀리그램 이상의 카드뮴을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-SLAG-LEACH_CR6
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: slag
+  - *id002
+  - fact: leach_cr6
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호가목
+  quote: 광재(鑛滓)[철광 원석의 사용으로 인한 고로(高爐)슬래그(slag)는 제외한다]
+  review: UNVERIFIED
+  item: 광재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호바목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 6가크롬을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-SLAG-LEACH_CN
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: slag
+  - *id002
+  - fact: leach_cn
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제3호가목
+  quote: 광재(鑛滓)[철광 원석의 사용으로 인한 고로(高爐)슬래그(slag)는 제외한다]
+  review: UNVERIFIED
+  item: 광재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호사목
+    quote: 용출액 1리터당 1밀리그램 이상의 시안화합물을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-SLAG-OIL_CONTENT_PCT
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: slag
+  - *id002
+  - fact: oil_content_pct
+    op: gte
+    value: 5
+  source: DEC-A1
+  location: 별표 1 제3호가목
+  quote: 광재(鑛滓)[철광 원석의 사용으로 인한 고로(高爐)슬래그(slag)는 제외한다]
+  review: UNVERIFIED
+  item: 광재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호카목
+    quote: 기름성분(중량비를 기준으로 하여 유해물질을 5퍼센트 이상 함유한 경우만 해당한다)
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-DUST-LEACH_PB
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: dust
+  - &id003
+    fact: dust_from_apc
+    op: eq
+    value: true
+  - &id004
+    fact: dust_from_incinerator
+    op: eq
+    value: false
+  - fact: leach_pb
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호나목
+  quote: 분진(대기오염 방지시설에서 포집된 것으로 한정하되, 소각시설에서 발생되는 것은 제외한다)
+  review: UNVERIFIED
+  item: 분진
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호가목
+    quote: 용출액 1리터당 3밀리그램 이상의 납을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-DUST-LEACH_CU
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: dust
+  - *id003
+  - *id004
+  - fact: leach_cu
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호나목
+  quote: 분진(대기오염 방지시설에서 포집된 것으로 한정하되, 소각시설에서 발생되는 것은 제외한다)
+  review: UNVERIFIED
+  item: 분진
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호나목
+    quote: 용출액 1리터당 3밀리그램 이상의 구리를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-DUST-LEACH_AS
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: dust
+  - *id003
+  - *id004
+  - fact: leach_as
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호나목
+  quote: 분진(대기오염 방지시설에서 포집된 것으로 한정하되, 소각시설에서 발생되는 것은 제외한다)
+  review: UNVERIFIED
+  item: 분진
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호다목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 비소를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-DUST-LEACH_HG
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: dust
+  - *id003
+  - *id004
+  - fact: leach_hg
+    op: gte
+    value: 0.005
+  source: DEC-A1
+  location: 별표 1 제3호나목
+  quote: 분진(대기오염 방지시설에서 포집된 것으로 한정하되, 소각시설에서 발생되는 것은 제외한다)
+  review: UNVERIFIED
+  item: 분진
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호라목
+    quote: 용출액 1리터당 0.005밀리그램 이상의 수은을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-DUST-LEACH_CD
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: dust
+  - *id003
+  - *id004
+  - fact: leach_cd
+    op: gte
+    value: 0.3
+  source: DEC-A1
+  location: 별표 1 제3호나목
+  quote: 분진(대기오염 방지시설에서 포집된 것으로 한정하되, 소각시설에서 발생되는 것은 제외한다)
+  review: UNVERIFIED
+  item: 분진
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호마목
+    quote: 용출액 1리터당 0.3밀리그램 이상의 카드뮴을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-DUST-LEACH_CR6
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: dust
+  - *id003
+  - *id004
+  - fact: leach_cr6
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호나목
+  quote: 분진(대기오염 방지시설에서 포집된 것으로 한정하되, 소각시설에서 발생되는 것은 제외한다)
+  review: UNVERIFIED
+  item: 분진
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호바목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 6가크롬을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-DUST-LEACH_CN
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: dust
+  - *id003
+  - *id004
+  - fact: leach_cn
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제3호나목
+  quote: 분진(대기오염 방지시설에서 포집된 것으로 한정하되, 소각시설에서 발생되는 것은 제외한다)
+  review: UNVERIFIED
+  item: 분진
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호사목
+    quote: 용출액 1리터당 1밀리그램 이상의 시안화합물을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-FOUNDRY_SAND-LEACH_PB
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: foundry_sand
+  - fact: leach_pb
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호다목
+  quote: 폐주물사 및 샌드블라스트 폐사(廢砂)
+  review: UNVERIFIED
+  item: 폐주물사·샌드블라스트 폐사
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호가목
+    quote: 용출액 1리터당 3밀리그램 이상의 납을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-FOUNDRY_SAND-LEACH_CU
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: foundry_sand
+  - fact: leach_cu
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호다목
+  quote: 폐주물사 및 샌드블라스트 폐사(廢砂)
+  review: UNVERIFIED
+  item: 폐주물사·샌드블라스트 폐사
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호나목
+    quote: 용출액 1리터당 3밀리그램 이상의 구리를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-FOUNDRY_SAND-LEACH_AS
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: foundry_sand
+  - fact: leach_as
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호다목
+  quote: 폐주물사 및 샌드블라스트 폐사(廢砂)
+  review: UNVERIFIED
+  item: 폐주물사·샌드블라스트 폐사
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호다목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 비소를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-FOUNDRY_SAND-LEACH_HG
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: foundry_sand
+  - fact: leach_hg
+    op: gte
+    value: 0.005
+  source: DEC-A1
+  location: 별표 1 제3호다목
+  quote: 폐주물사 및 샌드블라스트 폐사(廢砂)
+  review: UNVERIFIED
+  item: 폐주물사·샌드블라스트 폐사
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호라목
+    quote: 용출액 1리터당 0.005밀리그램 이상의 수은을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-FOUNDRY_SAND-LEACH_CD
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: foundry_sand
+  - fact: leach_cd
+    op: gte
+    value: 0.3
+  source: DEC-A1
+  location: 별표 1 제3호다목
+  quote: 폐주물사 및 샌드블라스트 폐사(廢砂)
+  review: UNVERIFIED
+  item: 폐주물사·샌드블라스트 폐사
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호마목
+    quote: 용출액 1리터당 0.3밀리그램 이상의 카드뮴을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-FOUNDRY_SAND-LEACH_CR6
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: foundry_sand
+  - fact: leach_cr6
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호다목
+  quote: 폐주물사 및 샌드블라스트 폐사(廢砂)
+  review: UNVERIFIED
+  item: 폐주물사·샌드블라스트 폐사
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호바목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 6가크롬을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-FOUNDRY_SAND-LEACH_CN
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: foundry_sand
+  - fact: leach_cn
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제3호다목
+  quote: 폐주물사 및 샌드블라스트 폐사(廢砂)
+  review: UNVERIFIED
+  item: 폐주물사·샌드블라스트 폐사
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호사목
+    quote: 용출액 1리터당 1밀리그램 이상의 시안화합물을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-FOUNDRY_SAND-OIL_CONTENT_PCT
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: foundry_sand
+  - fact: oil_content_pct
+    op: gte
+    value: 5
+  source: DEC-A1
+  location: 별표 1 제3호다목
+  quote: 폐주물사 및 샌드블라스트 폐사(廢砂)
+  review: UNVERIFIED
+  item: 폐주물사·샌드블라스트 폐사
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호카목
+    quote: 기름성분(중량비를 기준으로 하여 유해물질을 5퍼센트 이상 함유한 경우만 해당한다)
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-REFRACTORY-LEACH_PB
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: refractory
+  - fact: leach_pb
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호라목
+  quote: 폐내화물(廢耐火物) 및 재벌구이 전에 유약을 바른 도자기 조각
+  review: UNVERIFIED
+  item: 폐내화물·도자기 조각
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호가목
+    quote: 용출액 1리터당 3밀리그램 이상의 납을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-REFRACTORY-LEACH_CU
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: refractory
+  - fact: leach_cu
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호라목
+  quote: 폐내화물(廢耐火物) 및 재벌구이 전에 유약을 바른 도자기 조각
+  review: UNVERIFIED
+  item: 폐내화물·도자기 조각
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호나목
+    quote: 용출액 1리터당 3밀리그램 이상의 구리를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-REFRACTORY-LEACH_AS
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: refractory
+  - fact: leach_as
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호라목
+  quote: 폐내화물(廢耐火物) 및 재벌구이 전에 유약을 바른 도자기 조각
+  review: UNVERIFIED
+  item: 폐내화물·도자기 조각
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호다목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 비소를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-REFRACTORY-LEACH_HG
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: refractory
+  - fact: leach_hg
+    op: gte
+    value: 0.005
+  source: DEC-A1
+  location: 별표 1 제3호라목
+  quote: 폐내화물(廢耐火物) 및 재벌구이 전에 유약을 바른 도자기 조각
+  review: UNVERIFIED
+  item: 폐내화물·도자기 조각
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호라목
+    quote: 용출액 1리터당 0.005밀리그램 이상의 수은을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-REFRACTORY-LEACH_CD
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: refractory
+  - fact: leach_cd
+    op: gte
+    value: 0.3
+  source: DEC-A1
+  location: 별표 1 제3호라목
+  quote: 폐내화물(廢耐火物) 및 재벌구이 전에 유약을 바른 도자기 조각
+  review: UNVERIFIED
+  item: 폐내화물·도자기 조각
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호마목
+    quote: 용출액 1리터당 0.3밀리그램 이상의 카드뮴을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-REFRACTORY-LEACH_CR6
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: refractory
+  - fact: leach_cr6
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호라목
+  quote: 폐내화물(廢耐火物) 및 재벌구이 전에 유약을 바른 도자기 조각
+  review: UNVERIFIED
+  item: 폐내화물·도자기 조각
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호바목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 6가크롬을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-REFRACTORY-LEACH_CN
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: refractory
+  - fact: leach_cn
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제3호라목
+  quote: 폐내화물(廢耐火物) 및 재벌구이 전에 유약을 바른 도자기 조각
+  review: UNVERIFIED
+  item: 폐내화물·도자기 조각
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호사목
+    quote: 용출액 1리터당 1밀리그램 이상의 시안화합물을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-REFRACTORY-OIL_CONTENT_PCT
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: refractory
+  - fact: oil_content_pct
+    op: gte
+    value: 5
+  source: DEC-A1
+  location: 별표 1 제3호라목
+  quote: 폐내화물(廢耐火物) 및 재벌구이 전에 유약을 바른 도자기 조각
+  review: UNVERIFIED
+  item: 폐내화물·도자기 조각
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호카목
+    quote: 기름성분(중량비를 기준으로 하여 유해물질을 5퍼센트 이상 함유한 경우만 해당한다)
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-INCINERATION_ASH-LEACH_PB
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: incineration_ash
+  - fact: leach_pb
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호마목
+  quote: 소각재
+  review: UNVERIFIED
+  item: 소각재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호가목
+    quote: 용출액 1리터당 3밀리그램 이상의 납을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-INCINERATION_ASH-LEACH_CU
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: incineration_ash
+  - fact: leach_cu
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호마목
+  quote: 소각재
+  review: UNVERIFIED
+  item: 소각재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호나목
+    quote: 용출액 1리터당 3밀리그램 이상의 구리를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-INCINERATION_ASH-LEACH_AS
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: incineration_ash
+  - fact: leach_as
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호마목
+  quote: 소각재
+  review: UNVERIFIED
+  item: 소각재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호다목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 비소를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-INCINERATION_ASH-LEACH_HG
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: incineration_ash
+  - fact: leach_hg
+    op: gte
+    value: 0.005
+  source: DEC-A1
+  location: 별표 1 제3호마목
+  quote: 소각재
+  review: UNVERIFIED
+  item: 소각재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호라목
+    quote: 용출액 1리터당 0.005밀리그램 이상의 수은을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-INCINERATION_ASH-LEACH_CD
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: incineration_ash
+  - fact: leach_cd
+    op: gte
+    value: 0.3
+  source: DEC-A1
+  location: 별표 1 제3호마목
+  quote: 소각재
+  review: UNVERIFIED
+  item: 소각재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호마목
+    quote: 용출액 1리터당 0.3밀리그램 이상의 카드뮴을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-INCINERATION_ASH-LEACH_CR6
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: incineration_ash
+  - fact: leach_cr6
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호마목
+  quote: 소각재
+  review: UNVERIFIED
+  item: 소각재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호바목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 6가크롬을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-INCINERATION_ASH-LEACH_CN
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: incineration_ash
+  - fact: leach_cn
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제3호마목
+  quote: 소각재
+  review: UNVERIFIED
+  item: 소각재
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호사목
+    quote: 용출액 1리터당 1밀리그램 이상의 시안화합물을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-STABILIZED-LEACH_PB
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: stabilized
+  - fact: leach_pb
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호바목
+  quote: 안정화 또는 고형화·고화 처리물
+  review: UNVERIFIED
+  item: 안정화·고형화·고화 처리물
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호가목
+    quote: 용출액 1리터당 3밀리그램 이상의 납을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-STABILIZED-LEACH_CU
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: stabilized
+  - fact: leach_cu
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호바목
+  quote: 안정화 또는 고형화·고화 처리물
+  review: UNVERIFIED
+  item: 안정화·고형화·고화 처리물
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호나목
+    quote: 용출액 1리터당 3밀리그램 이상의 구리를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-STABILIZED-LEACH_AS
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: stabilized
+  - fact: leach_as
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호바목
+  quote: 안정화 또는 고형화·고화 처리물
+  review: UNVERIFIED
+  item: 안정화·고형화·고화 처리물
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호다목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 비소를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-STABILIZED-LEACH_HG
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: stabilized
+  - fact: leach_hg
+    op: gte
+    value: 0.005
+  source: DEC-A1
+  location: 별표 1 제3호바목
+  quote: 안정화 또는 고형화·고화 처리물
+  review: UNVERIFIED
+  item: 안정화·고형화·고화 처리물
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호라목
+    quote: 용출액 1리터당 0.005밀리그램 이상의 수은을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-STABILIZED-LEACH_CD
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: stabilized
+  - fact: leach_cd
+    op: gte
+    value: 0.3
+  source: DEC-A1
+  location: 별표 1 제3호바목
+  quote: 안정화 또는 고형화·고화 처리물
+  review: UNVERIFIED
+  item: 안정화·고형화·고화 처리물
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호마목
+    quote: 용출액 1리터당 0.3밀리그램 이상의 카드뮴을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-STABILIZED-LEACH_CR6
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: stabilized
+  - fact: leach_cr6
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호바목
+  quote: 안정화 또는 고형화·고화 처리물
+  review: UNVERIFIED
+  item: 안정화·고형화·고화 처리물
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호바목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 6가크롬을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-STABILIZED-LEACH_CN
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: stabilized
+  - fact: leach_cn
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제3호바목
+  quote: 안정화 또는 고형화·고화 처리물
+  review: UNVERIFIED
+  item: 안정화·고형화·고화 처리물
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호사목
+    quote: 용출액 1리터당 1밀리그램 이상의 시안화합물을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-STABILIZED-OIL_CONTENT_PCT
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: stabilized
+  - fact: oil_content_pct
+    op: gte
+    value: 5
+  source: DEC-A1
+  location: 별표 1 제3호바목
+  quote: 안정화 또는 고형화·고화 처리물
+  review: UNVERIFIED
+  item: 안정화·고형화·고화 처리물
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호카목
+    quote: 기름성분(중량비를 기준으로 하여 유해물질을 5퍼센트 이상 함유한 경우만 해당한다)
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-CATALYST-LEACH_PB
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: catalyst
+  - fact: leach_pb
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호사목
+  quote: 폐촉매
+  review: UNVERIFIED
+  item: 폐촉매
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호가목
+    quote: 용출액 1리터당 3밀리그램 이상의 납을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-CATALYST-LEACH_CU
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: catalyst
+  - fact: leach_cu
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호사목
+  quote: 폐촉매
+  review: UNVERIFIED
+  item: 폐촉매
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호나목
+    quote: 용출액 1리터당 3밀리그램 이상의 구리를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-CATALYST-LEACH_AS
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: catalyst
+  - fact: leach_as
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호사목
+  quote: 폐촉매
+  review: UNVERIFIED
+  item: 폐촉매
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호다목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 비소를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-CATALYST-LEACH_HG
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: catalyst
+  - fact: leach_hg
+    op: gte
+    value: 0.005
+  source: DEC-A1
+  location: 별표 1 제3호사목
+  quote: 폐촉매
+  review: UNVERIFIED
+  item: 폐촉매
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호라목
+    quote: 용출액 1리터당 0.005밀리그램 이상의 수은을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-CATALYST-LEACH_CD
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: catalyst
+  - fact: leach_cd
+    op: gte
+    value: 0.3
+  source: DEC-A1
+  location: 별표 1 제3호사목
+  quote: 폐촉매
+  review: UNVERIFIED
+  item: 폐촉매
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호마목
+    quote: 용출액 1리터당 0.3밀리그램 이상의 카드뮴을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-CATALYST-LEACH_CR6
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: catalyst
+  - fact: leach_cr6
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호사목
+  quote: 폐촉매
+  review: UNVERIFIED
+  item: 폐촉매
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호바목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 6가크롬을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-CATALYST-LEACH_CN
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: catalyst
+  - fact: leach_cn
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제3호사목
+  quote: 폐촉매
+  review: UNVERIFIED
+  item: 폐촉매
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호사목
+    quote: 용출액 1리터당 1밀리그램 이상의 시안화합물을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-CATALYST-OIL_CONTENT_PCT
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: catalyst
+  - fact: oil_content_pct
+    op: gte
+    value: 5
+  source: DEC-A1
+  location: 별표 1 제3호사목
+  quote: 폐촉매
+  review: UNVERIFIED
+  item: 폐촉매
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제2호가목
+    quote: 제1호 가목부터 사목까지의 규정과 카목에 따른 유해물질(분진과 소각재의 경우에는 제1호 가목부터 사목까지의 규정에 따른 유해물질만 해당한다)
+  - source: RULE-A1
+    location: 별표 1 제1호카목
+    quote: 기름성분(중량비를 기준으로 하여 유해물질을 5퍼센트 이상 함유한 경우만 해당한다)
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3-STABILIZED-ASBESTOS
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: stabilized
+  - fact: asbestos_pct
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제3호바목
+  quote: 안정화 또는 고형화·고화 처리물
+  review: UNVERIFIED
+  item: 안정화·고형화·고화 처리물
+  supporting:
+  - source: RULE-A1
+    location: 별표 1 제2호나목
+    quote: 석면(고형화 처리물의 경우로서 건조 고형물의 함량을 기준으로 하여 석면이 1퍼센트 이상 함유된 경우로 한정한다)
+  gaps:
+  - 시행규칙은 '고형화 처리물'로 한정 — 안정화·고화 처리물에도 적용되는지 해석 필요
+- id: S3-3A-ADSORBENT-LEACH_PB
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: adsorbent
+  - fact: leach_pb
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호아목
+  quote: 폐흡착제 및 폐흡수제
+  review: UNVERIFIED
+  item: 폐흡착제·폐흡수제
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호
+    quote: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - source: RULE-A1
+    location: 별표 1 제1호가목
+    quote: 용출액 1리터당 3밀리그램 이상의 납을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3A-ADSORBENT-LEACH_CU
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: adsorbent
+  - fact: leach_cu
+    op: gte
+    value: 3
+  source: DEC-A1
+  location: 별표 1 제3호아목
+  quote: 폐흡착제 및 폐흡수제
+  review: UNVERIFIED
+  item: 폐흡착제·폐흡수제
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호
+    quote: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - source: RULE-A1
+    location: 별표 1 제1호나목
+    quote: 용출액 1리터당 3밀리그램 이상의 구리를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3A-ADSORBENT-LEACH_AS
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: adsorbent
+  - fact: leach_as
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호아목
+  quote: 폐흡착제 및 폐흡수제
+  review: UNVERIFIED
+  item: 폐흡착제·폐흡수제
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호
+    quote: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - source: RULE-A1
+    location: 별표 1 제1호다목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 비소를 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3A-ADSORBENT-LEACH_HG
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: adsorbent
+  - fact: leach_hg
+    op: gte
+    value: 0.005
+  source: DEC-A1
+  location: 별표 1 제3호아목
+  quote: 폐흡착제 및 폐흡수제
+  review: UNVERIFIED
+  item: 폐흡착제·폐흡수제
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호
+    quote: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - source: RULE-A1
+    location: 별표 1 제1호라목
+    quote: 용출액 1리터당 0.005밀리그램 이상의 수은을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3A-ADSORBENT-LEACH_CD
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: adsorbent
+  - fact: leach_cd
+    op: gte
+    value: 0.3
+  source: DEC-A1
+  location: 별표 1 제3호아목
+  quote: 폐흡착제 및 폐흡수제
+  review: UNVERIFIED
+  item: 폐흡착제·폐흡수제
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호
+    quote: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - source: RULE-A1
+    location: 별표 1 제1호마목
+    quote: 용출액 1리터당 0.3밀리그램 이상의 카드뮴을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3A-ADSORBENT-LEACH_CR6
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: adsorbent
+  - fact: leach_cr6
+    op: gte
+    value: 1.5
+  source: DEC-A1
+  location: 별표 1 제3호아목
+  quote: 폐흡착제 및 폐흡수제
+  review: UNVERIFIED
+  item: 폐흡착제·폐흡수제
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호
+    quote: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - source: RULE-A1
+    location: 별표 1 제1호바목
+    quote: 용출액 1리터당 1.5밀리그램 이상의 6가크롬을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3A-ADSORBENT-LEACH_CN
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: adsorbent
+  - fact: leach_cn
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제3호아목
+  quote: 폐흡착제 및 폐흡수제
+  review: UNVERIFIED
+  item: 폐흡착제·폐흡수제
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호
+    quote: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - source: RULE-A1
+    location: 별표 1 제1호사목
+    quote: 용출액 1리터당 1밀리그램 이상의 시안화합물을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3A-ADSORBENT-LEACH_OP
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: adsorbent
+  - fact: leach_op
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제3호아목
+  quote: 폐흡착제 및 폐흡수제
+  review: UNVERIFIED
+  item: 폐흡착제·폐흡수제
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호
+    quote: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - source: RULE-A1
+    location: 별표 1 제1호아목
+    quote: 용출액 1리터당 1밀리그램 이상의 유기인화합물을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3A-ADSORBENT-LEACH_PCE
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: adsorbent
+  - fact: leach_pce
+    op: gte
+    value: 0.1
+  source: DEC-A1
+  location: 별표 1 제3호아목
+  quote: 폐흡착제 및 폐흡수제
+  review: UNVERIFIED
+  item: 폐흡착제·폐흡수제
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호
+    quote: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - source: RULE-A1
+    location: 별표 1 제1호자목
+    quote: 용출액 1리터당 0.1밀리그램 이상의 테트라클로로에틸렌을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3A-ADSORBENT-LEACH_TCE
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: adsorbent
+  - fact: leach_tce
+    op: gte
+    value: 0.3
+  source: DEC-A1
+  location: 별표 1 제3호아목
+  quote: 폐흡착제 및 폐흡수제
+  review: UNVERIFIED
+  item: 폐흡착제·폐흡수제
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호
+    quote: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - source: RULE-A1
+    location: 별표 1 제1호차목
+    quote: 용출액 1리터당 0.3밀리그램 이상의 트리클로로에틸렌을 함유한 경우만 해당한다
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-3A-ADSORBENT-OIL_CONTENT_PCT
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: adsorbent
+  - fact: oil_content_pct
+    op: gte
+    value: 5
+  source: DEC-A1
+  location: 별표 1 제3호아목
+  quote: 폐흡착제 및 폐흡수제
+  review: UNVERIFIED
+  item: 폐흡착제·폐흡수제
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제3호
+    quote: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - source: RULE-A1
+    location: 별표 1 제1호
+    quote: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - source: RULE-A1
+    location: 별표 1 제1호카목
+    quote: 기름성분(중량비를 기준으로 하여 유해물질을 5퍼센트 이상 함유한 경우만 해당한다)
+  gaps:
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+- id: S3-4-SOLVENT
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: organic_solvent
+  source: DEC-A1
+  location: 별표 1 제4호
+  quote: 폐유기용제
+  review: UNVERIFIED
+  item: 폐유기용제
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제4호나목
+    quote: 그 밖의 폐유기용제(가목 외의 유기용제를 말한다)
+- id: S3-5-PAINT
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: paint
+  source: DEC-A1
+  location: 별표 1 제5호
+  quote: 폐페인트 및 폐래커(다음 각 목의 것을 포함한다)
+  review: UNVERIFIED
+  item: 폐페인트·폐래커
+- id: S3-5GA-PAINT-MIX
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: paint_solvent_mix
+  - fact: paint_mixed_source
+    op: in
+    value:
+    - maker
+    - coating_large
+    - recycling
+  source: DEC-A1
+  location: 별표 1 제5호가목
+  quote: 페인트 및 래커와 유기용제가 혼합된 것으로서 페인트 및 래커 제조업, 용적 5세제곱미터 이상 또는 동력 3마력 이상의 도장(塗裝)시설, 폐기물을 재활용하는 시설에서 발생되는 것
+  review: UNVERIFIED
+  item: 폐페인트·폐래커(유기용제 혼합물)
+- id: S3-5GA-PAINT-MIX-OTHER
+  stage: S3
+  concludes: NEEDS_INTERPRETATION
+  when:
+  - fact: waste_kind
+    op: eq
+    value: paint_solvent_mix
+  - fact: paint_mixed_source
+    op: eq
+    value: other
+  source: DEC-A1
+  location: 별표 1 제5호가목
+  quote: 페인트 및 래커와 유기용제가 혼합된 것으로서 페인트 및 래커 제조업, 용적 5세제곱미터 이상 또는 동력 3마력 이상의 도장(塗裝)시설, 폐기물을 재활용하는 시설에서 발생되는 것
+  review: UNVERIFIED
+  gaps:
+  - 제5호가목의 시설에 해당하지 않는 페인트·유기용제 혼합물이 제4호(폐유기용제) 등 다른 항목에 해당하는지 해석 필요
+- id: S3-5NA-PAINT-CLEANING
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: paint_cleaning_solvent
+  source: DEC-A1
+  location: 별표 1 제5호나목
+  quote: 페인트 보관용기에 남아 있는 페인트를 제거하기 위하여 유기용제와 혼합된 것
+  review: UNVERIFIED
+  item: 폐페인트·폐래커(용기 세척 혼합물)
+- id: S3-5DA-CONTAINER-WET
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: paint_container
+  - fact: paint_dried
+    op: eq
+    value: false
+  source: DEC-A1
+  location: 별표 1 제5호다목
+  quote: 폐페인트 용기(용기 안에 남아 있는 페인트가 건조되어 있고, 그 잔존량이 용기 바닥에서 6밀리미터를 넘지 아니하는 것은 제외한다)
+  review: UNVERIFIED
+  item: 폐페인트 용기
+- id: S3-5DA-CONTAINER-6MM
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: paint_container
+  - fact: paint_residue_mm
+    op: gt
+    value: 6
+  source: DEC-A1
+  location: 별표 1 제5호다목
+  quote: 폐페인트 용기(용기 안에 남아 있는 페인트가 건조되어 있고, 그 잔존량이 용기 바닥에서 6밀리미터를 넘지 아니하는 것은 제외한다)
+  review: UNVERIFIED
+  item: 폐페인트 용기
+- id: S3-6-WASTE-OIL
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: waste_oil
+  source: DEC-A1
+  location: 별표 1 제6호
+  quote: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  review: UNVERIFIED
+  item: 폐유
+- id: S3-6-OIL-5PCT
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: not_in
+    value:
+    - waste_oil
+    - edible_oil
+    - adsorbent
+  - fact: oil_presence
+    op: eq
+    value: present
+  - fact: oil_content_pct
+    op: gte
+    value: 5
+  source: DEC-A1
+  location: 별표 1 제6호
+  quote: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  review: UNVERIFIED
+  item: 폐유(기름성분 5% 이상 함유)
+- id: S3-7GA-ASBESTOS-DEMOLITION
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: asbestos_demolition
+  - fact: asbestos_pct
+    op: gte
+    value: 1
+  source: DEC-A1
+  location: 별표 1 제7호가목
+  quote: 건조고형물의 함량을 기준으로 하여 석면이 1퍼센트 이상 함유된 제품·설비(뿜칠로 사용된 것은 포함한다) 등의 해체·제거 시 발생되는 것
+  review: UNVERIFIED
+  item: 폐석면
+- id: S3-7NA-ASBESTOS-PROCESSING
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: asbestos_processing
+  source: DEC-A1
+  location: 별표 1 제7호나목
+  quote: 슬레이트 등 고형화된 석면 제품 등의 연마·절단·가공 공정에서 발생된 부스러기 및 연마·절단·가공 시설의 집진기에서 모아진 분진
+  review: UNVERIFIED
+  item: 폐석면
+- id: S3-7DA-ASBESTOS-WORK
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: asbestos_work_items
+  source: DEC-A1
+  location: 별표 1 제7호다목
+  quote: 석면의 제거작업에 사용된 바닥비닐시트(뿜칠로 사용된 석면의 해체·제거작업에 사용된 경우에는 모든 비닐시트)·방진마스크·작업복 등
+  review: UNVERIFIED
+  item: 폐석면
+- id: S3-8GA-PCB-LIQUID
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: pcb_possible
+    op: eq
+    value: true
+  - fact: physical_state
+    op: eq
+    value: liquid
+  - fact: pcb_mg_l
+    op: gte
+    value: 2
+  source: DEC-A1
+  location: 별표 1 제8호가목
+  quote: 액체상태의 것(1리터당 2밀리그램 이상 함유한 것으로 한정한다)
+  review: UNVERIFIED
+  item: PCB 함유 폐기물
+  supporting:
+  - &id005
+    source: DEC-A1
+    location: 별표 1 제8호
+    quote: 폴리클로리네이티드비페닐 함유 폐기물
+- id: S3-8NA-PCB-NONLIQUID
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: pcb_possible
+    op: eq
+    value: true
+  - fact: physical_state
+    op: in
+    value:
+    - solid
+    - semisolid
+  - fact: pcb_leach_mg_l
+    op: gte
+    value: 0.003
+  source: DEC-A1
+  location: 별표 1 제8호나목
+  quote: 액체상태 외의 것(용출액 1리터당 0.003밀리그램 이상 함유한 것으로 한정한다)
+  review: UNVERIFIED
+  item: PCB 함유 폐기물
+  supporting:
+  - *id005
+- id: S3-9-TOXIC
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: toxic_chemical_discard
+    op: eq
+    value: true
+  source: DEC-A1
+  location: 별표 1 제9호
+  quote: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
+  review: UNVERIFIED
+  item: 폐유독물질(또는 그 제외 조항이 가리키는 다른 지정폐기물)
+- id: S3-10-MEDICAL
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: medical
+  source: DEC-A1
+  location: 별표 1 제10호
+  quote: 의료폐기물(기후에너지환경부령으로 정하는 의료기관이나 시험·검사 기관 등에서 발생되는 것으로 한정한다)
+  review: UNVERIFIED
+  item: 의료폐기물
+- id: S3-10-2-NORM
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: norm_product
+  - fact: norm_bq_g
+    op: lt
+    value: 10
+  source: DEC-A1
+  location: 별표 1 제10호의2
+  quote: 방사능 농도가 그램당 10베크렐 미만인 폐기물을 말한다
+  review: UNVERIFIED
+  item: 천연방사성제품폐기물
+- id: S3-11GA-MERCURY-PRODUCT
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: mercury_product
+  source: DEC-A1
+  location: 별표 1 제11호가목
+  quote: 폐계측기기(온도계, 혈압계, 체온계 등), 폐전지 및 그 밖의 기후에너지환경부장관이 고시하는 폐제품을 말한다
+  review: UNVERIFIED
+  item: 수은함유폐기물
+- id: S3-11NA-MERCURY-SEPARATED
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: mercury_separated
+  source: DEC-A1
+  location: 별표 1 제11호나목
+  quote: 수은구성폐기물(수은함유폐기물로부터 분리한 수은 및 그 화합물로 한정한다)
+  review: UNVERIFIED
+  item: 수은구성폐기물
+- id: S3-11DA-MERCURY-RESIDUE
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: mercury_residue
+  - fact: leach_hg
+    op: gte
+    value: 0.005
+  source: DEC-A1
+  location: 별표 1 제11호다목
+  quote: 용출액 1리터당 0.005밀리그램 이상의 수은 및 그 화합물이 함유된 것
+  review: UNVERIFIED
+  item: 수은함유폐기물 처리잔재물
+- id: S3-BATTERY-DAMAGED
+  stage: S3
+  concludes: NEEDS_INTERPRETATION
+  when:
+  - fact: waste_kind
+    op: eq
+    value: battery
+  - fact: battery_damaged
+    op: eq
+    value: true
+  source: RULE-A4
+  location: 별표 4 제1호 03-10
+  quote: 03-10-03 리튬계 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험이 있는 것으로 한정한다)
+  review: UNVERIFIED
+  gaps:
+  - 시행규칙 별표 4는 손상된 폐이차전지(03-10)를 지정폐기물 번호로 두지만, 시행령 별표 1에서 근거 항목을 확인하지 못함
+- id: S3-NOT-DESIGNATED
+  stage: S3
+  concludes: NOT_DESIGNATED
+  complement_of:
+  - DESIGNATED
+  - NEEDS_INTERPRETATION
+  source: DEC-A1
+  location: 별표 1(지정폐기물의 종류)
+  quote: 지정폐기물의 종류(제3조 관련)
+  gaps:
+  - 시행령 별표 1 제12호 '그 밖에 … 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+  - 시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함
+  review: UNVERIFIED

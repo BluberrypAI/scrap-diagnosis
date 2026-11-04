@@ -1,0 +1,3385 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<head>
+    <title>법령정보 | 행정예고 | 국립환경과학원</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	
+	<meta property="og:title" content="국립환경과학원" />
+	<meta property="og:image" content="/template/template1/assets/img/common/sns_facebook.png" />
+	<meta property="og:description" content="「폐기물공정시험기준」고시 개정(안) 행정예고" />
+	<meta property="og:url" content="https://www.nier.go.kr/common/kor/board/comBbsDetail.do?menuNo=13002&amp;bbsNo=241&amp;pstNo=39482&amp;pageIndex=1" />
+	<meta property="og:type" content="website" />
+	
+	
+	<link rel="shortcut icon" href="/template/template1/assets/img/common/favicon1.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/template/template1/assets/js/jquery/jquery-ui.css"/>
+    <link rel="stylesheet" href="/template/template1/assets/js/swiper/swiper.min.css"/>
+    <link rel="stylesheet" href="/template/template1/assets/css/onCommon.css"/>
+	<link rel="stylesheet" href="/template/template1/assets/css/onFont.css"/>
+	<link rel="stylesheet" href="/template/template1/assets/css/krds/krds_style.css"/>
+	<link rel="stylesheet" href="/template/template1/assets/css/onStyle.css"/>
+	
+    <script type="text/javascript" src="/template/template1/assets/js/jquery/jquery.js"></script>
+	<script type="text/javascript" src="/template/template1/assets/js/jquery/jquery-ui.js"></script>
+    <script type="text/javascript" src="/template/template1/assets/js/jquery/jquery.PrintArea.js"></script>
+	<script type="text/javascript" src="/template/template1/assets/js/swiper/swiper.min.js"></script>
+	<script type="text/javascript" src="/template/template1/assets/js/krds/krds_script.js"></script>
+    <script type="text/javascript" src="/template/template1/assets/js/onScript.js"></script>
+    <script type="text/javascript" src="/template/template1/assets/js/patternomaly.min.js"></script>
+    <script type="text/javascript" src="/template/template1/assets/js/chart.min.js"></script>
+    <script type="text/javascript" src="/template/template1/assets/js/common/ajaxUtil.js"></script>
+    <script type="text/javascript" src="/template/template1/assets/js/common/atchFileUtil.js"></script>
+    <script type="text/javascript" src="/template/template1/assets/js/common/onUser.js"></script>
+    <script type="text/javascript" src="/template/template1/assets/js/jquery.cycle2.js"></script>
+    
+    
+	<script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            ato.onTab();
+            ato.onToggle();
+            ato.onHeader();
+            ato.onRightStickyBar();
+            
+         	// 인기검색어/트렌드키워드 조회
+            fngetSearchWord();
+        });
+        
+        $(function () {
+            var titleSpan = $('.onBoardDetail .onBoardTitle span');
+
+            if (titleSpan.length > 0) {
+                var titleText = titleSpan.text().trim();
+                var currentTitle = $('title').text().trim();
+                $('title').text(titleText + ' | ' + currentTitle);
+            }
+            
+            var isSubpage = !!$('.onSubLayoutIn').length;
+            var isTotSearchPage = !!$('.onTotalTab').length;
+            var isDepartVisualPage = !!$('.departVisual').length;
+            if (isSubpage && !isTotSearchPage && !isDepartVisualPage) {
+            	$('.onSubContentBox').prepend($('div.onSiteMap'));
+            }
+            if (isTotSearchPage) {
+            	$('.breadcrumb li.home a').prop('id', 'pageLayout');
+            }
+            if (isDepartVisualPage) {
+            	$('.goMainContent').prop('href', '#departPageFirstLink');
+            }
+            
+            
+        });
+    </script>
+</head>
+	
+	<style>
+	/* 주요성과 및 과제 PDF/이미지 세로형 뷰어 스타일 */
+	.a4-page-viewer {
+		width: 100%;
+		max-width: 100%;
+		margin: 30px auto;
+		border: 1px solid #e2e8f0;
+		border-radius: 8px;
+		background: #ffffff;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+		box-sizing: border-box;
+		overflow: hidden;
+	}
+	.a4-page-viewer canvas, .a4-page-viewer img {
+		width: 100%;
+		height: auto;
+		display: block;
+	}
+	@media (max-width: 768px) {
+		.a4-page-viewer {
+			margin: 15px 0 !important;
+			border: none !important;
+			box-shadow: none !important;
+			border-radius: 0 !important;
+		}
+	}
+	@media print {
+		.a4-page-viewer {
+			width: 100% !important;
+			max-width: 210mm !important;
+			margin: 0 auto !important;
+			border: none !important;
+			box-shadow: none !important;
+			page-break-after: always !important;
+			break-after: page !important;
+		}
+		.a4-page-viewer:last-child {
+			page-break-after: avoid !important;
+			break-after: avoid !important;
+		}
+	}
+	</style>
+	<script>
+		let menuNo = "13002";
+		let bbsNo = "241";
+		let pstNo = "39482";
+		
+		$(document).ready(function () {
+			// 연락처 '-' 표시
+			formatTelno($('#picTelno')[0]);
+			
+			/* -------------------------- 이전글/다음글 start -------------------------- */
+			// 이전글
+			let prevPstNo = "39481";
+			let prevPstNm = "\u300C\uC218\uC9C8\uC624\uC5FC\uACF5\uC815\uC2DC\uD5D8\uAE30\uC900\u300D\uACE0\uC2DC \uAC1C\uC815(\uC548) \uD589\uC815\uC608\uACE0";
+			
+			if (prevPstNo && prevPstNm) {
+				$('a#prevPostLink')
+					.attr('href', `javascript:fnMoveDetail('${prevPstNo}')`)
+					.html(`<i class="svg-icon ico-angle up"></i><span>이전글</span>${prevPstNm}`);
+			} else {
+				$('a#prevPostLink')
+					.attr('href', '#none')
+					.attr('tabindex', '-1')
+					.html(`<i class="svg-icon ico-angle up"></i><span>이전글</span>이전 글이 존재하지 않습니다.`);
+			}
+		
+			// 다음글
+			let nextPstNo = "";
+			let nextPstNm = "";
+			
+			if (nextPstNo && nextPstNm) {
+				$('a#nextPostLink')
+					.attr('href', `javascript:fnMoveDetail('${nextPstNo}')`)
+					.html(`<i class="svg-icon ico-angle"></i><span>다음글</span>${nextPstNm}`);
+			} else {
+				$('a#nextPostLink')
+					.attr('href', '#none')
+					.attr('tabindex', '-1')
+					.html(`<i class="svg-icon ico-angle"></i><span>다음글</span>다음 글이 존재하지 않습니다.`);
+			}
+			/* -------------------------- 이전글/다음글 end -------------------------- */
+			
+			fnCount(pstNo);
+			
+
+			
+			//뒤로가기 + 페이징 오류 개선
+			window.addEventListener('beforeunload', function () {
+				const listForm = document.getElementById('listFrm');
+				if (listForm) {
+					listForm.remove(); // DOM에서 제거
+				}
+			});
+			
+		});
+		
+		// 조회수
+		function fnCount(pstNo) {
+			showLoading();
+			fn_ajax.object('/common/kor/board/plusPstInqCntAjax.do', { pstNo: pstNo }, countSuccessCallback);
+		}
+		
+		// 조회수 결과
+		function countSuccessCallback(response) {
+			if (response.resultCode == 200) {
+			} else {
+				alert('조회수 처리 중 오류가 발생했습니다.');
+				return;
+			}
+			hideLoading();
+		}
+		
+		// 목록
+		function fnList() {
+			const pageIndex = $('#pageIndex').val();
+			
+			$('#detailFrm').attr('action', '/common/kor/board/comBbsList.do?menuNo=' + menuNo + '&bbsNo=' + bbsNo + '&pageIndex=' + pageIndex);
+			$('#detailFrm').submit();
+		}
+
+		// 상세 페이지
+		function fnMoveDetail(pstNo) {
+			$('#detailFrm').attr('action', '/common/kor/board/comBbsDetail.do?menuNo=' + menuNo + '&bbsNo=' + bbsNo + '&pstNo=' + pstNo);
+			$('#detailFrm').submit();
+		}
+	</script>
+</head>
+<body>
+<div class="onLayout">
+	<div>
+	<div class="onHeaderLayout">
+		<div class="skipnavigation">
+		    <a href="#pageLayout" class="goMainContent">본문 바로가기</a>
+		    <a href="#firstGnbMenu">대 메뉴 바로가기</a>
+		</div>
+		<div class="onHeaderLayoutIn" >
+		    <!-- header -->
+		    <header id="krds-header">
+		        <!-- 헤더 컨텐츠 영역  -->
+		        <div class="header-in">
+		            <!-- 헤더 상단 기타메뉴 -->
+		            <div class="header-container">
+		                <div class="inner">
+		                    
+		                    <div class="header-branding">
+		                        <div class="onContainer">
+		                            <a href="javascript:void(0);" class="onHeaderLogo">
+		                                <h1>
+		                                    <img src="/template/template1/assets/img/common/logo.svg" alt="기후에너지환경부 금강유역환경청" onclick="goToMenuUrl('/index.do', '')"/>
+		                                </h1>
+		                            </a>
+		                            <div class="header-utility">
+		                                <ul class="utility-list">
+		                                    <li>
+		                                        <a href="https://ecolibrary.mcee.go.kr/nier/" class="krds-btn small text" target="_blank" title="새 창 열림">
+		                                            환경정보도서관 <i class="svg-icon ico-go"></i>
+		                                        </a>
+		                                    </li>
+		                                    <li>
+		                                        <a href="/eng/index.do" class="krds-btn small text" target="_blank" title="새 창 열림">
+		                                            ENG <i class="svg-icon ico-go "></i>
+		                                            <span class="sr-only">영문 페이지 이동</span>
+		                                        </a>
+		                                    </li>
+		                                    <li>
+		                                        <div class="krds-drop-wrap">
+		                                            <button type="button" class="krds-btn small text drop-btn">
+		                                                국민소통 <i class="svg-icon ico-toggle"></i>
+		                                            </button>
+		                                            <div class="drop-menu">
+		                                                <div class="drop-in">
+		                                                    <ul class="drop-list">
+		                                                        <li>
+		                                                        	<!-- 20260409: 국민소통 하위 '일반민원' 항목은 껍데기로 사용하기 위해 a 태그 대신 span 사용 -->
+		                                                        	
+		                                                        		<span class="item-link" style="cursor: default !important; pointer-events: none;">일반민원</span>
+		                                                        	
+		                                                        	
+		                                                        	<!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+																    
+																		<!-- 자식이 있으면 -->
+																		
+																			<ul class="drop-sub-list">
+																				<li>
+																					<a href="javascript:void(0);" class="item-link" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?contsNo=94&amp;menuNo=16002&#39;, &#39;N&#39;)">
+																						<span>일반민원신청</span>
+																						
+																					</a>
+																				</li>
+																				<li>
+																					<a href="javascript:void(0);" class="item-link" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=16003&amp;contsNo=90&#39;, &#39;N&#39;)">
+																						<span>나의민원조회</span>
+																						
+																					</a>
+																				</li>
+																			</ul>
+																		
+																	
+		                                                        </li>
+		                                                        <li>
+		                                                        	<!-- 20260409: 국민소통 하위 '일반민원' 항목은 껍데기로 사용하기 위해 a 태그 대신 span 사용 -->
+		                                                        	
+		                                                        	
+			                                                        	<a href="javascript:void(0);" class="item-link" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=16004&amp;bbsNo=231&#39;, &#39;N&#39;)">
+			                                                        		<span>법정민원</span>
+																			
+			                                                        	</a>
+		                                                        	
+		                                                        	<!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+																    
+																		<!-- 자식이 있으면 -->
+																		
+																	
+		                                                        </li>
+		                                                        <li>
+		                                                        	<!-- 20260409: 국민소통 하위 '일반민원' 항목은 껍데기로 사용하기 위해 a 태그 대신 span 사용 -->
+		                                                        	
+		                                                        	
+			                                                        	<a href="javascript:void(0);" class="item-link" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=16005&amp;contsNo=91&#39;, &#39;N&#39;)">
+			                                                        		<span>공무원부조리신고</span>
+																			
+			                                                        	</a>
+		                                                        	
+		                                                        	<!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+																    
+																		<!-- 자식이 있으면 -->
+																		
+																	
+		                                                        </li>
+		                                                        <li>
+		                                                        	<!-- 20260409: 국민소통 하위 '일반민원' 항목은 껍데기로 사용하기 위해 a 태그 대신 span 사용 -->
+		                                                        	
+		                                                        	
+			                                                        	<a href="javascript:void(0);" class="item-link" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=16006&amp;contsNo=92&#39;, &#39;N&#39;)">
+			                                                        		<span>예산낭비신고</span>
+																			
+			                                                        	</a>
+		                                                        	
+		                                                        	<!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+																    
+																		<!-- 자식이 있으면 -->
+																		
+																	
+		                                                        </li>
+		                                                        <li>
+		                                                        	<!-- 20260409: 국민소통 하위 '일반민원' 항목은 껍데기로 사용하기 위해 a 태그 대신 span 사용 -->
+		                                                        	
+		                                                        	
+			                                                        	<a href="javascript:void(0);" class="item-link" onclick="goToMenuUrl(&#39;https://www.110.go.kr/start.do&#39;, &#39;Y&#39;)" title="새 창 열림">
+			                                                        		<span>화상·수화·채팅상담</span>
+																			<i class="icon-link2"></i>
+			                                                        	</a>
+		                                                        	
+		                                                        	<!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+																    
+																		<!-- 자식이 있으면 -->
+																		
+																	
+		                                                        </li>
+		                                                    </ul>
+		                                                </div>
+		                                            </div>
+		                                        </div>
+		                                    </li>
+		                                </ul>
+		                                <div class="header-actions mobile">
+		                                    <button type="button" class="btn-navi navi-row sch total-search-popup-btn" onclick="ato.onFullPopupShow('total-search-popup')" title="통합검색 레이어">통합검색</button>
+		                                    <button type="button" class="btn-navi navi-row all onAllMenu" title="모바일버전 전체메뉴 레이어" aria-controls="mobile-nav">전체메뉴</button>
+		                                </div>
+		                            </div>
+		                        </div>
+		                    </div>
+		                </div>
+		            </div>
+		            <!-- //헤더 상단 기타메뉴  -->
+		             
+		            <!-- 메인메뉴 : 데스크탑 -->
+		            <nav class="krds-main-menu mainNav">
+		                <div class="onContainer">
+		                    <ul class="gnb-menu">
+		                        <li>
+		                            
+		                            <button type="button"
+								            id="firstGnbMenu"
+								            class="gnb-main-trigger noCursor"
+								            data-trigger="gnb">
+								        <span>정보공개</span>
+								        <!-- 1뎁스 메뉴명 -->
+								    </button>
+		                            
+		                            <!-- gnb-toggle-wrap -->
+		                            <div class="gnb-toggle-wrap">
+		                                <!-- gnb-main-list -->
+		                                <div class="gnb-main-list" data-has-submenu="true">
+		                                	<ul>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	style="cursor: default;"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb">
+																<span>정보공개제도안내</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+																<div class="gnb-sub-list">
+																	<div class="gnb-sub-content">
+																		<ul>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=11011&amp;contsNo=46&#39;, &#39;&#39;)">
+																					<span>정보공개 제도</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=11012&amp;contsNo=47&#39;, &#39;&#39;)">
+																					<span>정보 공개처리절차</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=11013&amp;contsNo=45&#39;, &#39;&#39;)">
+																					<span>불복구제</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=11014&amp;contsNo=48&#39;, &#39;&#39;)">
+																					<span>수수료</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																		</ul>
+																	</div>
+																</div>
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;https://www.open.go.kr/com/main/mainView.do&#39;,&#39;Y&#39;)">
+																<span>정보공개청구</span>
+																<i class="hidden">새 창 열림</i>
+																<i class="icon-link2"></i>
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=11003&amp;contsNo=11&#39;,&#39;N&#39;)">
+																<span>공공데이터개방현황</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	style="cursor: default;"
+																	class="gnb-sub-trigger noCursor"
+																	data-trigger="gnb">
+																<span>사전정보공표</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+																<div class="gnb-sub-list">
+																	<div class="gnb-sub-content">
+																		<ul>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=11006&amp;bbsNo=112&#39;, &#39;&#39;)">
+																					<span>기관장 업무추진비</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=11008&amp;bbsNo=114&#39;, &#39;&#39;)">
+																					<span>정책정보</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=11009&amp;bbsNo=115&#39;, &#39;&#39;)">
+																					<span>수의계약 공개</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=11010&amp;bbsNo=401&#39;, &#39;&#39;)">
+																					<span>상품권 구매현황</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																		</ul>
+																	</div>
+																</div>
+															
+												    											
+		                                		</li>
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                	</ul>
+		                                </div>
+		                                <!-- //gnb-main-list -->
+		                            </div>
+		                            <!-- //gnb-toggle-wrap -->
+		                        </li>
+		                        <li>
+		                            
+		                            <button type="button"
+								            class="gnb-main-trigger noCursor"
+								            data-trigger="gnb">
+								        <span>연구분야</span>
+								        <!-- 1뎁스 메뉴명 -->
+								    </button>
+		                            
+		                            <!-- gnb-toggle-wrap -->
+		                            <div class="gnb-toggle-wrap">
+		                                <!-- gnb-main-list -->
+		                                <div class="gnb-main-list" data-has-submenu="true">
+		                                	<ul>
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_res01.do?menuNo=12001&#39;,&#39;N&#39;)">
+																<span>기후탄소</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_res02.do?menuNo=12002&#39;,&#39;N&#39;)">
+																<span>대기환경</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_res03.do?menuNo=12003&#39;,&#39;N&#39;)">
+																<span>물환경</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_res04.do?menuNo=12004&#39;,&#39;N&#39;)">
+																<span>환경건강</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_res05.do?menuNo=12005&#39;,&#39;N&#39;)">
+																<span>환경자원</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_res07.do?menuNo=12006&#39;,&#39;N&#39;)">
+																<span>환경연구정보서비스</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=12007&amp;bbsNo=499&#39;,&#39;N&#39;)">
+																<span>연구결과</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                	</ul>
+		                                </div>
+		                                <!-- //gnb-main-list -->
+		                            </div>
+		                            <!-- //gnb-toggle-wrap -->
+		                        </li>
+		                        <li>
+		                            
+		                            <button type="button"
+								            class="gnb-main-trigger noCursor"
+								            data-trigger="gnb">
+								        <span>법령정보</span>
+								        <!-- 1뎁스 메뉴명 -->
+								    </button>
+		                            
+		                            <!-- gnb-toggle-wrap -->
+		                            <div class="gnb-toggle-wrap">
+		                                <!-- gnb-main-list -->
+		                                <div class="gnb-main-list" data-has-submenu="true">
+		                                	<ul>
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=13001&amp;bbsNo=31&#39;,&#39;N&#39;)">
+																<span>고시/예규/공고</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=13002&amp;bbsNo=241&#39;,&#39;N&#39;)">
+																<span>행정예고</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=13003&amp;bbsNo=26&#39;,&#39;N&#39;)">
+																<span>환경측정기기승인</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?contsNo=191&amp;menuNo=13004&#39;,&#39;N&#39;)">
+																<span>분석기관지정</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                	</ul>
+		                                </div>
+		                                <!-- //gnb-main-list -->
+		                            </div>
+		                            <!-- //gnb-toggle-wrap -->
+		                        </li>
+		                        <li>
+		                            
+		                            <button type="button"
+								            class="gnb-main-trigger noCursor"
+								            data-trigger="gnb">
+								        <span>알림·홍보</span>
+								        <!-- 1뎁스 메뉴명 -->
+								    </button>
+		                            
+		                            <!-- gnb-toggle-wrap -->
+		                            <div class="gnb-toggle-wrap">
+		                                <!-- gnb-main-list -->
+		                                <div class="gnb-main-list" data-has-submenu="true">
+		                                	<ul>
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=14001&amp;bbsNo=12&#39;,&#39;N&#39;)">
+																<span>공지사항</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=14003&amp;bbsNo=22&#39;,&#39;N&#39;)">
+																<span>보도·해명자료</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=14004&amp;bbsNo=23&#39;,&#39;N&#39;)">
+																<span>입찰공고</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=14005&amp;bbsNo=24&#39;,&#39;N&#39;)">
+																<span>채용공고</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=14008&amp;bbsNo=420&#39;,&#39;N&#39;)">
+																<span>인사동정</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	style="cursor: default;"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb">
+																<span>정책공지</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+																<div class="gnb-sub-list">
+																	<div class="gnb-sub-content">
+																		<ul>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=28001&amp;bbsNo=570&#39;, &#39;&#39;)">
+																					<span>연료/첨가제/촉매제</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?bbsNo=571&amp;menuNo=10000072&#39;, &#39;&#39;)">
+																					<span>저감장치/저공해엔진</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																		</ul>
+																	</div>
+																</div>
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=14009&amp;bbsNo=531&#39;,&#39;N&#39;)">
+																<span>홍보자료</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?bbsNo=572&amp;menuNo=10000075&#39;,&#39;N&#39;)">
+																<span>기관소식</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                	</ul>
+		                                </div>
+		                                <!-- //gnb-main-list -->
+		                            </div>
+		                            <!-- //gnb-toggle-wrap -->
+		                        </li>
+		                        <li>
+		                            
+		                            <button type="button"
+								            class="gnb-main-trigger noCursor"
+								            data-trigger="gnb">
+								        <span>과학원소개</span>
+								        <!-- 1뎁스 메뉴명 -->
+								    </button>
+		                            
+		                            <!-- gnb-toggle-wrap -->
+		                            <div class="gnb-toggle-wrap">
+		                                <!-- gnb-main-list -->
+		                                <div class="gnb-main-list" data-has-submenu="true">
+		                                	<ul>
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	style="cursor: default;"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb">
+																<span>기관소개</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+																<div class="gnb-sub-list">
+																	<div class="gnb-sub-content">
+																		<ul>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=15002&amp;contsNo=84&#39;, &#39;&#39;)">
+																					<span>비전 및 목표</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_history.do?menuNo=15003&#39;, &#39;&#39;)">
+																					<span>연혁</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_int05.do?menuNo=15006&#39;, &#39;&#39;)">
+																					<span>주요업무계획</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=15008&amp;contsNo=51&#39;, &#39;&#39;)">
+																					<span>예산현황</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																		</ul>
+																	</div>
+																</div>
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	style="cursor: default;"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb">
+																<span>기관안내</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+																<div class="gnb-sub-list">
+																	<div class="gnb-sub-content">
+																		<ul>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_int06.do?menuNo=15004&#39;, &#39;&#39;)">
+																					<span>시설 및 장비</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=15005&amp;contsNo=85&#39;, &#39;&#39;)">
+																					<span>국립환경과학원 MI</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																		</ul>
+																	</div>
+																</div>
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	style="cursor: default;"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb">
+																<span>원장소개</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+																<div class="gnb-sub-list">
+																	<div class="gnb-sub-content">
+																		<ul>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=15010&amp;contsNo=86&#39;, &#39;&#39;)">
+																					<span>원장인사말</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_int01.do?menuNo=15011&#39;, &#39;&#39;)">
+																					<span>역대원장</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																			<li>
+																				<!-- menuCn이 null이 아닌 경우 -->
+																				<a href="javascript:void(0);" onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=15013&amp;contsNo=94&#39;, &#39;&#39;)">
+																					<span>원장과의 대화</span>
+																					
+																					
+																					<!-- 3뎁스 메뉴명 -->
+																				</a>
+																				
+																				<!-- menuCn이 null인 경우 -->
+																				
+																			</li>
+																		</ul>
+																	</div>
+																</div>
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/common/kor/emp/comEmpList.do?contsNo=99&amp;menuNo=15014&#39;,&#39;N&#39;)">
+																<span>조직안내</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		<li>
+												    
+												    <!-- upMenuNo 별로 꺼낸 자식 3뎁스 -->
+												    
+														
+															<!-- 20260409: 하위 메뉴가 있는 큰 메뉴(2뎁스)의 커서 손가락 모양 제거를 위해 속성 추가 -->
+															<button type="button"
+																	class="gnb-sub-trigger"
+																	data-trigger="gnb" onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_int02.do?menuNo=15015&#39;,&#39;N&#39;)">
+																<span>찾아오시는길</span>
+																
+																
+														        <!-- 2뎁스 메뉴명 -->
+															</button>
+															
+															<!-- 자식이 있으면 -->
+															
+												    											
+		                                		</li>
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                		
+		                                	</ul>
+		                                </div>
+		                                <!-- //gnb-main-list -->
+		                            </div>
+		                            <!-- //gnb-toggle-wrap -->
+		                        </li>
+		                        
+		                        
+		                        
+		                        
+		                        
+		                        
+		                        
+		                        
+		                        
+		                        <li class="gnbBg"></li>
+		                    </ul>
+		                    <div class="header-actions">
+		                        <button type="button" class="btn-navi navi-row sch total-search-popup-btn" onclick="ato.onFullPopupShow('total-search-popup')" title="통합검색 레이어">통합검색</button>
+		                        <!-- <button type="button" class="btn-navi navi-row all onAllMenu" title="모바일버전 전체메뉴 레이어" aria-controls="mobile-nav">전체메뉴</button> -->
+		                    </div>
+		                </div>
+		            </nav>
+		            <!-- //메인메뉴 : 데스크탑 -->
+		        </div>
+		        <!-- //헤더 컨텐츠 영역  -->
+		        
+		        <!-- 메인메뉴 : 모바일 -->
+		        <div id="mobile-nav" class="krds-main-menu-mobile">
+		            <div class="gnb-wrap">
+		                <!-- gnb-header -->
+		                <div class="gnb-header">
+		                    <!-- gnb-utils -->
+		                    <div class="gnb-utils">
+		                        <ul class="utility-list">
+		                            <li><a href="https://ecolibrary.mcee.go.kr/nier/" class="krds-btn xsmall text" target="_blank">환경정보도서관 <i class="icon-next"></i></a></li>
+		                            <li><a href="/eng/index.do" class="krds-btn xsmall text" target="_blank">ENG <i class="icon-next"></i></a></li>
+		                        </ul>
+		                    </div>
+		                    <!-- //gnb-utils -->
+		                    
+		                    <!-- gnb-service-menu -->
+		                    
+		                    
+		                    <!-- //검색 -->
+		                </div>
+		                <!-- //gnb-header -->
+		                
+		                <!-- gnb-body -->
+		                <div class="gnb-body">
+		                    <!-- gnb-menu -->
+		                    <div class="gnb-menu">
+		                        <div class="menu-wrap">
+		                            <ul>
+		                                <li>
+		                                    <a href="#mGnb-anchor1" class="gnb-main-trigger"> 
+	                                       <span>정보공개</span>
+		                                       <!-- 1뎁스 메뉴명 -->
+		                                    </a>
+		                                </li>
+		                                <li>
+		                                    <a href="#mGnb-anchor2" class="gnb-main-trigger"> 
+	                                       <span>연구분야</span>
+		                                       <!-- 1뎁스 메뉴명 -->
+		                                    </a>
+		                                </li>
+		                                <li>
+		                                    <a href="#mGnb-anchor3" class="gnb-main-trigger on"> 
+	                                       <span>법령정보</span>
+		                                       <!-- 1뎁스 메뉴명 -->
+		                                    </a>
+		                                </li>
+		                                <li>
+		                                    <a href="#mGnb-anchor4" class="gnb-main-trigger"> 
+	                                       <span>알림·홍보</span>
+		                                       <!-- 1뎁스 메뉴명 -->
+		                                    </a>
+		                                </li>
+		                                <li>
+		                                    <a href="#mGnb-anchor5" class="gnb-main-trigger"> 
+	                                       <span>과학원소개</span>
+		                                       <!-- 1뎁스 메뉴명 -->
+		                                    </a>
+		                                </li>
+		                                
+		                                
+		                                
+		                                
+		                                
+		                                
+		                                
+		                                
+		                                
+									    <li>
+									        <a href="#mGnb-anchorSpecial" class="gnb-main-trigger">국민소통</a>
+									    </li>
+		                            </ul>
+		                        </div>
+		                        <div class="submenu-wrap">
+		                            <div class="gnb-sub-list" 
+		                            	id="mGnb-anchor1">
+		                            	
+		                                <h2 class="sub-title">정보공개</h2>
+		                                
+		                                <ul>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger  has-depth3">
+                               							<span>정보공개제도안내</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               							<div class="depth3-wrap">
+				                                            <ul>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=11011&amp;contsNo=46&#39;, &#39;N&#39;)">
+				                                                		<span>정보공개 제도</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=11012&amp;contsNo=47&#39;, &#39;N&#39;)">
+				                                                		<span>정보 공개처리절차</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=11013&amp;contsNo=45&#39;, &#39;N&#39;)">
+				                                                		<span>불복구제</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=11014&amp;contsNo=48&#39;, &#39;N&#39;)">
+				                                                		<span>수수료</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                            </ul>
+				                                        </div>
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;https://www.open.go.kr/com/main/mainView.do&#39;,&#39;Y&#39;)">
+                               							<span>정보공개청구</span>
+                               							<i class="hidden">새 창 열림</i>
+                                                		<i class="icon-link2"></i>
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=11003&amp;contsNo=11&#39;,&#39;N&#39;)">
+                               							<span>공공데이터개방현황</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger  has-depth3">
+                               							<span>사전정보공표</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               							<div class="depth3-wrap">
+				                                            <ul>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=11006&amp;bbsNo=112&#39;, &#39;N&#39;)">
+				                                                		<span>기관장 업무추진비</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=11008&amp;bbsNo=114&#39;, &#39;N&#39;)">
+				                                                		<span>정책정보</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=11009&amp;bbsNo=115&#39;, &#39;N&#39;)">
+				                                                		<span>수의계약 공개</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=11010&amp;bbsNo=401&#39;, &#39;N&#39;)">
+				                                                		<span>상품권 구매현황</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                            </ul>
+				                                        </div>
+                               						
+                               					
+                               				</li>
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                </ul>
+		                            </div>
+		                            <div class="gnb-sub-list" 
+		                            	id="mGnb-anchor2">
+		                            	
+		                                <h2 class="sub-title">연구분야</h2>
+		                                
+		                                <ul>
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_res01.do?menuNo=12001&#39;,&#39;N&#39;)">
+                               							<span>기후탄소</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_res02.do?menuNo=12002&#39;,&#39;N&#39;)">
+                               							<span>대기환경</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_res03.do?menuNo=12003&#39;,&#39;N&#39;)">
+                               							<span>물환경</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_res04.do?menuNo=12004&#39;,&#39;N&#39;)">
+                               							<span>환경건강</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_res05.do?menuNo=12005&#39;,&#39;N&#39;)">
+                               							<span>환경자원</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_res07.do?menuNo=12006&#39;,&#39;N&#39;)">
+                               							<span>환경연구정보서비스</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=12007&amp;bbsNo=499&#39;,&#39;N&#39;)">
+                               							<span>연구결과</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                </ul>
+		                            </div>
+		                            <div class="gnb-sub-list" 
+		                            	id="mGnb-anchor3">
+		                            	
+		                                <h2 class="sub-title">법령정보</h2>
+		                                
+		                                <ul>
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=13001&amp;bbsNo=31&#39;,&#39;N&#39;)">
+                               							<span>고시/예규/공고</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger active"
+                               							onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=13002&amp;bbsNo=241&#39;,&#39;N&#39;)">
+                               							<span>행정예고</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=13003&amp;bbsNo=26&#39;,&#39;N&#39;)">
+                               							<span>환경측정기기승인</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?contsNo=191&amp;menuNo=13004&#39;,&#39;N&#39;)">
+                               							<span>분석기관지정</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                </ul>
+		                            </div>
+		                            <div class="gnb-sub-list" 
+		                            	id="mGnb-anchor4">
+		                            	
+		                                <h2 class="sub-title">알림·홍보</h2>
+		                                
+		                                <ul>
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=14001&amp;bbsNo=12&#39;,&#39;N&#39;)">
+                               							<span>공지사항</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=14003&amp;bbsNo=22&#39;,&#39;N&#39;)">
+                               							<span>보도·해명자료</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=14004&amp;bbsNo=23&#39;,&#39;N&#39;)">
+                               							<span>입찰공고</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=14005&amp;bbsNo=24&#39;,&#39;N&#39;)">
+                               							<span>채용공고</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=14008&amp;bbsNo=420&#39;,&#39;N&#39;)">
+                               							<span>인사동정</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger  has-depth3">
+                               							<span>정책공지</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               							<div class="depth3-wrap">
+				                                            <ul>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=28001&amp;bbsNo=570&#39;, &#39;N&#39;)">
+				                                                		<span>연료/첨가제/촉매제</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?bbsNo=571&amp;menuNo=10000072&#39;, &#39;N&#39;)">
+				                                                		<span>저감장치/저공해엔진</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                            </ul>
+				                                        </div>
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=14009&amp;bbsNo=531&#39;,&#39;N&#39;)">
+                               							<span>홍보자료</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?bbsNo=572&amp;menuNo=10000075&#39;,&#39;N&#39;)">
+                               							<span>기관소식</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                </ul>
+		                            </div>
+		                            <div class="gnb-sub-list" 
+		                            	id="mGnb-anchor5">
+		                            	
+		                                <h2 class="sub-title">과학원소개</h2>
+		                                
+		                                <ul>
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger  has-depth3">
+                               							<span>기관소개</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               							<div class="depth3-wrap">
+				                                            <ul>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=15002&amp;contsNo=84&#39;, &#39;N&#39;)">
+				                                                		<span>비전 및 목표</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_history.do?menuNo=15003&#39;, &#39;N&#39;)">
+				                                                		<span>연혁</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_int05.do?menuNo=15006&#39;, &#39;N&#39;)">
+				                                                		<span>주요업무계획</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=15008&amp;contsNo=51&#39;, &#39;N&#39;)">
+				                                                		<span>예산현황</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                            </ul>
+				                                        </div>
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger  has-depth3">
+                               							<span>기관안내</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               							<div class="depth3-wrap">
+				                                            <ul>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_int06.do?menuNo=15004&#39;, &#39;N&#39;)">
+				                                                		<span>시설 및 장비</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=15005&amp;contsNo=85&#39;, &#39;N&#39;)">
+				                                                		<span>국립환경과학원 MI</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                            </ul>
+				                                        </div>
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger  has-depth3">
+                               							<span>원장소개</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               							<div class="depth3-wrap">
+				                                            <ul>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=15010&amp;contsNo=86&#39;, &#39;N&#39;)">
+				                                                		<span>원장인사말</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_int01.do?menuNo=15011&#39;, &#39;N&#39;)">
+				                                                		<span>역대원장</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                                <li>
+				                                                	
+				                                                	<a href="javascript:void(0);" class="depth3-trigger"
+				                                                		onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=15013&amp;contsNo=94&#39;, &#39;N&#39;)">
+				                                                		<span>원장과의 대화</span>
+				                                                		
+				                                                		
+				                                                		<!-- 3뎁스 메뉴명 -->
+				                                                	</a>
+				                                                	
+				                                                	
+				                                                	
+				                                                </li>
+				                                            </ul>
+				                                        </div>
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/common/kor/emp/comEmpList.do?contsNo=99&amp;menuNo=15014&#39;,&#39;N&#39;)">
+                               							<span>조직안내</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    <li>
+                               					
+                               					
+                               						
+                               						<a href="#" class="gnb-sub-trigger"
+                               							onclick="goToMenuUrl(&#39;/front/kor/cmm/nier_int02.do?menuNo=15015&#39;,&#39;N&#39;)">
+                               							<span>찾아오시는길</span>
+                               							
+                                                		
+                               							<!-- 2뎁스 메뉴명 -->
+                               						</a>
+                               						
+                               						
+                               					
+                               				</li>
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                    
+		                                </ul>
+		                            </div>
+		                            
+		                            
+		                            
+		                            
+		                            
+		                            
+		                            
+		                            
+		                            
+		                            <!-- 국민소통 submenu -->
+									<div class="gnb-sub-list" id="mGnb-anchorSpecial">
+										<h2 class="sub-title">국민소통</h2>
+									    <ul>
+									        <li>
+									
+									            
+									            
+									                <a href="#" class="gnb-sub-trigger  has-depth3"
+									                   style="cursor: default !important;">
+									                    <span>일반민원</span>
+                               							
+                                                		
+                                                		<!-- 2뎁스 메뉴명 -->
+									                </a>
+									
+									                
+									                    <div class="depth3-wrap">
+									                        <ul>
+									                            <li>
+									                            	
+									                                <a href="#" class="depth3-trigger"
+																		onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?contsNo=94&amp;menuNo=16002&#39;, &#39;N&#39;)">
+									                                    <span>일반민원신청</span>
+									                                    
+									                                    
+									                                    <!-- 3뎁스 메뉴명 -->
+									                                </a>
+									                                
+									                                
+									                            </li>
+									                            <li>
+									                            	
+									                                <a href="#" class="depth3-trigger"
+																		onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=16003&amp;contsNo=90&#39;, &#39;N&#39;)">
+									                                    <span>나의민원조회</span>
+									                                    
+									                                    
+									                                    <!-- 3뎁스 메뉴명 -->
+									                                </a>
+									                                
+									                                
+									                            </li>
+									                        </ul>
+									                    </div>
+									                
+									            
+									        </li>
+									        <li>
+									
+									            
+									            
+									                <a href="#" class="gnb-sub-trigger"
+									                   onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=16004&amp;bbsNo=231&#39;,&#39;N&#39;)">
+									                    <span>법정민원</span>
+                               							
+                                                		
+                                                		<!-- 2뎁스 메뉴명 -->
+									                </a>
+									
+									                
+									            
+									        </li>
+									        <li>
+									
+									            
+									            
+									                <a href="#" class="gnb-sub-trigger"
+									                   onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=16005&amp;contsNo=91&#39;,&#39;N&#39;)">
+									                    <span>공무원부조리신고</span>
+                               							
+                                                		
+                                                		<!-- 2뎁스 메뉴명 -->
+									                </a>
+									
+									                
+									            
+									        </li>
+									        <li>
+									
+									            
+									            
+									                <a href="#" class="gnb-sub-trigger"
+									                   onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?menuNo=16006&amp;contsNo=92&#39;,&#39;N&#39;)">
+									                    <span>예산낭비신고</span>
+                               							
+                                                		
+                                                		<!-- 2뎁스 메뉴명 -->
+									                </a>
+									
+									                
+									            
+									        </li>
+									        <li>
+									
+									            
+									            
+									                <a href="#" class="gnb-sub-trigger"
+									                   onclick="goToMenuUrl(&#39;https://www.110.go.kr/start.do&#39;,&#39;Y&#39;)">
+									                    <span>화상·수화·채팅상담</span>
+                               							<i class="hidden">새 창 열림</i>
+                                                		<i class="icon-link2"></i>
+                                                		<!-- 2뎁스 메뉴명 -->
+									                </a>
+									
+									                
+									            
+									        </li>
+									    </ul>
+									</div>
+		                        </div>
+		                    </div>
+		                    <!-- //gnb-menu -->
+		                    
+		                    <!-- gnb-bottom -->
+		                    
+		                    <!-- //gnb-bottom -->
+		                </div>
+		                <!-- //gnb-body -->
+		                
+		                <!-- gnb-close -->
+		                <button type="button" class="krds-btn medium icon" id="close-nav">
+		                    <span class="sr-only">전체메뉴 닫기</span>
+		                    <i class="svg-icon ico-popup-close"></i>
+		                </button>
+		                <!-- //gnb-close -->
+		            </div>
+		        </div>
+		        <!-- //메인메뉴 : 모바일 -->
+		        <!-- 통합검색팝업 -->
+                    <div class="krds-full-popup-wrap" id="total-search-popup" tabindex="0">
+                        <div class="popup-in">
+                            <div class="popup">
+                                <div class="popup-head sr-only">
+                                    <h2 class="pop-tit">통합검색</h2>
+                                </div>
+                                <div class="popup-body">
+                                    <div class="pop-total-search-wrap">
+                                        <div class="search-total-top">
+                                            <div class="search-tit">
+                                                <label for="search-total-input-id">검색어를 입력해주세요</label>
+                                            </div>
+                                            <form class="sch-form-wrap vert" id="search-form" method="POST">
+                                                <div class="sch-input">
+                                                    <input type="search" name="searchWrd" id="search-total-input-id" class="form-control xlg" placeholder="" >
+                                                    <button type="submit" class="krds-btn xlarge icon" onclick="totSearch(); return false;">
+                                                        <span class="sr-only">검색</span>
+                                                        <i class="svg-icon ico-sch"></i>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="search-text">
+                                            <ul class="sch-info-list">
+                                                <li class="li li1">
+                                                    <h3 class="tit">인기검색어</h3>
+                                                    <div class="tab-conts-wrap">
+                                                        <ol class="list"></ol>
+                                                    </div>
+                                                </li>
+                                                <li class="li li2">
+                                                    <h3 class="tit">트렌드 키워드</h3>
+                                                    <ul class="list" id="recent-search-list"></ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="popup-close" onclick="ato.onFullPopupHide(event, 'total-search-popup-btn')"><span class="hidden">레이어 닫기</span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // 통합검색팝업 -->
+		    </header>
+	    <!-- //header -->
+	    </div>
+	</div>
+</div>
+	<div class="onContentLayout">
+		<div class="onSubLayout printArea">
+			<div class="onSiteMap">
+				<div>
+	<nav class="krds-breadcrumb-wrap" aria-label="현재 경로">
+        <ol class="breadcrumb">
+            <li class="home"><a href="/index.do" class="txt" id="pageLayout">홈</a></li>
+            <li>
+            	<a href="" class="txt">법령정보</a>
+            </li>
+            <li>
+            	<a href="/common/kor/board/comBbsList.do?menuNo=13002&amp;bbsNo=241" class="txt">행정예고</a>
+            </li>            
+        </ol>
+    </nav>
+</div>
+				<div>
+		<!-- sns 공유 script -->
+		 <script>
+		 		$(function(){
+		 		    $('.toggleSnsChannel').on('click', function(){
+		                $(this).toggleClass('on');
+		                $('.snsChannelLists').stop().fadeToggle(500);
+		            });	
+		 		});
+		</script>
+		<!-- // sns 공유 script -->
+		
+		<div class="onUtilityIcon">
+		<!-- sns 공유 html -->
+    	<button class="toggleSnsChannel"><img src="/template/template1/assets/img/common/icon_share.svg" alt="sns 공유하기"></button>
+       	<div class="toggleSnsChannelWrap">
+            <div class="snsChannelLists">
+                <a href="#none" onclick="shareSNS(&#39;Twitter&#39;)" title="새 창 열림">
+                    <img class="off" src="/template/template1/assets/img/sub/icon_sharesns_x.svg" alt="sns X에 공유하기">
+                    <img class="on"  src="/template/template1/assets/img/sub/icon_sharesns_x_on.svg" alt="sns X에 공유하기">
+                </a>
+                <a href="#none" onclick="shareSNS(&#39;Facebook&#39;)" title="새 창 열림">
+                    <img class="off" src="/template/template1/assets/img/sub/icon_sharesns_facebook.svg" alt="sns facebook에 공유하기">
+                    <img class="on"  src="/template/template1/assets/img/sub/icon_sharesns_facebook_on.svg" alt="sns facebook에 공유하기">
+                </a>
+                <a href="#none" onclick="shareSNS(&#39;Instagram&#39;)" title="새 창 열림">
+                    <img class="off" src="/template/template1/assets/img/sub/icon_sharesns_insta.svg" alt="sns 인스타그램에 공유하기">
+                    <img class="on"  src="/template/template1/assets/img/sub/icon_sharesns_insta_on.svg" alt="sns 인스타그램에 공유하기">
+                </a>
+                <button onclick="sharePageUrl(); return false;" class="showMobile copyurl"><img src="/template/template1/assets/img/common/icon_copyurl.svg" alt="현재페이지 url 복사하기" /></button>
+            </div>
+       	</div>
+       	<!-- // sns 공유 html -->
+	    <button class="hideMobile" onclick="sharePageUrl(); return false;"><img src="/template/template1/assets/img/common/icon_copyurl.svg" alt="현재페이지 url 복사하기" /></button>
+	    <button class="printBtn"   onclick="contentsPrint(); return false;"><img src="/template/template1/assets/img/common/icon_print.svg" alt="현재페이지 출력하기" /></button>
+	</div>
+</div>
+			</div>
+			<div class="onSubLayoutIn">
+				<nav class="krds-side-navigation">
+    
+    
+    <h2 class="lnb-tit">법령정보</h2>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <!-- lnb-submenu-lv2 -->
+    <ul class="lnb-list" role="menubar">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <li role="none"
+		    class="lnb-item">
+			
+			<button type="button" role="menuitem"
+		        class="lnb-btn"
+		        onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=13001&amp;bbsNo=31&#39;,&#39;N&#39;)">
+		        <span>고시/예규/공고</span>
+		        
+				
+			    <!-- 2뎁스 메뉴명 -->
+			</button>
+			
+			
+			<!-- //lnb-submenu-lv3-->
+        </li>
+        <li role="none"
+		    class="lnb-item  selected active">
+			
+			<button type="button" role="menuitem"
+		        class="lnb-btn  selected active"
+		        onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=13002&amp;bbsNo=241&#39;,&#39;N&#39;)">
+		        <span>행정예고</span>
+		        
+				
+			    <!-- 2뎁스 메뉴명 -->
+			</button>
+			
+			
+			<!-- //lnb-submenu-lv3-->
+        </li>
+        <li role="none"
+		    class="lnb-item">
+			
+			<button type="button" role="menuitem"
+		        class="lnb-btn"
+		        onclick="goToMenuUrl(&#39;/common/kor/board/comBbsList.do?menuNo=13003&amp;bbsNo=26&#39;,&#39;N&#39;)">
+		        <span>환경측정기기승인</span>
+		        
+				
+			    <!-- 2뎁스 메뉴명 -->
+			</button>
+			
+			
+			<!-- //lnb-submenu-lv3-->
+        </li>
+        <li role="none"
+		    class="lnb-item">
+			
+			<button type="button" role="menuitem"
+		        class="lnb-btn"
+		        onclick="goToMenuUrl(&#39;/common/kor/content/comContsDetail.do?contsNo=191&amp;menuNo=13004&#39;,&#39;N&#39;)">
+		        <span>분석기관지정</span>
+		        
+				
+			    <!-- 2뎁스 메뉴명 -->
+			</button>
+			
+			
+			<!-- //lnb-submenu-lv3-->
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+	</ul>
+    <!-- lnb-submenu-lv2 -->
+</nav>
+				<div class="onSubContentBox">
+					<h2 class="onSubTitle">행정예고</h2>
+					<div class="onBoardBox">
+						<form id="detailFrm" method="post">
+							<input type="hidden" id="searchNtcYn" name="searchNtcYn" value="N" />
+							<input type="hidden" id="atchFileNo" name="atchFileNo" value="42556" />
+							<input type="hidden" id="pageIndex" name="pageIndex" value="1">
+							<input type="hidden" id="searchWrd" name="searchWrd" value="">
+							<input type="hidden" id="searchTycd" name="searchTycd" value="">
+							<input type="hidden" id="searchPstSeCd" name="searchPstSeCd" value="">
+							
+							<div class="onBoardDetail">
+								<h3 class="onBoardTitle"><span>「폐기물공정시험기준」고시 개정(안) 행정예고</span></h3>
+								<ul class="onBoardInfoLists">
+									<li>
+										<p>등록일</p>
+										<span>2026-11-04</span>
+									</li>
+									<li>
+										<p>담당부서</p>
+										<span>환경표준연구과</span>
+									</li>
+									<li>
+										<p>담당자</p>
+										<span>국립환경과학원</span>&nbsp;
+									</li>
+									
+									
+									<!-- 분류 항목 제외 20260409 -->
+									<!--
+									<li th:if="${bbsNo == '330' || bbsNo == '26' || bbsNo == '27'}">
+										<p>분류</p>
+										<span th:text="${bbs.pstSeCdNm}"></span>
+									</li>
+									-->
+									<li>
+										<p>조회수</p>
+										<span>21</span>
+									</li>
+<!-- 									<li th:if="${bbsNo == '330'}"> -->
+<!-- 										<p>관련링크</p> -->
+<!-- 										<a class="txt_blue" th:href="${bbs.pstRelUrlAddr}" target="_blank" th:utext="${bbs.pstRelUrlAddr}"></a> -->
+<!-- 									</li> -->
+								</ul>
+							</div>
+							<div class="mainArticle">
+								<div class="onBoardContents">
+									<span><p><strong>국립환경과학원 공고 제2026-449호</strong></p>
+
+<p style="text-align: center;"><br>
+<strong>「폐기물공정시험기준」고시 개정(안) 행정예고
+</strong></p>
+
+<p> </p>
+<br>
+<p style="text-align: center;">「환경분야 시험·검사 등에 관한 법률」제6조에 따른「폐기물공정시험기준(국립환경과학원고시 제2025-21호)」을 일부 개정함에 있어<br>
+국민에게 미리 알려 이에 대한 의견을 듣고자「행정절차법」제46조에 따라 그 취지와 주요내용을 다음과 같이 공고합니다.</p>
+
+<p style="text-align: right;"><br>
+<strong>2026년 11월 4일<br>
+국 립 환 경 과 학 원 장</strong></p>
+
+<p><br>
+※자세한 사항은 붙임을 참고하시기 바라며, 기타 상세한 사항은<br>
+   <strong>개정안에 대한 자세한 사항은 국립환경과학원(www.nier.go.kr) 홈페이지의 법령 정보&gt;행정 예고를 참조하시기 바랍니다.</strong></p>
+
+<p><strong> </strong></p></span>
+								</div>
+								<!-- 2026.10.27 주요성과 및 과제(575, 578) 전용 PDF/이미지 세로형 뷰어 영역 (일반 게시판 빈 박스 노출 방지) -->
+								<div id="vertical-document-viewer" style="display: none; text-align: center; margin-top: 20px; border: none; padding: 0;"></div>
+								<dl class="onBoardUploaded">
+									<dt>
+										<i class="icon-clip2"></i>
+										<p>첨부파일</p>
+									</dt>
+									<dd>
+										<p><div id='commFileArea'></div></p>
+									</dd>
+								</dl>
+							</div>
+						</form>
+					</div>
+					<div class="onPagingNext">
+						<a href="#none" id="prevPostLink">
+							<input type="hidden" id="prevPstNo" name="prevPstNo">
+							<i class="svg-icon ico-angle up"></i>
+							<span id="prevPstNm">이전글</span>
+						</a>
+						<a href="#none" id="nextPostLink">
+							<input type="hidden" id="nextPstNo" name="nextPstNo">
+							<i class="svg-icon ico-angle"></i>
+							<span id="nextPstNm">다음글</span>
+						</a>
+					</div>
+					<div class="onBtnGroup ar">
+						<a href="#none" onclick="fnList()" class="krds-btn tertiary small">목록</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div>
+	<script>
+		$(document).ready(function () {
+			
+		});
+	</script>
+    <div class="onRightStickyBar">
+        <div class="stickyBarIn">
+            <ul>
+                <li>
+                    <a href="/front/kor/cmm/nier_law01.do?menuNo=13004">
+                        <div class="hoverIconBox">
+                        	<img src="/template/template1/assets/img/common/icon_stickybar_graph.svg" alt="" class="off"/>
+                        	<img src="/template/template1/assets/img/common/icon_stickybar_graph_on.svg" alt="" class="on"/>
+                        </div>
+                        <span>분석기관지정</span>
+                    </a>
+                </li>
+<!--                 <li> -->
+<!--                     <a href="javascript:void(0);"> -->
+<!--                         <div class="hoverIconBox"> -->
+<!--                         	<img th:src="@{/template/template1/assets/img/common/icon_stickybar_speaker.svg}" alt="" class="off"/> -->
+<!--                         	<img th:src="@{/template/template1/assets/img/common/icon_stickybar_speaker_on.svg}" alt="" class="on"/> -->
+<!--                         </div> -->
+<!--                         <span>주요민원사례</span> -->
+<!--                     </a> -->
+<!--                 </li> -->
+                <li>
+                    <a href="/common/kor/content/comContsDetail.do?contsNo=52&menuNo=18100">
+                        <div class="hoverIconBox">
+                        	<img src="/template/template1/assets/img/common/icon_stickybar_book.svg" alt="" class="off"/>
+                        	<img src="/template/template1/assets/img/common/icon_stickybar_book_on.svg" alt="" class="on"/>
+                        </div>
+                        <span>환경연구정보 서비스</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/front/kor/cmm/nier_int02.do?menuNo=15015">
+                        <div class="hoverIconBox">
+                        	<img src="/template/template1/assets/img/common/icon_stickybar_location.svg" alt="" class="off"/>
+                        	<img src="/template/template1/assets/img/common/icon_stickybar_location_on.svg" alt="" class="on"/>
+                        </div>
+                        <span>찾아오시는 길</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/common/kor/emp/comEmpList.do?contsNo=99&menuNo=15014">
+                        <div class="hoverIconBox">
+                        	<img src="/template/template1/assets/img/common/icon_stickybar_hierarchy.svg" alt="" class="off"/>
+                        	<img src="/template/template1/assets/img/common/icon_stickybar_hierarchy_on.svg" alt="" class="on"/>
+                        </div>
+                        <span>조직안내</span>
+                    </a>
+                </li>
+            </ul>
+            <button onclick="ato.onMoveTop();" class="moveTop"><i></i>TOP</button>
+        </div>
+    </div>
+</div>
+	
+	<div class="onFooterLayout">
+	<script>
+		$(document).ready(function () {
+			insertComAcsHstry();
+		});
+		
+		//공통 접근 이력 쌓기
+		function insertComAcsHstry(){
+			
+			//menuNo
+			var params = new URLSearchParams(window.location.search);
+		    var menuNo = params.get("menuNo");
+		    
+		    //접근 URL
+		    var acsUrlAddr = window.location.pathname;
+		    
+		 	//유입 URL 주소 (document.referrer로 Referer 가져오기)
+		    var influUrlAddr = document.referrer;
+		    
+			var request = {
+					menuNo : menuNo,
+					acsUrlAddr : acsUrlAddr,
+					influUrlAddr : influUrlAddr
+			};
+			
+			fn_ajax.object("/common/comAcsHstryInsertAjax.do", request, insertSuccessCallback);
+		}
+		
+		function insertSuccessCallback(response){
+	    	if (response.resultCode == 200) {
+	    		//console.log("공통 접근 이력 추가 완료");
+	        } else {
+	        	//console.log("공통 접근 이력 추가 실패");
+	        }
+	    }
+	
+	</script>
+	<footer id="krds-footer">
+           <div class="foot-quick">
+               <div class="onContainer">
+                   <button type="button" class="link footer-popup-btn1" title="팝업열기" onclick="ato.onFullPopupShow('footer-popup-wrap1')">환경과학원 주요 정보서비스</button>
+                   <button type="button" class="link footer-popup-btn2" title="팝업열기" onclick="ato.onFullPopupShow('footer-popup-wrap2')">기후에너지환경부 및 소속기관</button>
+                   <button type="button" class="link footer-popup-btn3" title="팝업열기" onclick="ato.onFullPopupShow('footer-popup-wrap3')">시도보건 환경연구원</button>
+               </div>
+           </div>
+           <div class="onContainer"> 
+           	   <div class="f-logo-box">
+	               <h3 class="envLogo"><img src="/template/template1/assets/img/common/logo.svg" alt="기후에너지환경부 국립환경과학원" /></h3>
+               </div>
+               <div class="f-cnt">
+                   <div class="f-info">
+                       <p class="info-addr">(우)22689 인천 서해구 환경로 42(종합환경연구단지)</p>
+                       <ul class="info-cs">
+                           <li><strong class="strong">대표전화</strong><span>032-560-7114</span></li>
+                       </ul>
+                   </div>
+                   
+                   <div class="f-link">
+                       <div class="link-sns">
+                           <a href="https://www.instagram.com/nierkorea" class="krds-btn xlarge icon border" target="_blank" title="새창 열기">
+                               <span class="hidden">인스타그램</span>
+                               <i class="svg-icon ico-instagram"></i>
+                           </a>
+                           <a href="https://youtube.com/niernier0" class="krds-btn xlarge icon border" target="_blank" title="새창 열기">
+                               <span class="hidden">유튜브</span>
+                               <i class="svg-icon ico-youtube"></i>
+                           </a>
+                           <a href="https://www.facebook.com/niernier0" class="krds-btn xlarge icon border" target="_blank" title="새창 열기">
+                               <span class="hidden">페이스북</span>
+                               <i class="svg-icon ico-facebook"></i>
+                           </a>
+                           <a href="https://blog.naver.com/nier7078" class="krds-btn xlarge icon border" target="_blank" title="새창 열기">
+                               <span class="hidden">블로그</span>
+                               <i class="svg-icon ico-blog"></i>
+                           </a>
+                           <a href="https://www.linkedin.com/in/%EA%B5%AD%EB%A6%BD%ED%99%98%EA%B2%BD%EA%B3%BC%ED%95%99%EC%9B%90-%EA%B8%B0%ED%9B%84%EC%97%90%EB%84%88%EC%A7%80%ED%99%98%EA%B2%BD%EB%B6%80-ba3b24391/" class="krds-btn xlarge icon border" target="_blank" title="새창 열기">
+                               <span class="hidden">링크드인</span>
+                               <i class="svg-icon ico-linkedIn"></i>
+                           </a>
+                       </div>
+                   </div>
+               </div>
+               
+               <div class="f-btm">
+                   <div class="f-btm-text">
+                       <div class="f-menu">
+                           <a href="/common/kor/content/comContsDetail.do?menuNo=17020&contsNo=73" class="point">개인정보처리방침</a>
+                           <a href="/comm/downloadFile.do?url=b5b24847-77d2-4621-8519-9e4a89f1bec8">긴급상황시 개인정보 처리 및 보호수칙</a>
+                           <a href="/common/kor/content/comContsDetail.do?menuNo=10000043&contsNo=93">고정형·이동형 영상정보처리기기 운영관리방침</a>
+                           <ul>
+	                           <li><a href="/common/kor/content/comContsDetail.do?menuNo=17004&contsNo=96">저작권 정책</a></li>
+	                           <li><a href="/front/kor/cmm/nier_int02.do?menuNo=15015">찾아오시는길</a></li>
+	                           <li><a href="/common/kor/content/comContsDetail.do?menuNo=17002&contsNo=97">사이트맵</a></li>
+                           </ul>
+                       </div>
+                       <div class="f-menu2">
+                       <a class="webaward_logo" href="https://www.i-award.or.kr/Web/Assess/FinalCandidateView.aspx?REG_SEQNO=15256" target="_blank" title="새 창 열림"><img src="/template/template1/assets/img/common/logo_webaward.svg" alt="web award 25 winner"></a>
+                       	<a class="opentype_logo" href="http://www.kogl.or.kr/open/info/license_info/by.do" target="_blank" title="새 창 열림"><img src="/template/template1/assets/img/common/img_opentype02.gif" alt="공공누리"></a>
+                       	<a class="a11y_logo" href="https://www.wa.or.kr/board/list.asp?search=total&SearchString=%B1%B9%B8%B3%C8%AF%B0%E6%B0%FA%C7%D0%BF%F8&BoardID=0006" target="_blank" title="새 창 열림">
+                       		<img src="/template/template1/assets/img/common/logo_a11y.svg" alt="과학기술정보통신부 WEB 접근성 한국정보접근성인증평가원 2026.01.19 ~ 2027.01.18">
+                       	</a>
+                       </div>
+                   </div>
+                   <p class="f-copy">&copy; The Government of the Republic of Korea. All rights reserved.</p>
+                   <!-- <div class="krds-identifier">
+                       <span class="logo">
+                           <span class="hidden">KRDS - Korea Design System</span>
+                       </span>
+                       <span class="ban-txt">이 누리집은 정부 산하기관 누리집입니다.</span>
+                   </div> -->
+               </div>
+           </div>
+
+           <!-- 푸터레이어팝업: 환경과학원 주요 정보서비스 -->
+           <div class="krds-full-popup-wrap" id="footer-popup-wrap1" tabindex="0">
+               <div class="popup-in">
+                   <div class="popup">
+                       <div class="popup-head">
+                           <h1 class="pop-tit">환경과학원 주요 정보서비스</h1>
+                       </div>
+                       <div class="popup-body">
+                           <ul class="pop-foot-links">
+                               <li><a href="https://nier.go.kr/naccc/" target="_blank" title="새창 열기">국가기후위기적응센터 누리집</a></li>
+                               <li><a href="https://nier.go.kr/vestap/" target="_blank" title="새창 열기">기후변화 취약성 평가 지원 도구 시스템(VESTAP)</a></li>
+                               <li><a href="https://nier.go.kr/motive/" target="_blank" title="새창 열기">기후변화 영향 평가 지원 도구 시스템(MOTIVE)</a></li>
+                               <li><a href="http://kencis.mcee.go.kr/" target="_blank" title="새창 열기">자동차 배출가스 및 소음 인증 시스템</a></li>
+                               <li><a href="https://ieps.nier.go.kr/" target="_blank" title="새 창 열기">통합환경허가시스템</a></li>
+                               <li><a href="https://eiass.go.kr/" target="_blank" title="새창 열기">환경영향평가 정보지원시스템</a></li>
+                               <li><a href="https://qaqc.nier.go.kr/" target="_blank" title="새창 열기">환경시험검사 종합운영시스템</a></li>
+                               <li><a href="https://haps.nier.go.kr/" target="_blank" title="새창 열기">비산배출시설신고점검시스템</a></li>
+                               <li><a href="https://smartairscreen.nier.go.kr/" target="_blank" title="새창 열기">권역별 대기개선 통합관리시스템</a></li>
+                               <li><a href="https://kaon.nier.go.kr/" target="_blank" title="새창 열기">국가대기질 예보지원 시스템</a></li>
+                               <li><a href="https://nesc.nier.go.kr/" target="_blank" title="새창 열기">정지궤도 환경위성 자료서비스시스템</a></li>
+                               <li><a href="https://mulmoa.go.kr/" target="_blank" title="새창 열기">국가통합물관리정보 플랫폼(물모아)</a></li>
+                               <li><a href="https://wems.nier.go.kr/" target="_blank" title="새창 열기">전국오염원조사시스템</a></li>
+                               <li><a href="https://wems.nier.go.kr/swems/" target="_blank" title="새창 열기">특정수질유해물질 배출량조사 시스템</a></li>
+                               <li><a href="https://ecowaste.mcee.go.kr/" target="_blank" title="새창 열기">폐기물처리시설 검사관리 시스템</a></li>
+                               <li><a href="https://sgis.nier.go.kr/" target="_blank" title="새창 열기">토양지하수정보시스템</a></li>
+                               <li><a href="/common/kor/content/comContsDetail.do?contsNo=189&menuNo=10000060" target="_blank" title="새창 열기">WHO 취약계층 환경보건 협력센터</a></li>
+                           </ul>
+                       </div>
+                       <button type="button" class="popup-close" onclick="ato.onFullPopupHide(event, 'footer-popup-btn1')"><span class="hidden">레이어 닫기</span></button>
+                   </div>
+               </div>
+           </div>
+
+           <!-- 푸터레이어팝업: 환경부 외청 및 소속기관 -->
+           <div class="krds-full-popup-wrap" id="footer-popup-wrap2" tabindex="0">
+               <div class="popup-in">
+                   <div class="popup">
+                       <div class="popup-head">
+                           <h1 class="pop-tit">기후에너지환경부 및 소속기관</h1>
+                       </div>
+                       <div class="popup-body">
+                           <ul class="pop-foot-links">
+                           		<!-- 20251015 <li><a href="http://nier.go.kr" target="_blank" title="새창 열기">국립환경과학원</a></li>-->
+                            	<li><a href="http://mcee.go.kr" target="_blank" title="새창 열기">기후에너지환경부</a></li>                           		
+                            	<li><a href="http://ehrd.mcee.go.kr" target="_blank" title="새창 열기">국립환경인재개발원</a></li>
+                                <li><a href="http://www.gir.go.kr" target="_blank" title="새창 열기">온실가스 종합정보센터</a></li>
+                                <li><a href="http://www.air.go.kr/" target="_blank" title="새창 열기">국가미세먼지정보센터</a></li>
+                                <li><a href="https://mcee.go.kr/niwdc/" target="_blank" title="새창 열기">국립야생동물질병관리원</a></li>
+                                <li><a href="https://mcee.go.kr/hg" target="_blank" title="새창 열기">한강유역환경청</a></li>
+                               	<li><a href="https://mcee.go.kr/ndg" target="_blank" title="새창 열기">낙동강유역환경청</a></li>
+                               	<li><a href="https://mcee.go.kr/gg" target="_blank" title="새창 열기">금강유역환경청</a></li>
+                               	<li><a href="https://mcee.go.kr/ysg" target="_blank" title="새창 열기">영산강유역환경청</a></li>
+                               	<li><a href="https://mcee.go.kr/wonju" target="_blank" title="새창 열기">원주지방환경청</a></li>
+                               	<li><a href="https://mcee.go.kr/daegu" target="_blank" title="새창 열기">대구지방환경청</a></li>
+                               	<li><a href="https://mcee.go.kr/smg" target="_blank" title="새창 열기">전북지방환경청</a></li>
+                                <li><a href="https://mcee.go.kr/mamo" target="_blank" title="새창 열기">수도권대기환경청</a></li>
+                                <li><a href="http://www.hrfco.go.kr" target="_blank" title="새창 열기">한강홍수통제소</a></li>
+                               	<li><a href="http://www.nakdongriver.go.kr" target="_blank" title="새창 열기">낙동강홍수통제소</a></li>
+                               	<li><a href="http://www.geumriver.go.kr" target="_blank" title="새창 열기">금강홍수통제소</a></li>
+                               	<li><a href="http://www.yeongsanriver.go.kr" target="_blank" title="새창 열기">영산강홍수통제소</a></li>
+                                <li><a href="http://ecc.mcee.go.kr" target="_blank" title="새창 열기">중앙환경분쟁조정피해구제위원회</a></li>
+                                <li><a href="https://www.korec.go.kr" target="_blank" title="새창 열기">전기위원회</a></li>
+                               	<li><a href="http://www.nibr.go.kr" target="_blank" title="새창 열기">국립생물자원관</a></li>
+                               	<li><a href="http://nics.mcee.go.kr" target="_blank" title="새창 열기">화학물질안전원</a></li>
+                           </ul>
+                       </div>
+                       <button type="button" class="popup-close" onclick="ato.onFullPopupHide(event, 'footer-popup-btn2')"><span class="hidden">레이어 닫기</span></button>
+                   </div>
+               </div>
+           </div>
+
+           <!-- 푸터레이어팝업: 시도보건 환경연구원 -->
+           <div class="krds-full-popup-wrap" id="footer-popup-wrap3" tabindex="0">
+               <div class="popup-in">
+                   <div class="popup">
+                       <div class="popup-head">
+                           <h1 class="pop-tit">시도보건 환경연구원</h1>
+                       </div>
+                       <div class="popup-body">
+                           <ul class="pop-foot-links">
+                               <li><a href="https://news.seoul.go.kr/welfare/life_health" target="_blank" title="새창 열기">서울특별시보건환경연구원</a></li>
+                               <li><a href="https://www.incheon.go.kr/ecopia/index" target="_blank" title="새창 열기">인천광역시보건환경연구원</a></li>
+                               <li><a href="http://www.busan.go.kr/ihe/index" target="_blank" title="새창 열기">부산광역시보건환경연구원</a></li>
+                               <li><a href="http://daegu.go.kr/Health" target="_blank" title="새창 열기">대구광역시보건환경연구원</a></li>
+                               <li><a href="http://www.daejeon.go.kr/hea/index.do" target="_blank" title="새창 열기">대전광역시보건환경연구원</a></li>
+                               <li><a href="https://www.gwangju.go.kr/welfare/contentsView.do?pageId=welfare131" target="_blank" title="새창 열기">광주광역시보건환경연구원</a></li>
+                               <li><a href="http://www.ulsan.go.kr/uihe/index" target="_blank" title="새창 열기">울산광역시보건환경연구원</a></li>
+                               <li><a href="https://www.sejong.go.kr/vri.do" target="_blank" title="새창 열기">세종특별자치시보건환경연구원</a></li>
+                               <li><a href="http://www.gg.go.kr/gg_health " target="_blank" title="새창 열기">경기도보건환경연구원</a></li>
+                               <li><a href="http://www.gihe.re.kr" target="_blank" title="새창 열기">강원특별자치도보건환경연구원</a></li>
+                               <li><a href="http://here.cb21.net" target="_blank" title="새창 열기">충청북도보건환경연구원</a></li>
+                               <li><a href="https://www.chungnam.go.kr/healthenvMain.do" target="_blank" title="새창 열기">충청남도보건환경연구원</a></li>
+                               <li><a href="http://jihe.jeonbuk.go.kr" target="_blank" title="새창 열기">전북특별자치도보건환경연구원</a></li>
+                               <li><a href="http://www.jihe.go.kr" target="_blank" title="새창 열기">전라남도보건환경연구원</a></li>
+                               <li><a href="http://inhen.gyeongbuk.go.kr" target="_blank" title="새창 열기">경상북도보건환경연구원</a></li>
+                               <li><a href="https://www.gyeongnam.go.kr/knhe/index.gyeong" target="_blank" title="새창 열기">경상남도보건환경연구원</a></li>
+                               <li><a href="https://www.jeju.go.kr/hei/index.htm" target="_blank" title="새창 열기">제주특별자치도보건환경연구원</a></li>
+                           </ul>
+                       </div>
+                       <button type="button" class="popup-close" onclick="ato.onFullPopupHide(event, 'footer-popup-btn3')"><span class="hidden">레이어 닫기</span></button>
+                   </div>
+               </div>
+           </div>
+
+       </footer>
+</div>
+	
+	<script type="text/javascript">
+	document.addEventListener("DOMContentLoaded", () => {
+		const params = {position: "board", detailYn: "Y", thmbUseYn: "Y", onlyImgYn: "N",
+	        atchFileNo: $("#atchFileNo").val(), bbsNo: $("#bbsNo").val(),
+		};
+		
+		if (bbsNo == '575' || bbsNo == '578') {
+			fileHandler.attachedFileList(params, html => {
+				$('#commFileArea').html(html);
+				renderDocumentViewer();
+			});
+		} else {
+			fileHandler.attachedFileList(params, html => $('#commFileArea').html(html));
+		}
+	});
+
+	// 본문 뷰어에는 일반 이미지만 노출하고, 첨부파일 목록에는 '대표이미지 + PDF/문서'만 노출
+	function renderDocumentViewer() {
+		let viewer = $('#vertical-document-viewer');
+		viewer.empty();
+		
+		// 본문에 텍스트나 이미지가 직접 작성되어 있는 경우 하단 자동 뷰어를 노출하지 않음
+		let contentHtml = $('.onBoardContents span').first().html() || '';
+		let plainText = contentHtml.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+		let hasImages = $('.onBoardContents span img').length > 0;
+		
+		let hasViewerImages = false;
+		let downloadFileCount = 0;
+		const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+		
+		// 시퀀스 순서 정렬을 위한 임시 리스트
+		let imageList = [];
+		
+		$('#file-atch-list li').each(function() {
+			let link = $(this).find('a.fileDownload');
+			let atchFileNo = link.data('no');
+			let atchFileSeq = link.data('seq');
+			let thmbYn = link.data('thmb-yn');
+			let fileName = (link.data('filename') || link.text().trim()).split(' (')[0];
+			let lastDotIdx = fileName.lastIndexOf('.');
+			let fileExt = lastDotIdx !== -1 ? fileName.substring(lastDotIdx).toLowerCase() : '';
+			let fileBaseName = lastDotIdx !== -1 ? fileName.substring(0, lastDotIdx) : fileName;
+			
+			const isImage = imageExtensions.includes(fileExt);
+			
+			if (isImage) {
+				if (thmbYn === 'Y') {
+					// 1) 대표이미지는 첨부파일 다운로드 목록에 노출
+					$(this).show();
+					downloadFileCount++;
+				} else {
+					// 2) 본문 일반 이미지는 첨부파일 목록에서 숨기고, 본문 뷰어용으로 추가
+					$(this).hide();
+					if (plainText.length === 0 && !hasImages) {
+						imageList.push({
+							no: atchFileNo,
+							seq: atchFileSeq,
+							name: fileBaseName
+						});
+					}
+				}
+			} else {
+				// 3) PDF 및 기타 문서는 첨부파일 다운로드 목록에 노출
+				$(this).show();
+				downloadFileCount++;
+			}
+		});
+		
+		// 이미지 파일 시퀀스 순으로 정렬 후 뷰어에 추가
+		imageList.sort((a, b) => a.seq - b.seq);
+		imageList.forEach(function(img) {
+			let imgUrl = `/common/comViewFile.do?atchFileNo=${img.no}&atchFileSeq=${img.seq}`;
+			let imgHtml = `
+				<div class="a4-page-viewer">
+					<img src="${imgUrl}" alt="${img.name}">
+				</div>
+			`;
+			viewer.append(imgHtml);
+			hasViewerImages = true;
+		});
+		
+		if (hasViewerImages) {
+			viewer.show();
+		} else {
+			viewer.hide();
+		}
+		
+		// 다운로드할 파일(대표이미지, PDF 등)이 없으면 첨부파일 영역 전체 숨김
+		if (downloadFileCount === 0) {
+			$('.onBoardUploaded').hide();
+		} else {
+			$('.onBoardUploaded').show();
+		}
+	}
+	</script>
+	
+</div>
+</body>
+</html>
