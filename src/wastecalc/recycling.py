@@ -55,6 +55,8 @@ def evaluate_s5(kb: KB, answers: dict, decided: list[dict]) -> dict:
         entry.update({
             "conclusion": "PROHIBITED", "label": f"재활용 금지 — {p['label']}",
             "basis": [_b(kb, b["source"], b["location"], b["quote"], p["id"]) for b in p["basis"]],
+            "explanation": {"plain": [f"'{p['label']}'은(는) 법에서 재활용을 금지한 폐기물입니다."],
+                            "because": [f"분류번호 {code}가 금지 대상({p['label']})에 해당"]},
         })
         if table_types and not table_prohibited:
             # 법의 금지가 표보다 우선한다. 표와 다르면 검토 대상으로 남긴다.
@@ -67,6 +69,9 @@ def evaluate_s5(kb: KB, answers: dict, decided: list[dict]) -> dict:
             "conclusion": "NOT_LISTED",
             "label": "재활용 가능 유형이 정해지지 않음 — 재활용환경성평가 승인을 받아야 재활용 가능",
             "basis": [_b(kb, n["source"], n["location"], n["quote"], "S5-NOT-LISTED")],
+            "explanation": {"plain": ["이 분류번호는 법이 재활용 방법을 정해 두지 않았습니다. "
+                                      "재활용하려면 재활용환경성평가를 받아 승인을 받아야 합니다."],
+                            "because": [f"시행규칙 별표 4의3 표에 {code}의 재활용 유형이 없음"]},
         })
         return {"decided": entry}
 
@@ -76,6 +81,8 @@ def evaluate_s5(kb: KB, answers: dict, decided: list[dict]) -> dict:
             "basis": [_b(kb, "RULE-A43", f"별표 4의3 {code} (p.{row['page']})", f"{code} 재활용 금지",
                          f"ANNEX43-{code}", "REVIEWED")],
             "gaps": ["시행규칙 제14조의3제2항의 금지 사유 중 어느 것에 해당하는지 대응표에 없음 — 표의 '재활용 금지' 표기만 따름"],
+            "explanation": {"plain": ["재활용 가능 유형 표에서 이 분류번호는 '재활용 금지'로 정해져 있습니다."],
+                            "because": [f"시행규칙 별표 4의3 {code}: 재활용 금지"]},
         })
         return {"decided": entry}
 
@@ -102,11 +109,22 @@ def evaluate_s5(kb: KB, answers: dict, decided: list[dict]) -> dict:
     if any(a["pre_analysis_text"] == "원문에 표기 없음" for a in allowed):
         entry["gaps"].append(f"별표 4의3 원문에서 {code}의 사전 분석·확인 필요 여부 칸이 비어 있음")
     uniq = list(dict.fromkeys(a["r_code"] for a in allowed))
+    plain = ["이 분류번호는 법이 정한 아래 재활용 방법으로만 재활용할 수 있습니다. "
+             "목록에 없는 방법으로 재활용하려면 재활용환경성평가 승인이 필요합니다."]
+    if any(a["pre_analysis_required"] for a in allowed):
+        plain.append("'사전 분석·확인 필요' 방법은 재활용하기 전에 폐기물분석전문기관의 결과 등으로 재활용 기준을 "
+                     "충족하는지 확인해야 합니다.")
+    if restricted:
+        plain.insert(0, "제한된 용도의 제품·원료로는 재활용할 수 없는 물질이 든 폐기물입니다.")
+    because = [f"{a['r_code']}: {a['definition'] or ''}" for a in allowed if a["r_code"] != "R-10"]
+    if "R-10" in uniq:
+        because.append("R-10: 위 방법으로 재활용하기 위한 중간가공 폐기물을 만드는 방법")
     entry.update({
         "conclusion": "RESTRICTED" if restricted else "ALLOWED_TYPES",
         "label": ("재활용 제한 — " if restricted else "") + "재활용 가능 유형: " + ", ".join(uniq),
         "allowed_types": allowed,
         "outside_types": [_b(kb, o["source"], o["location"], o["quote"], "S5-OUTSIDE") for o in rules["outside_types"]],
         "basis": basis,
+        "explanation": {"plain": plain, "because": list(dict.fromkeys(because))},
     })
     return {"decided": entry}

@@ -4,6 +4,7 @@
 
 # ---------- S0 폐기물 해당 여부 ----------
 no_longer_needed:
+  label: 더 이상 필요 없어 내보내는지
   type: bool
   cost: USER
   question: 이 물질은 사업활동에 더 이상 필요 없게 되어 내보내는(버리거나 넘기는) 것인가요?
@@ -15,6 +16,7 @@ no_longer_needed:
     quote: 생산공정에서 발생되는 불량품·자투리 등이 재활용이 가능하거나 재활용된다 하여 폐기물에서 제외되는 것은 아니며
 
 direct_reinput:
+  label: 같은 공정 바로 재투입 여부
   type: bool
   cost: USER
   question: 별도의 처리공정 없이, 같은 사업장의 같은 공정에 원료로 바로 다시 넣나요?
@@ -22,6 +24,7 @@ direct_reinput:
     - text: 이 물질을 세척·파쇄 등 따로 처리하지 않고 발생한 그 공정에 원료로 다시 투입하는지 공정도로 확인하세요.
 
 circular_resource_recognized:
+  label: 순환자원 인정서
   type: bool
   cost: DOCUMENT
   question: 이 물질에 대해 순환자원 인정서를 받았나요?
@@ -30,6 +33,7 @@ circular_resource_recognized:
 
 # ---------- S1 폐기물관리법 적용 제외 ----------
 law_exclusion:
+  label: 다른 법 적용 대상
   type: enum
   cost: USER
   question: 이 물질이 아래 중 하나에 해당하나요?
@@ -50,6 +54,7 @@ law_exclusion:
 
 # ---------- S2 사업장폐기물 여부 ----------
 emission_facility:
+  label: 배출시설 허가·신고
   type: bool
   cost: DOCUMENT
   question: 이 사업장에 대기·수질·소음진동 배출시설 설치허가를 받았거나 신고를 했나요?
@@ -58,6 +63,7 @@ emission_facility:
     - text: 서류를 찾을 수 없으면 관할 시·군·구 환경 담당 부서에 배출시설 허가·신고 여부를 문의하세요.
 
 public_facility:
+  label: 공공처리시설 운영
   type: enum
   cost: USER
   question: 이 사업장이 아래 공공처리시설을 설치·운영하는 곳인가요?
@@ -69,6 +75,7 @@ public_facility:
     livestock_public: 가축분뇨법에 따른 공공처리시설
 
 waste_facility:
+  label: 폐기물처리시설 운영
   type: bool
   cost: USER
   question: 이 사업장이 폐기물처리시설을 설치·운영하는 곳인가요? (폐기물처리업 허가 시설 포함)
@@ -76,6 +83,7 @@ waste_facility:
     - text: 폐기물처리시설 설치 승인·신고서류 또는 폐기물처리업 허가증을 확인하세요.
 
 designated_waste_emitted:
+  label: 사업장의 지정폐기물 배출
   type: bool
   cost: DOCUMENT
   question: 이 사업장에서 지정폐기물을 배출하나요?
@@ -88,6 +96,7 @@ designated_waste_emitted:
     text: 지정폐기물 해당 여부를 판정하는 단계(S3)는 아직 계산기에 없습니다.
 
 daily_avg_kg:
+  label: 하루 평균 배출량
   type: number
   unit: kg/일
   cost: DOCUMENT
@@ -98,6 +107,7 @@ daily_avg_kg:
     text: 하루 평균 300kg을 산정하는 기간·포함 범위를 직접 정한 근거는 아직 확보하지 못했습니다(실무 안내).
 
 work_type:
+  label: 공사·작업 여부
   type: enum
   cost: USER
   question: 이 폐기물이 공사나 일회성 작업에서 나온 것인가요?
@@ -107,6 +117,7 @@ work_type:
     series: "그 밖의 일련의 공사 또는 작업 (예: 저장탱크 정기 청소)"
 
 work_total_ton:
+  label: 공사·작업 전체 배출량
   type: number
   unit: 톤
   cost: DOCUMENT
@@ -116,6 +127,7 @@ work_total_ton:
 
 # ---------- S2 보조: 이 폐기물이 지정폐기물인지 (S3 판정 결과로만 정해짐, 사용자 입력 불가) ----------
 this_waste_designated:
+  label: 이 폐기물의 지정폐기물 여부
   type: bool
   cost: USER
   derived_from: S3
@@ -123,6 +135,7 @@ this_waste_designated:
 
 # ---------- S3 지정폐기물 여부 ----------
 waste_kind:
+  label: 폐기물 종류
   type: enum
   cost: USER
   question: 이 폐기물은 아래 중 무엇에 가장 가깝나요?
@@ -163,6 +176,7 @@ waste_kind:
     - text: 폐기물이 나온 공정·설비와 원래 물건이 무엇이었는지로 고르세요. 여러 종류가 섞였으면 종류별로 따로 판정하세요.
 
 physical_state:
+  label: 배출 시 상태
   type: enum
   cost: USER
   question: 배출할 때 이 폐기물의 상태는?
@@ -174,6 +188,7 @@ physical_state:
     - text: 배출 시점의 실제 상태로 고르세요. 경계가 애매하면 '모름'으로 답하세요.
 
 sludge_water_pct:
+  label: 수분함량
   type: number
   unit: "%"
   cost: TEST
@@ -186,6 +201,7 @@ sludge_water_pct:
     text: 법은 "수분함량 95% 미만이거나 고형물함량 5% 이상"을 요구합니다. 계산기는 수분함량으로 받습니다(고형물 = 100 − 수분으로 보는 해석).
 
 sludge_facility_notified:
+  label: 고시된 오니 발생시설
   type: bool
   cost: DOCUMENT
   question: 이 오니가 나온 시설이 기후에너지환경부장관이 고시한 오니 발생시설에 해당하나요?
@@ -193,11 +209,13 @@ sludge_facility_notified:
     - text: 오니 발생시설을 정한 기후에너지환경부 고시(2025-10-01 시행)의 시설 목록과 사업장 배출시설을 대조하세요.
 
 pesticide_from_maker_seller:
+  label: 농약 제조·판매업소 발생
   type: bool
   cost: USER
   question: 이 폐농약이 농약 제조업소나 판매업소에서 나온 것인가요?
 
 ph:
+  label: pH
   type: number
   unit: ""
   cost: TEST
@@ -208,26 +226,31 @@ ph:
     report: pH 값(0.01 단위), 측정 온도, 시료 채취일
 
 alkali_solid_naoh_koh:
+  label: 고체 수산화나트륨·수산화칼륨
   type: bool
   cost: USER
   question: 이 폐알칼리가 고체 상태의 수산화나트륨이나 수산화칼륨인가요?
 
 blast_furnace_iron_slag:
+  label: 철광석 고로슬래그
   type: bool
   cost: USER
   question: 이 광재가 철광 원석을 사용한 고로(용광로)에서 나온 고로슬래그인가요?
 
 dust_from_apc:
+  label: 대기오염 방지시설 포집 분진
   type: bool
   cost: USER
   question: 이 분진이 대기오염 방지시설(집진기 등)에서 포집된 것인가요?
 
 dust_from_incinerator:
+  label: 소각시설 분진
   type: bool
   cost: USER
   question: 이 분진이 소각시설에서 나온 것인가요?
 
 paint_mixed_source:
+  label: 혼합물 발생 시설
   type: enum
   cost: USER
   question: 페인트·래커와 유기용제가 섞인 이 폐기물은 어디서 나왔나요?
@@ -240,17 +263,20 @@ paint_mixed_source:
     - text: 도장시설의 용적·동력은 배출시설 허가·신고서류에서 확인하세요.
 
 paint_dried:
+  label: 남은 페인트 건조
   type: bool
   cost: USER
   question: 용기 안에 남은 페인트가 완전히 건조되어 있나요?
 
 paint_residue_mm:
+  label: 용기 바닥 잔존 페인트
   type: number
   unit: mm
   cost: USER
   question: 용기 바닥에 남은 페인트는 몇 mm인가요?
 
 oil_presence:
+  label: 기름 묻음·섞임
   type: enum
   cost: USER
   question: 이 폐기물에 기름(윤활유·절삭유·작동유 등)이 묻어 있거나 섞여 있나요?
@@ -261,6 +287,7 @@ oil_presence:
     - text: 사용한 공정에서 절삭유·윤활유를 쓰는지, 겉에 기름막이나 기름 냄새가 있는지 확인하세요. 확실하지 않으면 '모름'으로 답하세요.
 
 oil_content_pct:
+  label: 기름성분 함량
   type: number
   unit: "%"
   cost: TEST
@@ -271,6 +298,7 @@ oil_content_pct:
     report: 기름성분(%), 시료 채취일, 분석기관
 
 asbestos_pct:
+  label: 석면 함량
   type: number
   unit: "%"
   cost: TEST
@@ -281,6 +309,7 @@ asbestos_pct:
     report: 석면 함량(%, 건조고형물 기준)
 
 pcb_possible:
+  label: PCB 사용 기기·절연유 관련
   type: bool
   cost: DOCUMENT
   question: 이 폐기물이 PCB(폴리클로리네이티드비페닐)를 쓴 변압기·콘덴서·절연유 등과 관련이 있나요?
@@ -288,6 +317,7 @@ pcb_possible:
     - text: 변압기·콘덴서 명판의 절연유 종류와 제조연도, 기존 PCB 분석 기록을 확인하세요.
 
 pcb_mg_l:
+  label: PCB 함량(액체)
   type: number
   unit: mg/L
   cost: TEST
@@ -298,6 +328,7 @@ pcb_mg_l:
     report: mg/L
 
 pcb_leach_mg_l:
+  label: PCB 용출 농도
   type: number
   unit: mg/L
   cost: TEST
@@ -308,6 +339,7 @@ pcb_leach_mg_l:
     report: 용출액 mg/L
 
 toxic_chemical_discard:
+  label: 유해화학물질 폐기
   type: bool
   cost: DOCUMENT
   question: 화학물질관리법상 유해화학물질(인체급성·인체만성·생태유해성물질, 허가·제한·금지물질, 사고대비물질)을 폐기하는 것인가요?
@@ -315,6 +347,7 @@ toxic_chemical_discard:
     - text: 폐기하려는 화학물질의 물질안전보건자료(MSDS)와 화학물질정보시스템에서 해당 물질 지정 여부를 확인하세요.
 
 norm_bq_g:
+  label: 방사능 농도
   type: number
   unit: Bq/g
   cost: TEST
@@ -326,6 +359,7 @@ norm_bq_g:
 
 # ---------- S3 용출시험 결과 (시행규칙 별표 1) ----------
 leach_pb:
+  label: 납 용출 농도
   type: number
   unit: mg/L
   cost: TEST
@@ -335,6 +369,7 @@ leach_pb:
     method: 폐기물공정시험기준 용출시험
     report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
 leach_cu:
+  label: 구리 용출 농도
   type: number
   unit: mg/L
   cost: TEST
@@ -344,6 +379,7 @@ leach_cu:
     method: 폐기물공정시험기준 용출시험
     report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
 leach_as:
+  label: 비소 용출 농도
   type: number
   unit: mg/L
   cost: TEST
@@ -353,6 +389,7 @@ leach_as:
     method: 폐기물공정시험기준 용출시험
     report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
 leach_hg:
+  label: 수은 용출 농도
   type: number
   unit: mg/L
   cost: TEST
@@ -362,6 +399,7 @@ leach_hg:
     method: 폐기물공정시험기준 용출시험
     report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
 leach_cd:
+  label: 카드뮴 용출 농도
   type: number
   unit: mg/L
   cost: TEST
@@ -371,6 +409,7 @@ leach_cd:
     method: 폐기물공정시험기준 용출시험
     report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
 leach_cr6:
+  label: 6가크롬 용출 농도
   type: number
   unit: mg/L
   cost: TEST
@@ -380,6 +419,7 @@ leach_cr6:
     method: 폐기물공정시험기준 용출시험
     report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
 leach_cn:
+  label: 시안화합물 용출 농도
   type: number
   unit: mg/L
   cost: TEST
@@ -389,6 +429,7 @@ leach_cn:
     method: 폐기물공정시험기준 용출시험
     report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
 leach_op:
+  label: 유기인화합물 용출 농도
   type: number
   unit: mg/L
   cost: TEST
@@ -398,6 +439,7 @@ leach_op:
     method: 폐기물공정시험기준 용출시험
     report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
 leach_pce:
+  label: 테트라클로로에틸렌 용출 농도
   type: number
   unit: mg/L
   cost: TEST
@@ -407,6 +449,7 @@ leach_pce:
     method: 폐기물공정시험기준 용출시험
     report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
 leach_tce:
+  label: 트리클로로에틸렌 용출 농도
   type: number
   unit: mg/L
   cost: TEST
@@ -417,12 +460,14 @@ leach_tce:
     report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
 
 battery_damaged:
+  label: 전지 손상·훼손
   type: bool
   cost: USER
   question: 이 폐이차전지에 침수·화재·변형·파손이 있거나, 셀이 훼손되어 유해물질 유출·화재·폭발 위험이 있나요?
 
 # ---------- S4 분류번호 (시행규칙 별표 4) ----------
 general_group:
+  label: 일반폐기물 분류 그룹
   type: enum
   cost: USER
   values_from: annex4_general_groups
@@ -431,6 +476,7 @@ general_group:
     - text: 폐기물의 재질·발생 공정으로 고르세요. 2023 「폐기물 분류체계 및 분류방법 설명서」 부록 2의 항목별 설명을 참고할 수 있습니다(구판 기준).
 
 code:
+  label: 분류번호
   type: enum
   cost: USER
   values_from: annex4_codes
@@ -439,6 +485,7 @@ code:
     - text: 명칭과 괄호 안의 한정·제외 문구를 대조해 고르세요. 기존 배출자신고서·올바로 인계서에 적힌 번호가 있으면 함께 확인하세요.
 
 no_specific_code_applies:
+  label: 다른 세부 번호 해당 없음
   type: bool
   cost: USER
   question: 같은 분류 안의 다른 세부 번호에는 하나도 해당하지 않나요? ('그 밖의' 번호는 다른 번호에 해당하지 않을 때만 씁니다)

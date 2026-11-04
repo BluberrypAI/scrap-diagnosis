@@ -42,6 +42,7 @@ class Rule:
     effective_from: str | None = None  # 규칙 자체의 유효 기간(없으면 근거 원문의 기간을 따름)
     effective_to: str | None = None
     abolished: bool = False  # 법 개정으로 의도적으로 없어진 규칙(그 뒤 날짜에 빠져도 '누락'이 아님)
+    plain: str | None = None  # 쉬운 설명(법적 효력 없음, 원문이 우선)
 
 
 @dataclass
@@ -57,6 +58,7 @@ class KB:
     r_codes: dict = field(default_factory=dict)  # 별표 4의2 R코드 정의
     s5_rules: dict = field(default_factory=dict)  # 재활용 금지·제한
     as_of: str | None = None  # 이 지식베이스가 적용되는 기준일
+    glossary: dict = field(default_factory=dict)  # 용어 풀이
     unavailable: dict = field(default_factory=dict)  # 기준일에 판정할 수 없는 단계 → 이유
     _base: dict = field(default_factory=dict, repr=False, compare=False)
 
@@ -134,7 +136,7 @@ def _view(base: dict, d: date) -> "KB":
     return KB(facts=facts, stages=base["stages"], rules=rules, sources=sources, version=base["version"],
               annex4=annex4 or empty4, s4_map=base["s4_map"], annex43=annex43 or {"rows": []},
               r_codes=r_codes or {"codes": {}, "quotes": {}}, s5_rules=s5,
-              as_of=d.isoformat(), unavailable=unavailable, _base=base)
+              as_of=d.isoformat(), unavailable=unavailable, glossary=base.get("glossary", {}), _base=base)
 
 
 def _load_yaml(name: str, rules_dir: Path) -> Any:
@@ -159,6 +161,7 @@ def load_kb(rules_dir: Path = RULES_DIR, as_of=None) -> KB:
     versions = {k: [_load_yaml(p.name, rules_dir) for p in files] for k, files in table_files.items()}
     s4_map = _load_yaml("s4_map.yaml", rules_dir)
     s5_rules = _load_yaml("s5_rules.yaml", rules_dir)
+    glossary = _load_yaml("glossary.yaml", rules_dir) if (rules_dir / "glossary.yaml").exists() else {}
     names = ["facts.yaml", "rules.yaml", "sources.yaml", "s4_map.yaml", "s5_rules.yaml"]
     names += [p.name for files in table_files.values() for p in files] + [p.name for p in extra_files]
     for name in names:
@@ -184,12 +187,13 @@ def load_kb(rules_dir: Path = RULES_DIR, as_of=None) -> KB:
                 effective_from=raw.get("effective_from"),
                 effective_to=raw.get("effective_to"),
                 abolished=raw.get("abolished", False),
+                plain=raw.get("plain"),
             )
         )
     base = {"facts": facts, "stages": rules_doc["stages"], "rules": rules, "sources": sources,
             "version": "rules-" + digest.hexdigest()[:12], "s4_map": s4_map, "s5_rules": s5_rules,
             "annex4_versions": versions["annex4"], "annex43_versions": versions["annex43"],
-            "r_codes_versions": versions["r_codes"], "_views": {}}
+            "r_codes_versions": versions["r_codes"], "glossary": glossary, "_views": {}}
     _validate_versions(base)
     kb = _view(base, parse_date(as_of))
     base["_views"][kb.as_of] = kb

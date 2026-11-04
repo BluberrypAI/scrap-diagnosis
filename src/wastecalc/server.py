@@ -39,7 +39,7 @@ def _run(answers: dict, strict: bool, session_id: str | None = None, as_of: str 
         return _error(str(e))
     if session_id:
         r = {"session_id": session_id, **r}
-    return _result(r, render_text(r))
+    return _result(r, render_text(r, glossary=KB.glossary))
 
 
 @mcp.tool()

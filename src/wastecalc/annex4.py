@@ -187,4 +187,15 @@ def evaluate_s4(kb: KB, answers: dict, decided: list[dict]) -> dict:
     }
     if chosen["id"] in guide:
         entry["guide_definition_2023"] = guide[chosen["id"]]
+    plain = [f"앞 단계에서 '{s3['label']}'(으)로 정해져, 시행규칙 별표 4의 {', '.join(prefixes)} 범위 번호만 해당할 수 있습니다."]
+    if user_selected:
+        plain.append("이 번호는 명칭을 보고 직접 고르신 것이며, 계산기는 앞 단계 판정과 맞는지만 확인했습니다.")
+    elif len(candidates) == 1:
+        plain.append("이 범위에는 번호가 하나뿐이라 그대로 정했습니다.")
+    if _is_catch_all(chosen["name"]) and len(candidates) > 1:
+        plain.append("'그 밖의' 번호는 같은 분류의 다른 번호에 해당하지 않는다고 확인하셨기 때문에 씁니다.")
+    because = [f"분류번호: {chosen['id']} {chosen['name']}"]
+    if chosen["id"] in guide:
+        because.append(f"2023 설명서의 뜻풀이(구판 기준 참고): {guide[chosen['id']]}")
+    entry["explanation"] = {"plain": plain, "because": because}
     return {"decided": entry}

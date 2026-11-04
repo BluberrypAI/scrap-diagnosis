@@ -248,6 +248,58 @@ def _cond_short(kb: KB, c: Condition) -> str:
     return full.split(" → ", 1)[1]
 
 
+def value_text(kb: KB, fid: str, a: "Answer | None") -> str:
+    """입력값을 사람이 읽는 말로: 예/아니오, 선택지 이름, 숫자+단위, 모름."""
+    if a is None:
+        return "답하지 않음"
+    if a.kind == "UNKNOWN":
+        return "모름"
+    f = kb.facts[fid]
+
+    def one(v):
+        if f["type"] == "bool":
+            return "예" if v else "아니오"
+        if f["type"] == "enum":
+            return f["values"].get(v, str(v))
+        return f"{v:g}{f.get('unit', '')}" if isinstance(v, (int, float)) else str(v)
+
+    if a.kind == "CONFLICT":
+        return " / ".join(one(v) for v in a.values) + " (자료끼리 다름)"
+    text = one(a.values[0])
+    if a.source == "DERIVED":
+        text += " (앞 판정 결과)"
+    return text
+
+
+def _because_true(kb: KB, rule: Rule, answers: dict) -> list[str]:
+    """성립한 규칙: 조건마다 '입력값 → 기준 충족'."""
+    out = []
+    for c in rule.when:
+        label = kb.facts[c.fact].get("label", c.fact)
+        out.append(f"{label}: {value_text(kb, c.fact, answers.get(c.fact))} → 기준 '{_cond_short(kb, c)}' 충족")
+    return out
+
+
+def _because_complement(kb: KB, st: dict, rule: Rule, answers: dict) -> list[str]:
+    """'나머지 모두 아님' 결론: 각 경로가 어떤 입력 때문에 해당하지 않았는지. 종류가 달라 애초에 무관한 경로는 뺀다."""
+    out, seen = [], set()
+    for e in st["evals"].values():
+        if e.rule.concludes not in (rule.complement_of or []) or e.status != FALSE:
+            continue
+        first_false = next((c for c in e.rule.when if eval_condition(c, answers) == FALSE), None)
+        if first_false is None or first_false.fact == "waste_kind":
+            continue
+        key = (first_false.fact, first_false.op, str(first_false.value))
+        if key in seen:
+            continue
+        seen.add(key)
+        label = kb.facts[first_false.fact].get("label", first_false.fact)
+        path = (e.rule.plain or e.rule.location).split(". ")[0].rstrip(".")
+        out.append(f"{label}: {value_text(kb, first_false.fact, answers.get(first_false.fact))} → 해당 없음 "
+                   f"(이 경로는 '{_cond_short(kb, first_false)}'일 때만 해당: {path})")
+    return out
+
+
 def _how_to_check(kb: KB, fid: str) -> list[dict]:
     out = []
     for h in kb.facts[fid].get("how_to_check", []):
@@ -306,6 +358,7 @@ def _resolution(kb: KB, stage_id: str, st: dict, answers: dict[str, Answer]) -> 
             "if": _cond_short(kb, c),
             "then": stage["candidates"][e.rule.concludes]["label"] if not others else "다음 조건도 확인",
             "also_needs": others,
+            "plain": e.rule.plain,
             "basis": _basis(kb, e.rule),
         })
         if kb.facts[c.fact]["type"] == "number" and c.op in OP_TEXT:
@@ -398,6 +451,10 @@ def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None
                  if c.fact in stage_answers and stage_answers[c.fact].kind != "UNKNOWN"})
             items = list(dict.fromkeys(r.item for r in fired if r.item))
             gaps = list(dict.fromkeys(g for r in fired for g in r.gaps))
+            because: list[str] = []
+            for r in fired:
+                because += (_because_complement(kb, st, r, stage_answers) if r.complement_of
+                            else _because_true(kb, r, stage_answers))
             decided.append({
                 "stage": stage_id,
                 "stage_title": stage["title"],
@@ -409,6 +466,8 @@ def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None
                 "reviewed": all(r.review == "REVIEWED" for r in fired),
                 "law_based": any(kb.sources[r.source]["evidence"] == "LAW" for r in fired),
                 "gaps": gaps,
+                "explanation": {"plain": list(dict.fromkeys(r.plain for r in fired if r.plain)),
+                                "because": list(dict.fromkeys(because))},
             })
             cand = stage["candidates"][cid]
             if cand.get("terminal"):

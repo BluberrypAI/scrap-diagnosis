@@ -233,6 +233,71 @@ rules.append({
     "review": "UNVERIFIED",
 })
 
+# ---------------------------------------------------------------- 쉬운 설명(plain)
+# 법적 효력이 없는 보조 문장. 숫자는 규칙 조건에 있는 값만 쓴다(tests/test_explain.py가 검사).
+SUBSTANCE = {"leach_pb": "납", "leach_cu": "구리", "leach_as": "비소", "leach_hg": "수은", "leach_cd": "카드뮴",
+             "leach_cr6": "6가크롬", "leach_cn": "시안화합물", "leach_op": "유기인화합물",
+             "leach_pce": "테트라클로로에틸렌", "leach_tce": "트리클로로에틸렌"}
+
+
+def _num(v):
+    return f"{v:g}"
+
+
+def plain_for(r: dict) -> str:
+    rid, item = r["id"], r.get("item", "")
+    conds = {c["fact"]: c for c in r.get("when", [])}
+    sub = next((f for f in conds if f in SUBSTANCE or f == "oil_content_pct"), None)
+    if sub and rid not in ("S3-6-OIL-5PCT", "S3-11DA-MERCURY-RESIDUE"):
+        name = SUBSTANCE.get(sub, "기름성분")
+        unit = "mg/L" if sub in SUBSTANCE else "%"
+        thr = f"{name} {'용출 농도가' if sub in SUBSTANCE else '함량이'} 기준({_num(conds[sub]['value'])}{unit}) 이상"
+        if rid.startswith("S3-1NA-"):
+            return (f"오니는 ①고시된 발생시설에서 나왔고 ②수분함량이 95% 미만이며 ③{thr}일 때 지정폐기물입니다. "
+                    "세 조건이 모두 맞아야 합니다.")
+        extra = ""
+        if "blast_furnace_iron_slag" in conds:
+            extra = " 철광석을 쓰는 용광로의 고로슬래그는 제외됩니다."
+        if "dust_from_apc" in conds:
+            extra = " 대기오염 방지시설에서 모은 분진만 해당하고, 소각시설 분진은 제외됩니다."
+        return f"{item}은(는) {thr}이면 유해물질을 함유한 지정폐기물입니다.{extra}"
+    table = {
+        "S3-1GA-SYNTHETIC_RESIN": "합성수지(플라스틱)는 액체·반고체 상태일 때만 지정폐기물입니다. 고체 플라스틱 조각은 이 항목에 해당하지 않습니다.",
+        "S3-1GA-SYNTHETIC_RUBBER": "합성고무는 액체·반고체 상태일 때만 지정폐기물입니다. 고체 고무는 이 항목에 해당하지 않습니다.",
+        "S3-1DA-PESTICIDE": "농약 제조·판매업소에서 나온 폐농약은 지정폐기물입니다.",
+        "S3-2GA-ACID": "액체 폐산은 pH 2.0 이하(강한 산성)일 때 지정폐기물입니다. pH는 시험으로 확인합니다.",
+        "S3-2NA-ALKALI-LIQUID": "액체 폐알칼리는 pH 12.5 이상(강한 알칼리성)일 때 지정폐기물입니다. pH는 시험으로 확인합니다.",
+        "S3-2NA-ALKALI-NAOH-KOH": "고체 수산화나트륨·수산화칼륨은 법에서 폐알칼리에 포함한다고 정해 두어 지정폐기물입니다.",
+        "S3-3-STABILIZED-ASBESTOS": "고형화 처리물은 석면이 1% 이상 들어 있으면 지정폐기물입니다. 안정화·고화 처리물에도 적용되는지는 해석이 필요합니다.",
+        "S3-4-SOLVENT": "폐유기용제는 종류와 관계없이 지정폐기물입니다.",
+        "S3-5-PAINT": "폐페인트·폐래커는 지정폐기물입니다.",
+        "S3-5GA-PAINT-MIX": "페인트·래커 제조업, 큰 도장시설, 폐기물 재활용시설에서 나온 페인트·유기용제 혼합물은 지정폐기물입니다.",
+        "S3-5GA-PAINT-MIX-OTHER": "법이 정한 시설 밖에서 나온 페인트·유기용제 혼합물이 다른 지정폐기물 항목(폐유기용제 등)에 해당하는지는 법 문언만으로 정할 수 없어 전문가 확인이 필요합니다.",
+        "S3-5NA-PAINT-CLEANING": "페인트 용기를 닦으려고 유기용제를 섞은 것은 지정폐기물입니다.",
+        "S3-5DA-CONTAINER-WET": "남은 페인트가 마르지 않은 폐페인트 용기는 지정폐기물입니다.",
+        "S3-5DA-CONTAINER-6MM": "용기 바닥에 남은 페인트가 6mm를 넘는 폐페인트 용기는 지정폐기물입니다. 완전히 마르고 6mm 이하면 제외됩니다.",
+        "S3-6-WASTE-OIL": "윤활유·절삭유·작동유 같은 폐유는 지정폐기물입니다.",
+        "S3-6-OIL-5PCT": "기름이 묻거나 섞인 폐기물도 기름성분이 5% 이상이면 폐유(지정폐기물)로 봅니다. 함량은 시험으로 확인합니다.",
+        "S3-7GA-ASBESTOS-DEMOLITION": "석면이 1% 이상 든 제품·설비를 해체·제거할 때 나온 폐기물은 폐석면(지정폐기물)입니다.",
+        "S3-7NA-ASBESTOS-PROCESSING": "슬레이트 등 석면 제품을 자르거나 갈 때 나온 부스러기와 집진 분진은 폐석면(지정폐기물)입니다.",
+        "S3-7DA-ASBESTOS-WORK": "석면 제거작업에 쓴 비닐시트·마스크·작업복은 폐석면(지정폐기물)입니다.",
+        "S3-8GA-PCB-LIQUID": "액체 폐기물에 PCB가 1리터당 2mg 이상 들어 있으면 지정폐기물입니다.",
+        "S3-8NA-PCB-NONLIQUID": "액체가 아닌 폐기물은 PCB 용출 농도가 1리터당 0.003mg 이상이면 지정폐기물입니다.",
+        "S3-9-TOXIC": "유해화학물질(인체·생태 유해성 물질, 허가·제한·금지물질, 사고대비물질)을 폐기하는 것은 지정폐기물입니다.",
+        "S3-10-MEDICAL": "의료기관·시험검사기관 등의 의료폐기물은 지정폐기물입니다.",
+        "S3-10-2-NORM": "안전기준에 맞지 않는 천연방사성 가공제품 폐기물은 방사능 농도가 그램당 10베크렐 미만이면 지정폐기물입니다.",
+        "S3-11GA-MERCURY-PRODUCT": "수은이 든 폐램프(폐형광등 제외)·온도계 등 계측기·폐전지는 수은폐기물(지정폐기물)입니다.",
+        "S3-11NA-MERCURY-SEPARATED": "수은함유폐기물에서 분리한 수은은 수은폐기물(지정폐기물)입니다.",
+        "S3-11DA-MERCURY-RESIDUE": "수은함유폐기물 처리잔재물은 수은 용출 농도가 기준(0.005mg/L) 이상이면 지정폐기물입니다.",
+        "S3-BATTERY-DAMAGED": "손상된 폐이차전지는 분류표(별표 4)에 지정폐기물 번호가 있지만 지정폐기물 종류를 정한 시행령에서 근거 항목을 찾지 못해 전문가 확인이 필요합니다.",
+        "S3-NOT-DESIGNATED": "지정폐기물이 되는 경로가 하나도 해당하지 않아 사업장일반폐기물입니다. 다만 '그 밖에 장관이 고시하는 물질' 고시가 있는지는 확인하지 못했습니다.",
+    }
+    return table[rid]
+
+
+for r in rules:
+    r["plain"] = plain_for(r)
+
 OUT.write_text("# 자동 생성: tools/build_s3_rules.py — 직접 고치지 말고 생성기를 고친 뒤 다시 실행\n"
                + yaml.safe_dump({"rules": rules}, allow_unicode=True, sort_keys=False, width=200), encoding="utf-8")
 print(f"{len(rules)} rules → {OUT}")

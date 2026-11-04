@@ -65,3 +65,13 @@ MCP Inspector: `npx @modelcontextprotocol/inspector python -m wastecalc.server` 
 3. 생성기로 새 판 표를 만든다(예: `annex4_codes_2027.yaml`, `source: 새 출처`).
 4. 바뀐 조문을 인용하는 규칙은 같은 id로 새 판 행을 추가하거나, 없어졌으면 구판에 `abolished: true`.
 5. `python -m pytest -q`(판 전환·원문 대조) → `python tools/evaluate_cases.py`(정답셋 재채점).
+
+## 결과 설명 (사용자 안내)
+
+안내문은 **한 줄 결론 → 단계별 결론과 '왜' → 아직 확인할 것 → 근거 원문 → 용어 풀이** 순서다.
+
+- `plain`(규칙마다 쉬운 설명): `rules/rules.yaml`, S3는 `tools/build_s3_rules.py`의 틀로 생성. 법적 효력이 없고 근거 원문이 우선한다.
+- `because`(엔진이 생성): 입력값과 기준을 나란히 보여 준다. 예: "하루 평균 배출량: 450kg/일 → 기준 '300kg/일 이상' 충족".
+  '아님' 결론(생활폐기물, 지정폐기물 아님)은 각 경로가 어떤 입력 때문에 해당하지 않았는지 보여 준다.
+- `rules/glossary.yaml`: 안내문에 실제로 나온 용어만 풀이한다.
+- `tests/test_explain.py`: 모든 규칙에 설명이 있는지, 설명 속 숫자가 규칙의 기준값·원문에 있는 숫자인지 검사한다.
