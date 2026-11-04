@@ -21,3 +21,6 @@ sources/raw/wonju-recycling-qa-posted-2026-08-11.pdf
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# 비밀값
+.env
