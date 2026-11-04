@@ -32,9 +32,9 @@ def _error(msg: str) -> CallToolResult:
                           structuredContent={"error": msg}, isError=True)
 
 
-def _run(answers: dict, strict: bool, session_id: str | None = None) -> CallToolResult:
+def _run(answers: dict, strict: bool, session_id: str | None = None, as_of: str | None = None) -> CallToolResult:
     try:
-        r = evaluate(answers, strict=strict, kb=KB)
+        r = evaluate(answers, strict=strict, kb=KB, as_of=as_of)
     except InputError as e:
         return _error(str(e))
     if session_id:
@@ -57,18 +57,19 @@ def list_facts() -> CallToolResult:
 
 
 @mcp.tool()
-def start_assessment(answers: dict | None = None, strict: bool = True) -> CallToolResult:
+def start_assessment(answers: dict | None = None, strict: bool = True, as_of: str | None = None) -> CallToolResult:
     """판정을 시작한다. 아는 사실만 넣어도 된다(모르면 "UNKNOWN").
     결과: 상태(DETERMINED/NEED_INFO/NEED_TEST/NEED_EXPERT/OUT_OF_SCOPE), 단계별 결론과 근거 조문,
     모르는 항목을 가르는 기준과 확인 방법(resolution), 다음 질문.
-    strict=True면 사람이 검토하지 않은 규칙으로 나온 결론은 잠정(NEED_EXPERT)으로 표시한다."""
+    strict=True면 사람이 검토하지 않은 규칙으로 나온 결론은 잠정(NEED_EXPERT)으로 표시한다.
+    as_of(YYYY-MM-DD, 기본 오늘)는 판정 기준일 — 그날 시행 중인 법령의 규칙만 쓴다."""
     try:
         parse_answers(KB, answers or {})
     except InputError as e:
         return _error(str(e))
     sid = uuid.uuid4().hex[:12]
-    SESSIONS[sid] = {"answers": dict(answers or {}), "strict": strict}
-    return _run(SESSIONS[sid]["answers"], strict, sid)
+    SESSIONS[sid] = {"answers": dict(answers or {}), "strict": strict, "as_of": as_of}
+    return _run(SESSIONS[sid]["answers"], strict, sid, as_of)
 
 
 @mcp.tool()
@@ -84,13 +85,13 @@ def answer_question(session_id: str, fact: str, value: Any) -> CallToolResult:
     except InputError as e:
         return _error(str(e))
     s["answers"] = trial
-    return _run(trial, s["strict"], session_id)
+    return _run(trial, s["strict"], session_id, s.get("as_of"))
 
 
 @mcp.tool()
-def evaluate_facts(answers: dict, strict: bool = True) -> CallToolResult:
-    """세션 없이 한 번에 판정한다(같은 입력이면 항상 같은 결과)."""
-    return _run(answers, strict)
+def evaluate_facts(answers: dict, strict: bool = True, as_of: str | None = None) -> CallToolResult:
+    """세션 없이 한 번에 판정한다(같은 입력·같은 기준일이면 항상 같은 결과). as_of는 YYYY-MM-DD, 기본 오늘."""
+    return _run(answers, strict, None, as_of)
 
 
 @mcp.tool()

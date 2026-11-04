@@ -101,5 +101,5 @@ def render_text(r: dict) -> str:
 
     lines.append("")
     versions = "; ".join(f"{v['title']} {v['version']}" for v in r["law_versions"].values()) or "아직 적용된 조문 없음"
-    lines.append(f"규칙 DB {r['rule_db_version']} · 적용 법령 판: {versions}")
+    lines.append(f"기준일 {r.get('as_of')} · 규칙 DB {r['rule_db_version']} · 적용 법령 판: {versions}")
     return "\n".join(lines)

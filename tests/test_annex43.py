@@ -8,7 +8,7 @@ import pytest
 from wastecalc import evaluate, load_kb
 from wastecalc.kb import ROOT
 
-KB = load_kb()
+KB = load_kb(as_of="2026-11-05")  # 테스트 기준일 고정
 BIZ = {"no_longer_needed": True, "direct_reinput": False, "circular_resource_recognized": False,
        "law_exclusion": "none", "emission_facility": True}
 GATES_NO = {"oil_presence": "none", "pcb_possible": False, "toxic_chemical_discard": False}

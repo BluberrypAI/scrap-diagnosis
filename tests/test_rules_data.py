@@ -6,7 +6,7 @@ import pytest
 
 from wastecalc.kb import ROOT, load_kb
 
-KB = load_kb()
+KB = load_kb(as_of="2026-11-05")  # 테스트 기준일 고정
 _cache: dict[str, str] = {}
 
 

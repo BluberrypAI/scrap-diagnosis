@@ -7,7 +7,7 @@ import pytest
 from wastecalc import UNKNOWN, InputError, evaluate, load_kb, render_text
 from wastecalc.engine import FALSE, TRUE, eval_stage, parse_answers
 
-KB = load_kb()
+KB = load_kb(as_of="2026-11-05")  # 테스트 기준일 고정
 
 WASTE_OK = {"no_longer_needed": True, "direct_reinput": False, "circular_resource_recognized": False}
 APPLIES = {**WASTE_OK, "law_exclusion": "none"}

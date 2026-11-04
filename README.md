@@ -47,3 +47,21 @@ MCP Inspector: `npx @modelcontextprotocol/inspector python -m wastecalc.server` 
 
 모든 규칙은 `review: UNVERIFIED`로 시작한다. 두 사람이 조문 원문과 조건을 대조한 뒤 `REVIEWED`로 바꾼다.
 인용문은 `tests/test_rules_data.py`가 원문 PDF와 자동 대조한다(텍스트 층이 깨진 자료는 육안 대조 기록 필요).
+
+## 법령 판과 기준일(as_of)
+
+모든 판정은 **기준일**(`as_of`, `YYYY-MM-DD`, 기본 오늘)에 시행 중인 법령의 규칙으로만 한다. 결과에 `as_of`가 남는다.
+
+- 규칙의 유효 기간 = 근거 원문(`rules/sources.yaml`)의 `effective_on` ~ `effective_to`. 규칙에 `effective_from`/`effective_to`를 직접 적으면 그것이 우선한다.
+- `effective_to`는 **인용한 문언이 바뀌기 전날**로 적는다. 법률 번호가 바뀌어도 인용 조문이 그대로면 기간을 끊지 않는다.
+- 자동 생성 표(`annex4_codes*.yaml`, `annex43*.yaml`, `r_codes*.yaml`)는 판별로 파일을 따로 두고, 파일의 `source`로 기간을 정한다. 기준일에 유효한 판이 정확히 하나여야 한다.
+- 어떤 단계의 규칙 중 하나라도 기준일에 유효한 판이 없으면(`abolished: true` 표시 제외) 그 단계는 판정하지 않고 `OUT_OF_SCOPE` / `NO_RULES_FOR_DATE`를 낸다. 일부 규칙만 빠진 채 '나머지 모두 아님' 결론을 내면 틀릴 수 있기 때문이다.
+- 같은 규칙 id의 여러 판은 유효 기간이 겹치면 불러올 때 오류가 난다.
+
+### 법령이 개정되면
+
+1. 새 원문을 `sources/raw/`에 새 이름으로 받는다(구판은 지우지 않는다).
+2. `sources.yaml`에 새 출처를 추가하고, 바뀐 구판 출처에 `effective_to`를 적는다.
+3. 생성기로 새 판 표를 만든다(예: `annex4_codes_2027.yaml`, `source: 새 출처`).
+4. 바뀐 조문을 인용하는 규칙은 같은 id로 새 판 행을 추가하거나, 없어졌으면 구판에 `abolished: true`.
+5. `python -m pytest -q`(판 전환·원문 대조) → `python tools/evaluate_cases.py`(정답셋 재채점).

@@ -53,6 +53,9 @@ def _check_value(kb: KB, fid: str, v: Any) -> Any:
             raise InputError(f"{fid}: 0 이상의 숫자({f.get('unit', '')}) 또는 \"UNKNOWN\"만 받습니다. 받은 값: {v!r}")
         return v
     if t == "enum":
+        if f.get("values_from") and not f["values"]:
+            # 기준일에 분류표가 없어 검사할 수 없음 — 그 단계는 NO_RULES_FOR_DATE로 멈추므로 값을 쓰지 않는다
+            return v
         if v not in f["values"]:
             allowed = ", ".join(f["values"])
             raise InputError(f"{fid}: 허용 값은 {allowed} 또는 \"UNKNOWN\"입니다. 받은 값: {v!r}")
@@ -338,13 +341,16 @@ def _complement_note(kb: KB, stage_id: str) -> list[dict]:
     return notes
 
 
-def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None) -> dict:
+def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None, as_of=None) -> dict:
     """사실을 받아 단계별로 판정한다.
 
     strict=True: 사람이 검토(REVIEWED)하지 않은 규칙이나 법령이 아닌 해석 근거로만 나온 결론은
     확정(DETERMINED)으로 내지 않고 NEED_EXPERT + 잠정 결론으로 낸다.
     """
-    kb = kb or load_kb()
+    try:
+        kb = (kb or load_kb()).at(as_of if as_of is not None else (kb.as_of if kb else None))
+    except ValueError as e:
+        raise InputError(str(e)) from e
     answers = parse_answers(kb, answers_raw)
     decided: list[dict] = []
     stage_id = "S0"
@@ -352,6 +358,12 @@ def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None
 
     while True:
         stage = kb.stages[stage_id]
+        if stage_id in kb.unavailable:
+            result = {"status": "OUT_OF_SCOPE", "stage": stage_id, "stage_title": stage["title"],
+                      "reason": "NO_RULES_FOR_DATE",
+                      "message": f"기준일 {kb.as_of}에 적용할 규칙이 계산기에 없습니다({kb.unavailable[stage_id]}). "
+                                 "다른 날짜의 법령으로 추측하지 않습니다."}
+            break
         if stage.get("not_implemented"):
             result = {"status": "DETERMINED", "pending_stages": [{"stage": stage_id, "title": stage["title"],
                                                                  "note": "이 단계는 아직 계산기에 없습니다."}]}
@@ -469,5 +481,6 @@ def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None
         "law_versions": {s: {"title": kb.sources[s]["title"], "version": kb.sources[s]["version"],
                              "effective_on": kb.sources[s]["effective_on"]} for s in used_sources},
         "rule_db_version": kb.version,
+        "as_of": kb.as_of,
         "strict": strict,
     }
