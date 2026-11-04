@@ -7,7 +7,7 @@ stages:
   # question_order: 같은 단계에서 물을 사실의 우선순위. 목록에 없는 사실은 뒤로 간다.
   S0:
     title: 폐기물 해당 여부
-    question_order: [no_longer_needed, direct_reinput, circular_resource_recognized]
+    question_order: [no_longer_needed, direct_reinput, continuous_feedstock, circular_resource_recognized]
     candidates:
       WASTE: {label: 폐기물, next: S1}
       NOT_WASTE: {label: 폐기물 아님, terminal: true}
@@ -26,7 +26,7 @@ stages:
   S3:
     title: 지정폐기물 여부
     # 규칙은 rules_s3.yaml (tools/build_s3_rules.py로 생성)
-    question_order: [waste_kind, physical_state, oil_presence, pcb_possible, toxic_chemical_discard,
+    question_order: [waste_kind, physical_state, designated_residue, residue_kind, medical_institution, oil_presence, pcb_possible, toxic_chemical_discard,
                      sludge_facility_notified, pesticide_from_maker_seller, alkali_solid_naoh_koh,
                      blast_furnace_iron_slag, dust_from_apc, dust_from_incinerator, paint_mixed_source,
                      paint_dried, paint_residue_mm, battery_damaged]
@@ -80,12 +80,25 @@ rules:
     plain: "공정에서 나온 자투리를 따로 처리하지 않고 같은 공정에 바로 원료로 다시 넣으면 폐기물로 보지 않는다는 공식 해설 사례가 있습니다. 법 조문이 아닌 해설 사례가 근거라 전문가 확인을 권합니다."
     review: UNVERIFIED
 
+  - id: S0-CONTINUOUS-FEEDSTOCK
+    stage: S0
+    concludes: NOT_WASTE
+    when:
+      - {fact: continuous_feedstock, op: eq, value: true}
+      - {fact: circular_resource_recognized, op: eq, value: false}
+    source: GUIDE23-QA
+    location: 4.2.1 해석사례 p.50(출처 폐기물 질의·회신 사례집 2014.12)
+    quote: 동 제련 공정에서 발생된 부산물인 슬래그를 별도 가공·처리없이 슬래그 발생시설에서 연속공정으로 다른 제품 제조의 원료로 사용하는 경우 폐기물관리법에 따른 폐기물로 보기 어려움
+    plain: "발생한 시설에서 별도 가공 없이 연속공정으로 다른 제품의 원료로 바로 쓰면 폐기물로 보기 어렵다는 공식 해설 사례가 있습니다. 법 조문이 아닌 해설 사례가 근거라 전문가 확인을 권합니다."
+    review: UNVERIFIED
+
   - id: S0-WASTE
     stage: S0
     concludes: WASTE
     when:
       - {fact: no_longer_needed, op: eq, value: true}
       - {fact: direct_reinput, op: eq, value: false}
+      - {fact: continuous_feedstock, op: eq, value: false}
       - {fact: circular_resource_recognized, op: eq, value: false}
     source: ACT-WASTE
     location: 제2조제1호

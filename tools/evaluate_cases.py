@@ -131,8 +131,8 @@ def judge(stage: str, expected, case: dict) -> tuple[str, str]:
 
 
 # 보조 평가용 가정: 질의에 언급되지 않은 '공통 위험'은 없다고 본다. 계산기 본 동작에는 쓰지 않는다.
-ASSUME_ABSENT = {"circular_resource_recognized": False, "direct_reinput": False,
-                 "pcb_possible": False, "toxic_chemical_discard": False}
+ASSUME_ABSENT = {"circular_resource_recognized": False, "direct_reinput": False, "continuous_feedstock": False,
+                 "pcb_possible": False, "toxic_chemical_discard": False, "designated_residue": False}
 
 
 def with_assumptions(case: dict) -> dict:

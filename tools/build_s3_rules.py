@@ -201,7 +201,8 @@ rules.append(rule("S3-9-TOXIC", [c("toxic_chemical_discard", "eq", True)], "DEC-
                   item="폐유독물질(또는 그 제외 조항이 가리키는 다른 지정폐기물)"))
 
 # 10 의료폐기물, 10의2 천연방사성제품폐기물
-rules.append(rule("S3-10-MEDICAL", [c("waste_kind", "eq", "medical")], "DEC-A1", "별표 1 제10호",
+rules.append(rule("S3-10-MEDICAL", [c("waste_kind", "eq", "medical"), c("medical_institution", "eq", True)],
+                  "DEC-A1", "별표 1 제10호",
                   "의료폐기물(기후에너지환경부령으로 정하는 의료기관이나 시험·검사 기관 등에서 발생되는 것으로 한정한다)",
                   item="의료폐기물"))
 rules.append(rule("S3-10-2-NORM", [c("waste_kind", "eq", "norm_product"), c("norm_bq_g", "lt", 10)], "DEC-A1", "별표 1 제10호의2",
@@ -223,6 +224,20 @@ rules.append(rule("S3-BATTERY-DAMAGED", [c("waste_kind", "eq", "battery"), c("ba
                   "03-10-03 리튬계 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험이 있는 것으로 한정한다)",
                   concludes="NEEDS_INTERPRETATION",
                   gaps=["시행규칙 별표 4는 손상된 폐이차전지(03-10)를 지정폐기물 번호로 두지만, 시행령 별표 1에서 근거 항목을 확인하지 못함"]))
+
+# 지정폐기물이 남아 있거나 묻은 용기·물건: 담겨 있던 지정폐기물로 분류(질의회신, 해석 근거)
+RESIDUE_QUOTE = "지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다."
+RESIDUE_WASH = "이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며"
+for kind, item in [("waste_oil", "폐유가 남은 용기·물건"), ("organic_solvent", "폐유기용제가 남은 용기·물건"),
+                   ("acid", "폐산이 남은 용기·물건"), ("alkali", "폐알칼리가 남은 용기·물건"),
+                   ("paint", "폐페인트가 남은 용기·물건"), ("toxic_chemical", "유해화학물질이 남은 용기·물건")]:
+    rules.append(rule(
+        f"S3-RESIDUE-{kind.upper()}",
+        [c("waste_kind", "in", ["other", "synthetic_resin", "synthetic_rubber"]),
+         c("designated_residue", "eq", True), c("residue_kind", "eq", kind)],
+        "QA-MOE25", "자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245", RESIDUE_QUOTE,
+        supporting=[sup("QA-MOE25", "같은 사례", RESIDUE_WASH, "세척으로 성분을 없앴으면 재질에 따라 일반폐기물")],
+        item=item))
 
 # 지정폐기물이 아님: 위 규칙이 모두 확실히 거짓일 때만
 rules.append({
@@ -284,7 +299,7 @@ def plain_for(r: dict) -> str:
         "S3-8GA-PCB-LIQUID": "액체 폐기물에 PCB가 1리터당 2mg 이상 들어 있으면 지정폐기물입니다.",
         "S3-8NA-PCB-NONLIQUID": "액체가 아닌 폐기물은 PCB 용출 농도가 1리터당 0.003mg 이상이면 지정폐기물입니다.",
         "S3-9-TOXIC": "유해화학물질(인체·생태 유해성 물질, 허가·제한·금지물질, 사고대비물질)을 폐기하는 것은 지정폐기물입니다.",
-        "S3-10-MEDICAL": "의료기관·시험검사기관 등의 의료폐기물은 지정폐기물입니다.",
+        "S3-10-MEDICAL": "의료기관·시험검사기관 등에서 나온 의료폐기물은 지정폐기물입니다. 가정에서 나온 것은 여기에 해당하지 않습니다.",
         "S3-10-2-NORM": "안전기준에 맞지 않는 천연방사성 가공제품 폐기물은 방사능 농도가 그램당 10베크렐 미만이면 지정폐기물입니다.",
         "S3-11GA-MERCURY-PRODUCT": "수은이 든 폐램프(폐형광등 제외)·온도계 등 계측기·폐전지는 수은폐기물(지정폐기물)입니다.",
         "S3-11NA-MERCURY-SEPARATED": "수은함유폐기물에서 분리한 수은은 수은폐기물(지정폐기물)입니다.",
@@ -292,6 +307,9 @@ def plain_for(r: dict) -> str:
         "S3-BATTERY-DAMAGED": "손상된 폐이차전지는 분류표(별표 4)에 지정폐기물 번호가 있지만 지정폐기물 종류를 정한 시행령에서 근거 항목을 찾지 못해 전문가 확인이 필요합니다.",
         "S3-NOT-DESIGNATED": "지정폐기물이 되는 경로가 하나도 해당하지 않아 사업장일반폐기물입니다. 다만 '그 밖에 장관이 고시하는 물질' 고시가 있는지는 확인하지 못했습니다.",
     }
+    if rid.startswith("S3-RESIDUE-"):
+        return ("지정폐기물이 아닌 용기·물건이라도 지정폐기물이 남아 있거나 묻어 있으면, 담겨 있던 지정폐기물로 분류한다는 "
+                "환경부 질의회신이 있습니다. 세척해서 없앴다면 재질에 따라 일반폐기물입니다. 법 조문이 아닌 회신이 근거입니다.")
     return table[rid]
 
 

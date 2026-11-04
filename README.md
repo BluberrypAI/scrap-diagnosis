@@ -75,3 +75,12 @@ MCP Inspector: `npx @modelcontextprotocol/inspector python -m wastecalc.server` 
   '아님' 결론(생활폐기물, 지정폐기물 아님)은 각 경로가 어떤 입력 때문에 해당하지 않았는지 보여 준다.
 - `rules/glossary.yaml`: 안내문에 실제로 나온 용어만 풀이한다.
 - `tests/test_explain.py`: 모든 규칙에 설명이 있는지, 설명 속 숫자가 규칙의 기준값·원문에 있는 숫자인지 검사한다.
+
+## 법 조문으로 정할 수 없는 지점: 결론 대신 문의 안내
+
+결론의 근거가 법령이 아니라 해설·질의회신 사례뿐이면(잔류물이 남은 용기, 같은 공정 재투입, 연속공정 원료 투입 등)
+계산기는 **결론을 내지 않고** `NEED_EXPERT` / `INTERPRETATION_NEEDED`로 멈춘다. 결과의 `consult`에
+문의처(`rules/consult.yaml`: 지침 Ⅳ 기관별 관할 — 유역(지방)환경청·시도·시군구, 국민신문고), 쟁점,
+입력한 사실관계와 참고 사례를 담은 **질의서 초안**이 들어간다. 사례상 참고 결론은 `reference_conclusion`으로만 보여 준다.
+해석 근거로만 나온 지정폐기물 판정은 다른 단계(S2 사업장폐기물 여부)의 근거로도 쓰지 않는다.
+평가 도구만 `allow_interpretive=True`로 참고 결론까지 진행해 볼 수 있다.

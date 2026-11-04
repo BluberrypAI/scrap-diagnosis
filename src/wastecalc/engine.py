@@ -192,7 +192,10 @@ def with_derived(kb: KB, stage_id: str, answers: dict[str, Answer]) -> dict[str,
             if not src or c.fact in out:
                 continue
             st = eval_stage(kb, src, answers)
-            if st["candidates"].get("DESIGNATED") == TRUE:
+            # 해석 자료(해설·질의회신)만으로 나온 지정 판정은 다른 단계의 근거로 쓰지 않는다
+            law_designated = any(e.status == TRUE and e.rule.concludes == "DESIGNATED"
+                                 and kb.sources[e.rule.source]["evidence"] == "LAW" for e in st["evals"].values())
+            if st["candidates"].get("DESIGNATED") == TRUE and law_designated:
                 out[c.fact] = Answer("VALUE", (True,), "DERIVED")
             elif st["candidates"].get("NOT_DESIGNATED") == TRUE:
                 out[c.fact] = Answer("VALUE", (False,), "DERIVED")
@@ -394,11 +397,53 @@ def _complement_note(kb: KB, stage_id: str) -> list[dict]:
     return notes
 
 
-def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None, as_of=None) -> dict:
+def _consult(kb: KB, stage_id: str, answers: dict, decided: list[dict], issue: str, reference: list[dict]) -> dict:
+    """법 조문만으로 정할 수 없을 때: 결론 대신 문의처와 질의서 초안을 만든다."""
+    conf = kb.consult or {}
+    t = conf.get("targets", {})
+    s3 = next((d for d in decided if d["stage"] == "S3"), None)
+    em = answers.get("emission_facility")
+    emission = em.values[0] if em is not None and em.kind == "VALUE" else None
+    keys: list[str] = []
+    if stage_id == "S0":
+        keys = ["regional_circular"]
+    elif stage_id == "S2":
+        keys = ["local_general"]
+    elif stage_id in {"S3", "S4", "S5"}:
+        designated_side = stage_id == "S3" or (s3 is not None and s3["conclusion"] == "DESIGNATED")
+        if designated_side:
+            keys = ["regional_designated"] if emission is True else (
+                ["province_designated"] if emission is False else ["regional_designated", "province_designated"])
+        else:
+            keys = ["local_general"]
+    keys.append("epeople")
+    where = []
+    for k in keys:
+        if k not in t:
+            continue
+        tt = t[k]
+        w = {"name": tt["name"], "when": tt.get("when")}
+        if tt.get("source"):
+            w["basis"] = {"title": kb.sources[tt["source"]]["title"], "location": tt.get("location"), "quote": tt["quote"]}
+        where.append(w)
+    facts = [f"- {kb.facts[f].get('label', f)}: {value_text(kb, f, a)}"
+             for f, a in answers.items() if a.kind != "UNKNOWN" and not kb.facts[f].get("derived_from")]
+    refs = [f"- {b['title']} {b['location']}: “{b['quote']}”" for b in reference]
+    draft = "\n".join(
+        [conf.get("questions", {}).get(stage_id, "다음 사항을 문의드립니다."), "",
+         "1. 사실관계"] + (facts or ["- (입력한 사실 없음)"]) +
+        ["", "2. 쟁점", f"- {issue}", "", "3. 참고한 근거"] + (refs or ["- 없음"]) +
+        ["", "4. 문의 사항", "- 위 사실관계에서 이 폐기물을 어떻게 보아야 하는지, 필요한 시험·서류가 있는지 회신 부탁드립니다."])
+    return {"why": issue, "where": where, "draft": draft}
+
+
+def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None, as_of=None,
+             allow_interpretive: bool = False) -> dict:
     """사실을 받아 단계별로 판정한다.
 
-    strict=True: 사람이 검토(REVIEWED)하지 않은 규칙이나 법령이 아닌 해석 근거로만 나온 결론은
-    확정(DETERMINED)으로 내지 않고 NEED_EXPERT + 잠정 결론으로 낸다.
+    strict=True: 사람이 검토(REVIEWED)하지 않은 규칙으로 나온 결론은 확정(DETERMINED)으로 내지 않고 잠정으로 낸다.
+    법령이 아닌 해석 자료(해설·질의회신)만으로 나오는 결론은 기본적으로 내지 않고, 그 단계에서 멈춰
+    문의처·질의서 초안(consult)을 돌려준다. allow_interpretive=True는 평가 도구가 참고 결론을 보려 할 때만 쓴다.
     """
     try:
         kb = (kb or load_kb()).at(as_of if as_of is not None else (kb.as_of if kb else None))
@@ -441,7 +486,10 @@ def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None
                       "reason": "RULE_OVERLAP",
                       "message": "입력한 사실로 서로 다른 결론이 동시에 성립합니다. 규칙 겹침이므로 전문가 확인이 필요합니다.",
                       "conflicting_conclusions": [stage["candidates"][c]["label"] for c in trues],
-                      "fired_rules": fired}
+                      "fired_rules": fired,
+                      "consult": _consult(kb, stage_id, stage_answers, decided,
+                                          "입력한 사실로 서로 다른 결론이 동시에 성립함: "
+                                          + ", ".join(stage["candidates"][c]["label"] for c in trues), fired)}
             break
         if len(trues) == 1:
             cid = trues[0]
@@ -455,7 +503,7 @@ def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None
             for r in fired:
                 because += (_because_complement(kb, st, r, stage_answers) if r.complement_of
                             else _because_true(kb, r, stage_answers))
-            decided.append({
+            entry = {
                 "stage": stage_id,
                 "stage_title": stage["title"],
                 "conclusion": cid,
@@ -468,13 +516,29 @@ def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None
                 "gaps": gaps,
                 "explanation": {"plain": list(dict.fromkeys(r.plain for r in fired if r.plain)),
                                 "because": list(dict.fromkeys(because))},
-            })
+            }
             cand = stage["candidates"][cid]
+            if not entry["law_based"] and not allow_interpretive:
+                # 해석 자료(해설·질의회신)만으로 나오는 결론은 확정하지 않는다 → 문의 안내로 멈춤
+                result = {"status": "NEED_EXPERT", "stage": stage_id, "stage_title": stage["title"],
+                          "reason": "INTERPRETATION_NEEDED",
+                          "message": "법 조문만으로 정할 수 없어 계산기가 결론을 내지 않습니다. 아래 근거 사례를 참고해 "
+                                     "관할 기관에 확인한 뒤 그 회신에 따라 처리하세요.",
+                          "reference_conclusion": {"label": entry["label"], "basis": entry["basis"],
+                                                   "explanation": entry["explanation"]},
+                          "consult": _consult(kb, stage_id, stage_answers, decided,
+                                              f"해설·질의회신 사례에 따르면 '{entry['label']}'일 수 있으나 법 조문에 직접 근거가 없음",
+                                              entry["basis"])}
+                break
+            decided.append(entry)
             if cand.get("terminal"):
                 result = {"status": cand.get("status", "DETERMINED")}
                 if cand.get("status") == "NEED_EXPERT":
+                    issue = "법령 문언만으로 정할 수 없는 지점: " + " / ".join(gaps)
                     result.update({"stage": stage_id, "stage_title": stage["title"], "reason": "INTERPRETATION_NEEDED",
-                                   "message": "법령 문언만으로 정할 수 없는 지점입니다: " + " / ".join(gaps)})
+                                   "message": issue,
+                                   "consult": _consult(kb, stage_id, stage_answers, decided[:-1], issue,
+                                                       entry["basis"])})
                 break
             stage_id = cand["next"]
             continue
@@ -496,6 +560,26 @@ def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None
             nxt = next((c for c in sub if c["state"] == "MISSING"), None)
             if nxt is None:
                 nxt = next((c for c in res if c["state"] == "MISSING" and not c.get("derived_from")), None)
+            if nxt is None and not allow_interpretive:
+                # 이 단계가 다른 단계 판정에 달려 있는데, 그 판정이 해석 자료로만 나온다 → 그 쟁점으로 문의 안내
+                sub_st = eval_stage(kb, via, answers)
+                interp = [e.rule for e in sub_st["evals"].values() if e.status == TRUE
+                          and kb.sources[e.rule.source]["evidence"] != "LAW" and not e.rule.complement_of]
+                if interp:
+                    vstage = kb.stages[via]
+                    label = vstage["candidates"][interp[0].concludes]["label"]
+                    basis = [_basis(kb, r) for r in interp]
+                    result = {"status": "NEED_EXPERT", "stage": via, "stage_title": vstage["title"],
+                              "reason": "INTERPRETATION_NEEDED",
+                              "message": "법 조문만으로 정할 수 없어 계산기가 결론을 내지 않습니다. 아래 근거 사례를 참고해 "
+                                         "관할 기관에 확인한 뒤 그 회신에 따라 처리하세요.",
+                              "reference_conclusion": {"label": label, "basis": basis,
+                                                       "explanation": {"plain": [r.plain for r in interp if r.plain],
+                                                                       "because": []}},
+                              "consult": _consult(kb, via, answers, decided,
+                                                  f"해설·질의회신 사례에 따르면 '{label}'일 수 있으나 법 조문에 직접 근거가 없음. "
+                                                  f"이 판정에 따라 '{stage['title']}'도 달라짐", basis)}
+                    break
         if nxt is not None:
             status = "NEED_TEST" if nxt["cost"] == "TEST" else "NEED_INFO"
         elif any(c["state"] == "CONFLICT" for c in res):

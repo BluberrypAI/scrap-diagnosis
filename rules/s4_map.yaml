@@ -32,6 +32,12 @@ designated:
   S3-11GA-: ["11-01"]
   S3-11NA-: ["11-02-00"]
   S3-11DA-: ["11-03-00"]
+  S3-RESIDUE-WASTE_OIL: ["06"]
+  S3-RESIDUE-ORGANIC_SOLVENT: ["04"]
+  S3-RESIDUE-ACID: ["02-01"]
+  S3-RESIDUE-ALKALI: ["02-02"]
+  S3-RESIDUE-PAINT: ["05"]
+  S3-RESIDUE-TOXIC_CHEMICAL: ["09"]
 
 # 같은 폐기물에 여러 지정 사유가 성립할 때, 법이 한쪽을 제외하는 경우
 designated_exclusions:

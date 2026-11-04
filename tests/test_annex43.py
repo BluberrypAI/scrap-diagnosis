@@ -9,9 +9,9 @@ from wastecalc import evaluate, load_kb
 from wastecalc.kb import ROOT
 
 KB = load_kb(as_of="2026-11-05")  # 테스트 기준일 고정
-BIZ = {"no_longer_needed": True, "direct_reinput": False, "circular_resource_recognized": False,
+BIZ = {"no_longer_needed": True, "direct_reinput": False, "continuous_feedstock": False, "circular_resource_recognized": False,
        "law_exclusion": "none", "emission_facility": True}
-GATES_NO = {"oil_presence": "none", "pcb_possible": False, "toxic_chemical_discard": False}
+GATES_NO = {"oil_presence": "none", "pcb_possible": False, "toxic_chemical_discard": False, "designated_residue": False}
 ROWS = {r["code"]: r for r in KB.annex43["rows"]}
 BLANK_IN_SOURCE = {"51-99-00"}  # 원문(24쪽)에서 재활용 유형 칸이 비어 있는 행 — 육안 확인
 
@@ -126,9 +126,9 @@ def test_asbestos_prohibited():
 
 
 def test_placenta_is_not_prohibited_medical():
-    r = ev({"waste_kind": "medical", "physical_state": "solid", **GATES_NO, "code": "10-12-06"})
+    r = ev({"waste_kind": "medical", "medical_institution": True, "physical_state": "solid", **GATES_NO, "code": "10-12-06"})
     assert s5(r)["conclusion"] == "ALLOWED_TYPES"
-    r = ev({"waste_kind": "medical", "physical_state": "solid", **GATES_NO, "code": "10-12-03"})
+    r = ev({"waste_kind": "medical", "medical_institution": True, "physical_state": "solid", **GATES_NO, "code": "10-12-03"})
     assert s5(r)["conclusion"] == "PROHIBITED"
 
 

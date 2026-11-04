@@ -2,7 +2,7 @@ from wastecalc import server
 
 
 def test_session_flow_and_text_plus_json():
-    r = server.start_assessment({"no_longer_needed": True, "direct_reinput": False,
+    r = server.start_assessment({"no_longer_needed": True, "direct_reinput": False, "continuous_feedstock": False,
                                  "circular_resource_recognized": False, "law_exclusion": "none"}, strict=False)
     assert not r.isError
     sid = r.structuredContent["session_id"]
@@ -15,7 +15,7 @@ def test_session_flow_and_text_plus_json():
 
 def test_compact_is_small_and_explain_is_full():
     import json
-    base = {"no_longer_needed": True, "direct_reinput": False, "circular_resource_recognized": False,
+    base = {"no_longer_needed": True, "direct_reinput": False, "continuous_feedstock": False, "circular_resource_recognized": False,
             "law_exclusion": "none", "emission_facility": True}
     c = server.evaluate_facts(base)
     full = server.explain(answers=base)
@@ -26,20 +26,20 @@ def test_compact_is_small_and_explain_is_full():
 
 
 def test_batch_answers_in_one_call():
-    r = server.start_assessment({"no_longer_needed": True, "direct_reinput": False,
+    r = server.start_assessment({"no_longer_needed": True, "direct_reinput": False, "continuous_feedstock": False,
                                  "circular_resource_recognized": False, "law_exclusion": "none",
                                  "emission_facility": True}, strict=False)
     sid = r.structuredContent["session_id"]
     r2 = server.answer_question(sid, answers={"waste_kind": "other", "physical_state": "solid", "oil_presence": "none",
-                                              "pcb_possible": False, "toxic_chemical_discard": False})
+                                              "pcb_possible": False, "toxic_chemical_discard": False, "designated_residue": False})
     assert r2.structuredContent["summary"]["S3"].startswith("지정폐기물 아님")
     assert r2.structuredContent["next_question"]["fact"] == "general_group"
 
 
 def test_compact_keeps_same_judgment_as_full():
-    base = {"no_longer_needed": True, "direct_reinput": False, "circular_resource_recognized": False,
+    base = {"no_longer_needed": True, "direct_reinput": False, "continuous_feedstock": False, "circular_resource_recognized": False,
             "law_exclusion": "none", "emission_facility": True, "waste_kind": "acid", "physical_state": "liquid",
-            "oil_presence": "none", "pcb_possible": False, "toxic_chemical_discard": False}
+            "oil_presence": "none", "pcb_possible": False, "toxic_chemical_discard": False, "designated_residue": False}
     c, f = server.evaluate_facts(base).structuredContent, server.explain(answers=base).structuredContent
     assert c["status"] == f["status"] == "NEED_TEST"
     assert c["summary"] == f["summary"]

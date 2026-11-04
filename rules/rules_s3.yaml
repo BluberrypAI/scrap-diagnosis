@@ -2919,12 +2919,15 @@ rules:
   - fact: waste_kind
     op: eq
     value: medical
+  - fact: medical_institution
+    op: eq
+    value: true
   source: DEC-A1
   location: 별표 1 제10호
   quote: 의료폐기물(기후에너지환경부령으로 정하는 의료기관이나 시험·검사 기관 등에서 발생되는 것으로 한정한다)
   review: UNVERIFIED
   item: 의료폐기물
-  plain: 의료기관·시험검사기관 등의 의료폐기물은 지정폐기물입니다.
+  plain: 의료기관·시험검사기관 등에서 나온 의료폐기물은 지정폐기물입니다. 가정에서 나온 것은 여기에 해당하지 않습니다.
 - id: S3-10-2-NORM
   stage: S3
   concludes: DESIGNATED
@@ -3000,6 +3003,168 @@ rules:
   gaps:
   - 시행규칙 별표 4는 손상된 폐이차전지(03-10)를 지정폐기물 번호로 두지만, 시행령 별표 1에서 근거 항목을 확인하지 못함
   plain: 손상된 폐이차전지는 분류표(별표 4)에 지정폐기물 번호가 있지만 지정폐기물 종류를 정한 시행령에서 근거 항목을 찾지 못해 전문가 확인이 필요합니다.
+- id: S3-RESIDUE-WASTE_OIL
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: in
+    value:
+    - other
+    - synthetic_resin
+    - synthetic_rubber
+  - fact: designated_residue
+    op: eq
+    value: true
+  - fact: residue_kind
+    op: eq
+    value: waste_oil
+  source: QA-MOE25
+  location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+  quote: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  review: UNVERIFIED
+  item: 폐유가 남은 용기·물건
+  supporting:
+  - source: QA-MOE25
+    location: 같은 사례
+    quote: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+    note: 세척으로 성분을 없앴으면 재질에 따라 일반폐기물
+  plain: 지정폐기물이 아닌 용기·물건이라도 지정폐기물이 남아 있거나 묻어 있으면, 담겨 있던 지정폐기물로 분류한다는 환경부 질의회신이 있습니다. 세척해서 없앴다면 재질에 따라 일반폐기물입니다. 법 조문이 아닌 회신이 근거입니다.
+- id: S3-RESIDUE-ORGANIC_SOLVENT
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: in
+    value:
+    - other
+    - synthetic_resin
+    - synthetic_rubber
+  - fact: designated_residue
+    op: eq
+    value: true
+  - fact: residue_kind
+    op: eq
+    value: organic_solvent
+  source: QA-MOE25
+  location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+  quote: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  review: UNVERIFIED
+  item: 폐유기용제가 남은 용기·물건
+  supporting:
+  - source: QA-MOE25
+    location: 같은 사례
+    quote: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+    note: 세척으로 성분을 없앴으면 재질에 따라 일반폐기물
+  plain: 지정폐기물이 아닌 용기·물건이라도 지정폐기물이 남아 있거나 묻어 있으면, 담겨 있던 지정폐기물로 분류한다는 환경부 질의회신이 있습니다. 세척해서 없앴다면 재질에 따라 일반폐기물입니다. 법 조문이 아닌 회신이 근거입니다.
+- id: S3-RESIDUE-ACID
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: in
+    value:
+    - other
+    - synthetic_resin
+    - synthetic_rubber
+  - fact: designated_residue
+    op: eq
+    value: true
+  - fact: residue_kind
+    op: eq
+    value: acid
+  source: QA-MOE25
+  location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+  quote: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  review: UNVERIFIED
+  item: 폐산이 남은 용기·물건
+  supporting:
+  - source: QA-MOE25
+    location: 같은 사례
+    quote: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+    note: 세척으로 성분을 없앴으면 재질에 따라 일반폐기물
+  plain: 지정폐기물이 아닌 용기·물건이라도 지정폐기물이 남아 있거나 묻어 있으면, 담겨 있던 지정폐기물로 분류한다는 환경부 질의회신이 있습니다. 세척해서 없앴다면 재질에 따라 일반폐기물입니다. 법 조문이 아닌 회신이 근거입니다.
+- id: S3-RESIDUE-ALKALI
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: in
+    value:
+    - other
+    - synthetic_resin
+    - synthetic_rubber
+  - fact: designated_residue
+    op: eq
+    value: true
+  - fact: residue_kind
+    op: eq
+    value: alkali
+  source: QA-MOE25
+  location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+  quote: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  review: UNVERIFIED
+  item: 폐알칼리가 남은 용기·물건
+  supporting:
+  - source: QA-MOE25
+    location: 같은 사례
+    quote: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+    note: 세척으로 성분을 없앴으면 재질에 따라 일반폐기물
+  plain: 지정폐기물이 아닌 용기·물건이라도 지정폐기물이 남아 있거나 묻어 있으면, 담겨 있던 지정폐기물로 분류한다는 환경부 질의회신이 있습니다. 세척해서 없앴다면 재질에 따라 일반폐기물입니다. 법 조문이 아닌 회신이 근거입니다.
+- id: S3-RESIDUE-PAINT
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: in
+    value:
+    - other
+    - synthetic_resin
+    - synthetic_rubber
+  - fact: designated_residue
+    op: eq
+    value: true
+  - fact: residue_kind
+    op: eq
+    value: paint
+  source: QA-MOE25
+  location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+  quote: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  review: UNVERIFIED
+  item: 폐페인트가 남은 용기·물건
+  supporting:
+  - source: QA-MOE25
+    location: 같은 사례
+    quote: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+    note: 세척으로 성분을 없앴으면 재질에 따라 일반폐기물
+  plain: 지정폐기물이 아닌 용기·물건이라도 지정폐기물이 남아 있거나 묻어 있으면, 담겨 있던 지정폐기물로 분류한다는 환경부 질의회신이 있습니다. 세척해서 없앴다면 재질에 따라 일반폐기물입니다. 법 조문이 아닌 회신이 근거입니다.
+- id: S3-RESIDUE-TOXIC_CHEMICAL
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: in
+    value:
+    - other
+    - synthetic_resin
+    - synthetic_rubber
+  - fact: designated_residue
+    op: eq
+    value: true
+  - fact: residue_kind
+    op: eq
+    value: toxic_chemical
+  source: QA-MOE25
+  location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+  quote: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  review: UNVERIFIED
+  item: 유해화학물질이 남은 용기·물건
+  supporting:
+  - source: QA-MOE25
+    location: 같은 사례
+    quote: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+    note: 세척으로 성분을 없앴으면 재질에 따라 일반폐기물
+  plain: 지정폐기물이 아닌 용기·물건이라도 지정폐기물이 남아 있거나 묻어 있으면, 담겨 있던 지정폐기물로 분류한다는 환경부 질의회신이 있습니다. 세척해서 없앴다면 재질에 따라 일반폐기물입니다. 법 조문이 아닌 회신이 근거입니다.
 - id: S3-NOT-DESIGNATED
   stage: S3
   concludes: NOT_DESIGNATED

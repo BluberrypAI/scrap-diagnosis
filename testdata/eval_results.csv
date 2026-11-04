@@ -16,7 +16,7 @@ WONJU26-52,DEV,S3,"""DESIGNATED""",CORRECT,DESIGNATED,2025,사례집(2021~2025 �
 WONJU26-55,EVAL,S3,"""NOT_DESIGNATED""",STOPPED,결론 없음,2025,사례집(2021~2025 민원),False,wonju-qa-2026.pdf
 WONJU26-56-Q3,DEV,S4,"""02-01-99""",STOPPED,S3 미정 → 번호 범위 없음,2025,사례집(2021~2025 민원),True,wonju-qa-2026.pdf
 WONJU26-56-Q4,DEV,S3,"""UNDECIDED""",CORRECT_STOP,None,2025,사례집(2021~2025 민원),False,wonju-qa-2026.pdf
-WONJU26-62,EVAL,S3,"""DESIGNATED""",STOPPED,결론 없음,2025,사례집(2021~2025 민원),False,wonju-qa-2026.pdf
+WONJU26-62,DEV,S3,"""DESIGNATED""",STOPPED,결론 없음,2025,사례집(2021~2025 민원),False,wonju-qa-2026.pdf
 WONJU26-63,DEV,S4,"""02-01-02""",STOPPED,S3 미정 → 번호 범위 없음,2025,사례집(2021~2025 민원),False,wonju-qa-2026.pdf
 MOE25-234,EVAL,S0,"""WASTE""",STOPPED,결론 없음,2025,사례집 발간(2023~2025 질의),False,tc-moe-qa-casebook-2025-07.pdf
 MOE25-235,EVAL,S0,"""NOT_WASTE""",STOPPED,결론 없음,2025,사례집 발간(2023~2025 질의),False,tc-moe-qa-casebook-2025-07.pdf
@@ -33,7 +33,7 @@ MOE25-262,EVAL,S5,"""RESTRICTED""",NOT_COMPARABLE,기관 번호 없음,2025,사�
 MOE25-263,EVAL,S5,"""RESTRICTED""",NOT_COMPARABLE,기관 번호 없음,2025,사례집 발간(2023~2025 질의),False,tc-moe-qa-casebook-2025-07.pdf
 MOE25-272,EVAL,S5,"""PROHIBITED""",NOT_COMPARABLE,기관 번호 없음,2025,사례집 발간(2023~2025 질의),False,tc-moe-qa-casebook-2025-07.pdf
 GUIDE23-050-01,EVAL,S0,"""WASTE""",STOPPED,결론 없음,2023,설명서 발간,False,classification-guide-2023.pdf
-GUIDE23-050-02,EVAL,S0,"""NOT_WASTE""",STOPPED,결론 없음,2023,설명서 발간,False,classification-guide-2023.pdf
+GUIDE23-050-02,DEV,S0,"""NOT_WASTE""",STOPPED,결론 없음,2023,설명서 발간,False,classification-guide-2023.pdf
 GUIDE23-117-01,DEV,S4,"""51-03-01""",STOPPED,S3 미정 → 번호 범위 없음,2023,설명서 발간,False,classification-guide-2023.pdf
 GUIDE23-117-02,DEV,S4,"""51-03-01""",STOPPED,S3 미정 → 번호 범위 없음,2023,설명서 발간,False,classification-guide-2023.pdf
 GUIDE23-129-02,EVAL,S0,"""WASTE""",STOPPED,결론 없음,2023,설명서 발간,False,classification-guide-2023.pdf
@@ -56,7 +56,7 @@ COURT-2024도12100,EVAL,S0,"""UNDECIDED""",CORRECT_STOP,None,2026,회신·선고
 COURT-2024도12100,EVAL,S5,"{""conclusion"": ""ALLOWED_TYPES"", ""allowed_types"": [""R-4-2""]}",NOT_COMPARABLE,기관 번호 없음,2026,회신·선고일,False,add-case-2024도12100.html
 MOLEG-329297,EVAL,S2,"""BUSINESS""",STOPPED,결론 없음,2016,회신·선고일,False,add-qa-expc-329297.html
 HWP08-D-1-01,EVAL,S3,"""NOT_DESIGNATED""",STOPPED,결론 없음,2008,회신·선고일,False,wonju-environment-qa-volume2-posted-2026-08-11.hwp
-HWP08-D-1-02,EVAL,S3,"""DESIGNATED""",STOPPED,결론 없음,2007,회신·선고일,False,wonju-environment-qa-volume2-posted-2026-08-11.hwp
+HWP08-D-1-02,DEV,S3,"""DESIGNATED""",STOPPED,결론 없음,2007,회신·선고일,False,wonju-environment-qa-volume2-posted-2026-08-11.hwp
 HWP08-D-1-03,EVAL,S0,"""WASTE""",STOPPED,결론 없음,2007,회신·선고일,False,wonju-environment-qa-volume2-posted-2026-08-11.hwp
 HWP08-D-1-04,EVAL,S3,"""DESIGNATED""",STOPPED,결론 없음,2007,회신·선고일,False,wonju-environment-qa-volume2-posted-2026-08-11.hwp
 HWP08-D-1-05,EVAL,S3,"""UNDECIDED""",CORRECT_STOP,None,2007,회신·선고일,False,wonju-environment-qa-volume2-posted-2026-08-11.hwp
@@ -73,7 +73,7 @@ HWP08-D-1-18,EVAL,S3,"""UNDECIDED""",CORRECT_STOP,None,2008,회신·선고일,Fa
 HWP08-M-1-01,EVAL,S3,"""UNDECIDED""",CORRECT_STOP,None,2007,회신·선고일,False,wonju-environment-qa-volume2-posted-2026-08-11.hwp
 HWP08-M-1-02,EVAL,S3,"""UNDECIDED""",CORRECT_STOP,None,2007,회신·선고일,False,wonju-environment-qa-volume2-posted-2026-08-11.hwp
 HWP08-M-1-03,EVAL,S3,"""UNDECIDED""",CORRECT_STOP,None,2008,회신·선고일,False,wonju-environment-qa-volume2-posted-2026-08-11.hwp
-HWP08-M-1-04,EVAL,S2,"""HOUSEHOLD""",STOPPED,결론 없음,2008,회신·선고일,False,wonju-environment-qa-volume2-posted-2026-08-11.hwp
+HWP08-M-1-04,DEV,S2,"""HOUSEHOLD""",STOPPED,결론 없음,2008,회신·선고일,False,wonju-environment-qa-volume2-posted-2026-08-11.hwp
 HWP08-M-1-06,EVAL,S3,"""UNDECIDED""",CORRECT_STOP,None,2008,회신·선고일,False,wonju-environment-qa-volume2-posted-2026-08-11.hwp
 HWP08-M-1-08,EVAL,S3,"""DESIGNATED""",STOPPED,결론 없음,2008,회신·선고일,False,wonju-environment-qa-volume2-posted-2026-08-11.hwp
 HWP08-C-1-02,EVAL,S0,"""WASTE""",STOPPED,결론 없음,2007,회신·선고일,False,wonju-environment-qa-volume2-posted-2026-08-11.hwp

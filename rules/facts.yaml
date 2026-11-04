@@ -15,6 +15,14 @@ no_longer_needed:
     source: GUIDE23-QA
     quote: 생산공정에서 발생되는 불량품·자투리 등이 재활용이 가능하거나 재활용된다 하여 폐기물에서 제외되는 것은 아니며
 
+continuous_feedstock:
+  label: 연속공정으로 다른 제품 원료 투입
+  type: bool
+  cost: USER
+  question: 별도의 가공·처리 없이, 발생한 시설에서 연속공정으로 다른 제품을 만드는 원료로 바로 쓰나요?
+  how_to_check:
+    - text: 이 물질이 발생 설비에서 나와 중간 보관·가공 없이 배관·컨베이어 등으로 다른 제품 공정에 바로 들어가는지 공정도로 확인하세요.
+
 direct_reinput:
   label: 같은 공정 바로 재투입 여부
   type: bool
@@ -168,7 +176,7 @@ waste_kind:
     mercury_product: 수은 함유 폐램프(폐형광등 제외)·폐계측기기·폐전지 등
     mercury_separated: 수은함유폐기물에서 분리한 수은·그 화합물
     mercury_residue: 수은함유폐기물 처리잔재물(폐형광등 재활용 잔재물 포함)
-    medical: 의료기관·시험검사기관 등의 의료폐기물
+    medical: 의료폐기물(감염 우려 폐기물, 인체 조직, 주사바늘 등)
     norm_product: 안전기준에 맞지 않는 천연방사성 가공제품의 폐기물
     battery: 폐전지(일차전지·이차전지·태양전지 등)
     other: 위 목록에 없음 (금속·종이·목재·유리 스크랩 등)
@@ -489,3 +497,34 @@ no_specific_code_applies:
   type: bool
   cost: USER
   question: 같은 분류 안의 다른 세부 번호에는 하나도 해당하지 않나요? ('그 밖의' 번호는 다른 번호에 해당하지 않을 때만 씁니다)
+
+designated_residue:
+  label: 지정폐기물 잔류물
+  type: bool
+  cost: USER
+  question: 이 용기·포장재·물건에 폐유·폐유기용제·폐산 같은 지정폐기물(또는 유해화학물질)이 남아 있거나 묻어 있나요? (세척해서 없앴으면 '아니오')
+  how_to_check:
+    - text: 용기 안과 겉에 원래 내용물이 남아 있는지 보세요. 세척했다면 세척 기록을 확인하세요.
+
+residue_kind:
+  label: 남아 있는 내용물
+  type: enum
+  cost: USER
+  question: 남아 있거나 묻어 있는 내용물은 무엇인가요?
+  values:
+    waste_oil: 기름(윤활유·절삭유·작동유 등)
+    organic_solvent: 유기용제(시너·세척제 등)
+    acid: 산(pH 2.0 이하로 알려진 것)
+    alkali: 알칼리(pH 12.5 이상으로 알려진 것)
+    paint: 페인트·래커
+    toxic_chemical: 유해화학물질(MSDS상 유독물질 등)
+  how_to_check:
+    - text: 용기 라벨과 물질안전보건자료(MSDS)로 원래 내용물을 확인하세요.
+
+medical_institution:
+  label: 의료기관·시험검사기관 발생
+  type: bool
+  cost: USER
+  question: 병원·의원·동물병원·시험검사기관 등 의료기관에서 나온 것인가요? (가정에서 나온 것은 '아니오')
+  how_to_check:
+    - text: 배출 장소가 시행규칙 별표 3의 의료기관·시험검사기관 등에 해당하는지 확인하세요.

@@ -6,9 +6,9 @@ from wastecalc import UNKNOWN, evaluate, load_kb
 from wastecalc.engine import TRUE, eval_stage, parse_answers
 
 KB = load_kb(as_of="2026-11-05")  # 테스트 기준일 고정
-BIZ = {"no_longer_needed": True, "direct_reinput": False, "circular_resource_recognized": False,
+BIZ = {"no_longer_needed": True, "direct_reinput": False, "continuous_feedstock": False, "circular_resource_recognized": False,
        "law_exclusion": "none", "emission_facility": True}
-GATES_NO = {"oil_presence": "none", "pcb_possible": False, "toxic_chemical_discard": False}
+GATES_NO = {"oil_presence": "none", "pcb_possible": False, "toxic_chemical_discard": False, "designated_residue": False}
 
 
 def ev(extra, strict=False):
@@ -52,20 +52,20 @@ def test_acid_without_ph_asks_for_test_with_method():
 @pytest.mark.parametrize("pct,designated", [(4.99, False), (5, True)])
 def test_oily_scrap_oil_content_boundary(pct, designated):
     r = ev({"waste_kind": "other", "physical_state": "solid", "oil_presence": "present", "oil_content_pct": pct,
-            "pcb_possible": False, "toxic_chemical_discard": False})
+            "pcb_possible": False, "toxic_chemical_discard": False, "designated_residue": False})
     assert (s3(r)["conclusion"] == "DESIGNATED") is designated
 
 
 def test_oily_scrap_unknown_content_needs_oil_test():
     r = ev({"waste_kind": "other", "physical_state": "solid", "oil_presence": "present",
-            "pcb_possible": False, "toxic_chemical_discard": False})
+            "pcb_possible": False, "toxic_chemical_discard": False, "designated_residue": False})
     assert r["status"] == "NEED_TEST"
     assert "ES 06302.1b" in r["next_question"]["test"]["method"]
 
 
 def test_edible_oil_is_not_waste_oil():
     r = ev({"waste_kind": "edible_oil", "physical_state": "liquid", "oil_presence": "present",
-            "oil_content_pct": 100, "pcb_possible": False, "toxic_chemical_discard": False})
+            "oil_content_pct": 100, "pcb_possible": False, "toxic_chemical_discard": False, "designated_residue": False})
     assert s3(r)["conclusion"] == "NOT_DESIGNATED"
 
 
@@ -117,7 +117,7 @@ def test_sludge_lists_needed_leach_tests():
     ("solid", "pcb_leach_mg_l", 0.0029, False), ("solid", "pcb_leach_mg_l", 0.003, True),
 ])
 def test_pcb_thresholds(state, fact, val, designated):
-    r = ev({"waste_kind": "other", "physical_state": state, "oil_presence": "none",
+    r = ev({"waste_kind": "other", "physical_state": state, "oil_presence": "none", "designated_residue": False,
             "toxic_chemical_discard": False, "pcb_possible": True, fact: val})
     assert (s3(r)["conclusion"] == "DESIGNATED") is designated
 

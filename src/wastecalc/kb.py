@@ -59,6 +59,7 @@ class KB:
     s5_rules: dict = field(default_factory=dict)  # 재활용 금지·제한
     as_of: str | None = None  # 이 지식베이스가 적용되는 기준일
     glossary: dict = field(default_factory=dict)  # 용어 풀이
+    consult: dict = field(default_factory=dict)  # 해석이 필요할 때 안내할 문의처
     unavailable: dict = field(default_factory=dict)  # 기준일에 판정할 수 없는 단계 → 이유
     _base: dict = field(default_factory=dict, repr=False, compare=False)
 
@@ -136,7 +137,7 @@ def _view(base: dict, d: date) -> "KB":
     return KB(facts=facts, stages=base["stages"], rules=rules, sources=sources, version=base["version"],
               annex4=annex4 or empty4, s4_map=base["s4_map"], annex43=annex43 or {"rows": []},
               r_codes=r_codes or {"codes": {}, "quotes": {}}, s5_rules=s5,
-              as_of=d.isoformat(), unavailable=unavailable, glossary=base.get("glossary", {}), _base=base)
+              as_of=d.isoformat(), unavailable=unavailable, glossary=base.get("glossary", {}), consult=base.get("consult", {}), _base=base)
 
 
 def _load_yaml(name: str, rules_dir: Path) -> Any:
@@ -162,6 +163,7 @@ def load_kb(rules_dir: Path = RULES_DIR, as_of=None) -> KB:
     s4_map = _load_yaml("s4_map.yaml", rules_dir)
     s5_rules = _load_yaml("s5_rules.yaml", rules_dir)
     glossary = _load_yaml("glossary.yaml", rules_dir) if (rules_dir / "glossary.yaml").exists() else {}
+    consult = _load_yaml("consult.yaml", rules_dir) if (rules_dir / "consult.yaml").exists() else {}
     names = ["facts.yaml", "rules.yaml", "sources.yaml", "s4_map.yaml", "s5_rules.yaml"]
     names += [p.name for files in table_files.values() for p in files] + [p.name for p in extra_files]
     for name in names:
@@ -193,7 +195,7 @@ def load_kb(rules_dir: Path = RULES_DIR, as_of=None) -> KB:
     base = {"facts": facts, "stages": rules_doc["stages"], "rules": rules, "sources": sources,
             "version": "rules-" + digest.hexdigest()[:12], "s4_map": s4_map, "s5_rules": s5_rules,
             "annex4_versions": versions["annex4"], "annex43_versions": versions["annex43"],
-            "r_codes_versions": versions["r_codes"], "glossary": glossary, "_views": {}}
+            "r_codes_versions": versions["r_codes"], "glossary": glossary, "consult": consult, "_views": {}}
     _validate_versions(base)
     kb = _view(base, parse_date(as_of))
     base["_views"][kb.as_of] = kb

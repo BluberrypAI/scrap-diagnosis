@@ -105,6 +105,24 @@ def render_text(r: dict, glossary: dict | None = None) -> str:
                 L.append(f"  → 시험이 필요합니다: {q['test']['item']} ({q['test']['method']}). 결과를 받아 입력하세요.")
             L.append("")
 
+    # ---------- 문의 안내
+    if r.get("consult"):
+        cs = r["consult"]
+        L.append("▷ 계산기가 정하지 않는 지점입니다. 관할 기관에 확인하세요.")
+        L.append(f"   이유: {cs['why']}")
+        if r.get("reference_conclusion"):
+            rc = r["reference_conclusion"]
+            L.append(f"   참고(확정 아님): 사례상으로는 '{rc['label']}'일 수 있습니다.")
+            for b in rc.get("basis", []):
+                keep(b)
+        for w in cs["where"]:
+            L.append(f"   문의처: {w['name']}" + (f" — {w['when']}" if w.get("when") else ""))
+            if w.get("basis"):
+                L.append(f"     (관할 근거: {w['basis']['title']} {w['basis']['location']})")
+        L.append("   질의서 초안:")
+        L += ["     " + x for x in cs["draft"].splitlines()]
+        L.append("")
+
     # ---------- 근거 원문
     if sources:
         L.append("근거 원문 (쉬운 설명보다 이 원문이 우선합니다)")

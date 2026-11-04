@@ -9,13 +9,13 @@ from wastecalc.engine import FALSE, TRUE, eval_stage, parse_answers
 
 KB = load_kb(as_of="2026-11-05")  # 테스트 기준일 고정
 
-WASTE_OK = {"no_longer_needed": True, "direct_reinput": False, "circular_resource_recognized": False}
+WASTE_OK = {"no_longer_needed": True, "direct_reinput": False, "continuous_feedstock": False, "circular_resource_recognized": False}
 APPLIES = {**WASTE_OK, "law_exclusion": "none"}
 S2_ALL_NO = {"emission_facility": False, "public_facility": "none", "waste_facility": False,
              "designated_waste_emitted": False, "daily_avg_kg": 100, "work_type": "none"}
 # S3에서 '지정폐기물 아님'이 되는 최소 사실 (금속 스크랩 등)
 S3_PLAIN = {"waste_kind": "other", "physical_state": "solid", "oil_presence": "none",
-            "pcb_possible": False, "toxic_chemical_discard": False}
+            "pcb_possible": False, "toxic_chemical_discard": False, "designated_residue": False}
 
 
 def ev(answers, strict=False):
@@ -64,13 +64,14 @@ def test_circular_resource():
     assert r["decided"][-1]["conclusion"] == "CIRCULAR_RESOURCE"
 
 
-def test_direct_reinput_is_interpretive_basis():
-    r = ev({"direct_reinput": True, "circular_resource_recognized": False})
-    assert r["decided"][-1]["conclusion"] == "NOT_WASTE"
-    assert r["weak_basis"] and r["weak_basis"][0]["law_based"] is False
-    strict = ev({"direct_reinput": True, "circular_resource_recognized": False}, strict=True)
-    assert strict["status"] == "NEED_EXPERT" and strict["provisional"] is True
-
+def test_direct_reinput_is_interpretive_so_engine_consults_instead_of_concluding():
+    a = {"direct_reinput": True, "circular_resource_recognized": False}
+    r = ev(a)
+    assert r["status"] == "NEED_EXPERT" and r["reason"] == "INTERPRETATION_NEEDED"
+    assert r["decided"] == [] and r["reference_conclusion"]["label"] == "폐기물 아님"
+    assert r["consult"]["where"][0]["name"] == "관할 유역(지방)환경청"
+    ref = evaluate(a, strict=False, kb=KB, allow_interpretive=True)  # 평가 도구용 참고 경로
+    assert ref["decided"][-1]["conclusion"] == "NOT_WASTE"
 
 def test_wastewater_excluded():
     r = ev({**WASTE_OK, "law_exclusion": "wastewater"})
@@ -198,7 +199,7 @@ def test_s2_exhaustive_no_overlap_no_hole():
 
 def test_s0_exhaustive_no_overlap_no_hole():
     domain = {"no_longer_needed": [True, False, UNKNOWN], "direct_reinput": [True, False, UNKNOWN],
-              "circular_resource_recognized": [True, False, UNKNOWN]}
+              "continuous_feedstock": [True, False, UNKNOWN], "circular_resource_recognized": [True, False, UNKNOWN]}
     for combo in _combos(domain):
         st = eval_stage(KB, "S0", parse_answers(KB, combo))
         trues = [c for c, s in st["candidates"].items() if s == TRUE]

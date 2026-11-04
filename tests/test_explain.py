@@ -4,9 +4,9 @@ import re
 from wastecalc import evaluate, load_kb, render_text
 
 KB = load_kb(as_of="2026-11-05")
-BASE = {"no_longer_needed": True, "direct_reinput": False, "circular_resource_recognized": False,
+BASE = {"no_longer_needed": True, "direct_reinput": False, "continuous_feedstock": False, "circular_resource_recognized": False,
         "law_exclusion": "none"}
-GATES_NO = {"oil_presence": "none", "pcb_possible": False, "toxic_chemical_discard": False}
+GATES_NO = {"oil_presence": "none", "pcb_possible": False, "toxic_chemical_discard": False, "designated_residue": False}
 NUM = re.compile(r"\d+(?:\.\d+)?")
 
 
@@ -55,7 +55,7 @@ def test_not_designated_skips_unrelated_waste_kinds():
     r = ev({**BASE, "emission_facility": True, "waste_kind": "other", "physical_state": "solid", **GATES_NO})
     s3 = next(d for d in r["decided"] if d["stage"] == "S3")
     because = s3["explanation"]["because"]
-    assert len(because) == 3  # 기름·PCB·유해화학물질 경로만 (종류가 다른 경로는 무관하므로 생략)
+    assert len(because) == 4  # 잔류물·기름·PCB·유해화학물질 경로만 (종류가 다른 경로는 무관하므로 생략)
     assert not any("오니" in b for b in because)
 
 

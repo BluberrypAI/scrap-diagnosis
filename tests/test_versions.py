@@ -8,10 +8,10 @@ from wastecalc import InputError, evaluate, load_kb
 from wastecalc.kb import RULES_DIR
 
 TODAY = "2026-11-05"
-BIZ = {"no_longer_needed": True, "direct_reinput": False, "circular_resource_recognized": False,
+BIZ = {"no_longer_needed": True, "direct_reinput": False, "continuous_feedstock": False, "circular_resource_recognized": False,
        "law_exclusion": "none", "emission_facility": True}
 SCRAP = {**BIZ, "waste_kind": "other", "physical_state": "solid", "oil_presence": "none",
-         "pcb_possible": False, "toxic_chemical_discard": False, "general_group": "51-29"}
+         "pcb_possible": False, "toxic_chemical_discard": False, "designated_residue": False, "general_group": "51-29"}
 
 
 def _yaml(p):

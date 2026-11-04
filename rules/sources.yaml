@@ -41,7 +41,7 @@ GUIDE23-QA:
   evidence: QA
   path: sources/raw/classification-guide-2023.pdf
   verify: manual
-  manual_check: "인쇄면 p.118(PDF 124쪽) 이미지 대조, 2026-11-04"
+  manual_check: "인쇄면 p.118(PDF 124쪽) 이미지 대조 2026-11-04, 인쇄면 p.50(PDF 56쪽) 이미지 대조 2026-11-05"
 DEC-A1:
   title: 폐기물관리법 시행령 별표 1(지정폐기물의 종류)
   version: 대통령령 제36217호 (별표 2025-10-01 개정)
@@ -107,3 +107,12 @@ RULE-A43:
   path: sources/raw/170401353.pdf
   verify: manual
   manual_check: "텍스트 층이 겹쳐 괘선 좌표로 추출(tools/build_annex43.py). Codex의 쪽 이미지 대조 자료 19개 번호와 전부 일치, 3·5·6·7쪽 육안 대조, 2026-11-05"
+QA-MOE25:
+  title: 환경부 질의회신 사례집(2025.7)
+  version: 환경부 2025.7 발간(2023~2025 질의)
+  effective_on: null
+  version_status: NOT_APPLICABLE
+  evidence: QA
+  path: sources/raw/tc-moe-qa-casebook-2025-07.pdf
+  verify: text
+  note: 1MB 초과로 저장소에 넣지 않음 — 파일이 없으면 원문 대조 테스트는 건너뜀

@@ -93,6 +93,13 @@ def compact(r: dict, kb: KB) -> dict:
     stuck = [c for c in res if c["state"] in {"UNKNOWN", "CONFLICT"}]
     if stuck:
         out["how_to_resolve"] = [_card_brief(kb, c, True) for c in stuck]
+    if r.get("consult"):
+        cs = r["consult"]
+        out["consult"] = {"why": cs["why"], "where": [w["name"] + (f" ({w['when']})" if w.get("when") else "")
+                                                      for w in cs["where"]],
+                          "draft": cs["draft"]}
+    if r.get("reference_conclusion"):
+        out["reference_conclusion"] = r["reference_conclusion"]["label"] + " (참고 사례상, 확정 아님)"
     if r.get("pending_stages"):
         out["pending_stages"] = [p["title"] for p in r["pending_stages"]]
     out["more"] = "근거 원문·경우의 수 전체는 explain 도구로 받으세요."
@@ -107,7 +114,7 @@ def render_compact(c: dict) -> str:
     if c.get("message") and not c.get("next_question"):
         L.append(c["message"])
     last = c["decided"][-1] if c.get("decided") else None
-    if last and not c.get("next_question"):
+    if last and not c.get("next_question") and not c.get("consult"):
         if last.get("why"):
             L.append(f"왜: {last['why']}")
         for b in last.get("because", []):
@@ -130,6 +137,13 @@ def render_compact(c: dict) -> str:
             L.append(f"왜 묻나요: {q['why']}")
         if q.get("test"):
             L.append(f"시험 필요: {q['test']['item']} — {q['test']['method']}")
+    if c.get("consult"):
+        L.append("")
+        L.append(f"확인이 필요한 이유: {c['consult']['why']}")
+        if c.get("reference_conclusion"):
+            L.append(f"참고: {c['reference_conclusion']}")
+        L.append("문의처: " + " / ".join(c["consult"]["where"]))
+        L.append("질의서 초안은 JSON의 consult.draft에 있습니다.")
     for h in c.get("how_to_resolve", []):
         L.append(f"[모름/불일치] {h['question']} → " + " / ".join(h.get("how_to_check", [])))
     L.append(c["more"])

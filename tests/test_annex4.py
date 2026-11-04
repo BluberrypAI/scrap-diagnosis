@@ -8,9 +8,9 @@ from wastecalc import InputError, evaluate, load_kb
 from wastecalc.kb import ROOT
 
 KB = load_kb(as_of="2026-11-05")  # 테스트 기준일 고정
-BIZ = {"no_longer_needed": True, "direct_reinput": False, "circular_resource_recognized": False,
+BIZ = {"no_longer_needed": True, "direct_reinput": False, "continuous_feedstock": False, "circular_resource_recognized": False,
        "law_exclusion": "none", "emission_facility": True}
-GATES_NO = {"oil_presence": "none", "pcb_possible": False, "toxic_chemical_discard": False}
+GATES_NO = {"oil_presence": "none", "pcb_possible": False, "toxic_chemical_discard": False, "designated_residue": False}
 ACID = {"waste_kind": "acid", "physical_state": "liquid", "ph": 1.0, **GATES_NO}
 
 
@@ -116,7 +116,7 @@ def test_solid_plastic_goes_straight_to_51_03_with_2023_hints():
 
 def test_standalone_general_code_auto():
     r = ev({"waste_kind": "edible_oil", "physical_state": "liquid", "oil_presence": "present",
-            "oil_content_pct": 90, "pcb_possible": False, "toxic_chemical_discard": False})
+            "oil_content_pct": 90, "pcb_possible": False, "toxic_chemical_discard": False, "designated_residue": False})
     assert s4(r)["conclusion"] == "51-16-00"
 
 
