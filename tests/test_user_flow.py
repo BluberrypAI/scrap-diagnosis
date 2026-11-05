@@ -5,7 +5,7 @@ from wastecalc import evaluate, load_kb
 from wastecalc.compact import compact
 
 KB = load_kb(as_of="2026-11-05")
-BASE = {"material_fate": "released", "circular_resource_recognized": False,
+BASE = {"material": "unlisted", "material_fate": "released", "circular_resource_recognized": False,
         "law_exclusion": "none", "emission_facility": True}
 CLEAN = {"designated_residue": False, "oil_presence": "none", "pcb_possible": False,
          "toxic_chemical_discard": False}
@@ -62,7 +62,7 @@ def test_nested_s3_question_has_explanation_and_checking_help():
 
 
 def test_question_carries_document_check_help():
-    a = {"material_fate": "released"}
+    a = {"material": "unlisted", "material_fate": "released"}
     q = compact(evaluate(a, strict=False, kb=KB), KB, a)["next_question"]
     assert q["fact"] == "circular_resource_recognized"
     assert any("인정서" in h for h in q["how_to_check"])

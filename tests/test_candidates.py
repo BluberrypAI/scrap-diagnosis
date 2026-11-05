@@ -8,7 +8,7 @@ from wastecalc.kb import load_kb
 from wastecalc.web.app import app
 
 KB = load_kb()
-BASE = {"material_fate": "released", "circular_resource_recognized": False, "law_exclusion": "none",
+BASE = {"material": "unlisted", "material_fate": "released", "circular_resource_recognized": False, "law_exclusion": "none",
         "emission_facility": True}
 RESIN_CLEAN = {"waste_kind": "synthetic_resin", "physical_state": "solid", "designated_residue": False,
                "oil_presence": "none", "pcb_possible": False, "toxic_chemical_discard": False}

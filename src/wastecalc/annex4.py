@@ -143,8 +143,12 @@ def _classification_check(kb: KB, answers: dict, s3: dict) -> dict | None:
 
 def evaluate_s4(kb: KB, answers: dict, decided: list[dict]) -> dict:
     """반환: {"decided": entry} 또는 {"result": 미확정 결과}"""
+    from .kb import material as _material
+
     s3 = next(d for d in decided if d["stage"] == "S3")
     designated = s3["conclusion"] == "DESIGNATED"
+    mat = _material(kb, answers)
+    mat_codes = (mat or {}).get("codes") or {}
     codes = _code_index(kb)
     excluded = set(kb.s4_map.get("excluded_codes", []))
     map_note: list[str] = []
@@ -160,6 +164,16 @@ def evaluate_s4(kb: KB, answers: dict, decided: list[dict]) -> dict:
         if not prefixes:
             return {"result": _expert(kb, "MAPPING_MISSING",
                                       "지정폐기물로 판정됐지만 해당 별표 4 그룹 대응표가 없습니다.", fired_rules=fired)}
+    elif mat and mat.get("no_general_code"):
+        return {"result": _expert(
+            kb, "NO_MIXTURE_RULE",
+            "여러 소재가 섞여 나누기 어려운 폐기물의 분류번호를 정하는 법령 규정을 확인하지 못해 번호를 정하지 않습니다. "
+            "나눌 수 있으면 소재별로 따로 문진하고, 어렵다면 섞인 소재와 대략의 비율을 정리해 관할 시·군·구에 확인하세요.")}
+    elif mat_codes.get("GENERAL"):
+        # 소재가 별표 4 번호를 정한다(예: 고철 → 51-29-01). 그룹 목록을 묻지 않는다.
+        section = "GENERAL"
+        prefixes = list(mat_codes["GENERAL"])
+        used_facts["material"] = answers["material"].to_json()
     else:
         section = "GENERAL"
         kind = answers.get("waste_kind")
@@ -181,6 +195,13 @@ def evaluate_s4(kb: KB, answers: dict, decided: list[dict]) -> dict:
                   and any(c["id"].startswith(p) for p in prefixes)]
     if not candidates:
         return {"result": _expert(kb, "NO_CODE_IN_RANGE", f"번호 범위 {prefixes}에 해당하는 별표 4 번호가 없습니다.")}
+    if designated and mat_codes.get("DESIGNATED"):
+        # 소재 자체가 지정 사유일 때만(예: 액상 PP → 01-01-02) 소재 번호로 좁힌다.
+        # 기름·잔류물·PCB 등 다른 사유로 지정되면 번호는 그 사유를 따른다(겹치는 번호가 없으면 좁히지 않음).
+        narrowed = [c for c in candidates if any(c["id"].startswith(p) for p in mat_codes["DESIGNATED"])]
+        if narrowed:
+            candidates = narrowed
+            used_facts["material"] = answers["material"].to_json()
     allowed = {c["id"]: f"{c['id']} {c['name']}" for c in candidates}
     guide = _guide_definitions()
     hints = {cid: guide[cid] for cid in allowed if cid in guide}

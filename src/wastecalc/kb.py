@@ -60,6 +60,8 @@ class KB:
     as_of: str | None = None  # 이 지식베이스가 적용되는 기준일
     glossary: dict = field(default_factory=dict)  # 용어 풀이
     consult: dict = field(default_factory=dict)  # 해석이 필요할 때 안내할 문의처
+    reporting: dict = field(default_factory=dict)
+    materials: dict = field(default_factory=dict)  # 소재 카탈로그(rules/materials.yaml) — 법 판단 없음
     unavailable: dict = field(default_factory=dict)  # 기준일에 판정할 수 없는 단계 → 이유
     _base: dict = field(default_factory=dict, repr=False, compare=False)
 
@@ -133,11 +135,12 @@ def _view(base: dict, d: date) -> "KB":
                           if all(source_valid(sources[b["source"]], d) for b in p["basis"])]
     facts = copy.deepcopy(base["facts"])
     empty4 = {"groups": [], "codes": []}
-    _fill_values(facts, annex4 or empty4, base["s4_map"])
+    _fill_values(facts, annex4 or empty4, base["s4_map"], base.get("materials", {}))
     return KB(facts=facts, stages=base["stages"], rules=rules, sources=sources, version=base["version"],
               annex4=annex4 or empty4, s4_map=base["s4_map"], annex43=annex43 or {"rows": []},
               r_codes=r_codes or {"codes": {}, "quotes": {}}, s5_rules=s5,
-              as_of=d.isoformat(), unavailable=unavailable, glossary=base.get("glossary", {}), consult=base.get("consult", {}), _base=base)
+              as_of=d.isoformat(), unavailable=unavailable, glossary=base.get("glossary", {}), consult=base.get("consult", {}),
+              reporting=base.get("reporting", {}), materials=base.get("materials", {}), _base=base)
 
 
 def _load_yaml(name: str, rules_dir: Path) -> Any:
@@ -164,7 +167,13 @@ def load_kb(rules_dir: Path = RULES_DIR, as_of=None) -> KB:
     s5_rules = _load_yaml("s5_rules.yaml", rules_dir)
     glossary = _load_yaml("glossary.yaml", rules_dir) if (rules_dir / "glossary.yaml").exists() else {}
     consult = _load_yaml("consult.yaml", rules_dir) if (rules_dir / "consult.yaml").exists() else {}
+    reporting = _load_yaml("reporting.yaml", rules_dir) if (rules_dir / "reporting.yaml").exists() else {}
+    materials = _load_yaml("materials.yaml", rules_dir) if (rules_dir / "materials.yaml").exists() else {}
     names = ["facts.yaml", "rules.yaml", "sources.yaml", "s4_map.yaml", "s5_rules.yaml"]
+    if reporting:
+        names.append("reporting.yaml")
+    if materials:
+        names.append("materials.yaml")
     names += [p.name for files in table_files.values() for p in files] + [p.name for p in extra_files]
     for name in names:
         digest.update((rules_dir / name).read_bytes())
@@ -195,7 +204,7 @@ def load_kb(rules_dir: Path = RULES_DIR, as_of=None) -> KB:
     base = {"facts": facts, "stages": rules_doc["stages"], "rules": rules, "sources": sources,
             "version": "rules-" + digest.hexdigest()[:12], "s4_map": s4_map, "s5_rules": s5_rules,
             "annex4_versions": versions["annex4"], "annex43_versions": versions["annex43"],
-            "r_codes_versions": versions["r_codes"], "glossary": glossary, "consult": consult, "_views": {}}
+            "r_codes_versions": versions["r_codes"], "glossary": glossary, "consult": consult, "reporting": reporting, "materials": materials, "_views": {}}
     _validate_versions(base)
     kb = _view(base, parse_date(as_of))
     base["_views"][kb.as_of] = kb
@@ -245,7 +254,7 @@ def general_units(annex4: dict) -> dict[str, str]:
     return units
 
 
-def _fill_values(facts: dict, annex4: dict, s4_map: dict) -> None:
+def _fill_values(facts: dict, annex4: dict, s4_map: dict, materials: dict | None = None) -> None:
     excluded = set(s4_map.get("excluded_codes", []))
     for f in facts.values():
         src = f.get("values_from")
@@ -254,6 +263,13 @@ def _fill_values(facts: dict, annex4: dict, s4_map: dict) -> None:
         elif src == "annex4_codes":
             f["values"] = {c["id"]: f"{c['id']} {c['name']}" for c in annex4["codes"]
                            if c["section"] in {"DESIGNATED", "GENERAL"} and c["id"] not in excluded}
+        elif src == "materials" and materials:
+            cat, groups = materials.get("materials", {}), materials.get("groups", {})
+            f["values"] = {mid: m["label"] for mid, m in cat.items()}
+            f["value_groups"] = {}
+            for mid, m in cat.items():
+                f["value_groups"].setdefault(groups.get(m.get("group"), {}).get("label", m.get("group", "기타")), []).append(mid)
+            f["value_hints"] = {mid: ", ".join(m["aliases"]) for mid, m in cat.items() if m.get("aliases")}
 
 
 def validate_kb(kb: KB) -> None:
@@ -278,6 +294,7 @@ def validate_kb(kb: KB) -> None:
         for v in f.get("value_hints", {}):
             if v not in f.get("values", {}):
                 errors.append(f"{fid}: value_hints에 없는 값 {v}")
+    errors += _validate_materials(kb)
     for r in kb.rules:
         stage = kb.stages.get(r.stage)
         if stage is None:
@@ -324,3 +341,43 @@ def validate_kb(kb: KB) -> None:
                 errors.append(f"{sid}: question_order에 없는 사실 {fid}")
     if errors:
         raise ValueError("규칙 표 오류:\n" + "\n".join(errors))
+
+
+def material(kb: KB, answers: dict) -> dict | None:
+    """답에서 고른 소재의 카탈로그 항목(없거나 '모름'이면 None)."""
+    a = answers.get("material")
+    if a is None or getattr(a, "kind", None) != "VALUE":
+        return None
+    m = kb.materials.get("materials", {}).get(a.values[0])
+    return {"id": a.values[0], **m} if m else None
+
+
+def _validate_materials(kb: KB) -> list[str]:
+    errors: list[str] = []
+    cat = kb.materials.get("materials", {}) if kb.materials else {}
+    if not cat:
+        return errors
+    ids = [c["id"] for c in kb.annex4.get("codes", [])]
+    kinds = kb.facts.get("waste_kind", {}).get("values", {})
+    for mid, m in cat.items():
+        if m.get("group") not in kb.materials.get("groups", {}):
+            errors.append(f"소재 {mid}: 없는 묶음 {m.get('group')}")
+        if m.get("unlisted"):
+            continue
+        if m.get("waste_kind") not in kinds:
+            errors.append(f"소재 {mid}: waste_kind 값 오류 {m.get('waste_kind')}")
+        for sec, prefixes in (m.get("codes") or {}).items():
+            if sec not in {"GENERAL", "DESIGNATED"}:
+                errors.append(f"소재 {mid}: 구분 오류 {sec}")
+            for p in prefixes:
+                if not any(i.startswith(p) for i in ids):
+                    errors.append(f"소재 {mid}: 별표 4에 없는 번호 {p}")
+        for fid, v in (m.get("presets") or {}).items():
+            f = kb.facts.get(fid)
+            if f is None:
+                errors.append(f"소재 {mid}: 없는 사실 {fid}")
+            elif f["type"] == "enum" and v not in f.get("values", {}):
+                errors.append(f"소재 {mid}: {fid}에 없는 값 {v}")
+            elif f["type"] == "bool" and not isinstance(v, bool):
+                errors.append(f"소재 {mid}: {fid}는 예/아니오 값이어야 함")
+    return errors

@@ -36,9 +36,9 @@ def _error(msg: str) -> CallToolResult:
 
 
 def _run(answers: dict, strict: bool, session_id: str | None = None, as_of: str | None = None,
-         detail: bool = False) -> CallToolResult:
+         detail: bool = False, include_reporting: bool = False) -> CallToolResult:
     try:
-        r = evaluate(answers, strict=strict, kb=KB, as_of=as_of)
+        r = evaluate(answers, strict=strict, kb=KB, as_of=as_of, include_reporting=include_reporting)
     except InputError as e:
         return _error(str(e))
     if detail:
@@ -69,7 +69,7 @@ def list_facts() -> CallToolResult:
 
 @mcp.tool()
 def start_assessment(answers: dict | None = None, strict: bool = True, as_of: str | None = None,
-                     detail: bool = False) -> CallToolResult:
+                     detail: bool = False, include_reporting: bool = False) -> CallToolResult:
     """판정을 시작한다. 처음 설명에서 알 수 있는 사실을 모두 넣는다(모르면 "UNKNOWN").
     결과(간략): 상태, 지금까지 결론, 다음 질문(보기·왜 묻는지), 그 밖에 아직 답하지 않은 질문, 모름 항목의 확인 방법.
     근거 원문까지 필요하면 detail=true 또는 explain.
@@ -77,11 +77,12 @@ def start_assessment(answers: dict | None = None, strict: bool = True, as_of: st
     as_of(YYYY-MM-DD, 기본 오늘)는 판정 기준일 — 그날 시행 중인 법령의 규칙만 쓴다."""
     try:
         parse_answers(KB, answers or {})
-    except InputError as e:
+        as_of = KB.at(as_of).as_of
+    except (InputError, ValueError) as e:
         return _error(str(e))
     sid = uuid.uuid4().hex[:12]
-    SESSIONS[sid] = {"answers": dict(answers or {}), "strict": strict, "as_of": as_of}
-    return _run(SESSIONS[sid]["answers"], strict, sid, as_of, detail)
+    SESSIONS[sid] = {"answers": dict(answers or {}), "strict": strict, "as_of": as_of, "include_reporting": include_reporting}
+    return _run(SESSIONS[sid]["answers"], strict, sid, as_of, detail, include_reporting)
 
 
 @mcp.tool()
@@ -104,29 +105,50 @@ def answer_question(session_id: str, fact: str | None = None, value: Any = None,
     s["answers"] = trial
     reviews = {**s.get("needs_review", {}), **invalidated}
     s["needs_review"] = {f: v for f, v in reviews.items() if f not in new}
-    out = _run(trial, s["strict"], session_id, s.get("as_of"), detail)
+    out = _run(trial, s["strict"], session_id, s.get("as_of"), detail, s.get("include_reporting", False))
     out.structuredContent["needs_review"] = s["needs_review"]
     return out
 
 
 @mcp.tool()
 def evaluate_facts(answers: dict, strict: bool = True, as_of: str | None = None,
-                   detail: bool = False) -> CallToolResult:
+                   detail: bool = False, include_reporting: bool = False) -> CallToolResult:
     """세션 없이 한 번에 판정한다(같은 입력·같은 기준일이면 항상 같은 결과). as_of는 YYYY-MM-DD, 기본 오늘.
     기본은 간략 응답, detail=true면 근거 원문까지 전체."""
-    return _run(answers, strict, None, as_of, detail)
+    return _run(answers, strict, None, as_of, detail, include_reporting)
 
 
 @mcp.tool()
 def explain(session_id: str | None = None, answers: dict | None = None, strict: bool = True,
-            as_of: str | None = None) -> CallToolResult:
+            as_of: str | None = None, include_reporting: bool = False) -> CallToolResult:
     """전체 결과: 단계별 이유, 근거 원문, 모든 경우의 수, 용어 풀이. 결론이 났을 때나 사용자가 '왜?'라고 물을 때 쓴다."""
     if session_id:
         s = SESSIONS.get(session_id)
         if s is None:
             return _error(f"없는 세션 {session_id!r}")
-        return _run(s["answers"], s["strict"], session_id, s.get("as_of"), detail=True)
-    return _run(answers or {}, strict, None, as_of, detail=True)
+        return _run(s["answers"], s["strict"], session_id, s.get("as_of"), detail=True, include_reporting=s.get("include_reporting", False))
+    return _run(answers or {}, strict, None, as_of, detail=True, include_reporting=include_reporting)
+
+
+@mcp.tool()
+def assessment_record(session_id: str | None = None, answers: dict | None = None, strict: bool = True,
+                      as_of: str | None = None, include_reporting: bool = False) -> CallToolResult:
+    """판정 기록: 이후 단계(시설 추천·수거 등)가 읽는 고정 형식. 항목별 상태·값·근거·쓰인 사실의 출처·신뢰 수준,
+    남은 확인 사항, 기준일·규칙 버전·record_hash. status가 DETERMINED이고 trust.level이 기준 이상인 항목만 자동으로 쓴다."""
+    from .record import build_record
+
+    if session_id:
+        s = SESSIONS.get(session_id)
+        if s is None:
+            return _error(f"없는 세션 {session_id!r}")
+        answers, strict, as_of = s["answers"], s["strict"], s.get("as_of")
+        include_reporting = s.get("include_reporting", False)
+    try:
+        r = evaluate(answers or {}, strict=strict, kb=KB, as_of=as_of, include_reporting=include_reporting)
+    except InputError as e:
+        return _error(str(e))
+    rec = build_record(KB.at(r["as_of"]), answers or {}, r)
+    return _result(rec, json.dumps(rec, ensure_ascii=False, indent=1))
 
 
 @mcp.tool()

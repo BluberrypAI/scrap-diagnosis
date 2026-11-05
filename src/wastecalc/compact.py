@@ -6,9 +6,12 @@
 """
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Any
 
-from .kb import KB
+import yaml
+
+from .kb import KB, RULES_DIR
 
 MAX_CHOICES = 60
 MAX_OTHER_QUESTIONS = 5
@@ -29,7 +32,7 @@ def _choices(kb: KB, fid: str, allowed: dict | None) -> list[dict] | None:
             hints = {k: f"(2023 설명서 뜻풀이, 구판 참고) {v}" for k, v in _guide_definitions().items()}
         group_of = {v: g for g, vs in f.get("value_groups", {}).items() for v in vs}
         opts = []
-        for k, v in list(values.items())[:MAX_CHOICES]:
+        for k, v in (list(values.items()) if f.get("value_groups") else list(values.items())[:MAX_CHOICES]):
             o = {"value": k, "label": v}
             if k in hints:
                 o["hint"] = hints[k]
@@ -118,6 +121,99 @@ def _card_brief(kb: KB, card: dict, with_help: bool) -> dict:
     return out
 
 
+@lru_cache(maxsize=1)
+def question_groups() -> dict:
+    """rules/question_groups.yaml: 화면에서 여러 사실을 한 번에 묻는 묶음과 사업장 공통 사실. 판정에는 쓰지 않는다."""
+    p = RULES_DIR / "question_groups.yaml"
+    if not p.exists():
+        return {"groups": {}, "site_facts": []}
+    with open(p, encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def _no_value(f: dict) -> Any:
+    if f["type"] == "bool":
+        return False
+    if f["type"] == "enum" and "none" in f.get("values", {}):
+        return "none"
+    return None
+
+
+def _group_question(kb: KB, r: dict, nq: dict, res: list[dict]) -> dict | None:
+    """다음 질문이 묶음에 속하고, 묶음 안에 지금 필요한 미답 사실이 2개 이상이면 한 화면용 묶음을 만든다."""
+    answered = set(r.get("answers", {}))
+    cards = {c["fact"]: c for c in res}
+    for gid, g in question_groups().get("groups", {}).items():
+        if nq["fact"] not in g["facts"]:
+            continue
+        missing = [f for f in g["facts"] if f in kb.facts and f not in answered]
+        if g["kind"] != "one_of":  # 지금 판정 경로에 실제로 걸린 사실만(관계없는 항목은 묻지 않음)
+            missing = [f for f in missing if f == nq["fact"] or (f in cards and cards[f]["state"] == "MISSING")]
+        if len(missing) < 2:
+            return None
+        out: dict[str, Any] = {"id": gid, "kind": g["kind"], "title": g["title"], "help": g.get("help"),
+                               "facts": missing}
+        if g["kind"] == "one_of":
+            if set(g["facts"]) - set(missing):
+                return None
+            none = g["none"]
+            opts = [{"label": none["label"], "answers": dict(none["answers"])}]
+            opts += [{"label": o["label"], "hint": o.get("hint"), "answers": dict(o["answers"])} for o in g.get("options", [])]
+            ef = g.get("expand_enum")
+            if ef:
+                opts += [{"label": label, "answers": {**none["answers"], ef: v}}
+                         for v, label in kb.facts[ef]["values"].items() if v != none["answers"].get(ef)]
+            if g.get("unknown"):
+                opts.append({"label": "모름", "answers": dict(g["unknown"]["answers"])})
+            out["options"] = opts
+        elif g["kind"] == "each":
+            items = []
+            for f in missing:
+                card = cards.get(f, {})
+                item = {"fact": f, "label": kb.facts[f].get("label", f), "question": kb.facts[f]["question"],
+                        "choices": _choices(kb, f, card.get("allowed_values")),
+                        "how_to_check": [h["text"] for h in (card or kb.facts[f]).get("how_to_check", [])]}
+                if card:
+                    item["why"] = _why(card)
+                    law = _law(card)
+                    if law:
+                        item["law"] = law
+                items.append(item)
+            out["items"] = items
+            no = {f: _no_value(kb.facts[f]) for f in missing}
+            if all(v is not None for v in no.values()):
+                out["all_no"] = {"label": g.get("all_no_label", "모두 아니오"), "answers": no}
+        elif g["kind"] == "report":
+            items = []
+            for f in missing:
+                fact, card = kb.facts[f], cards.get(f, {})
+                item = {"fact": f, "label": fact.get("label", f), "unit": fact.get("unit"),
+                        "test": {k: fact["test"][k] for k in ("item", "method", "report") if k in fact.get("test", {})}}
+                thr = _thresholds(card) if card else []
+                if thr:
+                    item["thresholds"] = thr
+                items.append(item)
+            out.update(items=items, has_report_label=g.get("has_report_label", "성적서가 있어요"),
+                       no_report_label=g.get("no_report_label", "아직 없어요"))
+        return out
+    return None
+
+
+def material_first(kb: KB, r: dict) -> dict | None:
+    """문진 정책: 폐기물 종류도 소재도 아직 없으면 엔진의 다음 질문 대신 소재를 먼저 묻는다.
+
+    법 판단 엔진(evaluate)은 법 단계 순서를 그대로 두고, 사용자에게 보여 줄 질문 순서만 여기서 바꾼다.
+    소재를 답하면 apply_material이 폐기물 종류와 본질적 사실을 채운다(법 판단은 하지 않음).
+    """
+    nq = r.get("next_question")
+    given = r.get("answers", {})
+    if nq and "material" in kb.facts and "material" not in given and "waste_kind" not in given:
+        mf = kb.facts["material"]
+        return {"fact": "material", "question": mf["question"], "type": "enum", "allowed_values": None,
+                "unit": None, "test": None, "asked_for_stage": None}
+    return nq
+
+
 def compact(r: dict, kb: KB, answers: dict | None = None) -> dict:
     """answers(원래 입력)를 주면 남은 분류번호 후보 수와 보기별 남는 수도 붙인다."""
     out: dict[str, Any] = {k: r[k] for k in ("status", "summary", "conclusion", "as_of", "strict", "rule_db_version")
@@ -125,6 +221,13 @@ def compact(r: dict, kb: KB, answers: dict | None = None) -> dict:
     for k in ("reason", "message", "provisional", "stage", "stage_title"):
         if r.get(k) is not None:
             out[k] = r[k]
+    out["assessment_scope"] = r.get("assessment_scope", "classification")
+    out["assessment_complete"] = r.get("assessment_complete", False)
+    if not r.get("next_question"):
+        out["checks"] = r.get("checks", [])
+    if r.get("reporting"):
+        out["reporting"] = {k: ({f: v for f, v in item.items() if f != "resolution"} if isinstance(item, dict) else item)
+                            for k, item in r["reporting"].items()}
     out["decided"] = [{
         "stage": d["stage"], "label": d["label"],
         **({"user_selected": d["user_selected"]} if "user_selected" in d else {}),
@@ -147,13 +250,14 @@ def compact(r: dict, kb: KB, answers: dict | None = None) -> dict:
             out["candidates"]["codes"] = [{"code": c, "name": names.get(c, "")} for c in cands]
 
     res = r.get("resolution") or []
-    nq = r.get("next_question")
+    nq = material_first(kb, r)
     if nq:
         card = next((c for c in res if c["fact"] == nq["fact"]), None)
         fact = kb.facts[nq["fact"]]
         purpose_stage = nq.get("asked_for_stage") or r.get("stage")
         purpose = {"S0": "폐기물 해당 여부 확인", "S1": "적용 법률 확인", "S2": "사업장 해당 여부 확인",
-                   "S3": "지정 사유와 위험 조건 확인", "S4": "세부 분류번호 구분", "S5": "재활용 조건 확인"}.get(purpose_stage, "분류 조건 확인")
+                   "S3": "지정 사유와 위험 조건 확인", "S4": "세부 분류번호 구분", "S5": "재활용 조건 확인",
+                   "S6": "신고·처리계획 대상 확인"}.get(purpose_stage, "분류 조건 확인")
         q: dict[str, Any] = {"fact": nq["fact"], "question": nq["question"],
                              "choices": _choices(kb, nq["fact"], nq.get("allowed_values")), "purpose": purpose,
                              "how_to_check": [h["text"] for h in (card or fact).get("how_to_check", [])]
@@ -161,6 +265,9 @@ def compact(r: dict, kb: KB, answers: dict | None = None) -> dict:
                              "why": purpose + "에 필요한 질문입니다."}
         if kb.facts[nq["fact"]]["type"] == "number":
             q["unit"] = kb.facts[nq["fact"]].get("unit")
+        if nq["fact"] == "material" and kb.materials:
+            # 묶음 보기의 설명(예: 플라스틱·고무 → "PP, PE, PVC …")
+            q["group_hints"] = {g["label"]: g.get("hint", "") for g in kb.materials.get("groups", {}).values()}
         if card:
             q["why"] = _why(card) or q["why"]
             if card.get("note"):
@@ -181,6 +288,9 @@ def compact(r: dict, kb: KB, answers: dict | None = None) -> dict:
             q["test"] = {k: nq["test"][k] for k in ("item", "method", "report") if k in nq["test"]}
         if nq.get("asked_for_stage"):
             q["asked_for_stage"] = nq["asked_for_stage"]
+        grp = _group_question(kb, r, nq, res)
+        if grp:
+            q["group"] = grp
         out["next_question"] = q
     # 아직 답하지 않은 다른 질문(한 번에 묻고 싶을 때)과 모름·충돌 항목의 확인 방법
     others = [c for c in res if c["state"] == "MISSING" and (not nq or c["fact"] != nq["fact"])
@@ -243,5 +353,11 @@ def render_compact(c: dict) -> str:
         L.append("질의서 초안은 JSON의 consult.draft에 있습니다.")
     for h in c.get("how_to_resolve", []):
         L.append(f"[모름/불일치] {h['question']} → " + " / ".join(h.get("how_to_check", [])))
+    if c.get("reporting"):
+        for key, title in (("general_notice", "배출자 신고"), ("designated_plan", "지정폐기물 처리계획 확인")):
+            item = c["reporting"][key]
+            L.append(f"{title}: {item['label']}" + (" (잠정)" if item.get("provisional") else ""))
+        if not q:
+            L.append(c["reporting"]["scope"])
     L.append(c["more"])
     return "\n".join(L)

@@ -15,14 +15,17 @@ def test_session_flow_and_text_plus_json():
 
 def test_compact_is_small_and_explain_is_full():
     import json
-    base = {"no_longer_needed": True, "direct_reinput": False, "continuous_feedstock": False, "circular_resource_recognized": False,
-            "law_exclusion": "none", "emission_facility": True}
+    base = {"material": "unlisted", "no_longer_needed": True, "direct_reinput": False, "continuous_feedstock": False,
+            "circular_resource_recognized": False, "law_exclusion": "none", "emission_facility": True}
     c = server.evaluate_facts(base)
     full = server.explain(answers=base)
     size = lambda r: len(json.dumps(r.structuredContent, ensure_ascii=False)) + len(r.content[0].text)
     assert size(c) < 6000 < 50000 < size(full)
     assert c.structuredContent["next_question"]["fact"] == "waste_kind"
     assert "근거 원문" in full.content[0].text
+    # 소재를 아직 고르지 않았으면 소재(카탈로그 전체 보기)를 먼저 묻는다 — 보기가 많아 이 질문만 조금 크다
+    m = server.evaluate_facts({k: v for k, v in base.items() if k != "material"})
+    assert m.structuredContent["next_question"]["fact"] == "material" and size(m) < 12000
 
 
 def test_batch_answers_in_one_call():

@@ -123,6 +123,19 @@ def render_text(r: dict, glossary: dict | None = None) -> str:
         L += ["     " + x for x in cs["draft"].splitlines()]
         L.append("")
 
+    # ---------- 분류와 별도인 신고·처리계획 결과
+    if r.get("reporting"):
+        L.append("신고·처리계획 확인")
+        for key, title in (("general_notice", "사업장폐기물 배출자 신고"), ("designated_plan", "지정폐기물 처리계획 확인")):
+            item = r["reporting"][key]
+            L.append(f"- {title}: {item['label']}" + (" (잠정)" if item.get("provisional") else ""))
+            if item.get("why"):
+                L.append("  " + item["why"])
+            for b in item.get("basis", []):
+                keep(b)
+        L.append(r["reporting"]["scope"])
+        L.append("")
+
     # ---------- 근거 원문
     if sources:
         L.append("근거 원문 (쉬운 설명보다 이 원문이 우선합니다)")

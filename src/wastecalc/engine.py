@@ -122,6 +122,27 @@ def upgrade_legacy(raw: dict) -> dict:
     return out
 
 
+def apply_material(kb: KB, answers: dict[str, "Answer"]) -> dict[str, "Answer"]:
+    """고른 소재가 본질적으로 정하는 사실(폐기물 종류, 상태 등)을 채운다.
+
+    사용자가 같은 사실에 다른 값을 직접 답했으면 덮어쓰지 않고 자료 충돌로 남긴다(엔진이 확인을 요청).
+    '목록에 없음'이면 아무것도 채우지 않는다.
+    """
+    from .kb import material
+
+    m = material(kb, answers)
+    if not m or m.get("unlisted"):
+        return answers
+    out = dict(answers)
+    for fid, v in {"waste_kind": m["waste_kind"], **(m.get("presets") or {})}.items():
+        a = out.get(fid)
+        if a is None or a.kind == "UNKNOWN":
+            out[fid] = Answer("VALUE", (v,), "MATERIAL")
+        elif a.kind == "VALUE" and a.values[0] != v:
+            out[fid] = Answer("CONFLICT", (a.values[0], v), "MATERIAL")
+    return out
+
+
 def parse_answers(kb: KB, raw: dict | None) -> dict[str, Answer]:
     if raw is None:
         return {}
@@ -413,7 +434,8 @@ def _resolution(kb: KB, stage_id: str, st: dict, answers: dict[str, Answer]) -> 
             fact_order.index(fid),
         )
 
-    return [cards[f] for f in sorted(cards, key=key)]
+    from .questioning import order_questions
+    return order_questions(kb, stage_id, [cards[f] for f in sorted(cards, key=key)], answers)
 
 
 def _complement_note(kb: KB, stage_id: str) -> list[dict]:
@@ -472,7 +494,7 @@ def _consult(kb: KB, stage_id: str, answers: dict, decided: list[dict], issue: s
 
 
 def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None, as_of=None,
-             allow_interpretive: bool = False) -> dict:
+             allow_interpretive: bool = False, include_reporting: bool = False) -> dict:
     """사실을 받아 단계별로 판정한다.
 
     strict=True: 사람이 검토(REVIEWED)하지 않은 규칙으로 나온 결론은 확정(DETERMINED)으로 내지 않고 잠정으로 낸다.
@@ -483,7 +505,7 @@ def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None
         kb = (kb or load_kb()).at(as_of if as_of is not None else (kb.as_of if kb else None))
     except ValueError as e:
         raise InputError(str(e)) from e
-    answers = parse_answers(kb, answers_raw)
+    answers = apply_material(kb, parse_answers(kb, answers_raw))
     decided: list[dict] = []
     stage_id = "S0"
     result: dict[str, Any] = {}
@@ -649,7 +671,7 @@ def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None
 
     final = decided[-1] if decided else None
     used_sources = sorted({b["source_id"] for d in decided for b in d["basis"]})
-    return {
+    output = {
         **result,
         "conclusion": final["label"] if final and (result["status"] == "DETERMINED" or result.get("provisional")) else None,
         "decided": decided,
@@ -663,3 +685,5 @@ def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None
         "as_of": kb.as_of,
         "strict": strict,
     }
+    from .assessment import finish_assessment
+    return finish_assessment(kb, answers, output, include_reporting)

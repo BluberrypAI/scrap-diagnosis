@@ -118,3 +118,27 @@ def test_mcp_legacy_fate_edit_is_not_silently_ignored():
                                  "continuous_feedstock": False, "circular_resource_recognized": False})
     r = server.answer_question(v.structuredContent["session_id"], "no_longer_needed", False)
     assert not r.isError and r.structuredContent["decided"][-1]["label"] == "폐기물 아님"
+
+
+def test_reporting_scope_and_progress_resume_after_restart():
+    v = web.api_start(web.StartReq(answers=RESIN, strict=True, include_reporting=True))
+    assert v["result"]["assessment_scope"] == "classification_and_reporting"
+    assert v["result"]["stage"] == "S6"
+    web.SESSIONS.clear()
+    v = web.api_resume(v["session_id"])
+    assert v["result"]["stage"] == "S6" and not v["result"]["assessment_complete"]
+
+
+def test_reporting_answer_does_not_clear_confirmed_classification():
+    v = web.api_start(web.StartReq(answers=RESIN, include_reporting=True))
+    v = answer(v["session_id"], "reporting_shared", "none")
+    assert any(a["fact"] == "code" for a in v["answered"])
+    assert v["result"]["next_question"]["fact"] == "reporting_general_daily_kg"
+
+
+def test_classification_edit_rechecks_reporting_quantities():
+    v = start({**RESIN, "reporting_current_monthly_kg": 20, "reporting_shared": "none"})
+    v = answer(v["session_id"], "physical_state", "liquid")
+    facts = {a["fact"]: a["value"] for a in v["answered"]}
+    assert "reporting_current_monthly_kg" not in facts
+    assert facts["reporting_shared"] == "none"

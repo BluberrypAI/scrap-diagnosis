@@ -21,7 +21,7 @@ from pydantic import BaseModel
 
 from .. import llm
 from ..candidates import code_candidates
-from ..compact import compact
+from ..compact import compact, question_groups
 from ..engine import InputError, evaluate, parse_answer, parse_answers, upgrade_legacy, value_text
 from ..kb import ROOT, load_kb
 from ..render import render_text
@@ -48,11 +48,16 @@ class StartReq(BaseModel):
     strict: bool = False
     as_of: str | None = None
     waste_id: str | None = None
+    include_reporting: bool = False
 
 
 class AnswerReq(BaseModel):
     fact: str
     value: Any = None  # None이면 답을 지움
+
+
+class AnswersReq(BaseModel):
+    answers: dict  # 묶음 질문의 답을 한 번에(사실마다 따로 엔진에 들어감)
 
 
 class TextReq(BaseModel):
@@ -87,7 +92,7 @@ def _session(sid: str) -> dict:
 
 def _view(sid: str, state: dict | None = None) -> dict:
     s = state if state is not None else _session(sid)
-    r = evaluate(s["answers"], strict=s["strict"], kb=KB, as_of=s["as_of"])
+    r = evaluate(s["answers"], strict=s["strict"], kb=KB, as_of=s["as_of"], include_reporting=s.get("include_reporting", False))
     kb = KB.at(r["as_of"])
     answers = parse_answers(kb, s["answers"])
     answered = [{"fact": f, "label": kb.facts[f].get("label", f), "question": kb.facts[f]["question"],
@@ -96,7 +101,7 @@ def _view(sid: str, state: dict | None = None) -> dict:
     trail = []
     for snapshot in s["history"] + [{"answers": s["answers"]}]:
         past = snapshot["answers"]
-        pr = r if past is s["answers"] else evaluate(past, strict=s["strict"], kb=KB, as_of=s["as_of"])
+        pr = r if past is s["answers"] else evaluate(past, strict=s["strict"], kb=KB, as_of=s["as_of"], include_reporting=s.get("include_reporting", False))
         trail.append(len(code_candidates(KB.at(pr["as_of"]), past, pr)))
     reviews = [{"fact": f, "label": kb.facts[f].get("label", f), "value": value,
                 "value_text": value_text(kb, f, parse_answer(kb, f, value))}
@@ -152,7 +157,8 @@ def scrap_asset(name: str) -> FileResponse:
 
 @app.get("/api/status")
 def api_status() -> dict:
-    return {"llm": llm.status(), "as_of": KB.as_of, "rule_db_version": KB.version}
+    return {"llm": llm.status(), "as_of": KB.as_of, "rule_db_version": KB.version,
+            "site_facts": [f for f in question_groups().get("site_facts", []) if f in KB.facts]}
 
 
 @app.post("/api/extract")
@@ -180,7 +186,8 @@ def api_start(req: StartReq) -> dict:
     sid = uuid.uuid4().hex
     with SESSION_LOCK:
         return _commit(sid, {"answers": upgrade_legacy(dict(req.answers)), "strict": req.strict, "history": [],
-                             "as_of": as_of, "rule_db_version": KB.version, "waste_id": req.waste_id, "needs_review": {}})
+                             "as_of": as_of, "rule_db_version": KB.version, "waste_id": req.waste_id, "needs_review": {},
+                             "include_reporting": req.include_reporting})
 
 
 @app.get("/api/session/{sid}")
@@ -191,17 +198,30 @@ def api_resume(sid: str) -> dict:
 
 @app.post("/api/session/{sid}/answer")
 def api_answer(sid: str, req: AnswerReq) -> dict:
+    return _apply(sid, {req.fact: req.value})
+
+
+@app.post("/api/session/{sid}/answers")
+def api_answers(sid: str, req: AnswersReq) -> dict:
+    if not req.answers:
+        raise HTTPException(400, "답이 없습니다.")
+    return _apply(sid, req.answers)
+
+
+def _apply(sid: str, patch: dict) -> dict:
     with SESSION_LOCK:
         s = _session(sid)
         try:
             # 답을 지울 때도 사실 ID와 입력 가능 여부를 검사한다.
-            if req.fact not in KB.facts or KB.facts[req.fact].get("derived_from"):
-                raise InputError("수정할 수 없는 사실입니다.")
-            new, invalidated = revise_answers(KB, s["answers"], {req.fact: req.value})
+            for fact in patch:
+                if fact not in KB.facts or KB.facts[fact].get("derived_from"):
+                    raise InputError(f"수정할 수 없는 사실입니다: {fact}")
+            new, invalidated = revise_answers(KB, s["answers"], patch)
         except InputError as e:
             raise HTTPException(400, str(e))
         reviews = {**s.get("needs_review", {}), **invalidated}
-        reviews.pop(req.fact, None)
+        for fact in patch:
+            reviews.pop(fact, None)
         if new == s["answers"] and reviews == s.get("needs_review", {}):
             return _view(sid)
         history = s["history"] + [{"answers": s["answers"], "needs_review": s.get("needs_review", {})}]
@@ -218,10 +238,22 @@ def api_undo(sid: str) -> dict:
         return _commit(sid, {**s, **previous, "history": s["history"][:-1]})
 
 
+@app.get("/api/session/{sid}/record")
+def api_record(sid: str) -> dict:
+    """판정 기록(이후 단계용 고정 형식, schemas/assessment_record.schema.json)."""
+    from ..record import build_record
+
+    with SESSION_LOCK:
+        s = _session(sid)
+        r = evaluate(s["answers"], strict=s["strict"], kb=KB, as_of=s["as_of"],
+                     include_reporting=s.get("include_reporting", False))
+        return build_record(KB.at(r["as_of"]), s["answers"], r)
+
+
 @app.get("/api/session/{sid}/explain")
 def api_explain(sid: str) -> dict:
     s = _session(sid)
-    r = evaluate(s["answers"], strict=s["strict"], kb=KB, as_of=s["as_of"])
+    r = evaluate(s["answers"], strict=s["strict"], kb=KB, as_of=s["as_of"], include_reporting=s.get("include_reporting", False))
     return {"text": render_text(r, glossary=KB.glossary)}
 
 

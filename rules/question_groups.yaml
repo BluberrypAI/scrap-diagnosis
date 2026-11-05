@@ -1,0 +1,46 @@
+# 화면에서 여러 사실을 한 번에 묻기 위한 묶음. 판정에는 쓰지 않는다.
+# 판정 규칙과 사실은 그대로이며, 묶음으로 받은 답도 사실마다 따로 엔진에 들어간다.
+#
+# kind
+#   one_of : 보기 하나를 고르면 묶음 안 사실들의 값이 함께 정해진다(관문 질문처럼 대부분 '해당 없음'인 경우).
+#   each   : 항목마다 예/아니오/모름을 한 화면에서 고른다. 기본값은 두지 않는다(고르지 않으면 넘어가지 않음).
+#   report : 분석 성적서 값을 한 번에 입력한다. 성적서가 없으면 모두 '모름'으로 넣어 필요한 시험을 한 번에 안내한다.
+#
+# 묶음 안에서 아직 답하지 않았고, 지금 판정에 실제로 필요한 사실이 2개 이상일 때만 묶어서 묻는다.
+
+groups:
+  gates:
+    kind: one_of
+    title: 이 물질에 해당하는 것이 있으면 고르세요
+    help: 제조 공정에서 나온 물질은 대부분 '해당 없음'입니다. 해당하는 것이 있으면 폐기물관리법 대신 다른 법이나 순환자원 제도를 따릅니다.
+    facts: [circular_resource_recognized, law_exclusion]
+    none:
+      label: 해당 없음
+      answers: {circular_resource_recognized: false, law_exclusion: none}
+    options:
+      - label: 순환자원 인정서를 받았다
+        hint: 「순환경제사회 전환 촉진법」에 따른 순환자원 인정
+        answers: {circular_resource_recognized: true}
+      # 나머지 보기는 law_exclusion의 값(none 제외)에서 만든다: {circular_resource_recognized: false, law_exclusion: 값}
+    expand_enum: law_exclusion
+    unknown:
+      answers: {circular_resource_recognized: UNKNOWN, law_exclusion: UNKNOWN}
+
+  contamination:
+    kind: each
+    title: 이 폐기물에 해당하는지 항목마다 골라 주세요
+    help: 대부분 '아니오'라면 '모두 아니오'를 누른 뒤 해당하는 항목만 바꾸세요. 잘 모르면 '모름'을 고르면 확인 방법을 안내합니다.
+    all_no_label: 모두 아니오
+    facts: [designated_residue, oil_presence, pcb_possible, toxic_chemical_discard]
+
+  test_report:
+    kind: report
+    title: 분석 성적서의 측정값
+    help: 성적서 한 장에 있는 값을 한꺼번에 입력하세요. 성적서에 없는 항목은 비워 두면 '모름'으로 처리하고 필요한 시험을 안내합니다.
+    has_report_label: 성적서가 있어요
+    no_report_label: 아직 없어요 (필요한 시험을 안내받기)
+    facts: [leach_pb, leach_cu, leach_as, leach_hg, leach_cd, leach_cr6, leach_cn, leach_op, leach_pce, leach_tce,
+            ph, oil_content_pct, sludge_water_pct, asbestos_pct, pcb_mg_l, pcb_leach_mg_l, norm_bq_g]
+
+# 폐기물마다 다시 묻지 않고 사업장 정보에서 재사용하는 사실(화면이 사업장 단위로 기억해 둔다)
+site_facts: [emission_facility, public_facility, waste_facility, designated_waste_emitted, reporting_shared]

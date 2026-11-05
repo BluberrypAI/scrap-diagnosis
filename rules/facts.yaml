@@ -3,6 +3,17 @@
 # how_to_check: 사용자가 모를 때 안내할 확인 방법. basis가 없는 안내는 "실무 안내"로 표시된다.
 
 # ---------- S0 폐기물 해당 여부 ----------
+material:
+  label: 소재
+  type: enum
+  cost: USER
+  values_from: materials
+  question: 어떤 소재(물질)인가요?
+  how_to_check:
+    - text: 원래 무엇이었는지(제품·원료·부품)와 재질 표시(PP, PE, PVC 등), 발생 공정으로 고르세요. 여러 소재가 섞였으면 나눌 수 있는지 먼저 보세요.
+  note:
+    text: 소재는 분류번호 후보를 정할 뿐이고, 지정폐기물 여부 같은 법적 판단은 뒤의 질문으로 확인합니다.
+
 material_fate:
   label: 이 물질을 어떻게 하는지
   type: enum
@@ -537,3 +548,124 @@ medical_institution:
   question: 병원·의원·동물병원·시험검사기관 등 의료기관에서 나온 것인가요? (가정에서 나온 것은 '아니오')
   how_to_check:
     - text: 배출 장소가 시행규칙 별표 3의 의료기관·시험검사기관 등에 해당하는지 확인하세요.
+
+# ---------- 신고·처리계획: 최초 대상 검토. 기존 S2의 전체 배출량과 별도 ----------
+reporting_shared:
+  label: 공동처리 참여 형태
+  type: enum
+  cost: DOCUMENT
+  question: 이 폐기물을 여러 사업장이 공동으로 수집·운반·처리하는 운영기구에 참여하고 있나요?
+  values:
+    none: 아니요, 공동처리 운영기구에 참여하지 않음
+    representative: 공동처리 운영기구의 대표자임
+    member: 공동처리 운영기구의 구성원임
+  how_to_check:
+    - text: 공동처리 운영규약과 대표자 명의 신고서·처리계획 확인서를 확인하세요. 단순히 같은 위탁업체를 이용하는 것과 공동처리 운영기구 참여는 구분합니다.
+reporting_intermediate:
+  label: 중간가공 폐기물 여부
+  type: enum
+  cost: DOCUMENT
+  question: 이 물질이 폐기물을 재활용하기 위해 중간가공한 폐기물에 해당하나요?
+  values:
+    none: 중간가공 폐기물에 해당하지 않음
+    household_only: 생활폐기물로만 만든 중간가공 폐기물임
+    other_intermediate: 그 밖의 중간가공 폐기물임
+  how_to_check:
+    - text: 폐기물처리업 서류와 인계 기록의 물질 지위를 확인하세요. 단순히 파쇄·세척했다는 설명만으로 선택하지 말고 불명확하면 모름을 고르세요.
+reporting_general_daily_kg:
+  label: 신고대상 일반폐기물 하루 평균량
+  type: number
+  unit: kg/일
+  cost: DOCUMENT
+  question: 법정 제외 항목을 뺀 사업장일반폐기물의 하루 평균 배출량은 몇 kg인가요?
+  how_to_check:
+    - text: 사업장 전체에서 지정폐기물, 생활폐기물로 만든 것 외의 중간가공 폐기물, 폐지, 고철(비철금속 포함), 왕겨, 쌀겨를 뺀 양을 확인하세요. 앞서 입력한 전체 폐기물 배출량과 다를 수 있습니다.
+    - text: 계량·인계 기록과 기존 신고서의 산정값을 확인하세요. 산정 기간과 포함 범위가 불명확하면 관할 기관에 확인하세요.
+reporting_work_total_ton:
+  label: 신고대상 공사·작업 전체량
+  type: number
+  unit: 톤
+  cost: DOCUMENT
+  question: 법정 제외 항목을 뺀 그 공사·작업의 전체 사업장일반폐기물은 몇 톤인가요?
+  how_to_check:
+    - text: 공사·작업 시작부터 종료까지의 발생량에서 지정폐기물, 해당 중간가공 폐기물, 폐지·고철·왕겨·쌀겨를 제외한 양을 확인하세요. 발주자·최초 수급인 등 신고 주체가 불명확하면 기관 확인이 필요합니다.
+reporting_designated_inventory:
+  label: 사업장 전체 지정폐기물 종류
+  type: enum
+  cost: DOCUMENT
+  question: 사업장 전체에서 배출하는 지정폐기물이 지금 분류한 한 종류뿐인가요?
+  values:
+    single: 네, 이 종류의 지정폐기물만 배출함
+    multiple: 아니요, 다른 종류의 지정폐기물도 배출함
+  how_to_check:
+    - text: 사업장 전체의 처리계획서·인계 기록을 확인하세요. 다른 공정에서 나오는 지정폐기물도 포함하며, 현재 설명에 언급되지 않았다는 이유로 없음으로 선택하지 마세요.
+reporting_current_monthly_kg:
+  label: 이 종류의 지정폐기물 월평균량
+  type: number
+  unit: kg/월
+  cost: DOCUMENT
+  question: 지금 분류한 종류의 지정폐기물을 사업장 전체에서 월 평균 몇 kg 배출하나요?
+  how_to_check:
+    - text: 같은 법적 종류의 지정폐기물은 다른 공정에서 나온 양도 포함해 확인하세요. 기존 처리계획서·인계 기록을 확인하고 산정 기간이 불명확하면 기관에 문의하세요.
+reporting_unconditional_designated:
+  label: 배출량과 무관한 지정폐기물 존재
+  type: bool
+  cost: DOCUMENT
+  question: 사업장 전체에서 PCB 함유폐기물·폐유독물질·의료폐기물·수은폐기물·천연방사성제품폐기물 중 하나라도 배출하나요?
+  how_to_check:
+    - text: 모든 공정의 지정폐기물 종류와 처리계획 확인서를 대조하세요. 현재 분류한 물질 외의 배출물도 포함합니다.
+reporting_other_designated_notice:
+  label: 그 밖의 고시 지정폐기물 존재
+  type: bool
+  cost: DOCUMENT
+  question: 사업장에 시행령 별표 1 제12호의 별도 고시로 지정된 폐기물이 있나요?
+  how_to_check:
+    - text: 기존 처리계획 확인서와 적용 고시를 관할 기관에 확인하세요. 이 계산기는 해당 고시의 존재와 배출량 기준을 모두 확보하지 못해 해당하거나 불명확하면 보류합니다.
+reporting_sludge_monthly_kg:
+  label: 지정 오니 월평균량
+  type: number
+  unit: kg/월
+  cost: DOCUMENT
+  question: 사업장 전체의 지정폐기물 오니 월평균 배출량은 몇 kg인가요?
+  how_to_check:
+    - text: 지정폐기물로 분류된 오니만 포함한 처리계획서·인계 기록을 확인하세요. 미배출이 확인된 경우에만 0으로 답하세요.
+reporting_group50_max_kg:
+  label: 지정폐기물 첫 묶음 종류별 최대 월평균량
+  type: number
+  unit: kg/월
+  cost: DOCUMENT
+  question: 폐농약·광재·분진·폐사·폐내화물·도자기조각·소각재·안정화/고형화처리물·폐촉매·폐흡착제/흡수제·폐유기용제·폐유 중 종류별 월평균량의 최댓값은 몇 kg인가요?
+  how_to_check:
+    - text: 시행규칙 제18조의2제1항제2호에 열거된 지정폐기물의 종류별 값을 비교하세요. 폐주물사와 폐사도 포함합니다. 폐기물별 값을 먼저 확인하고 서로 다른 종류를 합한 값을 입력하지 마세요.
+reporting_group50_sum_kg:
+  label: 지정폐기물 첫 묶음 월평균 합계
+  type: number
+  unit: kg/월
+  cost: DOCUMENT
+  question: 앞의 폐농약·광재·분진·폐사·폐내화물·도자기조각·소각재·안정화/고형화처리물·폐촉매·폐흡착제/흡수제·폐유기용제·폐유 묶음의 월평균 합계는 몇 kg인가요?
+  how_to_check:
+    - text: 시행규칙 제18조의2제1항제2호 종류별 월평균량을 합하세요. 같은 양을 중복 합산하지 말고 다른 묶음은 포함하지 마세요.
+reporting_group100_max_kg:
+  label: 지정폐기물 두 번째 묶음 종류별 최대 월평균량
+  type: number
+  unit: kg/월
+  cost: DOCUMENT
+  question: 폐합성고분자화합물·폐산·폐알칼리·폐페인트·폐래커 중 종류별 월평균량의 최댓값은 몇 kg인가요?
+  how_to_check:
+    - text: 시행규칙 제18조의2제1항제3호 종류별 월평균량을 비교하세요. 서로 다른 종류를 합한 값과 구분합니다.
+reporting_group100_sum_kg:
+  label: 지정폐기물 두 번째 묶음 월평균 합계
+  type: number
+  unit: kg/월
+  cost: DOCUMENT
+  question: 폐합성고분자화합물·폐산·폐알칼리·폐페인트·폐래커의 월평균 배출량 합계는 몇 kg인가요?
+  how_to_check:
+    - text: 시행규칙 제18조의2제1항제3호 종류별 월평균량을 합하세요. 다른 묶음의 양은 포함하지 마세요.
+reporting_asbestos_monthly_kg:
+  label: 폐석면 월평균량
+  type: number
+  unit: kg/월
+  cost: DOCUMENT
+  question: 사업장 전체의 폐석면 월평균 배출량은 몇 kg인가요?
+  how_to_check:
+    - text: 폐석면 처리계획서·인계 기록을 확인하세요. 슬레이트 철거·제거를 전부 도급한 경우 확인 주체가 달라질 수 있어 별도 확인이 필요합니다.

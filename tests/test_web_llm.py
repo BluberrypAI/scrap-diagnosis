@@ -5,7 +5,7 @@ from wastecalc import llm
 from wastecalc.web.app import KB, app
 
 client = TestClient(app)
-BASE = {"no_longer_needed": True, "direct_reinput": False, "continuous_feedstock": False,
+BASE = {"material": "unlisted", "no_longer_needed": True, "direct_reinput": False, "continuous_feedstock": False,
         "circular_resource_recognized": False, "law_exclusion": "none", "emission_facility": True}
 
 

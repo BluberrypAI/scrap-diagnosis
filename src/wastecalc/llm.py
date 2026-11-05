@@ -93,6 +93,8 @@ def _fact_catalog(kb: KB) -> list[dict]:
         item = {"id": fid, "question": f["question"], "type": f["type"]}
         if f["type"] == "enum":
             item["values"] = f["values"]
+            if f.get("value_hints"):
+                item["value_aliases"] = f["value_hints"]  # 소재 카탈로그의 다른 이름(예: 폴리프로필렌 → pp)
         if f.get("unit") is not None:
             item["unit"] = f["unit"]
         out.append(item)
@@ -127,6 +129,9 @@ def extract_facts(kb: KB, text: str) -> list[dict]:
         except InputError:
             continue
         out.append({"fact": fid, "value": val, "evidence": ev})
+    if any(p["fact"] == "material" and p["value"] != "unlisted" for p in out):
+        # 소재가 폐기물 종류를 정하므로 따로 뽑은 폐기물 종류는 버린다(두 값이 어긋나 충돌이 생기지 않게)
+        out = [p for p in out if p["fact"] != "waste_kind"]
     return out
 
 

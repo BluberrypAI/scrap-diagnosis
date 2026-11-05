@@ -37,17 +37,26 @@ def revise_answers(kb: KB, old: dict, patch: dict) -> tuple[dict, dict]:
                    "pcb_possible", "toxic_chemical_discard"}
     kind_details = {c.fact for r in kb.rules_for("S3") if any(c.fact == "waste_kind" for c in r.when)
                     for c in r.when} - independent
-    dependencies = {"waste_kind": kind_details | {"general_group"},
+    # 소재를 바꾸면 폐기물 종류와 소재가 정하던 사실이 함께 바뀌므로, 그 종류에 딸린 세부 답과 상태를 다시 확인한다.
+    dependencies = {"material": kind_details | {"general_group", "physical_state", "waste_kind"},
+                    "waste_kind": kind_details | {"general_group"},
                     "physical_state": {f for f, conf in kb.facts.items() if conf.get("cost") == "TEST"},
                     "pcb_possible": {"pcb_mg_l", "pcb_leach_mg_l"},
                     "oil_presence": {"oil_content_pct"}, "designated_residue": {"residue_kind"},
                     "residue_kind": {"oil_content_pct", "ph"}}
     affected = set()
+    reporting_dependent = {f for f in kb.facts if f.startswith("reporting_")} - {"reporting_shared", "reporting_intermediate"}
     for f in changed:
         # 이미 확인한 전제를 고쳤을 때만 측정값·세부 사실을 재확인한다.
         if f in before:
             affected.update(dependencies.get(f, set()))
-        if f not in {"code", "no_specific_code_applies"}:
+            if not f.startswith("reporting_"):
+                affected.update(reporting_dependent)
+        if f.startswith("reporting_"):
+            continue
+        # 처음 답한 사실은 전제를 바꾼 것이 아니다. 미리 넣은 분류번호(예: 기존 신고서 번호)를 지우지 않는다.
+        # 새 답과 그 번호가 맞지 않으면 엔진이 CODE_MISMATCH로 알린다.
+        if f in before and f not in {"code", "no_specific_code_applies"}:
             affected.update({"code", "no_specific_code_applies"})
         elif f == "code":
             affected.add("no_specific_code_applies")

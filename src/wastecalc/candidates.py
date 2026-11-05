@@ -36,12 +36,12 @@ def _designated_prefixes(kb: KB, rule_ids: list[str]) -> list[str]:
 
 def code_candidates(kb: KB, answers_raw: dict, r: dict) -> list[str]:
     """evaluate 결과 r과 그 입력으로 남은 별표 4 번호 목록. kb는 r의 기준일 보기(KB.at)."""
-    if r["status"] == "OUT_OF_SCOPE":
-        return []
     decided = r.get("decided", [])
     s4 = next((d for d in decided if d["stage"] == "S4"), None)
     if s4 is not None:
         return [s4["conclusion"]]
+    if r["status"] == "OUT_OF_SCOPE":
+        return []
     if any(d["conclusion"] in NO_CODE for d in decided):
         return []
     if r.get("stage") == "S4":
@@ -53,18 +53,31 @@ def code_candidates(kb: KB, answers_raw: dict, r: dict) -> list[str]:
             return [code] if isinstance(code, str) else []
         if r.get("candidates"):
             return list(r["candidates"])
-    answers = with_derived(kb, "S3", parse_answers(kb, answers_raw))
+    from .engine import apply_material
+    from .kb import material
+
+    answers = with_derived(kb, "S3", apply_material(kb, parse_answers(kb, answers_raw)))
+    mat = material(kb, answers)
+    mat_codes = (mat or {}).get("codes") or {}
     st = eval_stage(kb, "S3", answers)
     out: list[str] = []
     if st["candidates"].get("DESIGNATED") != FALSE:
         ids = [e.rule.id for e in st["evals"].values() if e.rule.concludes == "DESIGNATED" and e.status != FALSE]
         prefixes = _designated_prefixes(kb, ids)
         if prefixes:
-            out += _pool(kb, "DESIGNATED", prefixes)
+            pool = _pool(kb, "DESIGNATED", prefixes)
+            if mat_codes.get("DESIGNATED"):
+                # 소재 번호와 겹치는 사유(소재 자체가 지정 사유)는 소재 번호로, 그 밖의 사유(오염 등)는 그대로 둔다
+                own = [c for c in pool if any(c.startswith(p) for p in mat_codes["DESIGNATED"])]
+                other_ids = [i for i in ids if not any(c.startswith(p) for p in mat_codes["DESIGNATED"]
+                                                       for c in _pool(kb, "DESIGNATED", _designated_prefixes(kb, [i])))]
+                pool = own + _pool(kb, "DESIGNATED", _designated_prefixes(kb, other_ids))
+            out += pool
     if st["candidates"].get("NOT_DESIGNATED") != FALSE:
         kind = answers.get("waste_kind")
         kv = kind.values[0] if kind is not None and kind.kind == "VALUE" else None
-        pre = kb.s4_map["general_by_kind"].get(kv) if kv else None
+        pre = list(mat_codes["GENERAL"]) if mat_codes.get("GENERAL") else (
+            kb.s4_map["general_by_kind"].get(kv) if kv else None)
         if not pre:
             g = answers.get("general_group")
             pre = [g.values[0]] if g is not None and g.kind == "VALUE" else None
