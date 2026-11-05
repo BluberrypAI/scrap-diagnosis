@@ -61,6 +61,11 @@ def _law(card: dict) -> list[dict] | None:
 def _value_text(kb: KB, fid: str, j: Any) -> str:
     from .engine import InputError, parse_answer, value_text
 
+    if isinstance(j, dict) and j.get("source") == "MATERIAL":  # 소재에서 채운 사실
+        try:
+            return value_text(kb, fid, parse_answer(kb, fid, j["value"])) + " (소재에서)"
+        except InputError:
+            return str(j["value"])
     try:
         return value_text(kb, fid, parse_answer(kb, fid, j))
     except InputError:

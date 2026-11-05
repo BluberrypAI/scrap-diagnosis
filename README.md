@@ -33,6 +33,8 @@ python -m wastecalc.server           # MCP 서버(stdio)
 | http://127.0.0.1:8000/ | SCRAP 디자인(`src/wastecalc/web/scrap/SCRAP.html`, Figma Make 내보내기). 문진 화면 `#/wastes/<id>/survey`만 엔진에 연결(`scrap/survey.js`), 나머지 화면은 디자인 데모 그대로 |
 | http://127.0.0.1:8000/test | 꾸미지 않은 시험 화면 |
 
+팀 웹(scrap-web, React)용 API는 `/api/classification/*`(화면이 읽는 모양으로 응답, `src/wastecalc/scrap_view.py`). 운영에서는 서버(scrap-server)가 상태 없는 `evaluate`·`apply`·`record`를 부르고 상태는 서버 DB에 둔다 → `docs/scrap-web-integration.md`(응답 형식·UI 수정·합의 사항), `docs/db-server-integration.md`(DB 이전·서버 통합).
+
 SCRAP.html은 고치지 않고 보낼 때 두 곳만 바꾼다(`web/app.py`의 `scrap_html`). 디자인을 새로 내보내면 파일만 바꾸면 되고, 구조가 달라져 바꿀 곳을 못 찾으면 서버가 오류를 낸다.
 
 ### MCP 클라이언트에 연결

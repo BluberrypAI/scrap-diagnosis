@@ -289,3 +289,213 @@ def api_help(req: HelpReq) -> dict:
         return {"text": llm.explain_question(KB, req.fact, req.why, req.question)}
     except llm.LLMUnavailable as e:
         raise HTTPException(400, str(e))
+
+
+
+# ================================================================ scrap-web 문진 화면용 API
+# 화면(scrap-web src/pages/survey)이 읽는 모양으로 응답한다(src/wastecalc/scrap_view.py).
+# - 상태 없는 판정: POST /api/classification/evaluate  — 서버(scrap-server)가 답·화면 상태를 DB에 저장하고 부를 때
+# - 세션(로컬 시연·개발용): /api/classification/sessions…  — 엔진이 자체 SQLite에 저장
+# 화면은 고른 보기의 answers를 그대로 돌려보낸다. answers 안의 "__ui"는 화면 상태(묶음 선택 등)이며 엔진 사실이 아니다.
+
+class ClassEvalReq(BaseModel):
+    answers: dict = {}
+    ui: dict = {}
+    as_of: str | None = None
+    strict: bool = True
+    trail: list[int] = []
+
+
+class ClassStartReq(BaseModel):
+    waste_id: str | None = None
+    answers: dict = {}
+    as_of: str | None = None
+
+
+class ClassAnswerReq(BaseModel):
+    answers: dict
+
+
+def _class_view(sid: str, s: dict) -> dict:
+    from ..scrap_view import build_view
+
+    trail = []
+    for snap in s["history"]:
+        pr = evaluate(snap["answers"], strict=True, kb=KB, as_of=s["as_of"])
+        trail.append(len(code_candidates(KB.at(pr["as_of"]), snap["answers"], pr)))
+    view = build_view(KB, s["answers"], s.get("ui") or {}, strict=True, as_of=s["as_of"], trail=trail)
+    return {"session_id": sid, "waste_id": s.get("waste_id"), "can_undo": bool(s["history"]) or bool(s.get("ui")),
+            "needs_review": list((s.get("needs_review") or {}).keys()), **view}
+
+
+def _class_persist(sid: str, state: dict) -> None:
+    try:
+        save_session(SESSION_DB, sid, state)
+    except (OSError, sqlite3.Error):
+        raise HTTPException(503, "문진을 저장하지 못했습니다. 다시 시도하세요.")
+    SESSIONS[sid] = state
+
+
+@app.post("/api/classification/evaluate")
+def class_evaluate(req: ClassEvalReq) -> dict:
+    """상태 없는 판정: 답(엔진 사실)과 화면 상태를 받아 화면 응답을 돌려준다. 저장은 호출한 쪽(서버)이 한다."""
+    from ..scrap_view import build_view
+
+    try:
+        parse_answers(KB, req.answers)
+        return build_view(KB, req.answers, req.ui, strict=req.strict, as_of=req.as_of, trail=req.trail)
+    except (InputError, ValueError) as e:
+        raise HTTPException(400, str(e))
+
+
+@app.post("/api/classification/sessions")
+def class_start(req: ClassStartReq) -> dict:
+    try:
+        parse_answers(KB, req.answers)
+        as_of = KB.at(req.as_of).as_of
+    except (InputError, ValueError) as e:
+        raise HTTPException(400, str(e))
+    sid = uuid.uuid4().hex
+    state = {"answers": upgrade_legacy(dict(req.answers)), "strict": True, "history": [], "as_of": as_of,
+             "rule_db_version": KB.version, "waste_id": req.waste_id, "needs_review": {}, "ui": {},
+             "include_reporting": False, "kind": "classification"}
+    with SESSION_LOCK:
+        _class_persist(sid, state)
+        return _class_view(sid, state)
+
+
+@app.get("/api/classification/sessions/{sid}")
+def class_get(sid: str) -> dict:
+    with SESSION_LOCK:
+        return _class_view(sid, _session(sid))
+
+
+@app.post("/api/classification/sessions/{sid}/answer")
+def class_answer(sid: str, req: ClassAnswerReq) -> dict:
+    """고른 보기의 answers를 그대로 받는다(엔진 사실 + '__ui' 화면 상태)."""
+    from ..scrap_view import merge_ui, split_ui
+
+    with SESSION_LOCK:
+        s = _session(sid)
+        facts, ui_patch = split_ui(req.answers)
+        try:
+            for fact in facts:
+                if fact not in KB.facts or KB.facts[fact].get("derived_from"):
+                    raise InputError(f"수정할 수 없는 사실입니다: {fact}")
+            new, invalidated = revise_answers(KB, s["answers"], facts) if facts else (s["answers"], {})
+        except InputError as e:
+            raise HTTPException(400, str(e))
+        reviews = {**(s.get("needs_review") or {}), **invalidated}
+        for fact in facts:
+            reviews.pop(fact, None)
+        snapshot = {"answers": s["answers"], "needs_review": s.get("needs_review") or {}, "ui": s.get("ui") or {}}
+        state = {**s, "answers": new, "needs_review": reviews, "ui": merge_ui(s.get("ui") or {}, ui_patch),
+                 "history": s["history"] + ([snapshot] if facts else s["history"][:0])}
+        if not facts:  # 화면 상태만 바뀜(묶음 선택 등): 되돌리기는 ui를 먼저 비운다
+            state["history"] = s["history"]
+        _class_persist(sid, state)
+        return _class_view(sid, state)
+
+
+@app.post("/api/classification/sessions/{sid}/undo")
+def class_undo(sid: str) -> dict:
+    with SESSION_LOCK:
+        s = _session(sid)
+        ui = dict(s.get("ui") or {})
+        if ui.get("report_exceed") or ui.get("group"):
+            ui.pop("report_exceed", None)
+            ui.pop("group", None)  # 묶음 선택 화면으로 돌아감
+            state = {**s, "ui": ui}
+        elif s["history"]:
+            prev = s["history"][-1]
+            state = {**s, "answers": prev["answers"], "needs_review": prev.get("needs_review") or {},
+                     "ui": prev.get("ui") or {}, "history": s["history"][:-1]}
+        else:
+            return _class_view(sid, s)
+        _class_persist(sid, state)
+        return _class_view(sid, state)
+
+
+@app.get("/api/classification/sessions/{sid}/record")
+def class_record(sid: str) -> dict:
+    """판정 기록(이후 단계·서버 저장용, schemas/assessment_record.schema.json)."""
+    from ..record import build_record
+
+    with SESSION_LOCK:
+        s = _session(sid)
+        r = evaluate(s["answers"], strict=True, kb=KB, as_of=s["as_of"])
+        rec = build_record(KB.at(r["as_of"]), s["answers"], r)
+        if (s.get("ui") or {}).get("range"):
+            rec["range_answers"] = s["ui"]["range"]  # 숫자 대신 구간으로 답한 사실(대표값으로 판정)
+        return rec
+
+
+@app.post("/api/classification/extract")
+def class_extract(req: TextReq) -> dict:
+    """자유 설명 → 이해 확인 화면의 [[항목, 값]]과 시작할 때 넣을 answers(사용자가 확인한 뒤)."""
+    from ..scrap_view import cues
+
+    try:
+        items = llm.extract_facts(KB, req.text)
+    except llm.LLMUnavailable as e:
+        raise HTTPException(400, str(e))
+    proposed = []
+    for it in items:
+        a = parse_answer(KB, it["fact"], it["value"])
+        proposed.append({**it, "label": KB.facts[it["fact"]].get("label", it["fact"]),
+                         "value_text": value_text(KB, it["fact"], a)})
+    return {"cues": cues(KB, proposed), "answers": {p["fact"]: p["value"] for p in proposed}, "proposed": proposed}
+
+
+# ---------------- 상태 없는 답 적용·판정 기록(서버가 상태를 DB에 저장할 때)
+class ClassApplyReq(BaseModel):
+    state: dict = {}        # {"answers": {...}, "ui": {...}, "needs_review": {...}} — 서버가 저장해 둔 그대로
+    patch: dict             # 화면이 보낸 보기의 answers(엔진 사실 + "__ui")
+    as_of: str | None = None
+    trail: list[int] = []
+
+
+class ClassStateReq(BaseModel):
+    state: dict = {}
+    as_of: str | None = None
+
+
+@app.post("/api/classification/apply")
+def class_apply(req: ClassApplyReq) -> dict:
+    """답을 적용한 새 상태와 화면 응답. 앞 답을 고치면 영향받는 뒤 답을 빼고 needs_review로 돌려준다.
+    서버는 돌려받은 state를 저장하고, '이전'은 저장해 둔 직전 state로 되돌리면 된다."""
+    from ..scrap_view import build_view, merge_ui, split_ui
+
+    st = req.state or {}
+    answers = upgrade_legacy(dict(st.get("answers") or {}))
+    facts, ui_patch = split_ui(req.patch)
+    try:
+        for fact in facts:
+            if fact not in KB.facts or KB.facts[fact].get("derived_from"):
+                raise InputError(f"수정할 수 없는 사실입니다: {fact}")
+        new, invalidated = revise_answers(KB, answers, facts) if facts else (answers, {})
+        reviews = {**(st.get("needs_review") or {}), **invalidated}
+        for fact in facts:
+            reviews.pop(fact, None)
+        ui = merge_ui(st.get("ui") or {}, ui_patch)
+        view = build_view(KB, new, ui, strict=True, as_of=req.as_of, trail=req.trail)
+    except (InputError, ValueError) as e:
+        raise HTTPException(400, str(e))
+    return {"state": {"answers": new, "ui": ui, "needs_review": reviews}, "changed_facts": bool(facts),
+            "view": view}
+
+
+@app.post("/api/classification/record")
+def class_record_stateless(req: ClassStateReq) -> dict:
+    """상태 없는 판정 기록(서버가 결과를 저장할 때)."""
+    from ..record import build_record
+
+    answers = (req.state or {}).get("answers") or {}
+    try:
+        r = evaluate(answers, strict=True, kb=KB, as_of=req.as_of)
+    except (InputError, ValueError) as e:
+        raise HTTPException(400, str(e))
+    rec = build_record(KB.at(r["as_of"]), answers, r)
+    if ((req.state or {}).get("ui") or {}).get("range"):
+        rec["range_answers"] = req.state["ui"]["range"]
+    return rec
