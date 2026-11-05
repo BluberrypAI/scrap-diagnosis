@@ -1,8 +1,12 @@
-"""웹 화면(FastAPI). 문답은 엔진을 직접 불러 즉시 응답하고, LLM은 필요할 때만 쓴다.
+"""엔진 HTTP API(FastAPI). 문답은 엔진을 직접 불러 즉시 응답하고, LLM은 필요할 때만 쓴다.
 
-실행: python -m wastecalc.web
-  http://127.0.0.1:8000/       SCRAP 화면(팀 디자인 web/scrap/SCRAP.html). 문진(#/wastes/<id>/survey)만 엔진에 연결
-  http://127.0.0.1:8000/test   꾸미지 않은 시험 화면
+실행: python -m wastecalc.web  (또는 uvicorn wastecalc.web.app:app)
+  /api/classification/*   팀 웹(scrap-web)·서버(scrap-server)용 API — 저장소에 포함
+  /api/session/*, /api/extract …  개발용 세션·LLM 보조 API — 저장소에 포함
+
+로컬 시험 화면은 저장소에 넣지 않는다(엔진 기능만 배포). 파일이 있을 때만 경로를 연다.
+  /       SCRAP 화면(web/scrap/SCRAP.html — 팀 디자인 사본)
+  /test   꾸미지 않은 시험 화면(web/static/index.html)
 """
 from __future__ import annotations
 
@@ -28,7 +32,7 @@ from ..render import render_text
 from ..session_state import load_session, revise_answers, save_session
 
 KB = load_kb()
-app = FastAPI(title="wastecalc 시험 화면")
+app = FastAPI(title="wastecalc 분류 엔진 API")
 STATIC = Path(__file__).parent / "static"
 SCRAP = Path(__file__).parent / "scrap"
 # SCRAP 디자인(Figma Make 내보내기)은 고치지 않고, 보낼 때 두 곳만 바꾼다.
@@ -129,17 +133,14 @@ def scrap_html() -> str:
     return s.replace("</head>", SCRAP_INJECT + "</head>", 1)
 
 
-@app.get("/")
 def index() -> HTMLResponse:
     return HTMLResponse(scrap_html())
 
 
-@app.get("/test")
 def test_page() -> FileResponse:
     return FileResponse(STATIC / "index.html")
 
 
-@app.get("/scrap-engine/berry.png")
 def berry() -> Response:
     """디자인 파일에 들어 있는 에이전트 '베리' 그림."""
     m = re.search(r"y=`data:image/png;base64,([A-Za-z0-9+/=]+)`", (SCRAP / "SCRAP.html").read_text(encoding="utf-8"))
@@ -148,11 +149,19 @@ def berry() -> Response:
     return Response(base64.b64decode(m.group(1)), media_type="image/png")
 
 
-@app.get("/scrap-engine/{name}")
 def scrap_asset(name: str) -> FileResponse:
     if name not in {"survey.js", "survey.css"}:
         raise HTTPException(404)
     return FileResponse(SCRAP / name)
+
+
+# 로컬 시험 화면: 파일이 있을 때만 연다(저장소에는 엔진 기능만 둠)
+if (SCRAP / "SCRAP.html").exists():
+    app.get("/")(index)
+    app.get("/scrap-engine/berry.png")(berry)
+    app.get("/scrap-engine/{name}")(scrap_asset)
+if (STATIC / "index.html").exists():
+    app.get("/test")(test_page)
 
 
 @app.get("/api/status")

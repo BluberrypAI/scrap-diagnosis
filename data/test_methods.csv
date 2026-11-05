@@ -1,3 +1,0 @@
-﻿test_id,item,document,chapter,sample_scope_quote,unit_quote,source_id,review_state
-TEST-PH,pH,폐기물공정시험기준,4. 일반항목 / ES 06304.1 / 1.1 (p.1)·8.0,이 시험기준은 폐기물의 pH를 측정하는 방법으로 액상 폐기물과 고상 폐기물의 pH를 유리전극과 기준전극으로 구성된 pH 측정기를 사용하여 측정한다.,pH 측정기의 값을 0.01 단위까지 직접 읽고 온도를 함께 측정한다.,NIER-PH,UNVERIFIED
-TEST-OIL,oil_content,폐기물공정시험기준,4. 일반항목 / ES 06302.1b / 1.2.1 (p.1)·8.0,"이 시험기준은 폐기물 중의 비교적 휘발되지 않는 탄화수소, 탄화수소유도체, 그리스유상물질 중 노말헥산에 용해되는 성분에 적용한다.",기름성분(%),NIER-OIL,UNVERIFIED

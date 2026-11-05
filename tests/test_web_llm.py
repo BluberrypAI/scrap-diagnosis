@@ -1,4 +1,7 @@
 """시험 화면 API와 LLM 어댑터 안전장치(가짜 LLM 응답으로 검사)."""
+from pathlib import Path
+
+import pytest
 from fastapi.testclient import TestClient
 
 from wastecalc import llm
@@ -53,6 +56,8 @@ def test_map_answer_falls_back_to_unknown_on_invalid(monkeypatch):
     assert llm.map_answer(KB, "emission_facility", "신고증이 있어요")["value"] is True
 
 
+@pytest.mark.skipif(not (Path(__file__).resolve().parents[1] / "src/wastecalc/web/scrap/SCRAP.html").exists(),
+                    reason="로컬 시험 화면 파일은 저장소에 넣지 않음")
 def test_scrap_page_and_test_page_are_separate():
     html = client.get("/").text
     assert "window.__ENGINE_SURVEY||v.createRoot" in html and "/scrap-engine/survey.js" in html

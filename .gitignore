@@ -25,3 +25,18 @@ desktop.ini
 # 비밀값
 .env
 .wastecalc/
+
+# ---- 엔진 기능만 저장소에 둔다(로컬에만 유지)
+# 로컬 시험 화면(팀 디자인 사본·시험용 화면)
+src/wastecalc/web/static/
+src/wastecalc/web/scrap/
+# 법령 원문(용량 큼 — rules/sources.yaml에 경로·해시 기록, 원문 대조 테스트는 원문이 있을 때만)
+sources/raw/
+# 자료 수집·검수 과정의 중간 산출물(Codex 작업 결과)
+collect/
+audit/
+inventory/
+data/*
+!data/code_interpretations.csv
+!data/allowed_recycling.csv
+tmp/

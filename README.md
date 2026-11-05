@@ -28,14 +28,10 @@ python -m wastecalc.server           # MCP 서버(stdio)
 
 `pip install -e .` 없이 쓰려면 환경변수 `PYTHONPATH=src`를 준다.
 
-| 주소 | 화면 |
-|---|---|
-| http://127.0.0.1:8000/ | SCRAP 디자인(`src/wastecalc/web/scrap/SCRAP.html`, Figma Make 내보내기). 문진 화면 `#/wastes/<id>/survey`만 엔진에 연결(`scrap/survey.js`), 나머지 화면은 디자인 데모 그대로 |
-| http://127.0.0.1:8000/test | 꾸미지 않은 시험 화면 |
+저장소에는 **엔진 기능만** 둔다. 실행하면 HTTP API만 열린다(`python -m wastecalc.web`, 문서는 http://127.0.0.1:8000/docs).
+로컬 시험 화면(`src/wastecalc/web/static/`, `src/wastecalc/web/scrap/` — 팀 디자인 사본)은 저장소에서 뺐고, 파일이 있는 로컬에서만 `/`·`/test`가 열린다.
 
 팀 웹(scrap-web, React)용 API는 `/api/classification/*`(화면이 읽는 모양으로 응답, `src/wastecalc/scrap_view.py`). 운영에서는 서버(scrap-server)가 상태 없는 `evaluate`·`apply`·`record`를 부르고 상태는 서버 DB에 둔다 → `docs/scrap-web-integration.md`(응답 형식·UI 수정·합의 사항), `docs/db-server-integration.md`(DB 이전·서버 통합).
-
-SCRAP.html은 고치지 않고 보낼 때 두 곳만 바꾼다(`web/app.py`의 `scrap_html`). 디자인을 새로 내보내면 파일만 바꾸면 되고, 구조가 달라져 바꿀 곳을 못 찾으면 서버가 오류를 낸다.
 
 ### MCP 클라이언트에 연결
 
@@ -96,12 +92,14 @@ src/wastecalc/
   render.py         사람이 읽는 안내문
   server.py         MCP 서버(도구 8개)
   llm.py            LLM 어댑터(선택)
-  web/              시험용 웹 화면(FastAPI + HTML)
-sources/raw/      법령·지침·고시·판례 원문(1MB 넘는 사례집 등은 제외, 해시는 기록)
-data/ collect/ audit/ inventory/   수집·검수 자료(Codex 작업 결과)
+  scrap_view.py     팀 웹 문진 화면용 응답 변환
+  record.py         판정 기록(이후 단계용 고정 형식, schemas/)
+  web/app.py        HTTP API(FastAPI)
+data/             엔진이 읽는 보조 표 2개만(code_interpretations.csv, allowed_recycling.csv)
+schemas/          판정 기록 JSON 스키마
 testdata/         질의회신·판례 정답셋 178건, 평가 결과, 블라인드 시험
 tools/            표 생성기, 평가 스크립트
-tests/            테스트 558개
+tests/            테스트(원문 대조 테스트는 법령 원문이 있는 로컬에서만 실행)
 docs/             작업 지시서, 시험 시나리오
 ```
 
@@ -169,3 +167,13 @@ docs/             작업 지시서, 시험 시나리오
 - 사용자가 보기를 잘못 고르면 결과가 달라진다(블라인드 변형 시험). 결론을 뒤집는 답 재확인, 앞 답을 고치면 뒤 답 재확인, 겹치는 질문 정리(S2 사업장 조건, S3 묻은 것·섞인 것)가 다음 과제.
 - 하루 평균 300kg 산정 방법을 정한 근거 미확보(실무 안내로 표시).
 - LLM 연동은 가짜 응답으로만 시험됨(실제 키로 미시험).
+
+## 저장소에 넣지 않은 것
+
+| 항목 | 이유 | 다시 얻는 법 |
+|---|---|---|
+| `sources/raw/` 법령·지침·판례 원문(약 17MB) | 용량. 엔진 실행에는 필요 없음(인용문은 `rules/`에 있음) | `rules/sources.yaml`의 출처·판·해시로 국가법령정보센터 등에서 같은 판을 받는다. 원문이 있으면 원문 대조 테스트가 돈다 |
+| `collect/`, `audit/`, `inventory/`, `data/`의 수집 자료 | 자료 수집·검수 과정의 중간 산출물 | Git 이력(커밋 `e7f445f` 이전)에 남아 있음 |
+| 로컬 시험 화면(`web/static/`, `web/scrap/`) | 화면은 팀 웹(scrap-web)이 담당 | Git 이력에 남아 있음 |
+
+규칙을 원문에서 다시 만드는 도구(`tools/build_*.py`)는 원문이 있어야 실행된다.
