@@ -1,0 +1,3306 @@
+{
+  "as_of": "2026-11-05",
+  "rule_db_version": "rules-b154c705c0eb",
+  "scope": "synthetic fixtures; code consistency, not legal validation or user study",
+  "traces": {
+    "clean_metal": {
+      "steps": [
+        {
+          "fact": "material_fate",
+          "question": "이 물질을 어떻게 하나요?",
+          "value": "released",
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": true,
+          "option_counts": [
+            {
+              "value": "still_used",
+              "remaining": 272
+            },
+            {
+              "value": "same_process_reinput",
+              "remaining": 272
+            },
+            {
+              "value": "continuous_feedstock",
+              "remaining": 272
+            },
+            {
+              "value": "released",
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "circular_resource_recognized",
+          "question": "이 물질에 대해 순환자원 인정서를 받았나요?",
+          "value": false,
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 0
+            },
+            {
+              "value": false,
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "law_exclusion",
+          "question": "이 물질이 아래 중 하나에 해당하나요?",
+          "value": "none",
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "none",
+              "remaining": 272
+            },
+            {
+              "value": "radioactive",
+              "remaining": 0
+            },
+            {
+              "value": "uncontained_gas",
+              "remaining": 0
+            },
+            {
+              "value": "wastewater",
+              "remaining": 0
+            },
+            {
+              "value": "livestock_manure",
+              "remaining": 0
+            },
+            {
+              "value": "sewage_nightsoil",
+              "remaining": 0
+            },
+            {
+              "value": "livestock_disease",
+              "remaining": 0
+            },
+            {
+              "value": "aquatic_disease",
+              "remaining": 0
+            },
+            {
+              "value": "military_ammo",
+              "remaining": 0
+            },
+            {
+              "value": "pet_funeral",
+              "remaining": 0
+            },
+            {
+              "value": "fisheries_byproduct_unmixed",
+              "remaining": 0
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "emission_facility",
+          "question": "이 사업장에 대기·수질·소음진동 배출시설 설치허가를 받았거나 신고를 했나요?",
+          "value": true,
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": true,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 272
+            },
+            {
+              "value": false,
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "waste_kind",
+          "question": "이 폐기물은 아래 중 무엇에 가장 가깝나요?",
+          "value": "other",
+          "before": 272,
+          "after": 205,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "synthetic_resin",
+              "remaining": 53
+            },
+            {
+              "value": "synthetic_rubber",
+              "remaining": 44
+            },
+            {
+              "value": "sludge_wastewater",
+              "remaining": 46
+            },
+            {
+              "value": "sludge_process",
+              "remaining": 46
+            },
+            {
+              "value": "pesticide",
+              "remaining": 193
+            },
+            {
+              "value": "acid",
+              "remaining": 195
+            },
+            {
+              "value": "alkali",
+              "remaining": 194
+            },
+            {
+              "value": "slag",
+              "remaining": 28
+            },
+            {
+              "value": "dust",
+              "remaining": 24
+            },
+            {
+              "value": "foundry_sand",
+              "remaining": 27
+            },
+            {
+              "value": "refractory",
+              "remaining": 22
+            },
+            {
+              "value": "incineration_ash",
+              "remaining": 31
+            },
+            {
+              "value": "stabilized",
+              "remaining": 29
+            },
+            {
+              "value": "catalyst",
+              "remaining": 24
+            },
+            {
+              "value": "adsorbent",
+              "remaining": 13
+            },
+            {
+              "value": "organic_solvent",
+              "remaining": 2
+            },
+            {
+              "value": "paint",
+              "remaining": 3
+            },
+            {
+              "value": "paint_solvent_mix",
+              "remaining": 192
+            },
+            {
+              "value": "paint_cleaning_solvent",
+              "remaining": 3
+            },
+            {
+              "value": "paint_container",
+              "remaining": 192
+            },
+            {
+              "value": "waste_oil",
+              "remaining": 10
+            },
+            {
+              "value": "edible_oil",
+              "remaining": 9
+            },
+            {
+              "value": "asbestos_demolition",
+              "remaining": 191
+            },
+            {
+              "value": "asbestos_processing",
+              "remaining": 1
+            },
+            {
+              "value": "asbestos_work_items",
+              "remaining": 1
+            },
+            {
+              "value": "mercury_product",
+              "remaining": 3
+            },
+            {
+              "value": "mercury_separated",
+              "remaining": 1
+            },
+            {
+              "value": "mercury_residue",
+              "remaining": 20
+            },
+            {
+              "value": "medical",
+              "remaining": 197
+            },
+            {
+              "value": "norm_product",
+              "remaining": 190
+            },
+            {
+              "value": "battery",
+              "remaining": 25
+            },
+            {
+              "value": "other",
+              "remaining": 205
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "designated_residue",
+          "question": "이 용기·포장재·물건에 폐유·폐유기용제·폐산 같은 지정폐기물(또는 유해화학물질)이 남아 있거나 묻어 있나요? (세척해서 없앴으면 '아니오')",
+          "value": false,
+          "before": 205,
+          "after": 189,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 205
+            },
+            {
+              "value": false,
+              "remaining": 189
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "oil_presence",
+          "question": "이 폐기물에 기름(윤활유·절삭유·작동유 등)이 묻어 있거나 섞여 있나요?",
+          "value": "none",
+          "before": 189,
+          "after": 179,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "none",
+              "remaining": 179
+            },
+            {
+              "value": "present",
+              "remaining": 189
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "pcb_possible",
+          "question": "이 폐기물이 PCB(폴리클로리네이티드비페닐)를 쓴 변압기·콘덴서·절연유 등과 관련이 있나요?",
+          "value": false,
+          "before": 179,
+          "after": 175,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 179
+            },
+            {
+              "value": false,
+              "remaining": 175
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "toxic_chemical_discard",
+          "question": "화학물질관리법상 유해화학물질(인체급성·인체만성·생태유해성물질, 허가·제한·금지물질, 사고대비물질)을 폐기하는 것인가요?",
+          "value": false,
+          "before": 175,
+          "after": 171,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 4
+            },
+            {
+              "value": false,
+              "remaining": 171
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "general_group",
+          "question": "시행규칙 별표 4의 사업장일반폐기물 분류 중 어디에 해당하나요?",
+          "value": "51-29",
+          "before": 171,
+          "after": 5,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "51-01",
+              "remaining": 9
+            },
+            {
+              "value": "51-02",
+              "remaining": 13
+            },
+            {
+              "value": "51-03",
+              "remaining": 9
+            },
+            {
+              "value": "51-04",
+              "remaining": 5
+            },
+            {
+              "value": "51-05",
+              "remaining": 5
+            },
+            {
+              "value": "51-06",
+              "remaining": 5
+            },
+            {
+              "value": "51-07",
+              "remaining": 2
+            },
+            {
+              "value": "51-08",
+              "remaining": 6
+            },
+            {
+              "value": "51-09",
+              "remaining": 5
+            },
+            {
+              "value": "51-10",
+              "remaining": 4
+            },
+            {
+              "value": "51-11",
+              "remaining": 3
+            },
+            {
+              "value": "51-12",
+              "remaining": 2
+            },
+            {
+              "value": "51-13",
+              "remaining": 4
+            },
+            {
+              "value": "51-14",
+              "remaining": 2
+            },
+            {
+              "value": "51-15",
+              "remaining": 2
+            },
+            {
+              "value": "51-16",
+              "remaining": 1
+            },
+            {
+              "value": "51-17",
+              "remaining": 19
+            },
+            {
+              "value": "51-18",
+              "remaining": 4
+            },
+            {
+              "value": "51-19",
+              "remaining": 1
+            },
+            {
+              "value": "51-20",
+              "remaining": 8
+            },
+            {
+              "value": "51-21",
+              "remaining": 3
+            },
+            {
+              "value": "51-22",
+              "remaining": 2
+            },
+            {
+              "value": "51-23",
+              "remaining": 1
+            },
+            {
+              "value": "51-24",
+              "remaining": 1
+            },
+            {
+              "value": "51-25",
+              "remaining": 1
+            },
+            {
+              "value": "51-26",
+              "remaining": 1
+            },
+            {
+              "value": "51-27",
+              "remaining": 5
+            },
+            {
+              "value": "51-28",
+              "remaining": 3
+            },
+            {
+              "value": "51-29",
+              "remaining": 5
+            },
+            {
+              "value": "51-30",
+              "remaining": 6
+            },
+            {
+              "value": "51-31",
+              "remaining": 1
+            },
+            {
+              "value": "51-32",
+              "remaining": 1
+            },
+            {
+              "value": "51-33",
+              "remaining": 1
+            },
+            {
+              "value": "51-35",
+              "remaining": 1
+            },
+            {
+              "value": "51-36",
+              "remaining": 2
+            },
+            {
+              "value": "51-37",
+              "remaining": 4
+            },
+            {
+              "value": "51-38",
+              "remaining": 4
+            },
+            {
+              "value": "51-39",
+              "remaining": 1
+            },
+            {
+              "value": "51-40",
+              "remaining": 2
+            },
+            {
+              "value": "51-41",
+              "remaining": 7
+            },
+            {
+              "value": "51-42",
+              "remaining": 1
+            },
+            {
+              "value": "51-43",
+              "remaining": 1
+            },
+            {
+              "value": "51-44",
+              "remaining": 1
+            },
+            {
+              "value": "51-45",
+              "remaining": 3
+            },
+            {
+              "value": "51-46",
+              "remaining": 1
+            },
+            {
+              "value": "51-47",
+              "remaining": 2
+            },
+            {
+              "value": "51-99",
+              "remaining": 1
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "code",
+          "question": "아래 세부분류 중 이 폐기물에 해당하는 번호는?",
+          "value": "51-29-01",
+          "before": 5,
+          "after": 1,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "51-29-01",
+              "remaining": 1
+            },
+            {
+              "value": "51-29-02",
+              "remaining": 1
+            },
+            {
+              "value": "51-29-03",
+              "remaining": 1
+            },
+            {
+              "value": "51-29-04",
+              "remaining": 1
+            },
+            {
+              "value": "51-29-99",
+              "remaining": 1
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        }
+      ],
+      "final": {
+        "status": "NEED_EXPERT",
+        "stage": null,
+        "next": null,
+        "decisions": {
+          "S0": "WASTE",
+          "S1": "APPLIES",
+          "S2": "BUSINESS",
+          "S3": "NOT_DESIGNATED",
+          "S4": "51-29-01",
+          "S5": "ALLOWED_TYPES"
+        },
+        "range": [
+          "51-29"
+        ]
+      },
+      "answers": {
+        "material_fate": "released",
+        "circular_resource_recognized": false,
+        "law_exclusion": "none",
+        "emission_facility": true,
+        "waste_kind": "other",
+        "designated_residue": false,
+        "oil_presence": "none",
+        "pcb_possible": false,
+        "toxic_chemical_discard": false,
+        "general_group": "51-29",
+        "code": "51-29-01"
+      },
+      "removable_for_this_completed_path": []
+    },
+    "clean_resin": {
+      "steps": [
+        {
+          "fact": "material_fate",
+          "question": "이 물질을 어떻게 하나요?",
+          "value": "released",
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": true,
+          "option_counts": [
+            {
+              "value": "still_used",
+              "remaining": 272
+            },
+            {
+              "value": "same_process_reinput",
+              "remaining": 272
+            },
+            {
+              "value": "continuous_feedstock",
+              "remaining": 272
+            },
+            {
+              "value": "released",
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "circular_resource_recognized",
+          "question": "이 물질에 대해 순환자원 인정서를 받았나요?",
+          "value": false,
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 0
+            },
+            {
+              "value": false,
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "law_exclusion",
+          "question": "이 물질이 아래 중 하나에 해당하나요?",
+          "value": "none",
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "none",
+              "remaining": 272
+            },
+            {
+              "value": "radioactive",
+              "remaining": 0
+            },
+            {
+              "value": "uncontained_gas",
+              "remaining": 0
+            },
+            {
+              "value": "wastewater",
+              "remaining": 0
+            },
+            {
+              "value": "livestock_manure",
+              "remaining": 0
+            },
+            {
+              "value": "sewage_nightsoil",
+              "remaining": 0
+            },
+            {
+              "value": "livestock_disease",
+              "remaining": 0
+            },
+            {
+              "value": "aquatic_disease",
+              "remaining": 0
+            },
+            {
+              "value": "military_ammo",
+              "remaining": 0
+            },
+            {
+              "value": "pet_funeral",
+              "remaining": 0
+            },
+            {
+              "value": "fisheries_byproduct_unmixed",
+              "remaining": 0
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "emission_facility",
+          "question": "이 사업장에 대기·수질·소음진동 배출시설 설치허가를 받았거나 신고를 했나요?",
+          "value": true,
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": true,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 272
+            },
+            {
+              "value": false,
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "waste_kind",
+          "question": "이 폐기물은 아래 중 무엇에 가장 가깝나요?",
+          "value": "synthetic_resin",
+          "before": 272,
+          "after": 53,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "synthetic_resin",
+              "remaining": 53
+            },
+            {
+              "value": "synthetic_rubber",
+              "remaining": 44
+            },
+            {
+              "value": "sludge_wastewater",
+              "remaining": 46
+            },
+            {
+              "value": "sludge_process",
+              "remaining": 46
+            },
+            {
+              "value": "pesticide",
+              "remaining": 193
+            },
+            {
+              "value": "acid",
+              "remaining": 195
+            },
+            {
+              "value": "alkali",
+              "remaining": 194
+            },
+            {
+              "value": "slag",
+              "remaining": 28
+            },
+            {
+              "value": "dust",
+              "remaining": 24
+            },
+            {
+              "value": "foundry_sand",
+              "remaining": 27
+            },
+            {
+              "value": "refractory",
+              "remaining": 22
+            },
+            {
+              "value": "incineration_ash",
+              "remaining": 31
+            },
+            {
+              "value": "stabilized",
+              "remaining": 29
+            },
+            {
+              "value": "catalyst",
+              "remaining": 24
+            },
+            {
+              "value": "adsorbent",
+              "remaining": 13
+            },
+            {
+              "value": "organic_solvent",
+              "remaining": 2
+            },
+            {
+              "value": "paint",
+              "remaining": 3
+            },
+            {
+              "value": "paint_solvent_mix",
+              "remaining": 192
+            },
+            {
+              "value": "paint_cleaning_solvent",
+              "remaining": 3
+            },
+            {
+              "value": "paint_container",
+              "remaining": 192
+            },
+            {
+              "value": "waste_oil",
+              "remaining": 10
+            },
+            {
+              "value": "edible_oil",
+              "remaining": 9
+            },
+            {
+              "value": "asbestos_demolition",
+              "remaining": 191
+            },
+            {
+              "value": "asbestos_processing",
+              "remaining": 1
+            },
+            {
+              "value": "asbestos_work_items",
+              "remaining": 1
+            },
+            {
+              "value": "mercury_product",
+              "remaining": 3
+            },
+            {
+              "value": "mercury_separated",
+              "remaining": 1
+            },
+            {
+              "value": "mercury_residue",
+              "remaining": 20
+            },
+            {
+              "value": "medical",
+              "remaining": 197
+            },
+            {
+              "value": "norm_product",
+              "remaining": 190
+            },
+            {
+              "value": "battery",
+              "remaining": 25
+            },
+            {
+              "value": "other",
+              "remaining": 205
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "physical_state",
+          "question": "배출할 때 이 폐기물의 상태는?",
+          "value": "solid",
+          "before": 53,
+          "after": 43,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "solid",
+              "remaining": 43
+            },
+            {
+              "value": "liquid",
+              "remaining": 10
+            },
+            {
+              "value": "semisolid",
+              "remaining": 10
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "designated_residue",
+          "question": "이 용기·포장재·물건에 폐유·폐유기용제·폐산 같은 지정폐기물(또는 유해화학물질)이 남아 있거나 묻어 있나요? (세척해서 없앴으면 '아니오')",
+          "value": false,
+          "before": 43,
+          "after": 27,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 43
+            },
+            {
+              "value": false,
+              "remaining": 27
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "oil_presence",
+          "question": "이 폐기물에 기름(윤활유·절삭유·작동유 등)이 묻어 있거나 섞여 있나요?",
+          "value": "none",
+          "before": 27,
+          "after": 17,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "none",
+              "remaining": 17
+            },
+            {
+              "value": "present",
+              "remaining": 27
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "pcb_possible",
+          "question": "이 폐기물이 PCB(폴리클로리네이티드비페닐)를 쓴 변압기·콘덴서·절연유 등과 관련이 있나요?",
+          "value": false,
+          "before": 17,
+          "after": 13,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 17
+            },
+            {
+              "value": false,
+              "remaining": 13
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "toxic_chemical_discard",
+          "question": "화학물질관리법상 유해화학물질(인체급성·인체만성·생태유해성물질, 허가·제한·금지물질, 사고대비물질)을 폐기하는 것인가요?",
+          "value": false,
+          "before": 13,
+          "after": 9,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 4
+            },
+            {
+              "value": false,
+              "remaining": 9
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "code",
+          "question": "아래 세부분류 중 이 폐기물에 해당하는 번호는?",
+          "value": "51-03-01",
+          "before": 9,
+          "after": 1,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "51-03-01",
+              "remaining": 1
+            },
+            {
+              "value": "51-03-02",
+              "remaining": 1
+            },
+            {
+              "value": "51-03-03",
+              "remaining": 1
+            },
+            {
+              "value": "51-03-04",
+              "remaining": 1
+            },
+            {
+              "value": "51-03-05",
+              "remaining": 1
+            },
+            {
+              "value": "51-03-06",
+              "remaining": 1
+            },
+            {
+              "value": "51-03-07",
+              "remaining": 1
+            },
+            {
+              "value": "51-03-08",
+              "remaining": 1
+            },
+            {
+              "value": "51-03-99",
+              "remaining": 1
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        }
+      ],
+      "final": {
+        "status": "NEED_EXPERT",
+        "stage": null,
+        "next": null,
+        "decisions": {
+          "S0": "WASTE",
+          "S1": "APPLIES",
+          "S2": "BUSINESS",
+          "S3": "NOT_DESIGNATED",
+          "S4": "51-03-01",
+          "S5": "ALLOWED_TYPES"
+        },
+        "range": [
+          "51-03"
+        ]
+      },
+      "answers": {
+        "material_fate": "released",
+        "circular_resource_recognized": false,
+        "law_exclusion": "none",
+        "emission_facility": true,
+        "waste_kind": "synthetic_resin",
+        "physical_state": "solid",
+        "designated_residue": false,
+        "oil_presence": "none",
+        "pcb_possible": false,
+        "toxic_chemical_discard": false,
+        "code": "51-03-01"
+      },
+      "removable_for_this_completed_path": []
+    },
+    "small_clean_metal": {
+      "steps": [
+        {
+          "fact": "material_fate",
+          "question": "이 물질을 어떻게 하나요?",
+          "value": "released",
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": true,
+          "option_counts": [
+            {
+              "value": "still_used",
+              "remaining": 272
+            },
+            {
+              "value": "same_process_reinput",
+              "remaining": 272
+            },
+            {
+              "value": "continuous_feedstock",
+              "remaining": 272
+            },
+            {
+              "value": "released",
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "circular_resource_recognized",
+          "question": "이 물질에 대해 순환자원 인정서를 받았나요?",
+          "value": false,
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 0
+            },
+            {
+              "value": false,
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "law_exclusion",
+          "question": "이 물질이 아래 중 하나에 해당하나요?",
+          "value": "none",
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "none",
+              "remaining": 272
+            },
+            {
+              "value": "radioactive",
+              "remaining": 0
+            },
+            {
+              "value": "uncontained_gas",
+              "remaining": 0
+            },
+            {
+              "value": "wastewater",
+              "remaining": 0
+            },
+            {
+              "value": "livestock_manure",
+              "remaining": 0
+            },
+            {
+              "value": "sewage_nightsoil",
+              "remaining": 0
+            },
+            {
+              "value": "livestock_disease",
+              "remaining": 0
+            },
+            {
+              "value": "aquatic_disease",
+              "remaining": 0
+            },
+            {
+              "value": "military_ammo",
+              "remaining": 0
+            },
+            {
+              "value": "pet_funeral",
+              "remaining": 0
+            },
+            {
+              "value": "fisheries_byproduct_unmixed",
+              "remaining": 0
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "emission_facility",
+          "question": "이 사업장에 대기·수질·소음진동 배출시설 설치허가를 받았거나 신고를 했나요?",
+          "value": false,
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": true,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 272
+            },
+            {
+              "value": false,
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "work_type",
+          "question": "이 폐기물이 공사나 일회성 작업에서 나온 것인가요?",
+          "value": "none",
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": true,
+          "option_counts": [
+            {
+              "value": "none",
+              "remaining": 272
+            },
+            {
+              "value": "construction",
+              "remaining": 272
+            },
+            {
+              "value": "series",
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "daily_avg_kg",
+          "question": "이 사업장의 폐기물 배출량은 하루 평균 몇 kg인가요?",
+          "value": 100,
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": []
+        },
+        {
+          "fact": "waste_kind",
+          "question": "이 폐기물은 아래 중 무엇에 가장 가깝나요?",
+          "value": "other",
+          "before": 272,
+          "after": 205,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "synthetic_resin",
+              "remaining": 53
+            },
+            {
+              "value": "synthetic_rubber",
+              "remaining": 44
+            },
+            {
+              "value": "sludge_wastewater",
+              "remaining": 46
+            },
+            {
+              "value": "sludge_process",
+              "remaining": 46
+            },
+            {
+              "value": "pesticide",
+              "remaining": 193
+            },
+            {
+              "value": "acid",
+              "remaining": 195
+            },
+            {
+              "value": "alkali",
+              "remaining": 194
+            },
+            {
+              "value": "slag",
+              "remaining": 28
+            },
+            {
+              "value": "dust",
+              "remaining": 24
+            },
+            {
+              "value": "foundry_sand",
+              "remaining": 27
+            },
+            {
+              "value": "refractory",
+              "remaining": 22
+            },
+            {
+              "value": "incineration_ash",
+              "remaining": 31
+            },
+            {
+              "value": "stabilized",
+              "remaining": 29
+            },
+            {
+              "value": "catalyst",
+              "remaining": 24
+            },
+            {
+              "value": "adsorbent",
+              "remaining": 13
+            },
+            {
+              "value": "organic_solvent",
+              "remaining": 2
+            },
+            {
+              "value": "paint",
+              "remaining": 3
+            },
+            {
+              "value": "paint_solvent_mix",
+              "remaining": 192
+            },
+            {
+              "value": "paint_cleaning_solvent",
+              "remaining": 3
+            },
+            {
+              "value": "paint_container",
+              "remaining": 192
+            },
+            {
+              "value": "waste_oil",
+              "remaining": 10
+            },
+            {
+              "value": "edible_oil",
+              "remaining": 9
+            },
+            {
+              "value": "asbestos_demolition",
+              "remaining": 191
+            },
+            {
+              "value": "asbestos_processing",
+              "remaining": 1
+            },
+            {
+              "value": "asbestos_work_items",
+              "remaining": 1
+            },
+            {
+              "value": "mercury_product",
+              "remaining": 3
+            },
+            {
+              "value": "mercury_separated",
+              "remaining": 1
+            },
+            {
+              "value": "mercury_residue",
+              "remaining": 20
+            },
+            {
+              "value": "medical",
+              "remaining": 197
+            },
+            {
+              "value": "norm_product",
+              "remaining": 190
+            },
+            {
+              "value": "battery",
+              "remaining": 25
+            },
+            {
+              "value": "other",
+              "remaining": 205
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "designated_residue",
+          "question": "이 용기·포장재·물건에 폐유·폐유기용제·폐산 같은 지정폐기물(또는 유해화학물질)이 남아 있거나 묻어 있나요? (세척해서 없앴으면 '아니오')",
+          "value": false,
+          "before": 205,
+          "after": 189,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 205
+            },
+            {
+              "value": false,
+              "remaining": 189
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "oil_presence",
+          "question": "이 폐기물에 기름(윤활유·절삭유·작동유 등)이 묻어 있거나 섞여 있나요?",
+          "value": "none",
+          "before": 189,
+          "after": 179,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "none",
+              "remaining": 179
+            },
+            {
+              "value": "present",
+              "remaining": 189
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "pcb_possible",
+          "question": "이 폐기물이 PCB(폴리클로리네이티드비페닐)를 쓴 변압기·콘덴서·절연유 등과 관련이 있나요?",
+          "value": false,
+          "before": 179,
+          "after": 175,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 179
+            },
+            {
+              "value": false,
+              "remaining": 175
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "toxic_chemical_discard",
+          "question": "화학물질관리법상 유해화학물질(인체급성·인체만성·생태유해성물질, 허가·제한·금지물질, 사고대비물질)을 폐기하는 것인가요?",
+          "value": false,
+          "before": 175,
+          "after": 171,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 4
+            },
+            {
+              "value": false,
+              "remaining": 171
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "designated_waste_emitted",
+          "question": "이 사업장에서 지정폐기물을 배출하나요?",
+          "value": false,
+          "before": 171,
+          "after": 171,
+          "all_option_candidate_sets_equal": true,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 171
+            },
+            {
+              "value": false,
+              "remaining": 171
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "waste_facility",
+          "question": "이 사업장이 폐기물처리시설을 설치·운영하는 곳인가요? (폐기물처리업 허가 시설 포함)",
+          "value": false,
+          "before": 171,
+          "after": 171,
+          "all_option_candidate_sets_equal": true,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 171
+            },
+            {
+              "value": false,
+              "remaining": 171
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "public_facility",
+          "question": "이 사업장이 아래 공공처리시설을 설치·운영하는 곳인가요?",
+          "value": "none",
+          "before": 171,
+          "after": 0,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "none",
+              "remaining": 0
+            },
+            {
+              "value": "public_wastewater",
+              "remaining": 171
+            },
+            {
+              "value": "public_sewage",
+              "remaining": 171
+            },
+            {
+              "value": "nightsoil",
+              "remaining": 171
+            },
+            {
+              "value": "livestock_public",
+              "remaining": 171
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        }
+      ],
+      "final": {
+        "status": "NEED_EXPERT",
+        "stage": null,
+        "next": null,
+        "decisions": {
+          "S0": "WASTE",
+          "S1": "APPLIES",
+          "S2": "HOUSEHOLD"
+        },
+        "range": null
+      },
+      "answers": {
+        "material_fate": "released",
+        "circular_resource_recognized": false,
+        "law_exclusion": "none",
+        "emission_facility": false,
+        "work_type": "none",
+        "daily_avg_kg": 100,
+        "waste_kind": "other",
+        "designated_residue": false,
+        "oil_presence": "none",
+        "pcb_possible": false,
+        "toxic_chemical_discard": false,
+        "designated_waste_emitted": false,
+        "waste_facility": false,
+        "public_facility": "none"
+      },
+      "removable_for_this_completed_path": []
+    },
+    "waste_oil": {
+      "steps": [
+        {
+          "fact": "material_fate",
+          "question": "이 물질을 어떻게 하나요?",
+          "value": "released",
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": true,
+          "option_counts": [
+            {
+              "value": "still_used",
+              "remaining": 272
+            },
+            {
+              "value": "same_process_reinput",
+              "remaining": 272
+            },
+            {
+              "value": "continuous_feedstock",
+              "remaining": 272
+            },
+            {
+              "value": "released",
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "circular_resource_recognized",
+          "question": "이 물질에 대해 순환자원 인정서를 받았나요?",
+          "value": false,
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 0
+            },
+            {
+              "value": false,
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "law_exclusion",
+          "question": "이 물질이 아래 중 하나에 해당하나요?",
+          "value": "none",
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "none",
+              "remaining": 272
+            },
+            {
+              "value": "radioactive",
+              "remaining": 0
+            },
+            {
+              "value": "uncontained_gas",
+              "remaining": 0
+            },
+            {
+              "value": "wastewater",
+              "remaining": 0
+            },
+            {
+              "value": "livestock_manure",
+              "remaining": 0
+            },
+            {
+              "value": "sewage_nightsoil",
+              "remaining": 0
+            },
+            {
+              "value": "livestock_disease",
+              "remaining": 0
+            },
+            {
+              "value": "aquatic_disease",
+              "remaining": 0
+            },
+            {
+              "value": "military_ammo",
+              "remaining": 0
+            },
+            {
+              "value": "pet_funeral",
+              "remaining": 0
+            },
+            {
+              "value": "fisheries_byproduct_unmixed",
+              "remaining": 0
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "emission_facility",
+          "question": "이 사업장에 대기·수질·소음진동 배출시설 설치허가를 받았거나 신고를 했나요?",
+          "value": true,
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": true,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 272
+            },
+            {
+              "value": false,
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "waste_kind",
+          "question": "이 폐기물은 아래 중 무엇에 가장 가깝나요?",
+          "value": "waste_oil",
+          "before": 272,
+          "after": 10,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "synthetic_resin",
+              "remaining": 53
+            },
+            {
+              "value": "synthetic_rubber",
+              "remaining": 44
+            },
+            {
+              "value": "sludge_wastewater",
+              "remaining": 46
+            },
+            {
+              "value": "sludge_process",
+              "remaining": 46
+            },
+            {
+              "value": "pesticide",
+              "remaining": 193
+            },
+            {
+              "value": "acid",
+              "remaining": 195
+            },
+            {
+              "value": "alkali",
+              "remaining": 194
+            },
+            {
+              "value": "slag",
+              "remaining": 28
+            },
+            {
+              "value": "dust",
+              "remaining": 24
+            },
+            {
+              "value": "foundry_sand",
+              "remaining": 27
+            },
+            {
+              "value": "refractory",
+              "remaining": 22
+            },
+            {
+              "value": "incineration_ash",
+              "remaining": 31
+            },
+            {
+              "value": "stabilized",
+              "remaining": 29
+            },
+            {
+              "value": "catalyst",
+              "remaining": 24
+            },
+            {
+              "value": "adsorbent",
+              "remaining": 13
+            },
+            {
+              "value": "organic_solvent",
+              "remaining": 2
+            },
+            {
+              "value": "paint",
+              "remaining": 3
+            },
+            {
+              "value": "paint_solvent_mix",
+              "remaining": 192
+            },
+            {
+              "value": "paint_cleaning_solvent",
+              "remaining": 3
+            },
+            {
+              "value": "paint_container",
+              "remaining": 192
+            },
+            {
+              "value": "waste_oil",
+              "remaining": 10
+            },
+            {
+              "value": "edible_oil",
+              "remaining": 9
+            },
+            {
+              "value": "asbestos_demolition",
+              "remaining": 191
+            },
+            {
+              "value": "asbestos_processing",
+              "remaining": 1
+            },
+            {
+              "value": "asbestos_work_items",
+              "remaining": 1
+            },
+            {
+              "value": "mercury_product",
+              "remaining": 3
+            },
+            {
+              "value": "mercury_separated",
+              "remaining": 1
+            },
+            {
+              "value": "mercury_residue",
+              "remaining": 20
+            },
+            {
+              "value": "medical",
+              "remaining": 197
+            },
+            {
+              "value": "norm_product",
+              "remaining": 190
+            },
+            {
+              "value": "battery",
+              "remaining": 25
+            },
+            {
+              "value": "other",
+              "remaining": 205
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "code",
+          "question": "아래 세부분류 중 이 폐기물에 해당하는 번호는?",
+          "value": "06-01-01",
+          "before": 10,
+          "after": 1,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "06-01-01",
+              "remaining": 1
+            },
+            {
+              "value": "06-01-02",
+              "remaining": 1
+            },
+            {
+              "value": "06-01-03",
+              "remaining": 1
+            },
+            {
+              "value": "06-01-04",
+              "remaining": 1
+            },
+            {
+              "value": "06-01-05",
+              "remaining": 1
+            },
+            {
+              "value": "06-01-06",
+              "remaining": 1
+            },
+            {
+              "value": "06-01-07",
+              "remaining": 1
+            },
+            {
+              "value": "06-01-99",
+              "remaining": 1
+            },
+            {
+              "value": "06-02-00",
+              "remaining": 1
+            },
+            {
+              "value": "06-03-00",
+              "remaining": 1
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        }
+      ],
+      "final": {
+        "status": "NEED_EXPERT",
+        "stage": null,
+        "next": null,
+        "decisions": {
+          "S0": "WASTE",
+          "S1": "APPLIES",
+          "S2": "BUSINESS",
+          "S3": "DESIGNATED",
+          "S4": "06-01-01",
+          "S5": "ALLOWED_TYPES"
+        },
+        "range": [
+          "06"
+        ]
+      },
+      "answers": {
+        "material_fate": "released",
+        "circular_resource_recognized": false,
+        "law_exclusion": "none",
+        "emission_facility": true,
+        "waste_kind": "waste_oil",
+        "code": "06-01-01"
+      },
+      "removable_for_this_completed_path": [
+        "emission_facility"
+      ]
+    },
+    "acid": {
+      "steps": [
+        {
+          "fact": "material_fate",
+          "question": "이 물질을 어떻게 하나요?",
+          "value": "released",
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": true,
+          "option_counts": [
+            {
+              "value": "still_used",
+              "remaining": 272
+            },
+            {
+              "value": "same_process_reinput",
+              "remaining": 272
+            },
+            {
+              "value": "continuous_feedstock",
+              "remaining": 272
+            },
+            {
+              "value": "released",
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "circular_resource_recognized",
+          "question": "이 물질에 대해 순환자원 인정서를 받았나요?",
+          "value": false,
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 0
+            },
+            {
+              "value": false,
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "law_exclusion",
+          "question": "이 물질이 아래 중 하나에 해당하나요?",
+          "value": "none",
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "none",
+              "remaining": 272
+            },
+            {
+              "value": "radioactive",
+              "remaining": 0
+            },
+            {
+              "value": "uncontained_gas",
+              "remaining": 0
+            },
+            {
+              "value": "wastewater",
+              "remaining": 0
+            },
+            {
+              "value": "livestock_manure",
+              "remaining": 0
+            },
+            {
+              "value": "sewage_nightsoil",
+              "remaining": 0
+            },
+            {
+              "value": "livestock_disease",
+              "remaining": 0
+            },
+            {
+              "value": "aquatic_disease",
+              "remaining": 0
+            },
+            {
+              "value": "military_ammo",
+              "remaining": 0
+            },
+            {
+              "value": "pet_funeral",
+              "remaining": 0
+            },
+            {
+              "value": "fisheries_byproduct_unmixed",
+              "remaining": 0
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "emission_facility",
+          "question": "이 사업장에 대기·수질·소음진동 배출시설 설치허가를 받았거나 신고를 했나요?",
+          "value": true,
+          "before": 272,
+          "after": 272,
+          "all_option_candidate_sets_equal": true,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 272
+            },
+            {
+              "value": false,
+              "remaining": 272
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "waste_kind",
+          "question": "이 폐기물은 아래 중 무엇에 가장 가깝나요?",
+          "value": "acid",
+          "before": 272,
+          "after": 195,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "synthetic_resin",
+              "remaining": 53
+            },
+            {
+              "value": "synthetic_rubber",
+              "remaining": 44
+            },
+            {
+              "value": "sludge_wastewater",
+              "remaining": 46
+            },
+            {
+              "value": "sludge_process",
+              "remaining": 46
+            },
+            {
+              "value": "pesticide",
+              "remaining": 193
+            },
+            {
+              "value": "acid",
+              "remaining": 195
+            },
+            {
+              "value": "alkali",
+              "remaining": 194
+            },
+            {
+              "value": "slag",
+              "remaining": 28
+            },
+            {
+              "value": "dust",
+              "remaining": 24
+            },
+            {
+              "value": "foundry_sand",
+              "remaining": 27
+            },
+            {
+              "value": "refractory",
+              "remaining": 22
+            },
+            {
+              "value": "incineration_ash",
+              "remaining": 31
+            },
+            {
+              "value": "stabilized",
+              "remaining": 29
+            },
+            {
+              "value": "catalyst",
+              "remaining": 24
+            },
+            {
+              "value": "adsorbent",
+              "remaining": 13
+            },
+            {
+              "value": "organic_solvent",
+              "remaining": 2
+            },
+            {
+              "value": "paint",
+              "remaining": 3
+            },
+            {
+              "value": "paint_solvent_mix",
+              "remaining": 192
+            },
+            {
+              "value": "paint_cleaning_solvent",
+              "remaining": 3
+            },
+            {
+              "value": "paint_container",
+              "remaining": 192
+            },
+            {
+              "value": "waste_oil",
+              "remaining": 10
+            },
+            {
+              "value": "edible_oil",
+              "remaining": 9
+            },
+            {
+              "value": "asbestos_demolition",
+              "remaining": 191
+            },
+            {
+              "value": "asbestos_processing",
+              "remaining": 1
+            },
+            {
+              "value": "asbestos_work_items",
+              "remaining": 1
+            },
+            {
+              "value": "mercury_product",
+              "remaining": 3
+            },
+            {
+              "value": "mercury_separated",
+              "remaining": 1
+            },
+            {
+              "value": "mercury_residue",
+              "remaining": 20
+            },
+            {
+              "value": "medical",
+              "remaining": 197
+            },
+            {
+              "value": "norm_product",
+              "remaining": 190
+            },
+            {
+              "value": "battery",
+              "remaining": 25
+            },
+            {
+              "value": "other",
+              "remaining": 205
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "physical_state",
+          "question": "배출할 때 이 폐기물의 상태는?",
+          "value": "liquid",
+          "before": 195,
+          "after": 195,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "solid",
+              "remaining": 189
+            },
+            {
+              "value": "liquid",
+              "remaining": 195
+            },
+            {
+              "value": "semisolid",
+              "remaining": 189
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "oil_presence",
+          "question": "이 폐기물에 기름(윤활유·절삭유·작동유 등)이 묻어 있거나 섞여 있나요?",
+          "value": "none",
+          "before": 195,
+          "after": 185,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "none",
+              "remaining": 185
+            },
+            {
+              "value": "present",
+              "remaining": 195
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "pcb_possible",
+          "question": "이 폐기물이 PCB(폴리클로리네이티드비페닐)를 쓴 변압기·콘덴서·절연유 등과 관련이 있나요?",
+          "value": false,
+          "before": 185,
+          "after": 181,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 185
+            },
+            {
+              "value": false,
+              "remaining": 181
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "toxic_chemical_discard",
+          "question": "화학물질관리법상 유해화학물질(인체급성·인체만성·생태유해성물질, 허가·제한·금지물질, 사고대비물질)을 폐기하는 것인가요?",
+          "value": false,
+          "before": 181,
+          "after": 177,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": true,
+              "remaining": 4
+            },
+            {
+              "value": false,
+              "remaining": 177
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        },
+        {
+          "fact": "ph",
+          "question": "이 폐액의 pH(수소이온 농도지수)는 얼마인가요?",
+          "value": 1,
+          "before": 177,
+          "after": 6,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": []
+        },
+        {
+          "fact": "code",
+          "question": "아래 세부분류 중 이 폐기물에 해당하는 번호는?",
+          "value": "02-01-02",
+          "before": 6,
+          "after": 1,
+          "all_option_candidate_sets_equal": false,
+          "option_counts": [
+            {
+              "value": "02-01-01",
+              "remaining": 1
+            },
+            {
+              "value": "02-01-02",
+              "remaining": 1
+            },
+            {
+              "value": "02-01-03",
+              "remaining": 1
+            },
+            {
+              "value": "02-01-04",
+              "remaining": 1
+            },
+            {
+              "value": "02-01-05",
+              "remaining": 1
+            },
+            {
+              "value": "02-01-99",
+              "remaining": 1
+            },
+            {
+              "value": "UNKNOWN",
+              "remaining": null
+            }
+          ]
+        }
+      ],
+      "final": {
+        "status": "NEED_EXPERT",
+        "stage": null,
+        "next": null,
+        "decisions": {
+          "S0": "WASTE",
+          "S1": "APPLIES",
+          "S2": "BUSINESS",
+          "S3": "DESIGNATED",
+          "S4": "02-01-02",
+          "S5": "ALLOWED_TYPES"
+        },
+        "range": [
+          "02-01"
+        ]
+      },
+      "answers": {
+        "material_fate": "released",
+        "circular_resource_recognized": false,
+        "law_exclusion": "none",
+        "emission_facility": true,
+        "waste_kind": "acid",
+        "physical_state": "liquid",
+        "oil_presence": "none",
+        "pcb_possible": false,
+        "toxic_chemical_discard": false,
+        "ph": 1,
+        "code": "02-01-02"
+      },
+      "removable_for_this_completed_path": [
+        "emission_facility",
+        "oil_presence",
+        "pcb_possible",
+        "toxic_chemical_discard"
+      ]
+    }
+  },
+  "metal_without_physical_state": {
+    "status": "NEED_EXPERT",
+    "stage": null,
+    "next": null,
+    "decisions": {
+      "S0": "WASTE",
+      "S1": "APPLIES",
+      "S2": "BUSINESS",
+      "S3": "NOT_DESIGNATED",
+      "S4": "51-29-01",
+      "S5": "ALLOWED_TYPES"
+    },
+    "range": [
+      "51-29"
+    ]
+  },
+  "oil_pcb_comparison": {
+    "not_screened": {
+      "status": "NEED_EXPERT",
+      "stage": null,
+      "next": null,
+      "decisions": {
+        "S0": "WASTE",
+        "S1": "APPLIES",
+        "S2": "BUSINESS",
+        "S3": "DESIGNATED",
+        "S4": "06-01-01",
+        "S5": "ALLOWED_TYPES"
+      },
+      "range": [
+        "06"
+      ]
+    },
+    "pcb_unknown": {
+      "status": "NEED_EXPERT",
+      "stage": null,
+      "next": null,
+      "decisions": {
+        "S0": "WASTE",
+        "S1": "APPLIES",
+        "S2": "BUSINESS",
+        "S3": "DESIGNATED",
+        "S4": "06-01-01",
+        "S5": "ALLOWED_TYPES"
+      },
+      "range": [
+        "06"
+      ]
+    },
+    "pcb_positive": {
+      "status": "NEED_EXPERT",
+      "stage": null,
+      "next": null,
+      "decisions": {
+        "S0": "WASTE",
+        "S1": "APPLIES",
+        "S2": "BUSINESS",
+        "S3": "DESIGNATED",
+        "S4": "08-01-00",
+        "S5": "PROHIBITED"
+      },
+      "range": [
+        "08"
+      ]
+    }
+  },
+  "s4_unknown": {
+    "status": "NEED_INFO",
+    "stage": "S4",
+    "next": "code",
+    "decisions": {
+      "S0": "WASTE",
+      "S1": "APPLIES",
+      "S2": "BUSINESS",
+      "S3": "NOT_DESIGNATED"
+    },
+    "range": null
+  },
+  "s4_catchall_unknown": {
+    "status": "NEED_INFO",
+    "stage": "S4",
+    "next": "no_specific_code_applies",
+    "decisions": {
+      "S0": "WASTE",
+      "S1": "APPLIES",
+      "S2": "BUSINESS",
+      "S3": "NOT_DESIGNATED"
+    },
+    "range": null
+  },
+  "s4_repeated_unknown": [
+    {
+      "status": "NEED_INFO",
+      "stage": "S4",
+      "next": "code",
+      "decisions": {
+        "S0": "WASTE",
+        "S1": "APPLIES",
+        "S2": "BUSINESS",
+        "S3": "NOT_DESIGNATED"
+      },
+      "range": null
+    },
+    {
+      "status": "NEED_INFO",
+      "stage": "S4",
+      "next": "code",
+      "decisions": {
+        "S0": "WASTE",
+        "S1": "APPLIES",
+        "S2": "BUSINESS",
+        "S3": "NOT_DESIGNATED"
+      },
+      "range": null
+    },
+    {
+      "status": "NEED_INFO",
+      "stage": "S4",
+      "next": "code",
+      "decisions": {
+        "S0": "WASTE",
+        "S1": "APPLIES",
+        "S2": "BUSINESS",
+        "S3": "NOT_DESIGNATED"
+      },
+      "range": null
+    }
+  ],
+  "rubber_with_resin_code": {
+    "status": "NEED_EXPERT",
+    "stage": null,
+    "next": null,
+    "decisions": {
+      "S0": "WASTE",
+      "S1": "APPLIES",
+      "S2": "BUSINESS",
+      "S3": "NOT_DESIGNATED",
+      "S4": "51-03-01",
+      "S5": "ALLOWED_TYPES"
+    },
+    "range": [
+      "51-03"
+    ]
+  },
+  "api_edit_resin_to_rubber": {
+    "result": {
+      "status": "NEED_EXPERT",
+      "summary": {
+        "S0": "폐기물",
+        "S1": "폐기물관리법 적용",
+        "S2": "사업장폐기물",
+        "S3": "지정폐기물 아님(사업장일반폐기물)",
+        "S4": "51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)",
+        "S5": "재활용 가능 유형: R-1, R-2, R-3-2, R-3-3, R-3-4, R-4-4, R-9-3, R-10, R-8-1, R-8-2, R-9-1"
+      },
+      "conclusion": "재활용 가능 유형: R-1, R-2, R-3-2, R-3-3, R-3-4, R-4-4, R-9-3, R-10, R-8-1, R-8-2, R-9-1",
+      "as_of": "2026-11-05",
+      "strict": true,
+      "rule_db_version": "rules-b154c705c0eb",
+      "reason": "UNREVIEWED_OR_INTERPRETIVE",
+      "message": "결론은 나왔지만, 사람이 검토하지 않은 규칙이나 법령이 아닌 해석 자료에 기대고 있어 잠정 결론으로 표시합니다.",
+      "provisional": true,
+      "decided": [
+        {
+          "stage": "S0",
+          "label": "폐기물",
+          "why": "사업에 더 이상 필요 없어 내보내는 물질은 폐기물입니다. 팔거나 재활용업체에 넘겨도, 재활용할 수 있다는 이유만으로 폐기물에서 빠지지 않습니다.",
+          "because": [
+            "이 물질을 어떻게 하는지: 내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등) → 기준 '내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)' 충족",
+            "순환자원 인정서: 아니오 → 기준 '아니오' 충족"
+          ]
+        },
+        {
+          "stage": "S1",
+          "label": "폐기물관리법 적용",
+          "why": "방사성 물질, 폐수, 가축분뇨처럼 다른 법이 관리하는 대상이 아니므로 폐기물관리법을 따릅니다.",
+          "because": [
+            "다른 법 적용 대상: 해당 없음 → 기준 '해당 없음' 충족"
+          ]
+        },
+        {
+          "stage": "S2",
+          "label": "사업장폐기물",
+          "why": "대기·수질·소음진동 배출시설 허가를 받거나 신고한 사업장에서 나온 폐기물은 양에 관계없이 모두 사업장폐기물(산업폐기물)입니다. 사무실에서 나온 폐기물도 포함된다는 것이 정부 지침의 설명입니다.",
+          "because": [
+            "배출시설 허가·신고: 예 → 기준 '예' 충족"
+          ]
+        },
+        {
+          "stage": "S3",
+          "label": "지정폐기물 아님(사업장일반폐기물)",
+          "why": "지정폐기물이 되는 경로가 하나도 해당하지 않아 사업장일반폐기물입니다. 다만 '그 밖에 장관이 고시하는 물질' 고시가 있는지는 확인하지 못했습니다.",
+          "because": [
+            "배출 시 상태: 고체 → 해당 없음 (이 경로는 '액체(흐름), 반고체·점성·슬러지 상태 중 하나'일 때만 해당: 합성고무는 액체·반고체 상태일 때만 지정폐기물입니다)",
+            "기름 묻음·섞임: 기름이 묻거나 섞이지 않음 → 해당 없음 (이 경로는 '기름이 묻어 있거나 섞여 있음'일 때만 해당: 기름이 묻거나 섞인 폐기물도 기름성분이 5% 이상이면 폐유(지정폐기물)로 봅니다)",
+            "PCB 사용 기기·절연유 관련: 아니오 → 해당 없음 (이 경로는 '예'일 때만 해당: 액체 폐기물에 PCB가 1리터당 2mg 이상 들어 있으면 지정폐기물입니다)",
+            "유해화학물질 폐기: 아니오 → 해당 없음 (이 경로는 '예'일 때만 해당: 유해화학물질(인체·생태 유해성 물질, 허가·제한·금지물질, 사고대비물질)을 폐기하는 것은 지정폐기물입니다)"
+          ],
+          "gaps": [
+            "시행령 별표 1 제12호 '그 밖에 … 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함",
+            "시행규칙 별표 1 제1호타목·제2호라목 '그 밖에 기후에너지환경부장관이 정하여 고시하는 물질'의 고시가 있는지 확인하지 못함"
+          ]
+        },
+        {
+          "stage": "S4",
+          "label": "51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)",
+          "why": "앞 단계에서 '지정폐기물 아님(사업장일반폐기물)'(으)로 정해져, 시행규칙 별표 4의 51-03 범위 번호만 해당할 수 있습니다. 이 번호는 명칭을 보고 직접 고르신 것이며, 계산기는 앞 단계 판정과 맞는지만 확인했습니다.",
+          "because": [
+            "분류번호: 51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)",
+            "2023 설명서의 뜻풀이(구판 기준 참고): 유기화합물의 합성으로 만들어진 수지 모양의 고분자화합물을 말한다. 다만, 폐폴리염화비닐수지류는 제외한다."
+          ]
+        },
+        {
+          "stage": "S5",
+          "label": "재활용 가능 유형: R-1, R-2, R-3-2, R-3-3, R-3-4, R-4-4, R-9-3, R-10, R-8-1, R-8-2, R-9-1",
+          "why": "이 분류번호는 법이 정한 아래 재활용 방법으로만 재활용할 수 있습니다. 목록에 없는 방법으로 재활용하려면 재활용환경성평가 승인이 필요합니다. '사전 분석·확인 필요' 방법은 재활용하기 전에 폐기물분석전문기관의 결과 등으로 재활용 기준을 충족하는지 확인해야 합니다.",
+          "because": [
+            "R-1: 원형 그대로 재사용(일정한 규격의 용기나 상자에 넣거나 포장하여 재사용하는 자에게 제공하는 경우를 포함한다)하는 유형",
+            "R-2: 단순 수리ㆍ수선, 건조 및 세척하여 재사용하는 유형",
+            "R-3-2: 용융, 용해, 반응, 추출 등의 공정을 통해 폐기물에서 금속 또는 비금속 자원을 회수하는 유형",
+            "R-3-3: 분리, 선별, 압축, 감용, 절단, 파쇄, 분쇄, 용융, 반응, 증발ㆍ농 축, 증류, 추출 및 열분해 등의 공정을 통해 폐기물을 종이, 금속, 유리, 합 성수지, 섬유, 고무, 석유, 석유화학제품 또는 석유대체연료의 원료물질로 제조하는 유형"
+          ],
+          "allowed_types": [
+            "R-1",
+            "R-2",
+            "R-3-2",
+            "R-3-3",
+            "R-3-4",
+            "R-4-4",
+            "R-9-3",
+            "R-10",
+            "R-8-1 (사전 분석 필요)",
+            "R-8-2 (사전 분석 필요)",
+            "R-9-1 (사전 분석 필요)",
+            "R-10 (사전 분석 필요)"
+          ],
+          "recycling_groups": {
+            "no_pre_analysis": [
+              {
+                "r_code": "R-1",
+                "definition": "원형 그대로 재사용(일정한 규격의 용기나 상자에 넣거나 포장하여 재사용하는 자에게 제공하는 경우를 포함한다)하는 유형"
+              },
+              {
+                "r_code": "R-2",
+                "definition": "단순 수리ㆍ수선, 건조 및 세척하여 재사용하는 유형"
+              },
+              {
+                "r_code": "R-3-2",
+                "definition": "용융, 용해, 반응, 추출 등의 공정을 통해 폐기물에서 금속 또는 비금속 자원을 회수하는 유형"
+              },
+              {
+                "r_code": "R-3-3",
+                "definition": "분리, 선별, 압축, 감용, 절단, 파쇄, 분쇄, 용융, 반응, 증발ㆍ농 축, 증류, 추출 및 열분해 등의 공정을 통해 폐기물을 종이, 금속, 유리, 합 성수지, 섬유, 고무, 석유, 석유화학제품 또는 석유대체연료의 원료물질로 제조하는 유형"
+              },
+              {
+                "r_code": "R-3-4",
+                "definition": "분리, 선별, 압축, 감용, 절단, 파쇄, 분쇄, 용융, 반응, 증발ㆍ농 축, 증류, 추출 및 열분해 등의 공정을 통해 폐기물을 종이, 금속, 유리, 합성수지, 섬유, 고무, 석유, 석유화학제품 또는 석유대체연료 외의 원료물 질로 제조하는 유형"
+              },
+              {
+                "r_code": "R-4-4",
+                "definition": "고무, 섬유 및 플라스틱 등 수지류를 고무, 섬유 또는 합성수지 제품으로 제조하는 유형"
+              },
+              {
+                "r_code": "R-9-3",
+                "definition": "열분해, 탄화 등 열적 처리방법으로 수소 등의 기체, 액체 및 고 체상의 연료를 만드는 유형"
+              },
+              {
+                "r_code": "R-10",
+                "definition": "제품 제조 등을 위한 중간가공폐기물을 만드는 유형(R-10)"
+              }
+            ],
+            "pre_analysis": [
+              {
+                "r_code": "R-8-1",
+                "definition": "시멘트소성로의 보조연료로 사용하는 유형"
+              },
+              {
+                "r_code": "R-8-2",
+                "definition": "소각열회수시설 등을 통해 제3조제1항제1호에 따른 에너지 회 수기준에 적합하게 에너지를 회수하는 유형"
+              },
+              {
+                "r_code": "R-9-1",
+                "definition": "「자원의 절약과 재활용촉진에 관한 법률 시행규칙」 별표 7에 따른 고형연료제품의 품질기준에 적합하게 고형연료제품을 만들거나 폐기 물을 무게기준으로 50퍼센트 미만 혼합하여 「가축분뇨의 관리 및 이용에 관한 법률 시행규칙」 별표 4의2에 따른 가축분뇨 고체연료의 성분 등에 관한 기준에 적합하게 가축분뇨 고체연료를 만드는 유형"
+              },
+              {
+                "r_code": "R-10",
+                "definition": "제품 제조 등을 위한 중간가공폐기물을 만드는 유형(R-10)"
+              }
+            ]
+          }
+        }
+      ],
+      "trail": [
+        {
+          "stage": "S0",
+          "title": "폐기물 해당 여부",
+          "outcome": "폐기물",
+          "plain": "사업에 더 이상 필요 없어 내보내는 물질은 폐기물입니다. 팔거나 재활용업체에 넘겨도, 재활용할 수 있다는 이유만으로 폐기물에서 빠지지 않습니다.",
+          "because": [
+            "이 물질을 어떻게 하는지: 내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등) → 기준 '내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)' 충족",
+            "순환자원 인정서: 아니오 → 기준 '아니오' 충족"
+          ],
+          "answers": [
+            {
+              "fact": "circular_resource_recognized",
+              "question": "이 물질에 대해 순환자원 인정서를 받았나요?",
+              "label": "순환자원 인정서",
+              "value_text": "아니오"
+            },
+            {
+              "fact": "material_fate",
+              "question": "이 물질을 어떻게 하나요?",
+              "label": "이 물질을 어떻게 하는지",
+              "value_text": "내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)"
+            }
+          ],
+          "basis": [
+            {
+              "cite": "폐기물관리법 제2조제1호",
+              "quote": "“폐기물”이란 쓰레기, 연소재(燃燒滓), 오니(汚泥), 폐유(廢油), 폐산(廢酸), 폐알칼리 및 동물의 사체(死體) 등으로서 사람의 생활이나 사업활동에 필요하지 아니하게 된 물질을 말한다.",
+              "evidence": "LAW",
+              "law_version": "법률 제21467호"
+            }
+          ]
+        },
+        {
+          "stage": "S1",
+          "title": "폐기물관리법 적용 여부",
+          "outcome": "폐기물관리법 적용",
+          "plain": "방사성 물질, 폐수, 가축분뇨처럼 다른 법이 관리하는 대상이 아니므로 폐기물관리법을 따릅니다.",
+          "because": [
+            "다른 법 적용 대상: 해당 없음 → 기준 '해당 없음' 충족"
+          ],
+          "answers": [
+            {
+              "fact": "law_exclusion",
+              "question": "이 물질이 아래 중 하나에 해당하나요?",
+              "label": "다른 법 적용 대상",
+              "value_text": "해당 없음"
+            }
+          ],
+          "basis": [
+            {
+              "cite": "폐기물관리법 제3조제1항",
+              "quote": "이 법은 다음 각 호의 어느 하나에 해당하는 물질에 대하여는 적용하지 아니한다.",
+              "evidence": "LAW",
+              "law_version": "법률 제21467호"
+            }
+          ]
+        },
+        {
+          "stage": "S2",
+          "title": "사업장폐기물(산업폐기물) 여부",
+          "outcome": "사업장폐기물",
+          "plain": "대기·수질·소음진동 배출시설 허가를 받거나 신고한 사업장에서 나온 폐기물은 양에 관계없이 모두 사업장폐기물(산업폐기물)입니다. 사무실에서 나온 폐기물도 포함된다는 것이 정부 지침의 설명입니다.",
+          "because": [
+            "배출시설 허가·신고: 예 → 기준 '예' 충족"
+          ],
+          "answers": [
+            {
+              "fact": "emission_facility",
+              "question": "이 사업장에 대기·수질·소음진동 배출시설 설치허가를 받았거나 신고를 했나요?",
+              "label": "배출시설 허가·신고",
+              "value_text": "예"
+            }
+          ],
+          "basis": [
+            {
+              "cite": "폐기물관리법 제2조제3호",
+              "quote": "“사업장폐기물”이란 「대기환경보전법」, 「물환경보전법」 또는 「소음ㆍ진동관리법」에 따라 배출시설을 설치ㆍ운영하는 사업장이나 그 밖에 대통령령으로 정하는 사업장에서 발생하는 폐기물을 말한다.",
+              "evidence": "LAW",
+              "law_version": "법률 제21467호"
+            }
+          ]
+        },
+        {
+          "stage": "S3",
+          "title": "지정폐기물 여부",
+          "outcome": "지정폐기물 아님(사업장일반폐기물)",
+          "plain": "지정폐기물이 되는 경로가 하나도 해당하지 않아 사업장일반폐기물입니다. 다만 '그 밖에 장관이 고시하는 물질' 고시가 있는지는 확인하지 못했습니다.",
+          "because": [
+            "배출 시 상태: 고체 → 해당 없음 (이 경로는 '액체(흐름), 반고체·점성·슬러지 상태 중 하나'일 때만 해당: 합성고무는 액체·반고체 상태일 때만 지정폐기물입니다)",
+            "기름 묻음·섞임: 기름이 묻거나 섞이지 않음 → 해당 없음 (이 경로는 '기름이 묻어 있거나 섞여 있음'일 때만 해당: 기름이 묻거나 섞인 폐기물도 기름성분이 5% 이상이면 폐유(지정폐기물)로 봅니다)",
+            "PCB 사용 기기·절연유 관련: 아니오 → 해당 없음 (이 경로는 '예'일 때만 해당: 액체 폐기물에 PCB가 1리터당 2mg 이상 들어 있으면 지정폐기물입니다)",
+            "유해화학물질 폐기: 아니오 → 해당 없음 (이 경로는 '예'일 때만 해당: 유해화학물질(인체·생태 유해성 물질, 허가·제한·금지물질, 사고대비물질)을 폐기하는 것은 지정폐기물입니다)",
+            "지정폐기물 잔류물: 아니오 → 해당 없음 (이 경로는 '예'일 때만 해당: 지정폐기물이 아닌 용기·물건이라도 지정폐기물이 남아 있거나 묻어 있으면, 담겨 있던 지정폐기물로 분류한다는 환경부 질의회신이 있습니다)"
+          ],
+          "answers": [
+            {
+              "fact": "designated_residue",
+              "question": "이 용기·포장재·물건에 폐유·폐유기용제·폐산 같은 지정폐기물(또는 유해화학물질)이 남아 있거나 묻어 있나요? (세척해서 없앴으면 '아니오')",
+              "label": "지정폐기물 잔류물",
+              "value_text": "아니오"
+            },
+            {
+              "fact": "oil_presence",
+              "question": "이 폐기물에 기름(윤활유·절삭유·작동유 등)이 묻어 있거나 섞여 있나요?",
+              "label": "기름 묻음·섞임",
+              "value_text": "기름이 묻거나 섞이지 않음"
+            },
+            {
+              "fact": "pcb_possible",
+              "question": "이 폐기물이 PCB(폴리클로리네이티드비페닐)를 쓴 변압기·콘덴서·절연유 등과 관련이 있나요?",
+              "label": "PCB 사용 기기·절연유 관련",
+              "value_text": "아니오"
+            },
+            {
+              "fact": "physical_state",
+              "question": "배출할 때 이 폐기물의 상태는?",
+              "label": "배출 시 상태",
+              "value_text": "고체"
+            },
+            {
+              "fact": "toxic_chemical_discard",
+              "question": "화학물질관리법상 유해화학물질(인체급성·인체만성·생태유해성물질, 허가·제한·금지물질, 사고대비물질)을 폐기하는 것인가요?",
+              "label": "유해화학물질 폐기",
+              "value_text": "아니오"
+            },
+            {
+              "fact": "waste_kind",
+              "question": "이 폐기물은 아래 중 무엇에 가장 가깝나요?",
+              "label": "폐기물 종류",
+              "value_text": "폐합성고무"
+            }
+          ],
+          "basis": [
+            {
+              "cite": "폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1(지정폐기물의 종류)",
+              "quote": "지정폐기물의 종류(제3조 관련)",
+              "evidence": "LAW",
+              "law_version": "대통령령 제36217호 (별표 2025-10-01 개정)"
+            }
+          ]
+        },
+        {
+          "stage": "S4",
+          "title": "분류번호(시행규칙 별표 4)",
+          "outcome": "51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)",
+          "plain": "앞 단계에서 '지정폐기물 아님(사업장일반폐기물)'(으)로 정해져, 시행규칙 별표 4의 51-03 범위 번호만 해당할 수 있습니다.",
+          "because": [
+            "분류번호: 51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)",
+            "2023 설명서의 뜻풀이(구판 기준 참고): 유기화합물의 합성으로 만들어진 수지 모양의 고분자화합물을 말한다. 다만, 폐폴리염화비닐수지류는 제외한다."
+          ],
+          "answers": [
+            {
+              "fact": "waste_kind",
+              "question": "이 폐기물은 아래 중 무엇에 가장 가깝나요?",
+              "label": "폐기물 종류",
+              "value_text": "폐합성고무"
+            },
+            {
+              "fact": "code",
+              "question": "아래 세부분류 중 이 폐기물에 해당하는 번호는?",
+              "label": "분류번호",
+              "value_text": "51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)"
+            }
+          ],
+          "basis": [
+            {
+              "cite": "폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 별표 4 51-03-01",
+              "quote": "51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)",
+              "evidence": "LAW",
+              "law_version": "기후에너지환경부령 제60호 (별표 2025-12-30 개정)"
+            }
+          ]
+        },
+        {
+          "stage": "S5",
+          "title": "재활용 가능 유형(시행규칙 별표 4의3)",
+          "outcome": "재활용 가능 유형: R-1, R-2, R-3-2, R-3-3, R-3-4, R-4-4, R-9-3, R-10, R-8-1, R-8-2, R-9-1",
+          "plain": "이 분류번호는 법이 정한 아래 재활용 방법으로만 재활용할 수 있습니다. 목록에 없는 방법으로 재활용하려면 재활용환경성평가 승인이 필요합니다.",
+          "because": [
+            "R-1: 원형 그대로 재사용(일정한 규격의 용기나 상자에 넣거나 포장하여 재사용하는 자에게 제공하는 경우를 포함한다)하는 유형",
+            "R-2: 단순 수리ㆍ수선, 건조 및 세척하여 재사용하는 유형",
+            "R-3-2: 용융, 용해, 반응, 추출 등의 공정을 통해 폐기물에서 금속 또는 비금속 자원을 회수하는 유형",
+            "R-3-3: 분리, 선별, 압축, 감용, 절단, 파쇄, 분쇄, 용융, 반응, 증발ㆍ농 축, 증류, 추출 및 열분해 등의 공정을 통해 폐기물을 종이, 금속, 유리, 합 성수지, 섬유, 고무, 석유, 석유화학제품 또는 석유대체연료의 원료물질로 제조하는 유형",
+            "R-3-4: 분리, 선별, 압축, 감용, 절단, 파쇄, 분쇄, 용융, 반응, 증발ㆍ농 축, 증류, 추출 및 열분해 등의 공정을 통해 폐기물을 종이, 금속, 유리, 합성수지, 섬유, 고무, 석유, 석유화학제품 또는 석유대체연료 외의 원료물 질로 제조하는 유형",
+            "R-4-4: 고무, 섬유 및 플라스틱 등 수지류를 고무, 섬유 또는 합성수지 제품으로 제조하는 유형"
+          ],
+          "answers": [],
+          "basis": [
+            {
+              "cite": "폐기물관리법 시행규칙 별표 4의3(폐기물의 종류별 재활용 가능 유형) 표 별표 4의3 51-03-01 (p.9)",
+              "quote": "R-1, R-2, R-3-2, R-3-3, R-3-4, R-4-4, R-9-3, R-10 [사전 분석·확인: 해당없음] / R-8-1, R-8-2, R-9-1, R-10 [사전 분석·확인: 해당]",
+              "evidence": "LAW",
+              "law_version": "기후에너지환경부령 제60호 (별표 2025-12-30 개정)"
+            },
+            {
+              "cite": "폐기물관리법 시행규칙 별표 4의3(폐기물의 종류별 재활용 가능 유형) 비고 별표 4의3 비고 제1호",
+              "quote": "폐기물을 재활용하려는 자는 이 표에 따른 폐기물의 종류별 재활용 가능 유형에 해당하는 유형으로 폐기물을 재활용해야 한다.",
+              "evidence": "LAW",
+              "law_version": "기후에너지환경부령 제60호 (별표 2025-12-30 개정)"
+            }
+          ]
+        }
+      ],
+      "candidates": {
+        "count": 1,
+        "what": "남은 별표 4 분류번호 후보",
+        "codes": [
+          {
+            "code": "51-03-01",
+            "name": "폐합성수지류(폐염화비닐수지류는 제외한다)"
+          }
+        ]
+      },
+      "more": "근거 원문·경우의 수 전체는 explain 도구로 받으세요."
+    },
+    "answered": [
+      {
+        "fact": "material_fate",
+        "label": "이 물질을 어떻게 하는지",
+        "question": "이 물질을 어떻게 하나요?",
+        "value": "released",
+        "value_text": "내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)"
+      },
+      {
+        "fact": "circular_resource_recognized",
+        "label": "순환자원 인정서",
+        "question": "이 물질에 대해 순환자원 인정서를 받았나요?",
+        "value": false,
+        "value_text": "아니오"
+      },
+      {
+        "fact": "law_exclusion",
+        "label": "다른 법 적용 대상",
+        "question": "이 물질이 아래 중 하나에 해당하나요?",
+        "value": "none",
+        "value_text": "해당 없음"
+      },
+      {
+        "fact": "emission_facility",
+        "label": "배출시설 허가·신고",
+        "question": "이 사업장에 대기·수질·소음진동 배출시설 설치허가를 받았거나 신고를 했나요?",
+        "value": true,
+        "value_text": "예"
+      },
+      {
+        "fact": "designated_residue",
+        "label": "지정폐기물 잔류물",
+        "question": "이 용기·포장재·물건에 폐유·폐유기용제·폐산 같은 지정폐기물(또는 유해화학물질)이 남아 있거나 묻어 있나요? (세척해서 없앴으면 '아니오')",
+        "value": false,
+        "value_text": "아니오"
+      },
+      {
+        "fact": "oil_presence",
+        "label": "기름 묻음·섞임",
+        "question": "이 폐기물에 기름(윤활유·절삭유·작동유 등)이 묻어 있거나 섞여 있나요?",
+        "value": "none",
+        "value_text": "기름이 묻거나 섞이지 않음"
+      },
+      {
+        "fact": "pcb_possible",
+        "label": "PCB 사용 기기·절연유 관련",
+        "question": "이 폐기물이 PCB(폴리클로리네이티드비페닐)를 쓴 변압기·콘덴서·절연유 등과 관련이 있나요?",
+        "value": false,
+        "value_text": "아니오"
+      },
+      {
+        "fact": "toxic_chemical_discard",
+        "label": "유해화학물질 폐기",
+        "question": "화학물질관리법상 유해화학물질(인체급성·인체만성·생태유해성물질, 허가·제한·금지물질, 사고대비물질)을 폐기하는 것인가요?",
+        "value": false,
+        "value_text": "아니오"
+      },
+      {
+        "fact": "waste_kind",
+        "label": "폐기물 종류",
+        "question": "이 폐기물은 아래 중 무엇에 가장 가깝나요?",
+        "value": "synthetic_rubber",
+        "value_text": "폐합성고무"
+      },
+      {
+        "fact": "physical_state",
+        "label": "배출 시 상태",
+        "question": "배출할 때 이 폐기물의 상태는?",
+        "value": "solid",
+        "value_text": "고체"
+      },
+      {
+        "fact": "code",
+        "label": "분류번호",
+        "question": "아래 세부분류 중 이 폐기물에 해당하는 번호는?",
+        "value": "51-03-01",
+        "value_text": "51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)"
+      }
+    ]
+  },
+  "s2_asks_s3_compact": {
+    "status": "NEED_INFO",
+    "summary": {
+      "S0": "폐기물",
+      "S1": "폐기물관리법 적용"
+    },
+    "conclusion": null,
+    "as_of": "2026-11-05",
+    "strict": true,
+    "rule_db_version": "rules-b154c705c0eb",
+    "stage": "S2",
+    "stage_title": "사업장폐기물(산업폐기물) 여부",
+    "decided": [
+      {
+        "stage": "S0",
+        "label": "폐기물",
+        "why": "사업에 더 이상 필요 없어 내보내는 물질은 폐기물입니다. 팔거나 재활용업체에 넘겨도, 재활용할 수 있다는 이유만으로 폐기물에서 빠지지 않습니다.",
+        "because": [
+          "이 물질을 어떻게 하는지: 내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등) → 기준 '내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)' 충족",
+          "순환자원 인정서: 아니오 → 기준 '아니오' 충족"
+        ]
+      },
+      {
+        "stage": "S1",
+        "label": "폐기물관리법 적용",
+        "why": "방사성 물질, 폐수, 가축분뇨처럼 다른 법이 관리하는 대상이 아니므로 폐기물관리법을 따릅니다.",
+        "because": [
+          "다른 법 적용 대상: 해당 없음 → 기준 '해당 없음' 충족"
+        ]
+      }
+    ],
+    "candidates": {
+      "count": 272,
+      "what": "남은 별표 4 분류번호 후보"
+    },
+    "next_question": {
+      "fact": "waste_kind",
+      "question": "이 폐기물은 아래 중 무엇에 가장 가깝나요?",
+      "choices": [
+        {
+          "value": "synthetic_resin",
+          "label": "폐합성수지(플라스틱·수지류)",
+          "hint": "PE, PP, PVC, PET, ABS, 우레탄, 스티로폼 등. 성형 불량품·스프루·런너·분쇄 플레이크 포함",
+          "group": "플라스틱·고무",
+          "remaining": 53
+        },
+        {
+          "value": "synthetic_rubber",
+          "label": "폐합성고무",
+          "hint": "고무 부품·고무 스크랩",
+          "group": "플라스틱·고무",
+          "remaining": 44
+        },
+        {
+          "value": "sludge_wastewater",
+          "label": "폐수처리 오니",
+          "hint": "폐수처리시설에서 나온 침전물·탈수 케이크",
+          "group": "오니(슬러지)",
+          "remaining": 46
+        },
+        {
+          "value": "sludge_process",
+          "label": "공정 오니",
+          "hint": "생산 공정 자체에서 나온 슬러지",
+          "group": "오니(슬러지)",
+          "remaining": 46
+        },
+        {
+          "value": "pesticide",
+          "label": "폐농약",
+          "group": "산·알칼리·농약",
+          "remaining": 193
+        },
+        {
+          "value": "acid",
+          "label": "폐산(산성 폐액)",
+          "group": "산·알칼리·농약",
+          "remaining": 195
+        },
+        {
+          "value": "alkali",
+          "label": "폐알칼리(알칼리성 폐액, 수산화나트륨·수산화칼륨 포함)",
+          "group": "산·알칼리·농약",
+          "remaining": 194
+        },
+        {
+          "value": "slag",
+          "label": "광재(슬래그)",
+          "group": "광재·분진·재·모래 등",
+          "remaining": 28
+        },
+        {
+          "value": "dust",
+          "label": "분진",
+          "group": "광재·분진·재·모래 등",
+          "remaining": 24
+        },
+        {
+          "value": "foundry_sand",
+          "label": "폐주물사·샌드블라스트 폐사",
+          "group": "광재·분진·재·모래 등",
+          "remaining": 27
+        },
+        {
+          "value": "refractory",
+          "label": "폐내화물·재벌구이 전 유약 바른 도자기 조각",
+          "group": "광재·분진·재·모래 등",
+          "remaining": 22
+        },
+        {
+          "value": "incineration_ash",
+          "label": "소각재",
+          "group": "광재·분진·재·모래 등",
+          "remaining": 31
+        },
+        {
+          "value": "stabilized",
+          "label": "안정화·고형화·고화 처리물",
+          "group": "광재·분진·재·모래 등",
+          "remaining": 29
+        },
+        {
+          "value": "catalyst",
+          "label": "폐촉매",
+          "group": "광재·분진·재·모래 등",
+          "remaining": 24
+        },
+        {
+          "value": "adsorbent",
+          "label": "폐흡착제·폐흡수제",
+          "group": "광재·분진·재·모래 등",
+          "remaining": 13
+        },
+        {
+          "value": "organic_solvent",
+          "label": "폐유기용제",
+          "group": "기름·용제·페인트",
+          "remaining": 2
+        },
+        {
+          "value": "paint",
+          "label": "폐페인트·폐래커",
+          "group": "기름·용제·페인트",
+          "remaining": 3
+        },
+        {
+          "value": "paint_solvent_mix",
+          "label": "페인트·래커와 유기용제가 섞인 것",
+          "group": "기름·용제·페인트",
+          "remaining": 192
+        },
+        {
+          "value": "paint_cleaning_solvent",
+          "label": "페인트 보관용기의 페인트를 제거하려고 유기용제와 섞은 것",
+          "group": "기름·용제·페인트",
+          "remaining": 3
+        },
+        {
+          "value": "paint_container",
+          "label": "폐페인트 용기",
+          "group": "기름·용제·페인트",
+          "remaining": 192
+        },
+        {
+          "value": "waste_oil",
+          "label": "폐유(윤활유·절삭유·작동유 등 기름 자체)",
+          "hint": "기름이 묻은 물건이 아니라 기름 자체",
+          "group": "기름·용제·페인트",
+          "remaining": 10
+        },
+        {
+          "value": "edible_oil",
+          "label": "폐식용유와 그 잔재물",
+          "group": "기름·용제·페인트",
+          "remaining": 9
+        },
+        {
+          "value": "asbestos_demolition",
+          "label": "석면 함유 제품·설비의 해체·제거 시 나온 것",
+          "group": "석면·수은·전지·방사성",
+          "remaining": 191
+        },
+        {
+          "value": "asbestos_processing",
+          "label": "슬레이트 등 석면 제품의 연마·절단·가공 부스러기·집진 분진",
+          "group": "석면·수은·전지·방사성",
+          "remaining": 1
+        },
+        {
+          "value": "asbestos_work_items",
+          "label": "석면 제거작업에 쓴 비닐시트·방진마스크·작업복 등",
+          "group": "석면·수은·전지·방사성",
+          "remaining": 1
+        },
+        {
+          "value": "mercury_product",
+          "label": "수은 함유 폐램프(폐형광등 제외)·폐계측기기·폐전지 등",
+          "group": "석면·수은·전지·방사성",
+          "remaining": 3
+        },
+        {
+          "value": "mercury_separated",
+          "label": "수은함유폐기물에서 분리한 수은·그 화합물",
+          "group": "석면·수은·전지·방사성",
+          "remaining": 1
+        },
+        {
+          "value": "mercury_residue",
+          "label": "수은함유폐기물 처리잔재물(폐형광등 재활용 잔재물 포함)",
+          "group": "석면·수은·전지·방사성",
+          "remaining": 20
+        },
+        {
+          "value": "medical",
+          "label": "의료폐기물(감염 우려 폐기물, 인체 조직, 주사바늘 등)",
+          "group": "의료폐기물",
+          "remaining": 197
+        },
+        {
+          "value": "norm_product",
+          "label": "안전기준에 맞지 않는 천연방사성 가공제품의 폐기물",
+          "group": "석면·수은·전지·방사성",
+          "remaining": 190
+        },
+        {
+          "value": "battery",
+          "label": "폐전지(일차전지·이차전지·태양전지 등)",
+          "group": "석면·수은·전지·방사성",
+          "remaining": 25
+        },
+        {
+          "value": "other",
+          "label": "위 목록에 없음 (금속·종이·목재·유리 스크랩 등)",
+          "hint": "금속·종이·목재·유리 스크랩, 폐섬유 등",
+          "group": "그 밖의 것",
+          "remaining": 205
+        },
+        {
+          "value": "UNKNOWN",
+          "label": "모름"
+        }
+      ],
+      "asked_for_stage": "S3"
+    },
+    "other_open_questions": [
+      {
+        "fact": "designated_waste_emitted",
+        "question": "이 사업장에서 지정폐기물을 배출하나요?",
+        "state": "MISSING"
+      },
+      {
+        "fact": "waste_facility",
+        "question": "이 사업장이 폐기물처리시설을 설치·운영하는 곳인가요? (폐기물처리업 허가 시설 포함)",
+        "state": "MISSING"
+      },
+      {
+        "fact": "public_facility",
+        "question": "이 사업장이 아래 공공처리시설을 설치·운영하는 곳인가요?",
+        "state": "MISSING"
+      }
+    ],
+    "more": "근거 원문·경우의 수 전체는 explain 도구로 받으세요."
+  },
+  "current_existing_evaluator": {
+    "version": "rules-b154c705c0eb",
+    "as_of": "2026-11-05",
+    "counts": {
+      "STOPPED": 41,
+      "CORRECT_STOP": 28,
+      "NOT_COMPARABLE": 9,
+      "OVERCONFIDENT": 1,
+      "CORRECT": 8,
+      "WRONG": 1
+    },
+    "bad": [
+      {
+        "case_id": "HWP08-D-1-14",
+        "stage": "S3",
+        "verdict": "OVERCONFIDENT",
+        "detail": "DESIGNATED"
+      },
+      {
+        "case_id": "REC17-039-1",
+        "stage": "S5",
+        "verdict": "WRONG",
+        "detail": "계산기 ALLOWED_TYPES"
+      }
+    ]
+  }
+}

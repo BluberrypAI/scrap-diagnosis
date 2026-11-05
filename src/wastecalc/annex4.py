@@ -68,7 +68,8 @@ def _card(fid: str, kb: KB, answers: dict, allowed: dict[str, str], extra: dict 
     a = answers.get(fid)
     card = {"fact": fid, "question": f["question"], "type": f["type"], "cost": f["cost"],
             "state": "MISSING" if a is None else a.kind, "allowed_values": allowed, "decides": [],
-            "how_to_check": [{"text": h["text"], "basis": None} for h in f.get("how_to_check", [])]}
+            "how_to_check": [{"text": h["text"], "basis": None} for h in f.get("how_to_check", [])]
+                            or [{"text": "기존 신고서의 분류번호와 아래 세부분류 명칭을 대조하세요. 구분하기 어려우면 관할 기관에 확인하세요.", "basis": None}]}
     if extra:
         card.update(extra)
     return card
@@ -82,12 +83,62 @@ def _open(kb: KB, card: dict, open_labels: list[str], message: str | None = None
                            "asked_for_stage": None}}
     if message:
         r["message"] = message
+    if card["fact"] == "code":
+        r["candidates"] = list(card["allowed_values"])
+    if card["state"] in {"UNKNOWN", "CONFLICT"}:
+        r["next_question"] = None
+        r["message"] = message or "지금 자료로는 구분하기 어렵습니다. 확인 방법을 살펴본 뒤 답을 수정해 이어 가세요."
+        if card["state"] == "CONFLICT":
+            r.update(status="NEED_EXPERT", reason="FACT_CONFLICT")
     return r
 
 
 def _expert(kb: KB, reason: str, message: str, **extra: Any) -> dict:
     return {"status": "NEED_EXPERT", "stage": STAGE, "stage_title": kb.stages[STAGE]["title"],
             "reason": reason, "message": message, **extra}
+
+
+def _classification_check(kb: KB, answers: dict, s3: dict) -> dict | None:
+    """지정 여부가 같아도 번호 범위·금지 조건을 바꿀 수 있는 미확인 규칙은 남긴다."""
+    from .engine import UNDET, _resolution, eval_stage
+
+    fired = [b["rule_id"] for b in s3["basis"]]
+    current = set(_designated_prefixes(kb, fired)[0])
+
+    def restrictions(ids):
+        return {p["id"] for p in kb.s5_rules.get("prohibitions", [])
+                if any(r.startswith(pre) for r in ids for pre in p["when"].get("s3_fired", []))}
+
+    current_restrictions = restrictions(fired)
+    st = eval_stage(kb, "S3", answers)
+    pending = {}
+    possible = set(current)
+    for rid, e in st["evals"].items():
+        if (e.status != UNDET or e.rule.concludes != "DESIGNATED" or e.rule.complement_of
+                or kb.sources[e.rule.source]["evidence"] != "LAW"):
+            continue
+        extended = fired + [rid]
+        prefixes = set(_designated_prefixes(kb, extended)[0])
+        if prefixes != current or restrictions(extended) != current_restrictions:
+            pending[rid] = e
+            possible.update(prefixes)
+    if not pending:
+        return None
+    cards = _resolution(kb, "S3", {**st, "evals": pending}, answers)
+    nxt = next((c for c in cards if c["state"] == "MISSING"), None)
+    status = "NEED_TEST" if (nxt and nxt["cost"] == "TEST") or (not nxt and all(c["cost"] == "TEST" for c in cards)) else "NEED_INFO"
+    if not nxt and any(c["state"] == "CONFLICT" for c in cards):
+        status = "NEED_EXPERT"
+    excluded = set(kb.s4_map.get("excluded_codes", []))
+    return {"status": status, "stage": STAGE, "stage_title": kb.stages[STAGE]["title"],
+            "reason": "CLASSIFICATION_INCOMPLETE", "resolution": cards,
+            "message": "지정폐기물에는 해당하지만, 분류번호나 재활용 금지·제한을 바꿀 수 있는 조건을 더 확인해야 합니다.",
+            "candidates": [c["id"] for c in kb.annex4["codes"] if c["section"] == "DESIGNATED"
+                           and c["id"] not in excluded and any(c["id"].startswith(p) for p in possible)],
+            "next_question": None if nxt is None else {
+                "fact": nxt["fact"], "question": nxt["question"], "type": nxt["type"],
+                "allowed_values": nxt.get("allowed_values"), "test": nxt.get("test"),
+                "unit": nxt.get("unit"), "asked_for_stage": "S3"}}
 
 
 def evaluate_s4(kb: KB, answers: dict, decided: list[dict]) -> dict:
@@ -100,6 +151,9 @@ def evaluate_s4(kb: KB, answers: dict, decided: list[dict]) -> dict:
     used_facts: dict[str, Any] = {}
 
     if designated:
+        check = _classification_check(kb, answers, s3)
+        if check:
+            return {"result": check}
         fired = [b["rule_id"] for b in s3["basis"]]
         prefixes, map_note = _designated_prefixes(kb, fired)
         section = "DESIGNATED"
@@ -133,7 +187,7 @@ def evaluate_s4(kb: KB, answers: dict, decided: list[dict]) -> dict:
 
     a = answers.get("code")
     user_selected = False
-    if len(candidates) == 1 and (a is None or a.kind != "VALUE"):
+    if len(candidates) == 1 and (a is None or a.kind == "UNKNOWN"):
         chosen = candidates[0]
     elif a is None or a.kind == "UNKNOWN":
         card = _card("code", kb, answers, allowed, {"guide_hints_2023": hints,

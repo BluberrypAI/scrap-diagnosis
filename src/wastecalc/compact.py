@@ -99,7 +99,7 @@ def _why(card: dict) -> str | None:
     if not plains:
         return None
     if len(plains) > 2:
-        return f"답에 따라 적용되는 법 기준이 달라집니다({len(decides)}가지 경우). 고른 뒤 해당 기준만 확인합니다."
+        return "답에 따라 확인할 법적 기준이 달라집니다. 해당 조건만 이어서 확인합니다."
     return " ".join(plains)
 
 
@@ -127,6 +127,7 @@ def compact(r: dict, kb: KB, answers: dict | None = None) -> dict:
             out[k] = r[k]
     out["decided"] = [{
         "stage": d["stage"], "label": d["label"],
+        **({"user_selected": d["user_selected"]} if "user_selected" in d else {}),
         "why": " ".join((d.get("explanation") or {}).get("plain", [])) or None,
         "because": (d.get("explanation") or {}).get("because", [])[:4],
         **({"gaps": d["gaps"]} if d.get("gaps") else {}),
@@ -149,12 +150,21 @@ def compact(r: dict, kb: KB, answers: dict | None = None) -> dict:
     nq = r.get("next_question")
     if nq:
         card = next((c for c in res if c["fact"] == nq["fact"]), None)
+        fact = kb.facts[nq["fact"]]
+        purpose_stage = nq.get("asked_for_stage") or r.get("stage")
+        purpose = {"S0": "폐기물 해당 여부 확인", "S1": "적용 법률 확인", "S2": "사업장 해당 여부 확인",
+                   "S3": "지정 사유와 위험 조건 확인", "S4": "세부 분류번호 구분", "S5": "재활용 조건 확인"}.get(purpose_stage, "분류 조건 확인")
         q: dict[str, Any] = {"fact": nq["fact"], "question": nq["question"],
-                             "choices": _choices(kb, nq["fact"], nq.get("allowed_values"))}
+                             "choices": _choices(kb, nq["fact"], nq.get("allowed_values")), "purpose": purpose,
+                             "how_to_check": [h["text"] for h in (card or fact).get("how_to_check", [])]
+                                             or ["물질의 재질·발생 공정과 기존 신고서·분석결과를 확인하세요. 확실하지 않으면 모름을 선택하세요."],
+                             "why": purpose + "에 필요한 질문입니다."}
         if kb.facts[nq["fact"]]["type"] == "number":
             q["unit"] = kb.facts[nq["fact"]].get("unit")
         if card:
-            q["why"] = _why(card)
+            q["why"] = _why(card) or q["why"]
+            if card.get("note"):
+                q["note"] = card["note"]["text"]
             thr = _thresholds(card)
             if thr:
                 q["thresholds"] = thr

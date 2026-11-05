@@ -8,9 +8,11 @@
   const root = document.getElementById('root');
   const wasteId = (window.__route().path.split('/')[2]) || 'new';
   const STAGE_INDEX = {S0: 0, S1: 1, S2: 2, S3: 3, S4: 4, S5: 5};
+  const storageKey = 'wastecalc:survey:' + wasteId;
   const S = {
     phase: 'intake', text: '', proposed: [], view: null, sel: null, num: '', group: null,
-    overlay: null, berry: '어떤 폐기물인지 편하게 적어 주세요', saving: false, llm: false, asOf: '', judgeStep: 0, err: '',
+    overlay: null, berry: '어떤 폐기물인지 편하게 적어 주세요', saving: false, llm: false, asOf: '', err: '',
+    edit: null, loading: true, saveFailed: false, storageNote: '',
   };
 
   const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
@@ -20,7 +22,7 @@
     const r = await fetch(path, {method: body ? 'POST' : 'GET', headers: {'Content-Type': 'application/json'},
       body: body ? JSON.stringify(body) : undefined});
     const j = await r.json();
-    if (!r.ok) throw new Error(j.detail || r.statusText);
+    if (!r.ok) { const e = new Error(j.detail || r.statusText); e.status = r.status; throw e; }
     return j;
   }
   function say(msg, ms) {
@@ -33,34 +35,34 @@
   }
 
   // ---------------------------------------------------------------- 엔진 호출
+  function rememberSession() {
+    try { localStorage.setItem(storageKey, S.view.session_id); S.storageNote = ''; }
+    catch (_) { S.storageNote = '문진은 서버에 저장됐지만 이 브라우저에 이어가기 정보를 기록하지 못했어요.'; }
+  }
+  async function saveView(fn) {
+    if (S.saving) return;
+    S.saving = true; S.saveFailed = false; render();
+    try {
+      S.view = await fn(); rememberSession();
+      S.sel = null; S.group = null; S.num = ''; S.edit = null;
+      afterView('답변을 저장했어요. 필요한 조건을 이어서 확인할게요');
+    } catch (e) { S.saveFailed = true; throw e; }
+    finally { S.saving = false; render(); }
+  }
   async function startSession(answers) {
-    S.view = await api('/api/session', {answers, strict: true});
-    S.sel = null; S.group = null; S.num = '';
-    afterView('질문으로 후보를 좁혀 볼게요');
+    await saveView(() => api('/api/session', {answers, strict: true, waste_id: wasteId}));
   }
   async function sendAnswer(fact, value) {
-    S.saving = true; render();
-    S.view = await api(`/api/session/${S.view.session_id}/answer`, {fact, value});
-    S.saving = false; S.sel = null; S.group = null; S.num = '';
-    afterView('답변이 앞선 내용과 맞는지 살펴보고 있어요');
+    await saveView(() => api(`/api/session/${S.view.session_id}/answer`, {fact, value}));
   }
   async function undo() {
-    S.view = await api(`/api/session/${S.view.session_id}/undo`, {});
-    S.sel = null; S.group = null; S.num = ''; S.phase = 'question'; render();
+    await saveView(() => api(`/api/session/${S.view.session_id}/undo`, {}));
   }
   function afterView(msg) {
     const r = S.view.result;
     if (r.next_question) { S.phase = 'question'; say(msg, 1600); return; }
-    S.phase = 'judging'; S.judgeStep = 0; render(); judge();
+    S.phase = 'result'; S.berry = null; render();
   }
-  const JUDGE = [['ai', '답변을 모아서 읽고 있어요'], ['ai', '답변이 서로 맞는지 살펴보고 있어요'],
-    ['system', '법조문을 조회하고 있습니다'], ['system', '분류번호를 판정하고 있습니다'], ['system', '허용 재활용 유형을 조회하고 있습니다']];
-  function judge() {
-    if (S.phase !== 'judging') return;
-    if (S.judgeStep >= JUDGE.length) { S.phase = 'result'; S.berry = null; render(); return; }
-    setTimeout(() => { S.judgeStep += 1; render(); judge(); }, 350);
-  }
-
   // ---------------------------------------------------------------- 화면 조각
   function workbar() {
     const r = S.view && S.view.result;
@@ -69,20 +71,43 @@
     return `<header class="l3-workbar" data-layer-name="L3-WorkBar">
       <button type="button" data-act="exit"><span>←</span>나가기</button>
       <strong>${esc(name)}</strong>
-      <span class="${S.saving ? 'is-saving' : ''}">${S.saving ? '저장 중...' : '자동 저장됨'}</span></header>`;
+      <span role="status" class="${S.saving ? 'is-saving' : ''}">${S.loading ? '저장한 문진 확인 중…' : S.saving ? '저장 중...' : S.saveFailed ? '저장 실패 · 다시 시도' : S.view && S.view.saved ? '자동 저장됨' : '문진 시작 전'}</span></header>`;
   }
   function progress() {
     let w = 0;
     if (S.phase === 'question' && S.view) w = ((STAGE_INDEX[S.view.result.stage] || 0) + 0.5) / 6 * 100;
-    if (S.phase === 'judging' || S.phase === 'result') w = 100;
-    return `<div class="survey-progress-track"><span style="width:${w}%"></span></div>`;
+    if (S.phase === 'result' && S.view) {
+      const r = S.view.result;
+      w = r.status === 'DETERMINED' || r.provisional ? 100 : (r.decided || []).length / 6 * 100;
+    }
+    return `<div class="survey-progress-track" role="progressbar" aria-label="판정 단계 진행" aria-valuenow="${Math.round(w)}" aria-valuemin="0" aria-valuemax="100"><span style="width:${w}%"></span></div>`;
   }
   function berryDock() {
     return `<div class="berry-dock" data-speaking="${S.berry ? 'true' : 'false'}" data-layer-name="Agent-Berry">
       <img src="/scrap-engine/berry.png" alt="에이전트 베리">
       ${S.berry ? `<p class="berry-bubble" role="status"><b>베리</b>${esc(S.berry)}</p>` : ''}</div>`;
   }
-  function errLine() { return S.err ? `<p class="sv-engine-err" role="alert">${esc(S.err)}</p>` : ''; }
+  function errLine() { return `${S.err ? `<p class="sv-engine-err" role="alert">${esc(S.err)}</p>` : ''}
+    ${S.storageNote ? `<p class="sv-helper">${esc(S.storageNote)}</p>` : ''}`; }
+
+  function answeredList() {
+    if (!S.view) return '';
+    const answered = S.view.answered || [], reviews = S.view.needs_review || [];
+    if (!answered.length && !reviews.length) return '';
+    const row = (a, review) => `<li><span>${esc(a.label)}: <b>${esc(a.value_text)}</b>${review ? '<small>앞 답이 바뀌어 재확인이 필요해요</small>' : ''}</span>
+      <button type="button" data-act="edit-fact" data-fact="${esc(a.fact)}">${a.fact === 'code' || a.fact === 'general_group' ? '다시 선택' : review ? '재확인' : '수정'}</button></li>`;
+    return `<details class="sv-engine-answered" ${reviews.length ? 'open' : ''}><summary>입력한 답 ${answered.length}개${reviews.length ? ` · 재확인 ${reviews.length}개` : ''}</summary>
+      <ul>${reviews.map(a => row(a, true)).join('')}${answered.map(a => row(a, false)).join('')}</ul></details>`;
+  }
+
+  async function editFact(fid) {
+    if (fid === 'code' || fid === 'general_group') { await sendAnswer(fid, null); return; }
+    const q = await api('/api/fact/' + encodeURIComponent(fid));
+    const a = [...(S.view.answered || []), ...(S.view.needs_review || [])].find(x => x.fact === fid);
+    const val = a && a.value && typeof a.value === 'object' ? a.value.value : a && a.value;
+    S.edit = {...q, input: q.choices ? String(q.choices.findIndex(o => JSON.stringify(o.value) === JSON.stringify(val))) : String(val == null ? '' : val)};
+    S.err = ''; render();
+  }
 
   function intake() {
     const reading = S.phase === 'reading';
@@ -96,7 +121,7 @@
         aria-label="폐기물 설명" ${reading ? 'disabled' : ''}>${esc(S.text)}</textarea>
       <div class="sv-examples"><span>예시</span>${examples.map((e, i) =>
         `<button type="button" data-act="example" data-i="${i}" ${reading ? 'disabled' : ''}>${esc(e)}</button>`).join('')}</div>
-      ${S.llm ? '' : '<p class="sv-helper sv-engine-note">LLM이 연결되지 않아 설명 읽기는 쓸 수 없어요(.env 설정). 질문으로 바로 시작하세요.</p>'}
+      ${S.llm ? '' : '<p class="sv-helper sv-engine-note">지금은 설명에서 답을 읽어오는 기능을 사용할 수 없어요. 질문으로 바로 시작할 수 있어요.</p>'}
       ${errLine()}
       <footer class="survey-actions">
         <button class="button button-quiet" type="button" data-act="plain" ${reading ? 'disabled' : ''}>질문으로 바로 시작</button>
@@ -145,18 +170,22 @@
   }
   function questionView() {
     const v = S.view, r = v.result, q = r.next_question;
+    const showCounts = ['S3', 'S4'].includes(q.asked_for_stage || r.stage);
     const opts = q.choices ? optionsFor(q) : null;
     const sel = opts && opts.find(o => o.key === S.sel);
     const count = r.candidates ? r.candidates.count : null;
-    const trail = v.candidate_trail || [];
-    const prev = trail.length > 1 ? trail[trail.length - 2] : null;
+    const rawTrail = v.candidate_trail || [];
+    const trail = rawTrail.filter((n, i) => i === 0 || n !== rawTrail[i - 1]);
+    const prev = rawTrail.length > 1 ? rawTrail[rawTrail.length - 2] : null;
     const initial = trail.length ? trail[0] : count;
-    const rems = (q.choices || []).map(c => c.remaining).filter(x => typeof x === 'number');
     let why = '';
-    if (sel && typeof sel.remaining === 'number') why = `${count}개 후보를 ${sel.remaining}개로 줄이는 답이에요.`;
-    else if (rems.length && Math.min(...rems) < count) why = `답에 따라 ${count}개 후보가 최소 ${Math.min(...rems)}개까지 줄어요.`;
-    else if (count != null) why = '이 질문은 분류번호 후보 수를 바로 줄이지는 않지만, 법적 구분에 필요해요.';
-    const note = sel && typeof sel.remaining === 'number' && count - sel.remaining > 0 ? `이 답 하나로 ${count - sel.remaining}개 후보가 제외돼요` : '';
+    if (!showCounts) why = `${q.purpose || '적용 범위 확인'}에 사용하는 답이에요. 분류번호 후보는 적용 대상을 확인한 뒤 좁힙니다.`;
+    else if (sel && sel.remaining === 0) why = '이 답에 따라 분류번호를 정하는 대상에서 제외될 수 있어요. 적용 범위를 먼저 확인합니다.';
+    else if (sel && sel.remaining === count) why = `이 답으로 후보 수는 변하지 않아요. ${q.purpose || '법적 구분 확인'}에 사용합니다.`;
+    else if (sel && typeof sel.remaining === 'number' && sel.remaining < count) why = `${count}개 후보를 ${sel.remaining}개로 줄이는 답이에요.`;
+    else if (sel && typeof sel.remaining === 'number') why = '답변에 따라 검토할 후보 범위를 다시 계산합니다.';
+    else why = `${q.purpose || '분류 조건 확인'}에 필요한 질문이에요. 후보 수는 답변 후 다시 계산합니다.`;
+    const note = showCounts && sel && sel.remaining > 0 && count - sel.remaining > 0 ? `이 답 하나로 ${count - sel.remaining}개 후보가 제외돼요` : '';
     const answeredN = (v.answered || []).length;
     const test = q.test ? `<p class="sv-helper"><b>시험이 필요해요:</b> ${esc(q.test.item)} — ${esc(q.test.method)}</p>` : '';
     const optionHtml = opts ? `<fieldset class="survey-options sv-options" data-count="${opts.length}"><legend class="sr-only">답변 선택</legend>
@@ -164,7 +193,7 @@
         <input type="radio" name="sv-opt" data-act="pick" data-key="${esc(o.key)}" ${S.sel === o.key ? 'checked' : ''}>
         <span class="radio-mark"></span><span class="option-index">${String(i + 1).padStart(2, '0')}</span>
         <span class="sv-option-text"><strong>${esc(o.label)}</strong>${o.hint ? `<small>${esc(o.hint)}</small>` : ''}
-          ${o.remaining !== undefined ? `<small class="sv-engine-remaining">→ 후보 ${esc(o.remaining)}개</small>` : ''}</span></label>`).join('')}
+          ${showCounts && o.remaining !== undefined ? `<small class="sv-engine-remaining">${o.remaining === 0 ? '적용 범위 확인 필요' : `→ 후보 ${esc(o.remaining)}개`}</small>` : ''}</span></label>`).join('')}
       </fieldset>`
       : `<div class="sv-engine-number"><input type="number" step="any" data-bind="num" value="${esc(S.num)}" aria-label="값 입력">
          <span>${esc(q.unit || '')}</span>
@@ -176,6 +205,7 @@
         <span class="sv-step">질문 ${answeredN + 1}</span>
         <h1 id="sv-question">${esc(S.group != null ? `${q.question} — ${S.group}` : q.question)}</h1>
         ${q.why ? `<p class="sv-helper">${esc(q.why)}</p>` : ''}
+        ${(q.how_to_check || []).length ? `<details class="sv-question-help"><summary>어디서 확인하나요?</summary><ul>${q.how_to_check.map(h => `<li>${esc(h)}</li>`).join('')}</ul>${q.note ? `<p>${esc(q.note)}</p>` : ''}</details>` : ''}
         ${test}${lawBlock(q)}${optionHtml}${errLine()}
         <footer class="survey-actions">
           <button class="button button-quiet" type="button" data-act="back" ${canBack ? '' : 'disabled'}>이전</button>
@@ -183,24 +213,15 @@
                   : '<span class="survey-guide">답변을 선택하면 다음 단계로 이동할 수 있어요.</span>'}
         </footer></section>
       <aside class="sv-panel" data-layer-name="CandidatePanel">
-        <p class="sv-panel-label">남은 분류번호 후보</p>
-        <div class="sv-count"><strong>${count == null ? '-' : count}</strong><span>개</span>
-          ${prev != null && prev - count > 0 ? `<em>−${prev - count}개 제외</em>` : ''}</div>
-        <div class="sv-bar" aria-hidden="true"><span style="width:${initial ? count / initial * 100 : 0}%"></span></div>
-        <ol class="sv-trail" aria-label="후보 수 변화">${trail.map((n, i) => `<li class="${i === trail.length - 1 ? 'is-current' : ''}">${n}</li>`).join('')}</ol>
+        <p class="sv-panel-label">${showCounts ? '남은 분류번호 후보' : '현재 확인 단계'}</p>
+        <div class="sv-count">${showCounts ? `<strong>${count == null ? '-' : count}</strong><span>개</span>` : `<strong class="sv-purpose">${esc(q.purpose || r.stage_title)}</strong>`}
+          ${showCounts && prev != null && prev - count > 0 ? `<em>−${prev - count}개 제외</em>` : ''}</div>
+        ${showCounts ? `<div class="sv-bar" aria-hidden="true"><span style="width:${initial ? Math.min(100, count / initial * 100) : 0}%"></span></div>
+        <ol class="sv-trail" aria-label="후보 수 변화">${trail.map((n, i) => `<li class="${i === trail.length - 1 ? 'is-current' : ''}">${n}</li>`).join('')}</ol>` : ''}
         <p class="sv-why">${esc(why)}</p>${note ? `<p class="sv-note">${esc(note)}</p>` : ''}
-        ${(v.answered || []).length ? `<details class="sv-engine-answered"><summary>입력한 답 ${answeredN}개</summary><ul>${v.answered.map(a =>
-          `<li>${esc(a.label)}: <b>${esc(a.value_text)}</b></li>`).join('')}</ul></details>` : ''}
+        ${answeredList()}
       </aside></main>`;
   }
-  function judgingView() {
-    const cur = JUDGE[Math.min(S.judgeStep, JUDGE.length - 1)];
-    return `<main class="sv-judging" data-layer-name="Survey-Waiting"><div class="sv-wait">
-      <div class="sv-wait-head"><span class="sv-wait-sys">⌛</span><h1>${esc(cur[0] === 'system' ? cur[1] : '입력 내용을 검토하고 있습니다')}</h1></div>
-      <ol class="sv-wait-list" aria-label="진행 상황">${JUDGE.map((j, i) => `<li class="${i < S.judgeStep ? 'is-done' : i === S.judgeStep ? 'is-active' : ''}">
-        <span class="sv-wait-dot">${i < S.judgeStep ? '✓' : ''}</span><span>${esc(j[1])}</span></li>`).join('')}</ol></div></main>`;
-  }
-
   function evidence(trail) {
     return `<section aria-labelledby="sv-evidence"><h2 id="sv-evidence" class="sv-h2">판정 근거</h2>
       <div class="sv-evidence">${trail.map((t, i) => `<article>
@@ -218,10 +239,10 @@
         <ul>${g[key].map(a => `<li><b>${esc(a.r_code)}</b><span>${esc(a.definition || '')}</span></li>`).join('')}</ul></div>` : '';
     return `<section aria-labelledby="sv-recycle"><h2 id="sv-recycle" class="sv-h2">허용 재활용 유형</h2>
       <div class="sv-agent" data-mode="lookup"><span class="sv-agent-lookup">▤</span><p>시행규칙 별표 4의3에서 조회한 결과입니다</p></div>
-      <div class="sv-groups">${block('no_pre_analysis', 'is-free', '사전 분석·확인 해당 없음', '바로 진행할 수 있어요')}
+      <div class="sv-groups">${block('no_pre_analysis', 'is-free', '사전 분석·확인 해당 없음', '이 표에서는 사전 분석 대상으로 표시되지 않았어요')}
         ${block('pre_analysis', 'is-analysis', '사전 분석·확인 해당', '분석 결과가 먼저 필요해요')}
         ${block('unmarked', 'is-analysis', '표에 표기 없음', '원문 칸이 비어 있어요')}</div>
-      <div class="sv-notice"><p>${esc(s5.why || '')}</p></div></section>`;
+      <div class="sv-notice"><p><b>${esc(s5.label)}</b><br>${esc(s5.why || '')}</p></div></section>`;
   }
   function resultView() {
     const r = S.view.result;
@@ -232,7 +253,7 @@
     const actions = `<footer class="sv-result-actions">
       <button class="button button-quiet" type="button" data-act="restart">다시 문진하기</button>
       ${S.view.can_undo ? '<button class="button button-quiet" type="button" data-act="back">마지막 답 고치기</button>' : ''}
-      ${s4 ? `<a class="button button-primary" href="/wastes/${esc(wasteId)}/match">저장하고 처리 경로 선택 ${arrow}</a>` : ''}</footer>`;
+      <button class="button button-primary" type="button" data-act="exit">저장한 문진 나가기 ${arrow}</button></footer>`;
     const provisional = r.provisional ? `<div class="sv-notice sv-engine-warn"><p><b>잠정 결과예요.</b> ${esc(r.message || '')}
       처리 전에 관할 기관이나 전문가 확인을 권합니다.</p></div>` : '';
     if (s4) {
@@ -241,8 +262,8 @@
           <div class="sv-badges">${s3 ? `<span>${esc(s3.label)}</span>` : ''}${s2 ? `<span>${esc(s2.label)}</span>` : ''}</div>
           <p class="sv-result-label">분류번호</p><h1>${esc(code)}</h1><p class="sv-result-name">${esc(name.join(' '))}</p>
           <div class="sv-agent" data-mode="lookup"><span class="sv-agent-lookup">▤</span>
-            <p>분류번호는 법령 기준표에서 조회한 결과입니다 · 판정 기준일 ${esc(r.as_of)}</p></div></header>
-        ${provisional}${evidence(trail)}${recycling(s5)}${errLine()}${actions}</main>`;
+            <p>${s4.user_selected ? '명칭을 보고 직접 선택한 번호입니다. 엔진은 앞 단계와의 일치를 확인했습니다.' : '법령 기준표에서 범위를 좁혀 번호를 정했습니다.'} · 판정 기준일 ${esc(r.as_of)}</p></div></header>
+        ${provisional}${answeredList()}${evidence(trail)}${recycling(s5)}<p class="sv-helper">재활용 유형은 법령 표의 조회 결과입니다. 실제 처리 경로와 업체는 별도 확인이 필요해요.</p>${errLine()}${actions}</main>`;
     }
     // 분류번호까지 가지 못함: 결론(폐기물 아님 등) 또는 확인·시험·문의 안내
     const last = dec[dec.length - 1];
@@ -258,10 +279,20 @@
         <p class="sv-result-label">${esc(r.stage_title || '판정 결과')}</p><h1 class="sv-engine-h1">${esc(title)}</h1>
         ${last && last.why ? `<p class="sv-result-name">${esc(last.why)}</p>` : ''}
         ${r.message && !r.consult ? `<p class="sv-helper">${esc(r.message)}</p>` : ''}</header>
-      ${provisional}${consult}${resolve}${trail.length ? evidence(trail) : ''}${errLine()}${actions}</main>`;
+      ${provisional}${consult}${resolve}${answeredList()}${trail.length ? evidence(trail) : ''}${errLine()}${actions}</main>`;
   }
 
   function overlay() {
+    if (S.edit) {
+      const q = S.edit;
+      return `<div class="overlay-backdrop" role="presentation"><section class="analysis-panel detail-overlay" role="dialog" aria-modal="true" aria-labelledby="sv-edit-title">
+        <header class="panel-header"><h2 id="sv-edit-title">${esc(q.question)}</h2><button class="icon-button" type="button" data-act="cancel-edit" aria-label="닫기">✕</button></header>
+        <div class="legal-content"><p class="sv-helper">앞 답이 바뀌면 영향을 받는 뒤 답만 다시 확인해요.</p>
+          ${q.choices ? `<label for="sv-edit-value">답변</label><select id="sv-edit-value" class="sv-edit-value" data-bind="edit-value"><option value="-1">선택해 주세요</option>${q.choices.map((o, i) => `<option value="${i}" ${q.input === String(i) ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}</select>`
+            : `<label for="sv-edit-value">값 ${esc(q.unit || '')}</label><input id="sv-edit-value" class="sv-edit-value" type="number" step="any" min="0" data-bind="edit-value" value="${esc(q.input)}">`}
+          ${errLine()}<footer class="survey-actions"><button class="button button-quiet" type="button" data-act="cancel-edit">취소</button><button class="button button-primary" type="button" data-act="submit-edit">확인하고 이어가기</button></footer>
+        </div></section></div>`;
+    }
     if (!S.overlay) return '';
     const o = S.overlay;
     return `<div class="overlay-backdrop" role="presentation" data-act="close-bg">
@@ -284,11 +315,11 @@
     if (S.phase === 'intake' || S.phase === 'reading') body = intake();
     else if (S.phase === 'confirm') body = confirmView();
     else if (S.phase === 'question') body = questionView();
-    else if (S.phase === 'judging') body = judgingView();
     else body = resultView();
     const variant = S.phase === 'question' ? (S.sel ? 'answered' : 'unanswered') : S.phase;
     root.innerHTML = `<div class="l3-page sv-page" data-layer-name="${S.phase === 'result' ? 'L3-SurveyResult' : 'L3-Survey'}" data-variant="${variant}">
       ${workbar()}${progress()}${body}${berryDock()}${overlay()}</div>`;
+    if (S.saving || S.loading) root.querySelectorAll('button, input, select, textarea').forEach(el => { el.disabled = true; });
   }
 
   // ---------------------------------------------------------------- 동작
@@ -298,15 +329,25 @@
       if (btn) btn.disabled = !S.text.trim() || !S.llm; }
     if (b === 'num') { S.num = e.target.value; const ok = S.num !== '' && !isNaN(parseFloat(S.num));
       const f = root.querySelector('.survey-actions'); if (f && ok !== !!root.querySelector('[data-act=next]')) render(); }
+    if (b === 'edit-value' && S.edit) S.edit.input = e.target.value;
   });
   root.addEventListener('click', e => {
     const el = e.target.closest('[data-act]');
     if (!el) return;
+    if (S.saving || S.loading) return;
     const act = el.dataset.act;
     if (act === 'close-bg' && e.target !== el) return;
     const r = S.view && S.view.result;
     switch (act) {
       case 'exit': location.hash = '#/wastes'; break;
+      case 'edit-fact': run(() => editFact(el.dataset.fact)); break;
+      case 'cancel-edit': S.edit = null; S.err = ''; render(); break;
+      case 'submit-edit': run(async () => {
+        const q = S.edit;
+        const value = q.choices ? (q.choices[Number(q.input)] || {}).value : q.input.trim() !== '' ? Number(q.input) : undefined;
+        if (value === undefined || (typeof value === 'number' && (!Number.isFinite(value) || value < 0))) throw new Error('답변을 선택하거나 올바른 값을 입력해 주세요.');
+        await sendAnswer(q.fact, value);
+      }); break;
       case 'example': S.text = [
         '사출 공장 3번 라인에서 나오는 성형 불량품과 스프루, 런너를 월 2.3톤 정도 버려요',
         '프레스 공장인데 절삭유 묻은 철 칩이 나와요. 대기 배출시설 신고는 돼 있어요.'][+el.dataset.i]; render(); break;
@@ -340,7 +381,8 @@
         if (S.group != null) { S.group = null; S.sel = null; render(); }
         else run(undo);
         break;
-      case 'restart': S.view = null; S.phase = 'intake'; S.proposed = []; say('어떤 폐기물인지 편하게 적어 주세요'); break;
+      case 'restart': S.view = null; S.phase = 'intake'; S.proposed = []; S.edit = null; S.err = ''; S.saveFailed = false;
+        try { localStorage.removeItem(storageKey); } catch (_) {} say('어떤 폐기물인지 편하게 적어 주세요'); break;
       case 'law-q': { const q = r.next_question;
         S.overlay = {kicker: r.stage_title, title: q.question, basis: q.law, reasons: q.why ? [q.why] : [], version: ''}; render(); break; }
       case 'law-t': { const t = r.trail[+el.dataset.i];
@@ -351,9 +393,20 @@
       case 'close': case 'close-bg': S.overlay = null; render(); break;
     }
   });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && S.overlay) { S.overlay = null; render(); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !S.saving && (S.overlay || S.edit)) { S.overlay = null; S.edit = null; render(); } });
 
-  api('/api/status').then(s => { S.llm = !!(s.llm && s.llm.enabled); S.asOf = s.as_of; render(); })
-    .catch(e => { S.err = String(e.message || e); render(); });
+  async function initialize() {
+    try {
+      const s = await api('/api/status'); S.llm = !!(s.llm && s.llm.enabled); S.asOf = s.as_of;
+      let sid = null;
+      try { sid = localStorage.getItem(storageKey); } catch (_) {}
+      if (sid) {
+        S.view = await api('/api/session/' + encodeURIComponent(sid));
+        afterView('저장한 답변을 불러왔어요');
+      }
+    } catch (e) { S.err = String(e.message || e); }
+    finally { S.loading = false; render(); }
+  }
+  initialize();
   render();
 })();

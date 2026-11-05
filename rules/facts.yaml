@@ -90,7 +90,7 @@ designated_waste_emitted:
       source: GUIDE-REPORT
       quote: 사업장에서 발생하는 폐기물 중 유해물질 함유량에 따라 지정폐기물로 분류될 수 있는 폐기물에 대해서는 폐기물분석전문기관에 의뢰하여 지정폐기물 해당여부를 미리 확인
   note:
-    text: 지정폐기물 해당 여부를 판정하는 단계(S3)는 아직 계산기에 없습니다.
+    text: 이 폐기물 자체의 지정 여부는 별도 질문으로 확인합니다. 다른 폐기물의 배출 여부는 기존 처리계획 확인서나 인계 기록을 확인하세요.
 
 daily_avg_kg:
   label: 하루 평균 배출량
@@ -135,7 +135,7 @@ waste_kind:
   label: 폐기물 종류
   type: enum
   cost: USER
-  question: 이 폐기물은 아래 중 무엇에 가장 가깝나요?
+  question: 이 물질의 재질과 발생 공정에 해당하는 항목을 골라주세요.
   values:
     synthetic_resin: 폐합성수지(플라스틱·수지류)
     synthetic_rubber: 폐합성고무
@@ -357,7 +357,7 @@ toxic_chemical_discard:
   label: 유해화학물질 폐기
   type: bool
   cost: DOCUMENT
-  question: 화학물질관리법상 유해화학물질(인체급성·인체만성·생태유해성물질, 허가·제한·금지물질, 사고대비물질)을 폐기하는 것인가요?
+  question: 버리는 약품이 MSDS나 화학물질정보시스템에서 유해화학물질로 표시되어 있나요?
   how_to_check:
     - text: 폐기하려는 화학물질의 물질안전보건자료(MSDS)와 화학물질정보시스템에서 해당 물질 지정 여부를 확인하세요.
 
@@ -486,7 +486,7 @@ general_group:
   type: enum
   cost: USER
   values_from: annex4_general_groups
-  question: 시행규칙 별표 4의 사업장일반폐기물 분류 중 어디에 해당하나요?
+  question: 이 물질의 재질이나 발생 공정은 아래 중 어느 항목에 해당하나요?
   how_to_check:
     - text: 폐기물의 재질·발생 공정으로 고르세요. 2023 「폐기물 분류체계 및 분류방법 설명서」 부록 2의 항목별 설명을 참고할 수 있습니다(구판 기준).
 
@@ -504,12 +504,14 @@ no_specific_code_applies:
   type: bool
   cost: USER
   question: 같은 분류 안의 다른 세부 번호에는 하나도 해당하지 않나요? ('그 밖의' 번호는 다른 번호에 해당하지 않을 때만 씁니다)
+  how_to_check:
+    - text: 같은 분류의 다른 세부 명칭과 괄호 안의 한정·제외 조건을 먼저 대조하세요. 구분하기 어려우면 관할 기관에 확인하세요.
 
 designated_residue:
   label: 지정폐기물 잔류물
   type: bool
   cost: USER
-  question: 이 용기·포장재·물건에 폐유·폐유기용제·폐산 같은 지정폐기물(또는 유해화학물질)이 남아 있거나 묻어 있나요? (세척해서 없앴으면 '아니오')
+  question: 이 용기·포장재·물건에 원래 담았던 기름·용제·산·알칼리·페인트·유해화학물질이 남아 있거나 묻어 있나요?
   how_to_check:
     - text: 용기 안과 겉에 원래 내용물이 남아 있는지 보세요. 세척했다면 세척 기록을 확인하세요.
 

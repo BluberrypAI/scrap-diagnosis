@@ -19,6 +19,7 @@ from .compact import compact, render_compact
 from .engine import InputError, evaluate, parse_answers
 from .kb import load_kb
 from .render import render_text
+from .session_state import revise_answers
 
 mcp = FastMCP("wastecalc")
 KB = load_kb()
@@ -96,13 +97,16 @@ def answer_question(session_id: str, fact: str | None = None, value: Any = None,
         new[fact] = value
     if not new:
         return _error("fact+value 또는 answers가 필요합니다.")
-    trial = {**s["answers"], **new}
     try:
-        parse_answers(KB, trial)
+        trial, invalidated = revise_answers(KB, s["answers"], new)
     except InputError as e:
         return _error(str(e))
     s["answers"] = trial
-    return _run(trial, s["strict"], session_id, s.get("as_of"), detail)
+    reviews = {**s.get("needs_review", {}), **invalidated}
+    s["needs_review"] = {f: v for f, v in reviews.items() if f not in new}
+    out = _run(trial, s["strict"], session_id, s.get("as_of"), detail)
+    out.structuredContent["needs_review"] = s["needs_review"]
+    return out
 
 
 @mcp.tool()

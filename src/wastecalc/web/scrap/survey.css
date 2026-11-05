@@ -12,3 +12,11 @@
 .sv-engine-answered ul { padding-left: 18px; margin: 6px 0 0; }
 .sv-engine-h1 { font-size: 1.8em; }
 .sv-cues input[type=checkbox] { margin-right: 6px; }
+.sv-question-help { margin: 12px 0; line-height: 1.6; }
+.sv-question-help summary { cursor: pointer; }
+.sv-question-help ul { padding-left: 20px; }
+.sv-count .sv-purpose { font-size: 1.25rem; line-height: 1.5; }
+.sv-engine-answered li { display: flex; gap: 12px; align-items: start; justify-content: space-between; margin: 10px 0; }
+.sv-engine-answered li small { display: block; color: #7a5714; }
+.sv-engine-answered button { flex-shrink: 0; color: inherit; background: transparent; text-decoration: underline; border: 0; cursor: pointer; }
+.sv-edit-value { display: block; width: 100%; max-width: 100%; padding: 12px; margin: 10px 0 20px; font: inherit; border: 1px solid #ccd; border-radius: 10px; }

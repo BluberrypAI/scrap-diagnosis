@@ -590,6 +590,8 @@ def evaluate(answers_raw: dict | None, strict: bool = True, kb: KB | None = None
             # 다른 단계 판정으로 정해지는 사실 → 그 단계의 다음 질문을 대신 묻는다
             via = nxt["derived_from"]
             sub = _resolution(kb, via, eval_stage(kb, via, answers), answers)
+            # 빌린 단계의 질문도 목적·원문·확인 방법을 compact 응답으로 전달한다.
+            res = res + [c for c in sub if c["fact"] not in {x["fact"] for x in res}]
             nxt["how_to_check"] = [{"text": f"'{kb.stages[via]['title']}' 질문에 답하면 정해집니다.", "basis": None}]
             nxt = next((c for c in sub if c["state"] == "MISSING"), None)
             if nxt is None:
