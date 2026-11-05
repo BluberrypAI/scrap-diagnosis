@@ -23,7 +23,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse, Response
 from pydantic import BaseModel
 
-from .. import llm
 from ..candidates import code_candidates
 from ..compact import compact, question_groups
 from ..engine import InputError, evaluate, parse_answer, parse_answers, upgrade_legacy, value_text
@@ -62,21 +61,6 @@ class AnswerReq(BaseModel):
 
 class AnswersReq(BaseModel):
     answers: dict  # 묶음 질문의 답을 한 번에(사실마다 따로 엔진에 들어감)
-
-
-class TextReq(BaseModel):
-    text: str
-
-
-class MapReq(BaseModel):
-    fact: str
-    text: str
-
-
-class HelpReq(BaseModel):
-    fact: str
-    question: str | None = None
-    why: str | None = None
 
 
 def _session(sid: str) -> dict:
@@ -166,23 +150,9 @@ if (STATIC / "index.html").exists():
 
 @app.get("/api/status")
 def api_status() -> dict:
-    return {"llm": llm.status(), "as_of": KB.as_of, "rule_db_version": KB.version,
+    # 엔진은 LLM을 쓰지 않는다(자연어 해석은 scrap-ai 담당). 로컬 화면 호환을 위해 꺼짐으로만 알린다.
+    return {"llm": {"enabled": False, "note": "분류 엔진은 LLM을 쓰지 않습니다"}, "as_of": KB.as_of, "rule_db_version": KB.version,
             "site_facts": [f for f in question_groups().get("site_facts", []) if f in KB.facts]}
-
-
-@app.post("/api/extract")
-def api_extract(req: TextReq) -> dict:
-    """자유 설명 → 제안 사실(적용 전). 사용자가 확인한 것만 /api/session으로 넘긴다."""
-    try:
-        items = llm.extract_facts(KB, req.text)
-    except llm.LLMUnavailable as e:
-        raise HTTPException(400, str(e))
-    out = []
-    for it in items:
-        f = KB.facts[it["fact"]]
-        a = parse_answer(KB, it["fact"], it["value"])
-        out.append({**it, "label": f.get("label", it["fact"]), "value_text": value_text(KB, it["fact"], a)})
-    return {"proposed": out}
 
 
 @app.post("/api/session")
@@ -276,29 +246,6 @@ def api_fact(fid: str) -> dict:
 
     return {"fact": fid, "question": f["question"], "choices": _choices(KB, fid, None),
             "unit": f.get("unit") if f["type"] == "number" else None}
-
-
-@app.post("/api/map")
-def api_map(req: MapReq) -> dict:
-    if req.fact not in KB.facts:
-        raise HTTPException(404, "없는 사실입니다.")
-    try:
-        m = llm.map_answer(KB, req.fact, req.text)
-    except llm.LLMUnavailable as e:
-        raise HTTPException(400, str(e))
-    a = parse_answer(KB, req.fact, m["value"])
-    return {**m, "value_text": value_text(KB, req.fact, a)}
-
-
-@app.post("/api/help")
-def api_help(req: HelpReq) -> dict:
-    if req.fact not in KB.facts:
-        raise HTTPException(404, "없는 사실입니다.")
-    try:
-        return {"text": llm.explain_question(KB, req.fact, req.why, req.question)}
-    except llm.LLMUnavailable as e:
-        raise HTTPException(400, str(e))
-
 
 
 # ================================================================ scrap-web 문진 화면용 API
@@ -439,23 +386,6 @@ def class_record(sid: str) -> dict:
         return rec
 
 
-@app.post("/api/classification/extract")
-def class_extract(req: TextReq) -> dict:
-    """자유 설명 → 이해 확인 화면의 [[항목, 값]]과 시작할 때 넣을 answers(사용자가 확인한 뒤)."""
-    from ..scrap_view import cues
-
-    try:
-        items = llm.extract_facts(KB, req.text)
-    except llm.LLMUnavailable as e:
-        raise HTTPException(400, str(e))
-    proposed = []
-    for it in items:
-        a = parse_answer(KB, it["fact"], it["value"])
-        proposed.append({**it, "label": KB.facts[it["fact"]].get("label", it["fact"]),
-                         "value_text": value_text(KB, it["fact"], a)})
-    return {"cues": cues(KB, proposed), "answers": {p["fact"]: p["value"] for p in proposed}, "proposed": proposed}
-
-
 # ---------------- 상태 없는 답 적용·판정 기록(서버가 상태를 DB에 저장할 때)
 class ClassApplyReq(BaseModel):
     state: dict = {}        # {"answers": {...}, "ui": {...}, "needs_review": {...}} — 서버가 저장해 둔 그대로
@@ -467,6 +397,29 @@ class ClassApplyReq(BaseModel):
 class ClassStateReq(BaseModel):
     state: dict = {}
     as_of: str | None = None
+
+
+@app.get("/api/classification/facts")
+def class_facts() -> dict:
+    """엔진이 받는 사실 목록(질문·형식·허용 값·단위·확인 방법). 자연어 설명에서 값을 제안하는 쪽(scrap-ai 등)이
+    이 목록의 값만 제안하고, 사용자가 확인한 값만 answers로 넣는다. 엔진은 LLM을 쓰지 않는다."""
+    facts = {}
+    for fid, f in KB.facts.items():
+        if f.get("derived_from"):
+            continue
+        item = {k: f[k] for k in ("label", "question", "type", "cost", "unit") if k in f}
+        if f["type"] == "enum":
+            item["values"] = f["values"]
+            if f.get("value_groups"):
+                item["value_groups"] = f["value_groups"]
+            if f.get("value_hints"):
+                item["value_aliases"] = f["value_hints"]
+        if f.get("how_to_check"):
+            item["how_to_check"] = [h["text"] for h in f["how_to_check"]]
+        facts[fid] = item
+    return {"facts": facts, "unknown_token": "UNKNOWN", "rule_db_version": KB.version,
+            "note": "material(소재)를 먼저 채우면 폐기물 종류와 소재가 정하는 사실은 엔진이 채운다. "
+                    "code·general_group은 제안하지 말 것(엔진이 정함)."}
 
 
 @app.post("/api/classification/apply")

@@ -308,8 +308,3 @@ def build_view(kb: KB, answers_raw: dict, ui: dict | None = None, *, strict: boo
         view["range_answers"] = ui["range"]
     return view
 
-
-def cues(kb: KB, proposed: list[dict]) -> list[list[str]]:
-    """LLM 추출 결과 → 이해 확인 화면의 [[항목, 값]]."""
-    return [[p.get("label") or kb.facts[p["fact"]].get("label", p["fact"]), p.get("value_text") or str(p["value"])]
-            for p in proposed]

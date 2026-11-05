@@ -15,7 +15,7 @@
 | `POST /api/classification/sessions/{id}/answer` `{answers}` | **고른 보기의 `answers`를 그대로** 보냄 | |
 | `POST /api/classification/sessions/{id}/undo` | '이전' | |
 | `GET /api/classification/sessions/{id}/record` | 판정 기록(서버 저장·처리경로 넘김용, `schemas/assessment_record.schema.json`) | |
-| `POST /api/classification/extract` `{text}` | 설명 읽기(LLM): 이해 확인 화면의 `cues`와 시작용 `answers` | |
+| `GET /api/classification/facts` | 엔진이 받는 사실·허용 값 목록. 설명 읽기(자연어 → 사실 제안)는 엔진이 하지 않으며, scrap-ai 등이 이 목록의 값만 제안한다 | |
 
 화면은 보기마다 붙은 `answers`를 돌려보내기만 한다. 그 안의 `__ui`는 화면 상태(묶음 선택 등)이고 엔진 사실이 아니다. 화면은 내용을 해석할 필요가 없다.
 
@@ -58,7 +58,7 @@
 | 근거 조문 창 | 같은 항목 + 기준일 | 같은 항목 + `law_version`, `because`(해당하지 않은 이유) |
 | 허용 재활용 유형 2묶음 | `freeRecycleTypes`, `analysisRecycleTypes` (`[[R코드, 이름]]`) | `result.recycle.free`, `result.recycle.analysis` 같은 모양. 이름은 `rules/r_code_labels.yaml`의 짧은 이름 |
 | 처리경로 넘김 | 고정 `'51-03-01'` | `result.treatment = {waste_code, material, material_label}` — `material`은 처리경로 엔진의 키(PP·PE·PET·aluminium, 없으면 null) |
-| 이해 확인 `sv-cues` | `[[항목, 값]]` 고정 | `/extract` 응답의 `cues` |
+| 이해 확인 `sv-cues` | `[[항목, 값]]` 고정 | **엔진 범위 밖.** 설명 읽기를 맡는 쪽(scrap-ai)이 `/facts` 목록 기준으로 제안한 값의 이름·값을 보여 주고, 확인되면 시작할 때 `answers`로 넘김 |
 
 화면이 라디오 한 단계만 그리므로 엔진이 질문을 이렇게 바꿔 보낸다(`question.kind`):
 

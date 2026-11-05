@@ -170,13 +170,3 @@ def test_record_endpoint_and_mcp_tool():
     out = server.assessment_record(answers={**GATE, "material": "ferrous_scrap", **CLEAN})
     assert not out.isError and out.structuredContent["items"]["code"]["code"] == "51-29-01"
 
-
-def test_llm_material_proposal_drops_separately_guessed_waste_kind(monkeypatch):
-    from wastecalc import llm
-
-    text = "사출 공장에서 PP 성형 불량품이 나와요."
-    fake = {"facts": {"material": "pp", "waste_kind": "synthetic_rubber"},
-            "evidence": {"material": "PP 성형 불량품", "waste_kind": "PP 성형 불량품"}}
-    monkeypatch.setattr(llm, "_chat_json", lambda s, u: fake)
-    got = {p["fact"]: p["value"] for p in llm.extract_facts(KB, text)}
-    assert got == {"material": "pp"}

@@ -105,7 +105,7 @@ scrap-web ──/api/v1/…──▶ scrap-server ──HTTP(내부망)──▶
 | `POST /api/v1/wastes/{waste_id}/classification/answer` `{answers}` | 이벤트 저장(직전 state 포함) → 새 state 저장 | `POST /api/classification/apply {state, patch}` |
 | `POST /api/v1/wastes/{waste_id}/classification/undo` | 마지막 이벤트의 `state_before`로 되돌리기 | `evaluate` |
 | (결과에 도달하면 서버가 자동) | 판정 기록 저장, 폐기물 목록의 상태·분류번호 갱신 | `POST /api/classification/record {state}` |
-| `POST /api/v1/classification/extract` `{text}` | 설명 읽기 | `POST /api/classification/extract` |
+| `POST /api/v1/classification/extract` `{text}` | 설명 읽기 — scrap-ai(LLM)가 엔진 사실 목록 기준으로 값을 제안 | 엔진은 `GET /api/classification/facts`(목록)만 제공 |
 
 - 서버는 응답 본문(`view`)을 해석하지 않고 화면으로 그대로 넘긴다. 단, 결과 단계에서 `view.result.code`·`provisional`·`treatment`는 폐기물 목록 갱신과 처리경로 연결에 쓴다.
 - 기업 공통 사실이 문진 중에 답해지면(`state.answers`에 해당 키), 서버가 `company_site_facts`에도 반영한다.
