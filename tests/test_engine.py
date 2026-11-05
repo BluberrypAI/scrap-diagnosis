@@ -50,7 +50,7 @@ def test_empty_input_asks_first_question_with_criteria():
     r = ev({})
     assert r["status"] == "NEED_INFO"
     assert r["stage"] == "S0"
-    assert r["next_question"]["fact"] == "no_longer_needed"
+    assert r["next_question"]["fact"] == "material_fate"
     assert all(c["decides"] for c in r["resolution"])
 
 
@@ -198,8 +198,8 @@ def test_s2_exhaustive_no_overlap_no_hole():
 
 
 def test_s0_exhaustive_no_overlap_no_hole():
-    domain = {"no_longer_needed": [True, False, UNKNOWN], "direct_reinput": [True, False, UNKNOWN],
-              "continuous_feedstock": [True, False, UNKNOWN], "circular_resource_recognized": [True, False, UNKNOWN]}
+    domain = {"material_fate": list(KB.facts["material_fate"]["values"]) + [UNKNOWN],
+              "circular_resource_recognized": [True, False, UNKNOWN]}
     for combo in _combos(domain):
         st = eval_stage(KB, "S0", parse_answers(KB, combo))
         trues = [c for c, s in st["candidates"].items() if s == TRUE]
@@ -254,3 +254,23 @@ def test_render_every_status():
         for strict in (True, False):
             text = render_text(ev(c, strict=strict))
             assert text.startswith("■ ")
+
+
+def test_one_choice_replaces_three_overlapping_questions():
+    r = ev({})
+    assert r["next_question"]["fact"] == "material_fate"
+    assert set(r["next_question"]["allowed_values"]) == {"still_used", "same_process_reinput",
+                                                         "continuous_feedstock", "released"}
+
+
+def test_released_including_sale_is_waste():
+    r = ev({"material_fate": "released", "circular_resource_recognized": False})
+    assert r["decided"][0]["conclusion"] == "WASTE"
+
+
+def test_legacy_answers_are_converted():
+    from wastecalc.engine import upgrade_legacy
+    assert upgrade_legacy({"no_longer_needed": True, "direct_reinput": False})["material_fate"] == "released"
+    assert upgrade_legacy({"no_longer_needed": False})["material_fate"] == "still_used"
+    assert upgrade_legacy({"no_longer_needed": True, "direct_reinput": True})["material_fate"] == "same_process_reinput"
+    assert upgrade_legacy({"material_fate": "still_used", "direct_reinput": True}) == {"material_fate": "still_used"}

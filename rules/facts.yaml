@@ -3,33 +3,22 @@
 # how_to_check: 사용자가 모를 때 안내할 확인 방법. basis가 없는 안내는 "실무 안내"로 표시된다.
 
 # ---------- S0 폐기물 해당 여부 ----------
-no_longer_needed:
-  label: 더 이상 필요 없어 내보내는지
-  type: bool
+material_fate:
+  label: 이 물질을 어떻게 하는지
+  type: enum
   cost: USER
-  question: 이 물질은 사업활동에 더 이상 필요 없게 되어 내보내는(버리거나 넘기는) 것인가요?
+  question: 이 물질을 어떻게 하나요?
+  values:
+    still_used: 제품이나 원료로 계속 쓴다 (아직 필요함)
+    same_process_reinput: 따로 처리하지 않고 같은 공정에 바로 다시 넣는다
+    continuous_feedstock: 따로 처리하지 않고 발생한 시설에서 연속공정으로 다른 제품의 원료로 바로 넣는다
+    released: 내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)
   how_to_check:
-    - text: 판매용 제품으로 생산한 것인지, 공정에서 남거나 나와 내보내는 것인지 확인하세요.
+    - text: 공정도에서 이 물질이 어디로 가는지 확인하세요. 세척·파쇄·보관 등을 거쳐 다른 곳으로 가면 '내보낸다'입니다.
   note:
-    text: 재활용이 가능하거나 재활용된다는 이유만으로 폐기물에서 빠지지 않습니다.
+    text: 팔거나 재활용업체에 넘겨도 사업에 필요 없게 된 물질이면 폐기물입니다. 재활용이 가능하다는 이유만으로 폐기물에서 빠지지 않습니다.
     source: GUIDE23-QA
     quote: 생산공정에서 발생되는 불량품·자투리 등이 재활용이 가능하거나 재활용된다 하여 폐기물에서 제외되는 것은 아니며
-
-continuous_feedstock:
-  label: 연속공정으로 다른 제품 원료 투입
-  type: bool
-  cost: USER
-  question: 별도의 가공·처리 없이, 발생한 시설에서 연속공정으로 다른 제품을 만드는 원료로 바로 쓰나요?
-  how_to_check:
-    - text: 이 물질이 발생 설비에서 나와 중간 보관·가공 없이 배관·컨베이어 등으로 다른 제품 공정에 바로 들어가는지 공정도로 확인하세요.
-
-direct_reinput:
-  label: 같은 공정 바로 재투입 여부
-  type: bool
-  cost: USER
-  question: 별도의 처리공정 없이, 같은 사업장의 같은 공정에 원료로 바로 다시 넣나요?
-  how_to_check:
-    - text: 이 물질을 세척·파쇄 등 따로 처리하지 않고 발생한 그 공정에 원료로 다시 투입하는지 공정도로 확인하세요.
 
 circular_resource_recognized:
   label: 순환자원 인정서

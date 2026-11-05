@@ -7,7 +7,7 @@ stages:
   # question_order: 같은 단계에서 물을 사실의 우선순위. 목록에 없는 사실은 뒤로 간다.
   S0:
     title: 폐기물 해당 여부
-    question_order: [no_longer_needed, direct_reinput, continuous_feedstock, circular_resource_recognized]
+    question_order: [material_fate, circular_resource_recognized]
     candidates:
       WASTE: {label: 폐기물, next: S1}
       NOT_WASTE: {label: 폐기물 아님, terminal: true}
@@ -60,7 +60,7 @@ rules:
     stage: S0
     concludes: NOT_WASTE
     when:
-      - {fact: no_longer_needed, op: eq, value: false}
+      - {fact: material_fate, op: eq, value: still_used}
       - {fact: circular_resource_recognized, op: eq, value: false}
     source: ACT-WASTE
     location: 제2조제1호
@@ -72,7 +72,7 @@ rules:
     stage: S0
     concludes: NOT_WASTE
     when:
-      - {fact: direct_reinput, op: eq, value: true}
+      - {fact: material_fate, op: eq, value: same_process_reinput}
       - {fact: circular_resource_recognized, op: eq, value: false}
     source: GUIDE23-QA
     location: 부록 2 p.118 사례(스펀지 불량품·부산물)
@@ -84,7 +84,7 @@ rules:
     stage: S0
     concludes: NOT_WASTE
     when:
-      - {fact: continuous_feedstock, op: eq, value: true}
+      - {fact: material_fate, op: eq, value: continuous_feedstock}
       - {fact: circular_resource_recognized, op: eq, value: false}
     source: GUIDE23-QA
     location: 4.2.1 해석사례 p.50(출처 폐기물 질의·회신 사례집 2014.12)
@@ -96,14 +96,17 @@ rules:
     stage: S0
     concludes: WASTE
     when:
-      - {fact: no_longer_needed, op: eq, value: true}
-      - {fact: direct_reinput, op: eq, value: false}
-      - {fact: continuous_feedstock, op: eq, value: false}
+      - {fact: material_fate, op: eq, value: released}
       - {fact: circular_resource_recognized, op: eq, value: false}
     source: ACT-WASTE
     location: 제2조제1호
     quote: “폐기물”이란 쓰레기, 연소재(燃燒滓), 오니(汚泥), 폐유(廢油), 폐산(廢酸), 폐알칼리 및 동물의 사체(死體) 등으로서 사람의 생활이나 사업활동에 필요하지 아니하게 된 물질을 말한다.
-    plain: "사업에 더 이상 필요 없어 내보내는 물질은 폐기물입니다. 재활용할 수 있다는 이유만으로 폐기물에서 빠지지 않습니다."
+    plain: "사업에 더 이상 필요 없어 내보내는 물질은 폐기물입니다. 팔거나 재활용업체에 넘겨도, 재활용할 수 있다는 이유만으로 폐기물에서 빠지지 않습니다."
+    supporting:
+      - source: GUIDE23-QA
+        location: 4.2.1 p.50
+        quote: 배출자가 아닌 제3자에게 유용성이 있다고 하더라도 배출자가 제품의 제조공정상의 문제 또는 취급상의 부주의로 인하여 생산제품을 상품으로 사용할 수 없게 되어 저가 또는 무상으로 제3자에게 매각하고자 하는 경우에도 역시 폐기물로 분류된다
+        note: 팔더라도 폐기물이라는 해설
     review: UNVERIFIED
 
   # ---------------- S1 ----------------

@@ -14,7 +14,7 @@ from pydantic import BaseModel
 
 from .. import llm
 from ..compact import compact
-from ..engine import InputError, evaluate, parse_answer, parse_answers, value_text
+from ..engine import InputError, evaluate, parse_answer, parse_answers, upgrade_legacy, value_text
 from ..kb import load_kb
 from ..render import render_text
 
@@ -99,7 +99,7 @@ def api_start(req: StartReq) -> dict:
     except InputError as e:
         raise HTTPException(400, str(e))
     sid = uuid.uuid4().hex[:12]
-    SESSIONS[sid] = {"answers": dict(req.answers), "strict": req.strict, "history": []}
+    SESSIONS[sid] = {"answers": upgrade_legacy(dict(req.answers)), "strict": req.strict, "history": []}
     return _view(sid)
 
 

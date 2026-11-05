@@ -89,11 +89,45 @@ def parse_answer(kb: KB, fid: str, raw: Any) -> Answer:
     return Answer("VALUE", (_check_value(kb, fid, raw),), source)
 
 
+LEGACY_FATE = ("no_longer_needed", "direct_reinput", "continuous_feedstock")
+
+
+def upgrade_legacy(raw: dict) -> dict:
+    """옛 입력(세 개의 예/아니오 질문)을 새 객관식(material_fate)으로 바꾼다. 이미 저장된 사례·테스트 호환용."""
+    if not any(k in raw for k in LEGACY_FATE):
+        return raw
+    for k in LEGACY_FATE:
+        if k in raw:
+            v = raw[k].get("value") if isinstance(raw[k], dict) else raw[k]
+            if not isinstance(v, bool) and v != UNKNOWN:
+                raise InputError(f"{k}: 참/거짓(true/false) 또는 \"UNKNOWN\"만 받습니다. 받은 값: {v!r}")
+    out = {k: v for k, v in raw.items() if k not in LEGACY_FATE}
+    if "material_fate" in raw:
+        return out
+
+    def val(k):
+        v = raw.get(k)
+        return v.get("value") if isinstance(v, dict) else v
+
+    if val("direct_reinput") is True:
+        out["material_fate"] = "same_process_reinput"
+    elif val("continuous_feedstock") is True:
+        out["material_fate"] = "continuous_feedstock"
+    elif val("no_longer_needed") is False:
+        out["material_fate"] = "still_used"
+    elif val("no_longer_needed") is True:
+        out["material_fate"] = "released"
+    elif val("no_longer_needed") == UNKNOWN:
+        out["material_fate"] = UNKNOWN
+    return out
+
+
 def parse_answers(kb: KB, raw: dict | None) -> dict[str, Answer]:
     if raw is None:
         return {}
     if not isinstance(raw, dict):
         raise InputError("answers는 {사실 id: 값} 형태여야 합니다.")
+    raw = upgrade_legacy(raw)
     return {fid: parse_answer(kb, fid, v) for fid, v in raw.items()}
 
 
