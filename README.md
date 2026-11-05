@@ -22,11 +22,18 @@ Python 3.11 이상.
 ```bash
 pip install -e ".[test]"
 python -m pytest -q                  # 테스트
-python -m wastecalc.web              # 시험 화면 → http://127.0.0.1:8000
+python -m wastecalc.web              # 웹 화면 (아래 주소)
 python -m wastecalc.server           # MCP 서버(stdio)
 ```
 
 `pip install -e .` 없이 쓰려면 환경변수 `PYTHONPATH=src`를 준다.
+
+| 주소 | 화면 |
+|---|---|
+| http://127.0.0.1:8000/ | SCRAP 디자인(`src/wastecalc/web/scrap/SCRAP.html`, Figma Make 내보내기). 문진 화면 `#/wastes/<id>/survey`만 엔진에 연결(`scrap/survey.js`), 나머지 화면은 디자인 데모 그대로 |
+| http://127.0.0.1:8000/test | 꾸미지 않은 시험 화면 |
+
+SCRAP.html은 고치지 않고 보낼 때 두 곳만 바꾼다(`web/app.py`의 `scrap_html`). 디자인을 새로 내보내면 파일만 바꾸면 되고, 구조가 달라져 바꿀 곳을 못 찾으면 서버가 오류를 낸다.
 
 ### MCP 클라이언트에 연결
 

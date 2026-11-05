@@ -27,9 +27,11 @@
 <section id="main" hidden>
   <div><b>상태:</b> <span id="st"></span> <span id="summary"></span></div>
   <div id="message"></div>
+  <div id="cands" class="muted"></div>
 
   <div id="qbox">
     <p><b id="qtext"></b></p>
+    <div id="qlaw" class="muted"></div>
     <div id="qwhy" class="muted"></div>
     <div id="qtest" class="muted"></div>
     <div id="choices"></div>
@@ -43,6 +45,7 @@
   </div>
 
   <div id="decided"></div>
+  <div id="trail"></div>
   <div id="consult"></div>
   <div id="resolve"></div>
 
@@ -113,10 +116,20 @@ function showQuestion(q) {
   $('qtext').textContent = q.question + (q.asked_for_stage ? ` [${q.asked_for_stage} 판정을 위해]` : '');
   $('qwhy').textContent = q.why ? '왜 묻나요: ' + q.why : '';
   $('qtest').textContent = q.test ? `시험 필요: ${q.test.item} — ${q.test.method}` : '';
+  $('qlaw').innerHTML = (q.law || []).map(l => `${l.cite}: “${l.quote}”` + (l.evidence !== 'LAW' ? ' (법령 아님·해설/회신)' : '')).join('<br>');
   $('choices').innerHTML = '';
+  let group = null;
   (q.choices || []).forEach(c => {
-    const b = document.createElement('button'); b.textContent = c.label; b.onclick = () => answer(q.fact, c.value);
+    if (c.group && c.group !== group) {  // 묶음 제목
+      group = c.group; const h = document.createElement('div'); h.innerHTML = `<b>${group}</b>`; $('choices').appendChild(h);
+    }
+    const b = document.createElement('button');
+    b.textContent = c.label + (c.remaining !== undefined ? ` (→ 후보 ${c.remaining}개)` : '');
+    if (c.hint) b.title = c.hint;
+    b.onclick = () => answer(q.fact, c.value);
     $('choices').appendChild(b);
+    if (c.hint) { const h = document.createElement('div'); h.className = 'muted'; h.textContent = '  ' + c.hint; $('choices').appendChild(h); }
+    else if (q.choices.length > 3) $('choices').appendChild(document.createElement('br'));
   });
   $('numbox').hidden = !!q.choices;
   if (!q.choices) {
@@ -161,7 +174,18 @@ function render(v) {
   const last = (r.decided || [])[r.decided.length - 1];
   $('decided').innerHTML = (!r.next_question && last && !r.consult) ?
     `<p><b>${last.stage}: ${last.label}</b></p><p>왜: ${last.why || ''}</p><ul>${(last.because || []).map(b => `<li>${b}</li>`).join('')}</ul>` +
-    (last.allowed_types ? `<p>재활용 가능 유형: ${last.allowed_types.join(', ')}</p>` : '') : '';
+    (last.recycling_groups ? Object.entries({no_pre_analysis: '사전 분석·확인 해당 없음', pre_analysis: '사전 분석·확인 해당(분석 결과가 먼저 필요)', unmarked: '표에 표기 없음'})
+      .filter(([k]) => last.recycling_groups[k]).map(([k, t]) => `<p><b>${t}</b></p><ul>` +
+        last.recycling_groups[k].map(a => `<li>${a.r_code}: ${a.definition || ''}</li>`).join('') + '</ul>').join('') : '') : '';
+  const cd = r.candidates;
+  $('cands').textContent = cd ? `남은 분류번호 후보: ${cd.count}개` + (v.candidate_trail && v.candidate_trail.length > 1 ? ` (변화: ${v.candidate_trail.join(' → ')})` : '') +
+    (cd.codes && cd.codes.length && cd.codes.length <= 5 ? ' — ' + cd.codes.map(c => `${c.code} ${c.name}`).join(', ') : '') : '';
+  $('trail').innerHTML = (r.trail && r.trail.length) ? '<p><b>판정 근거</b></p><ol>' + r.trail.map(t =>
+    `<li><b>${t.title}: ${t.outcome}</b><br>` +
+    (t.answers.length ? `<span class="muted">답: ${t.answers.map(a => `${a.label} = ${a.value_text}`).join(' · ')}</span><br>` : '') +
+    ((t.because || []).length ? `<span class="muted">${t.because.join('<br>')}</span><br>` : '') +
+    t.basis.map(b => `<span class="muted">${b.cite}: “${b.quote.length > 160 ? b.quote.slice(0, 160) + '…' : b.quote}”${b.evidence !== 'LAW' ? ' (법령 아님)' : ''}</span>`).join('<br>') +
+    '</li>').join('') + '</ol>' : '';
   $('consult').innerHTML = r.consult ?
     `<p><b>관할 기관 확인 필요</b>: ${r.consult.why}</p>` +
     (r.reference_conclusion ? `<p class="muted">참고: ${r.reference_conclusion}</p>` : '') +

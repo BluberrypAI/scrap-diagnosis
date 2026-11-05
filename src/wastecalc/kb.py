@@ -271,6 +271,13 @@ def validate_kb(kb: KB) -> None:
             errors.append(f"{fid}: derived_from 단계 없음")
         if f.get("type") == "enum" and not f.get("values"):
             errors.append(f"{fid}: enum 값 없음")
+        if f.get("value_groups"):
+            grouped = [v for vs in f["value_groups"].values() for v in vs]
+            if sorted(grouped) != sorted(f.get("values", {})):
+                errors.append(f"{fid}: value_groups가 값을 정확히 한 번씩 담지 않음")
+        for v in f.get("value_hints", {}):
+            if v not in f.get("values", {}):
+                errors.append(f"{fid}: value_hints에 없는 값 {v}")
     for r in kb.rules:
         stage = kb.stages.get(r.stage)
         if stage is None:

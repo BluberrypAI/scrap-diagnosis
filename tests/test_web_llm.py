@@ -51,3 +51,21 @@ def test_map_answer_falls_back_to_unknown_on_invalid(monkeypatch):
     assert llm.map_answer(KB, "emission_facility", "아마도")["value"] == "UNKNOWN"
     monkeypatch.setattr(llm, "_chat_json", lambda s, u: {"value": True, "reason": "신고증 있음"})
     assert llm.map_answer(KB, "emission_facility", "신고증이 있어요")["value"] is True
+
+
+def test_scrap_page_and_test_page_are_separate():
+    html = client.get("/").text
+    assert "window.__ENGINE_SURVEY||v.createRoot" in html and "/scrap-engine/survey.js" in html
+    assert "폐기물 판정 시험 화면" in client.get("/test").text
+    assert client.get("/scrap-engine/survey.js").status_code == 200
+    assert client.get("/scrap-engine/berry.png").headers["content-type"] == "image/png"
+    assert client.get("/scrap-engine/app.py").status_code == 404
+
+
+def test_session_accepts_strict():
+    v = client.post("/api/session", json={"answers": {**BASE, "waste_kind": "synthetic_resin", "physical_state": "solid",
+                                                      "designated_residue": False, "oil_presence": "none",
+                                                      "pcb_possible": False, "toxic_chemical_discard": False,
+                                                      "code": "51-03-01"}, "strict": True}).json()
+    r = v["result"]
+    assert r["provisional"] and r["status"] == "NEED_EXPERT" and r["trail"][-1]["stage"] == "S5"

@@ -43,7 +43,7 @@ def _run(answers: dict, strict: bool, session_id: str | None = None, as_of: str 
     if detail:
         payload, text = r, render_text(r, glossary=KB.glossary)
     else:
-        payload = compact(r, KB.at(r["as_of"]))
+        payload = compact(r, KB.at(r["as_of"]), answers)
         text = render_compact(payload)
     if session_id:
         payload = {"session_id": session_id, **payload}

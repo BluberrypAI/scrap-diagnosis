@@ -1,0 +1,14 @@
+/* 엔진 연결판 문진 화면에서 디자인 파일에 없는 작은 요소만 보탠다. 나머지는 SCRAP.html의 스타일을 그대로 쓴다. */
+.sv-engine-remaining { display: block; opacity: .7; }
+.sv-engine-evidence { display: block; opacity: .6; font-size: .85em; }
+.sv-engine-note { opacity: .75; }
+.sv-engine-err { color: #c0392b; margin: 8px 0; }
+.sv-engine-warn { border-left: 3px solid #e0a800; }
+.sv-engine-number { display: flex; gap: 8px; align-items: center; margin: 16px 0; }
+.sv-engine-number input { font: inherit; padding: 10px 12px; width: 180px; border: 1px solid #ccd; border-radius: 10px; }
+.sv-engine-list { margin: 8px 0 16px; padding-left: 20px; line-height: 1.6; }
+.sv-engine-draft pre { white-space: pre-wrap; background: rgba(0, 0, 0, .04); padding: 12px; border-radius: 10px; font-size: .9em; }
+.sv-engine-answered { margin-top: 16px; font-size: .9em; }
+.sv-engine-answered ul { padding-left: 18px; margin: 6px 0 0; }
+.sv-engine-h1 { font-size: 1.8em; }
+.sv-cues input[type=checkbox] { margin-right: 6px; }

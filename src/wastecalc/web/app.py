@@ -1,18 +1,23 @@
-"""시험용 웹 화면(FastAPI). 문답은 엔진을 직접 불러 즉시 응답하고, LLM은 필요할 때만 쓴다.
+"""웹 화면(FastAPI). 문답은 엔진을 직접 불러 즉시 응답하고, LLM은 필요할 때만 쓴다.
 
-실행: python -m wastecalc.web   → http://127.0.0.1:8000
+실행: python -m wastecalc.web
+  http://127.0.0.1:8000/       SCRAP 화면(팀 디자인 web/scrap/SCRAP.html). 문진(#/wastes/<id>/survey)만 엔진에 연결
+  http://127.0.0.1:8000/test   꾸미지 않은 시험 화면
 """
 from __future__ import annotations
 
+import base64
+import re
 import uuid
 from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from pydantic import BaseModel
 
 from .. import llm
+from ..candidates import code_candidates
 from ..compact import compact
 from ..engine import InputError, evaluate, parse_answer, parse_answers, upgrade_legacy, value_text
 from ..kb import load_kb
@@ -21,6 +26,14 @@ from ..render import render_text
 KB = load_kb()
 app = FastAPI(title="wastecalc 시험 화면")
 STATIC = Path(__file__).parent / "static"
+SCRAP = Path(__file__).parent / "scrap"
+# SCRAP 디자인(Figma Make 내보내기)은 고치지 않고, 보낼 때 두 곳만 바꾼다.
+# 1) 문진 경로면 React 앱을 그리지 않는다  2) 엔진 문진 화면(survey.js)을 붙인다
+SCRAP_ROOT_MARK = "v.createRoot(document.getElementById(`root`)).render("
+SCRAP_INJECT = (
+    r'<script>window.__ENGINE_SURVEY=/^\/wastes\/[^/]+\/survey$/.test(window.__route().path);</script>' "\n"
+    '<link rel="stylesheet" href="/scrap-engine/survey.css">\n'
+    '<script src="/scrap-engine/survey.js" defer></script>\n')
 SESSIONS: dict[str, dict[str, Any]] = {}
 
 
@@ -63,13 +76,47 @@ def _view(sid: str) -> dict:
     answers = parse_answers(kb, s["answers"])
     answered = [{"fact": f, "label": kb.facts[f].get("label", f), "question": kb.facts[f]["question"],
                  "value": s["answers"][f], "value_text": value_text(kb, f, a)} for f, a in answers.items()]
-    return {"session_id": sid, "result": compact(r, kb), "answered": answered,
-            "can_undo": bool(s["history"])}
+    # 후보 수 변화: 지금까지 답한 순서대로(되돌리기 기록 + 현재)
+    trail = []
+    for past in s["history"] + [s["answers"]]:
+        pr = r if past is s["answers"] else evaluate(past, strict=s["strict"], kb=KB)
+        trail.append(len(code_candidates(KB.at(pr["as_of"]), past, pr)))
+    return {"session_id": sid, "result": compact(r, kb, s["answers"]), "answered": answered,
+            "can_undo": bool(s["history"]), "candidate_trail": trail}
+
+
+def scrap_html() -> str:
+    s = (SCRAP / "SCRAP.html").read_text(encoding="utf-8")
+    if s.count(SCRAP_ROOT_MARK) != 1 or "</head>" not in s:
+        raise RuntimeError("SCRAP.html 구조가 달라져 엔진 문진 화면을 붙일 수 없습니다(app.py의 표식 확인).")
+    s = s.replace(SCRAP_ROOT_MARK, "window.__ENGINE_SURVEY||" + SCRAP_ROOT_MARK, 1)
+    return s.replace("</head>", SCRAP_INJECT + "</head>", 1)
 
 
 @app.get("/")
-def index() -> FileResponse:
+def index() -> HTMLResponse:
+    return HTMLResponse(scrap_html())
+
+
+@app.get("/test")
+def test_page() -> FileResponse:
     return FileResponse(STATIC / "index.html")
+
+
+@app.get("/scrap-engine/berry.png")
+def berry() -> Response:
+    """디자인 파일에 들어 있는 에이전트 '베리' 그림."""
+    m = re.search(r"y=`data:image/png;base64,([A-Za-z0-9+/=]+)`", (SCRAP / "SCRAP.html").read_text(encoding="utf-8"))
+    if not m:
+        raise HTTPException(404)
+    return Response(base64.b64decode(m.group(1)), media_type="image/png")
+
+
+@app.get("/scrap-engine/{name}")
+def scrap_asset(name: str) -> FileResponse:
+    if name not in {"survey.js", "survey.css"}:
+        raise HTTPException(404)
+    return FileResponse(SCRAP / name)
 
 
 @app.get("/api/status")

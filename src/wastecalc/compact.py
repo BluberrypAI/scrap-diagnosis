@@ -12,6 +12,8 @@ from .kb import KB
 
 MAX_CHOICES = 60
 MAX_OTHER_QUESTIONS = 5
+MAX_LISTED_CANDIDATES = 12   # 후보가 이 수 이하일 때만 번호 목록을 같이 보낸다
+MAX_LAW_QUOTES = 2           # 질문 옆에 보여 줄 조문이 이보다 많으면 생략(답에 따라 갈리는 경우가 많음)
 
 
 def _choices(kb: KB, fid: str, allowed: dict | None) -> list[dict] | None:
@@ -20,10 +22,74 @@ def _choices(kb: KB, fid: str, allowed: dict | None) -> list[dict] | None:
         opts = [{"value": True, "label": "예"}, {"value": False, "label": "아니오"}]
     elif f["type"] == "enum":
         values = allowed if allowed is not None else f["values"]
-        opts = [{"value": k, "label": v} for k, v in list(values.items())[:MAX_CHOICES]]
+        hints = f.get("value_hints", {})
+        if fid == "code":
+            from .annex4 import _guide_definitions
+
+            hints = {k: f"(2023 설명서 뜻풀이, 구판 참고) {v}" for k, v in _guide_definitions().items()}
+        group_of = {v: g for g, vs in f.get("value_groups", {}).items() for v in vs}
+        opts = []
+        for k, v in list(values.items())[:MAX_CHOICES]:
+            o = {"value": k, "label": v}
+            if k in hints:
+                o["hint"] = hints[k]
+            if k in group_of:
+                o["group"] = group_of[k]
+            opts.append(o)
     else:
         return None  # 숫자: 값을 직접 입력
     return opts + [{"value": "UNKNOWN", "label": "모름"}]
+
+
+def _law(card: dict) -> list[dict] | None:
+    """이 질문이 가르는 조문(적을 때만). 화면에서 질문 옆에 '○○은 “…”로 규정합니다'로 보여 준다."""
+    seen: dict[tuple, dict] = {}
+    for d in card.get("decides", []):
+        b = d.get("basis") or {}
+        if b.get("quote"):
+            seen.setdefault((b.get("title"), b.get("location"), b["quote"]),
+                            {"cite": f"{b.get('title', '')} {b.get('location', '')}".strip(), "quote": b["quote"],
+                             "evidence": b.get("evidence")})
+    if not seen or len(seen) > MAX_LAW_QUOTES:
+        return None
+    return list(seen.values())
+
+
+def _value_text(kb: KB, fid: str, j: Any) -> str:
+    from .engine import InputError, parse_answer, value_text
+
+    try:
+        return value_text(kb, fid, parse_answer(kb, fid, j))
+    except InputError:
+        return str(j)
+
+
+def _trail(kb: KB, r: dict) -> list[dict]:
+    """판정 근거를 단계 순서대로: 무엇을 답해서 → 어떤 조문으로 → 어떤 결론이 났는지."""
+    out = []
+    for d in r.get("decided", []):
+        out.append({
+            "stage": d["stage"], "title": d["stage_title"], "outcome": d["label"],
+            "plain": ((d.get("explanation") or {}).get("plain") or [None])[0],
+            # '아님' 결론은 원문이 표 제목뿐이라, 경로마다 왜 해당하지 않았는지를 같이 보낸다
+            "because": (d.get("explanation") or {}).get("because", [])[:6],
+            "answers": [{"fact": f, "question": kb.facts[f]["question"], "label": kb.facts[f].get("label", f),
+                         "value_text": _value_text(kb, f, j)}
+                        for f, j in (d.get("facts_used") or {}).items() if not kb.facts[f].get("derived_from")],
+            "basis": [{"cite": f"{b['title']} {b['location']}", "quote": b["quote"], "evidence": b.get("evidence"),
+                       "law_version": b.get("law_version")} for b in d.get("basis", [])[:2]],
+        })
+    return out
+
+
+def _recycling_groups(allowed: list[dict]) -> dict:
+    """별표 4의3의 '사전 분석·확인' 칸으로 묶는다. 같은 R코드가 양쪽 칸에 있을 수 있다(예: R-10)."""
+    groups: dict[str, list] = {"no_pre_analysis": [], "pre_analysis": [], "unmarked": []}
+    for a in allowed:
+        key = {False: "no_pre_analysis", True: "pre_analysis"}.get(a["pre_analysis_required"], "unmarked")
+        if all(x["r_code"] != a["r_code"] for x in groups[key]):
+            groups[key].append({"r_code": a["r_code"], "definition": a["definition"]})
+    return {k: v for k, v in groups.items() if v}
 
 
 def _why(card: dict) -> str | None:
@@ -52,7 +118,8 @@ def _card_brief(kb: KB, card: dict, with_help: bool) -> dict:
     return out
 
 
-def compact(r: dict, kb: KB) -> dict:
+def compact(r: dict, kb: KB, answers: dict | None = None) -> dict:
+    """answers(원래 입력)를 주면 남은 분류번호 후보 수와 보기별 남는 수도 붙인다."""
     out: dict[str, Any] = {k: r[k] for k in ("status", "summary", "conclusion", "as_of", "strict", "rule_db_version")
                            if k in r}
     for k in ("reason", "message", "provisional", "stage", "stage_title"):
@@ -64,8 +131,19 @@ def compact(r: dict, kb: KB) -> dict:
         "because": (d.get("explanation") or {}).get("because", [])[:4],
         **({"gaps": d["gaps"]} if d.get("gaps") else {}),
         **({"allowed_types": [a["r_code"] + (" (사전 분석 필요)" if a["pre_analysis_required"] else "")
-                              for a in d["allowed_types"]]} if d.get("allowed_types") else {}),
+                              for a in d["allowed_types"]],
+            "recycling_groups": _recycling_groups(d["allowed_types"])} if d.get("allowed_types") else {}),
     } for d in r.get("decided", [])]
+    if not r.get("next_question"):  # 판정 근거는 끝났거나 멈췄을 때만(대화 중 응답 크기를 줄임)
+        out["trail"] = _trail(kb, r)
+    if answers is not None:
+        from .candidates import code_candidates
+
+        cands = code_candidates(kb, answers, r)
+        names = {c["id"]: c["name"] for c in kb.annex4["codes"]}
+        out["candidates"] = {"count": len(cands), "what": "남은 별표 4 분류번호 후보"}
+        if len(cands) <= MAX_LISTED_CANDIDATES:
+            out["candidates"]["codes"] = [{"code": c, "name": names.get(c, "")} for c in cands]
 
     res = r.get("resolution") or []
     nq = r.get("next_question")
@@ -80,6 +158,15 @@ def compact(r: dict, kb: KB) -> dict:
             thr = _thresholds(card)
             if thr:
                 q["thresholds"] = thr
+            law = _law(card)
+            if law:
+                q["law"] = law
+        if answers is not None and q["choices"]:
+            from .candidates import count_after
+
+            for o in q["choices"]:
+                if o["value"] != "UNKNOWN":
+                    o["remaining"] = count_after(kb, answers, nq["fact"], o["value"], r.get("strict", True))
         if nq.get("test"):
             q["test"] = {k: nq["test"][k] for k in ("item", "method", "report") if k in nq["test"]}
         if nq.get("asked_for_stage"):

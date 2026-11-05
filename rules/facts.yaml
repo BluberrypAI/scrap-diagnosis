@@ -169,6 +169,24 @@ waste_kind:
     norm_product: 안전기준에 맞지 않는 천연방사성 가공제품의 폐기물
     battery: 폐전지(일차전지·이차전지·태양전지 등)
     other: 위 목록에 없음 (금속·종이·목재·유리 스크랩 등)
+  # 화면에서 보기를 두 단계로 보여 주기 위한 묶음(판정에는 쓰지 않음). 모든 값이 정확히 한 묶음에 들어가야 한다.
+  value_groups:
+    플라스틱·고무: [synthetic_resin, synthetic_rubber]
+    오니(슬러지): [sludge_wastewater, sludge_process]
+    기름·용제·페인트: [waste_oil, edible_oil, organic_solvent, paint, paint_solvent_mix, paint_cleaning_solvent, paint_container]
+    산·알칼리·농약: [acid, alkali, pesticide]
+    광재·분진·재·모래 등: [slag, dust, foundry_sand, refractory, incineration_ash, stabilized, catalyst, adsorbent]
+    석면·수은·전지·방사성: [asbestos_demolition, asbestos_processing, asbestos_work_items, mercury_product, mercury_separated, mercury_residue, battery, norm_product]
+    의료폐기물: [medical]
+    그 밖의 것: [other]
+  # 보기 아래 작은 글씨 예시(판정에는 쓰지 않음)
+  value_hints:
+    synthetic_resin: PE, PP, PVC, PET, ABS, 우레탄, 스티로폼 등. 성형 불량품·스프루·런너·분쇄 플레이크 포함
+    synthetic_rubber: 고무 부품·고무 스크랩
+    sludge_wastewater: 폐수처리시설에서 나온 침전물·탈수 케이크
+    sludge_process: 생산 공정 자체에서 나온 슬러지
+    waste_oil: 기름이 묻은 물건이 아니라 기름 자체
+    other: 금속·종이·목재·유리 스크랩, 폐섬유 등
   how_to_check:
     - text: 폐기물이 나온 공정·설비와 원래 물건이 무엇이었는지로 고르세요. 여러 종류가 섞였으면 종류별로 따로 판정하세요.
 
