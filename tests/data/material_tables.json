@@ -10,7 +10,41 @@
       "designated_residue": false,
       "oil_presence": "none",
       "toxic_chemical_discard": false,
-      "pcb_possible": false
+      "pcb_possible": false,
+      "resin_stream": "ordinary_resin"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-03-01",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "physical_state": "solid",
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": false,
+      "resin_stream": "discarded_packaging"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-03-07",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "physical_state": "solid",
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": true,
+      "pcb_leach_mg_l": 0.002,
+      "resin_stream": "ordinary_resin"
      },
      "designated": "NOT_DESIGNATED",
      "designated_by": [],
@@ -26,11 +60,12 @@
       "oil_presence": "none",
       "toxic_chemical_discard": false,
       "pcb_possible": true,
-      "pcb_leach_mg_l": 0.002
+      "pcb_leach_mg_l": 0.002,
+      "resin_stream": "discarded_packaging"
      },
      "designated": "NOT_DESIGNATED",
      "designated_by": [],
-     "result": "51-03-01",
+     "result": "51-03-07",
      "recycling": "ALLOWED_TYPES",
      "status": "DETERMINED",
      "flags": []
@@ -81,11 +116,29 @@
       "oil_presence": "present",
       "toxic_chemical_discard": false,
       "pcb_possible": false,
-      "oil_content_pct": 4.9
+      "oil_content_pct": 4.9,
+      "resin_stream": "ordinary_resin"
      },
      "designated": "NOT_DESIGNATED",
      "designated_by": [],
      "result": "51-03-01",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "physical_state": "solid",
+      "designated_residue": false,
+      "oil_presence": "present",
+      "toxic_chemical_discard": false,
+      "pcb_possible": false,
+      "oil_content_pct": 4.9,
+      "resin_stream": "discarded_packaging"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-03-07",
      "recycling": "ALLOWED_TYPES",
      "status": "DETERMINED",
      "flags": []
@@ -436,7 +489,41 @@
       "designated_residue": false,
       "oil_presence": "none",
       "toxic_chemical_discard": false,
-      "pcb_possible": false
+      "pcb_possible": false,
+      "resin_stream": "ordinary_resin"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-03-01",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "physical_state": "solid",
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": false,
+      "resin_stream": "discarded_packaging"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-03-07",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "physical_state": "solid",
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": true,
+      "pcb_leach_mg_l": 0.002,
+      "resin_stream": "ordinary_resin"
      },
      "designated": "NOT_DESIGNATED",
      "designated_by": [],
@@ -452,11 +539,12 @@
       "oil_presence": "none",
       "toxic_chemical_discard": false,
       "pcb_possible": true,
-      "pcb_leach_mg_l": 0.002
+      "pcb_leach_mg_l": 0.002,
+      "resin_stream": "discarded_packaging"
      },
      "designated": "NOT_DESIGNATED",
      "designated_by": [],
-     "result": "51-03-01",
+     "result": "51-03-07",
      "recycling": "ALLOWED_TYPES",
      "status": "DETERMINED",
      "flags": []
@@ -507,11 +595,29 @@
       "oil_presence": "present",
       "toxic_chemical_discard": false,
       "pcb_possible": false,
-      "oil_content_pct": 4.9
+      "oil_content_pct": 4.9,
+      "resin_stream": "ordinary_resin"
      },
      "designated": "NOT_DESIGNATED",
      "designated_by": [],
      "result": "51-03-01",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "physical_state": "solid",
+      "designated_residue": false,
+      "oil_presence": "present",
+      "toxic_chemical_discard": false,
+      "pcb_possible": false,
+      "oil_content_pct": 4.9,
+      "resin_stream": "discarded_packaging"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-03-07",
      "recycling": "ALLOWED_TYPES",
      "status": "DETERMINED",
      "flags": []
@@ -862,7 +968,41 @@
       "designated_residue": false,
       "oil_presence": "none",
       "toxic_chemical_discard": false,
-      "pcb_possible": false
+      "pcb_possible": false,
+      "resin_stream": "ordinary_resin"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-03-01",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "physical_state": "solid",
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": false,
+      "resin_stream": "discarded_packaging"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-03-07",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "physical_state": "solid",
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": true,
+      "pcb_leach_mg_l": 0.002,
+      "resin_stream": "ordinary_resin"
      },
      "designated": "NOT_DESIGNATED",
      "designated_by": [],
@@ -878,11 +1018,12 @@
       "oil_presence": "none",
       "toxic_chemical_discard": false,
       "pcb_possible": true,
-      "pcb_leach_mg_l": 0.002
+      "pcb_leach_mg_l": 0.002,
+      "resin_stream": "discarded_packaging"
      },
      "designated": "NOT_DESIGNATED",
      "designated_by": [],
-     "result": "51-03-01",
+     "result": "51-03-07",
      "recycling": "ALLOWED_TYPES",
      "status": "DETERMINED",
      "flags": []
@@ -933,11 +1074,29 @@
       "oil_presence": "present",
       "toxic_chemical_discard": false,
       "pcb_possible": false,
-      "oil_content_pct": 4.9
+      "oil_content_pct": 4.9,
+      "resin_stream": "ordinary_resin"
      },
      "designated": "NOT_DESIGNATED",
      "designated_by": [],
      "result": "51-03-01",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "physical_state": "solid",
+      "designated_residue": false,
+      "oil_presence": "present",
+      "toxic_chemical_discard": false,
+      "pcb_possible": false,
+      "oil_content_pct": 4.9,
+      "resin_stream": "discarded_packaging"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-03-07",
      "recycling": "ALLOWED_TYPES",
      "status": "DETERMINED",
      "flags": []
@@ -5321,7 +5480,70 @@
       "designated_residue": false,
       "oil_presence": "none",
       "toxic_chemical_discard": false,
-      "pcb_possible": false
+      "pcb_possible": false,
+      "can_scope": "covered_unknown"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-03",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": false,
+      "can_scope": "covered_aluminium"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-03",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": false,
+      "can_scope": "covered_steel"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-03",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": false,
+      "can_scope": "other_container"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-04",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": true,
+      "physical_state": "solid",
+      "pcb_leach_mg_l": 0.002,
+      "can_scope": "covered_unknown"
      },
      "designated": "NOT_DESIGNATED",
      "designated_by": [],
@@ -5337,11 +5559,46 @@
       "toxic_chemical_discard": false,
       "pcb_possible": true,
       "physical_state": "solid",
-      "pcb_leach_mg_l": 0.002
+      "pcb_leach_mg_l": 0.002,
+      "can_scope": "covered_aluminium"
      },
      "designated": "NOT_DESIGNATED",
      "designated_by": [],
      "result": "51-29-03",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": true,
+      "physical_state": "solid",
+      "pcb_leach_mg_l": 0.002,
+      "can_scope": "covered_steel"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-03",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": true,
+      "physical_state": "solid",
+      "pcb_leach_mg_l": 0.002,
+      "can_scope": "other_container"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-04",
      "recycling": "ALLOWED_TYPES",
      "status": "DETERMINED",
      "flags": []
@@ -5373,11 +5630,63 @@
       "toxic_chemical_discard": false,
       "pcb_possible": true,
       "physical_state": "liquid",
-      "pcb_mg_l": 1.96
+      "pcb_mg_l": 1.96,
+      "can_scope": "covered_unknown"
      },
      "designated": "NOT_DESIGNATED",
      "designated_by": [],
      "result": "51-29-03",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": true,
+      "physical_state": "liquid",
+      "pcb_mg_l": 1.96,
+      "can_scope": "covered_aluminium"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-03",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": true,
+      "physical_state": "liquid",
+      "pcb_mg_l": 1.96,
+      "can_scope": "covered_steel"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-03",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": true,
+      "physical_state": "liquid",
+      "pcb_mg_l": 1.96,
+      "can_scope": "other_container"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-04",
      "recycling": "ALLOWED_TYPES",
      "status": "DETERMINED",
      "flags": []
@@ -5409,11 +5718,63 @@
       "toxic_chemical_discard": false,
       "pcb_possible": true,
       "physical_state": "semisolid",
-      "pcb_leach_mg_l": 0.002
+      "pcb_leach_mg_l": 0.002,
+      "can_scope": "covered_unknown"
      },
      "designated": "NOT_DESIGNATED",
      "designated_by": [],
      "result": "51-29-03",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": true,
+      "physical_state": "semisolid",
+      "pcb_leach_mg_l": 0.002,
+      "can_scope": "covered_aluminium"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-03",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": true,
+      "physical_state": "semisolid",
+      "pcb_leach_mg_l": 0.002,
+      "can_scope": "covered_steel"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-03",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "none",
+      "toxic_chemical_discard": false,
+      "pcb_possible": true,
+      "physical_state": "semisolid",
+      "pcb_leach_mg_l": 0.002,
+      "can_scope": "other_container"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-04",
      "recycling": "ALLOWED_TYPES",
      "status": "DETERMINED",
      "flags": []
@@ -5462,11 +5823,60 @@
       "oil_presence": "present",
       "toxic_chemical_discard": false,
       "pcb_possible": false,
-      "oil_content_pct": 4.9
+      "oil_content_pct": 4.9,
+      "can_scope": "covered_unknown"
      },
      "designated": "NOT_DESIGNATED",
      "designated_by": [],
      "result": "51-29-03",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "present",
+      "toxic_chemical_discard": false,
+      "pcb_possible": false,
+      "oil_content_pct": 4.9,
+      "can_scope": "covered_aluminium"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-03",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "present",
+      "toxic_chemical_discard": false,
+      "pcb_possible": false,
+      "oil_content_pct": 4.9,
+      "can_scope": "covered_steel"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-03",
+     "recycling": "ALLOWED_TYPES",
+     "status": "DETERMINED",
+     "flags": []
+    },
+    {
+     "answers": {
+      "designated_residue": false,
+      "oil_presence": "present",
+      "toxic_chemical_discard": false,
+      "pcb_possible": false,
+      "oil_content_pct": 4.9,
+      "can_scope": "other_container"
+     },
+     "designated": "NOT_DESIGNATED",
+     "designated_by": [],
+     "result": "51-29-04",
      "recycling": "ALLOWED_TYPES",
      "status": "DETERMINED",
      "flags": []

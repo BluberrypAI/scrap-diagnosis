@@ -19,6 +19,8 @@
 
 화면은 보기마다 붙은 `answers`를 돌려보내기만 한다. 그 안의 `__ui`는 화면 상태(묶음 선택 등)이고 엔진 사실이 아니다. 화면은 내용을 해석할 필요가 없다.
 
+PP·PE·PET의 사업장일반폐기물은 배출 용도를 확인해 일반 폐합성수지와 플라스틱 폐포장재를 구분합니다. 폐금속캔은 대상 포장재 여부와 재질을 확인합니다. 지정폐기물이나 재질 미확인 금속캔은 `treatment.material`을 비워 일반 재활용 경로 연결을 보류합니다. 적용 조건은 [시행령 별표 1](https://www.law.go.kr/LSW/flDownload.do?flSeq=162468983), 분류번호는 [시행규칙 별표 4](https://www.law.go.kr/LSW/flDownload.do?flSeq=170401309), 금속캔 범위는 [자원재활용법 시행령 제18조](https://www.law.go.kr/LSW/lsLawLinkInfo.do?chrClsCd=010202&lsJoLnkSeq=900579781)를 참고합니다.
+
 ### 1.2 응답과 화면 요소 대응
 
 질문 단계(`phase: "question"`) 예시(PP를 고르고 관문·배출시설까지 답한 뒤):

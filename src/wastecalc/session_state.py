@@ -38,7 +38,8 @@ def revise_answers(kb: KB, old: dict, patch: dict) -> tuple[dict, dict]:
     kind_details = {c.fact for r in kb.rules_for("S3") if any(c.fact == "waste_kind" for c in r.when)
                     for c in r.when} - independent
     # 소재를 바꾸면 폐기물 종류와 소재가 정하던 사실이 함께 바뀌므로, 그 종류에 딸린 세부 답과 상태를 다시 확인한다.
-    dependencies = {"material": kind_details | {"general_group", "physical_state", "waste_kind"},
+    material_questions = set(kb.s4_map.get("general_material_questions", {}).values())
+    dependencies = {"material": kind_details | material_questions | {"general_group", "physical_state", "waste_kind"},
                     "waste_kind": kind_details | {"general_group"},
                     "physical_state": {f for f, conf in kb.facts.items() if conf.get("cost") == "TEST"},
                     "pcb_possible": {"pcb_mg_l", "pcb_leach_mg_l"},

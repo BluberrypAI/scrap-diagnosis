@@ -153,6 +153,18 @@ def _all_reasons_match_material(kb: KB, s3: dict, mat_prefixes: list[str]) -> bo
     return True
 
 
+def general_material_options(kb: KB, answers: dict) -> tuple[str | None, list[str]]:
+    material_answer = answers.get("material")
+    material_id = material_answer.values[0] if material_answer and material_answer.kind == "VALUE" else None
+    question = kb.s4_map.get("general_material_questions", {}).get(material_id)
+    if not question:
+        return None, []
+    codes = kb.s4_map["general_code_by_answer"][question]
+    answer = answers.get(question)
+    return question, ([codes[answer.values[0]]] if answer and answer.kind == "VALUE"
+                      else list(dict.fromkeys(codes.values())))
+
+
 def evaluate_s4(kb: KB, answers: dict, decided: list[dict]) -> dict:
     """반환: {"decided": entry} 또는 {"result": 미확정 결과}"""
     from .kb import material as _material
@@ -165,6 +177,7 @@ def evaluate_s4(kb: KB, answers: dict, decided: list[dict]) -> dict:
     excluded = set(kb.s4_map.get("excluded_codes", []))
     map_note: list[str] = []
     used_facts: dict[str, Any] = {}
+    material_question, material_options = general_material_options(kb, answers)
 
     if designated:
         check = _classification_check(kb, answers, s3)
@@ -186,6 +199,16 @@ def evaluate_s4(kb: KB, answers: dict, decided: list[dict]) -> dict:
         return {"result": {"status": "NEED_TEST", "stage": STAGE, "stage_title": kb.stages[STAGE]["title"],
                            "reason": "CODE_NEEDS_TEST", "message": spec.get("message", "번호를 정하려면 시험·확인이 필요합니다."),
                            "required_test": spec.get("test")}}
+    elif material_question:
+        answer = answers.get(material_question)
+        if answer is None or answer.kind != "VALUE":
+            labels = kb.facts[material_question]["values"]
+            card = _card(material_question, kb, answers, labels)
+            return {"result": {**_open(kb, card, material_options), "candidates": material_options}}
+        section = "GENERAL"
+        prefixes = material_options
+        used_facts["material"] = answers["material"].to_json()
+        used_facts[material_question] = answer.to_json()
     elif mat_codes.get("GENERAL"):
         # 소재가 별표 4 번호를 정한다(예: 고철 → 51-29-01). 그룹 목록을 묻지 않는다.
         section = "GENERAL"

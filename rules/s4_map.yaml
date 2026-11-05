@@ -67,5 +67,21 @@ general_by_kind:
   mercury_residue: ["51-30-05"]
   battery: ["51-41"]
 
+# 소재명이 같아도 법령상 물품 유형에 따라 번호가 달라지는 일반폐기물.
+general_material_questions:
+  pp: resin_stream
+  pe: resin_stream
+  pet: resin_stream
+  metal_can: can_scope
+general_code_by_answer:
+  resin_stream:
+    ordinary_resin: "51-03-01"
+    discarded_packaging: "51-03-07"
+  can_scope:
+    covered_unknown: "51-29-03"
+    covered_aluminium: "51-29-03"
+    covered_steel: "51-29-03"
+    other_container: "51-29-04"
+
 # 선택지에서 빼는 번호 (고시가 있어야만 쓰는 번호)
 excluded_codes: ["30-00-00", "11-01-99"]

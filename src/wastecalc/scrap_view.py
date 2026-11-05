@@ -222,10 +222,16 @@ def _result(kb: KB, r: dict, c: dict, answers_raw: dict) -> dict:
     if s4:
         names = {x["id"]: x["name"] for x in kb.annex4["codes"]}
         m = material(kb, {"material": _Ans(answers_raw.get("material"))}) if answers_raw.get("material") else None
+        treatment_material = (m or {}).get("treatment_material") if s4["conclusion"].startswith("51-") else None
+        can_scope = answers_raw.get("can_scope")
+        if isinstance(can_scope, dict):
+            can_scope = can_scope.get("value")
+        if s4["conclusion"] == "51-29-03" and "can_scope" in s4.get("facts_used", {}) and can_scope == "covered_aluminium":
+            treatment_material = "aluminium"
         how = "직접 고른 번호예요. 앞 단계 판정과 맞는지 확인했어요" if s4.get("user_selected") else "법령 기준표에서 조회한 결과예요"
         return {**base, "kind": "code", "badges": badges, "code": s4["conclusion"], "name": names.get(s4["conclusion"], ""),
                 "note": f"분류번호는 {how} · {note}", "recycle": _recycle(c),
-                "treatment": {"waste_code": s4["conclusion"], "material": (m or {}).get("treatment_material"),
+                "treatment": {"waste_code": s4["conclusion"], "material": treatment_material,
                               "material_label": (m or {}).get("label")}}
     terminal = next((d for d in dec.values() if d["conclusion"] in TERMINAL), None)
     if terminal:

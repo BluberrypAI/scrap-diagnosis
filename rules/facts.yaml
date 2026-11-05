@@ -301,6 +301,30 @@ paint_residue_mm:
   cost: USER
   question: 용기 바닥에 남은 페인트는 몇 mm인가요?
 
+resin_stream:
+  label: 합성수지 배출 구분
+  type: enum
+  cost: USER
+  question: 버리는 합성수지는 제조 잔재인가요, 사용한 플라스틱 포장재인가요?
+  values:
+    ordinary_resin: 일반 폐합성수지(사출 불량품·런너·필름 제조 잔재 등)
+    discarded_packaging: 플라스틱 폐포장재(사용한 포장 용기·포장 필름 등)
+  how_to_check:
+    - text: 재질이나 형태와 함께 포장재로 사용된 물건 자체를 버리는지 확인하세요. 발포수지·폐어망 등 별도 유형이면 해당 소재를 선택하세요.
+
+can_scope:
+  label: 금속캔의 포장재 범위와 재질
+  type: enum
+  cost: USER
+  question: 재활용의무 대상 제품의 포장에 쓰인 금속캔인가요? 캔의 재질도 확인해 주세요.
+  values:
+    covered_unknown: 대상 포장캔이며 캔 재질은 미확인
+    covered_aluminium: 대상 포장캔이며 알루미늄임을 확인
+    covered_steel: 대상 포장캔이며 철캔임을 확인
+    other_container: 대상 포장캔 외 폐금속용기
+  how_to_check:
+    - text: 어떤 제품을 담았는지 자원재활용법 시행령 제18조제1호와 대조하고 캔의 재질 표시나 제조사 자료를 확인하세요.
+
 oil_presence:
   label: 기름 묻음·섞임
   type: enum

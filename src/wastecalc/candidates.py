@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from .annex4 import general_material_options
 from .engine import FALSE, eval_stage, evaluate, parse_answers, with_derived
 from .kb import KB
 
@@ -76,8 +77,9 @@ def code_candidates(kb: KB, answers_raw: dict, r: dict) -> list[str]:
     if st["candidates"].get("NOT_DESIGNATED") != FALSE:
         kind = answers.get("waste_kind")
         kv = kind.values[0] if kind is not None and kind.kind == "VALUE" else None
-        pre = list(mat_codes["GENERAL"]) if mat_codes.get("GENERAL") else (
-            kb.s4_map["general_by_kind"].get(kv) if kv else None)
+        _, conditional_codes = general_material_options(kb, answers)
+        pre = conditional_codes or (list(mat_codes["GENERAL"]) if mat_codes.get("GENERAL") else (
+            kb.s4_map["general_by_kind"].get(kv) if kv else None))
         if not pre:
             g = answers.get("general_group")
             pre = [g.values[0]] if g is not None and g.kind == "VALUE" else None

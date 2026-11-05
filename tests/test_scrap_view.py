@@ -2,6 +2,8 @@
 import os
 import tempfile
 
+import pytest
+
 os.environ.setdefault("WASTECALC_STATE_DB", os.path.join(tempfile.mkdtemp(), "sessions.sqlite3"))
 
 from fastapi.testclient import TestClient  # noqa: E402
@@ -65,6 +67,75 @@ def test_pp_flow_reaches_code_with_screen_result_shape():
     assert ev and all({"num", "title", "cite", "quote", "outcome", "reason"} <= set(e) for e in ev)
     assert "{" not in " ".join(e["reason"] for e in ev)  # 소재에서 채운 값도 사람이 읽는 말로
     assert v["panel"]["trail"][0] == 272 and v["panel"]["count"] == 1
+
+
+# 국가법령정보센터 시행규칙 제60호 별표 4 및 시행령 별표 1 대조 사례.
+SITE_CLEAN = {"material_fate": "released", "circular_resource_recognized": False,
+              "law_exclusion": "none", "emission_facility": True, "designated_residue": False,
+              "oil_presence": "none", "pcb_possible": False, "toxic_chemical_discard": False}
+
+
+@pytest.mark.parametrize(("material", "extra", "code", "route_material"), [
+    ("pp", {"physical_state": "solid", "resin_stream": "ordinary_resin"}, "51-03-01", "PP"),
+    ("pp", {"physical_state": "solid", "resin_stream": "discarded_packaging"}, "51-03-07", "PP"),
+    ("pp", {"physical_state": "liquid"}, "01-01-02", None),
+    ("pp", {"physical_state": "semisolid"}, "01-01-02", None),
+    ("pe", {"physical_state": "solid", "resin_stream": "ordinary_resin"}, "51-03-01", "PE"),
+    ("pe", {"physical_state": "solid", "resin_stream": "discarded_packaging"}, "51-03-07", "PE"),
+    ("pet", {"physical_state": "solid", "resin_stream": "discarded_packaging"}, "51-03-07", "PET"),
+    ("pvc", {"physical_state": "solid"}, "51-03-03", None),
+    ("metal_can", {"can_scope": "covered_aluminium"}, "51-29-03", "aluminium"),
+    ("metal_can", {"can_scope": "covered_steel"}, "51-29-03", None),
+    ("metal_can", {"can_scope": "covered_unknown"}, "51-29-03", None),
+    ("metal_can", {"can_scope": "other_container"}, "51-29-04", None),
+    ("ferrous_scrap", {}, "51-29-01", None),
+    ("paper", {}, "51-28-02", None),
+    ("machine_oil", {}, "06-01-03", None),
+])
+def test_official_annex4_classification_cases(material, extra, code, route_material):
+    response = C.post("/api/classification/evaluate", json={
+        "answers": {**SITE_CLEAN, "material": material, **extra}, "as_of": "2026-11-06",
+    })
+    assert response.status_code == 200
+    view = response.json()
+    assert view["phase"] == "result"
+    result = view["result"]
+    assert result["code"] == code
+    assert result["treatment"]["material"] == route_material
+    assert result["provisional"]
+    if code == "51-03-01":
+        assert "R-3-2" in {item[0] for item in result["recycle"]["free"]}
+    elif code == "51-03-07":
+        assert "R-3-2" not in {item[0] for item in result["recycle"]["free"]}
+        assert "R-3-5" in {item[0] for item in result["recycle"]["analysis"]}
+
+
+def test_annex4_scope_questions_do_not_assume_a_code():
+    answers = {**SITE_CLEAN, "material": "pp", "physical_state": "solid"}
+    before = C.post("/api/classification/evaluate", json={"answers": answers}).json()
+    assert before["question"]["fact"] == "resin_stream" and before["panel"]["count"] == 2
+    unknown = C.post("/api/classification/evaluate", json={
+        "answers": {**answers, "resin_stream": "UNKNOWN"},
+    }).json()
+    assert "code" not in unknown["result"]
+    can = C.post("/api/classification/evaluate", json={"answers": {**SITE_CLEAN, "material": "metal_can"}}).json()
+    assert can["question"]["fact"] == "can_scope"
+
+
+def test_oil_contaminated_solid_pp_does_not_default_to_general_resin():
+    answers = {**SITE_CLEAN, "material": "pp", "physical_state": "solid",
+               "resin_stream": "ordinary_resin", "oil_presence": "present"}
+    def evaluate_oil(pct):
+        return C.post("/api/classification/evaluate", json={
+            "answers": {**answers, "oil_content_pct": pct},
+        }).json()
+
+    assert evaluate_oil(4.99)["result"]["code"] == "51-03-01"
+    above = evaluate_oil(5)
+    assert above.get("result", {}).get("code") != "51-03-01"
+    assert above.get("question", {}).get("fact") == "code"
+    assert all(option["answers"]["code"].startswith("06") for option in above["question"]["options"]
+               if option["answers"].get("code") not in {None, "UNKNOWN"})
 
 
 def test_undo_from_group_items_returns_to_group_question():

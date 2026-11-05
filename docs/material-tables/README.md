@@ -2,16 +2,16 @@
 
 `tools/material_tables.py`가 엔진으로 만든 표입니다. 표마다 끝의 '검토' 칸에 확인 표시를 합니다.
 
-- 소재 97종, 행 4281개, 멈춤(시험·기관 확인 등) 233행
+- 소재 97종, 행 4305개, 멈춤(시험·기관 확인 등) 233행
 - 번호를 목록에서 골라야 하는 소재: abs, absorbent, acid_lcd_semi, acid_other, activated_carbon, adsorbent, alkali_other, ammonia_solution, aqua_buoy, battery_cathode, battery_drive, battery_ev, battery_fuel_cell, battery_primary, battery_secondary_other, bf_slag, bottom_ash_business, catalyst_metal, catalyst_nonmetal, caustic_solution, coated_wire, cutting_oil_insoluble, cutting_oil_soluble, dust_cement, dust_other, dust_power, dust_steel, eee_industrial, eps, ferrous_scrap, fiber_natural, fiber_synthetic, filter_sand, fishing_net, fly_ash_business, foundry_chemical, foundry_clay, fuel_oil, glass, glass_fiber, h2so4, hcl, hf, hno3, insulating_oil, ion_exchange_resin, koh_solid, lacquer, lube_oil, machine_oil, metal_can, metal_container, mixed_ash_business, mixed_inseparable, naoh_solid, nonferrous_scrap, oil_filter, other_resin, paint_oil, paint_water, paper, pe, pet, phenol_resin, plastic_packaging, pp, ps, pu_foam, pvc, refractory, rubber, sandblast, silica_fume, slag_aluminum, slag_lead, slag_nonferrous_other, slag_zinc, sludge_proc_glass_etching, sludge_proc_inorganic, sludge_proc_organic, sludge_proc_pulp_paper, sludge_proc_silicon, sludge_proc_unknown, sludge_ww_inorganic, sludge_ww_organic, sludge_ww_pulp_paper, sludge_ww_stone, sludge_ww_unknown, solar_panel, solvent_halogen, solvent_other, steel_slag, tire_auto, wood_byproduct, wood_clean, wood_preservative, wood_treated
 - 지정 사유가 여러 개인 행이 있는 소재(번호가 한쪽으로 좁혀졌는지 검토): abs, absorbent, acid_lcd_semi, acid_other, activated_carbon, adsorbent, alkali_other, ammonia_solution, bottom_ash_business, catalyst_metal, catalyst_nonmetal, caustic_solution, cutting_oil_insoluble, cutting_oil_soluble, dust_cement, dust_other, dust_power, dust_steel, filter_sand, fly_ash_business, foundry_chemical, foundry_clay, fuel_oil, h2so4, hcl, hf, hno3, insulating_oil, ion_exchange_resin, koh_solid, lacquer, lube_oil, machine_oil, mixed_ash_business, naoh_solid, oil_filter, other_resin, paint_oil, paint_water, pe, pet, phenol_resin, pp, ps, pvc, refractory, rubber, sandblast, silica_fume, slag_aluminum, slag_lead, slag_nonferrous_other, slag_zinc, sludge_proc_glass_etching, sludge_proc_inorganic, sludge_proc_organic, sludge_proc_pulp_paper, sludge_proc_silicon, sludge_proc_unknown, sludge_ww_inorganic, sludge_ww_organic, sludge_ww_pulp_paper, sludge_ww_stone, sludge_ww_unknown, solvent_halogen, solvent_other, steel_slag, tire_auto
 - 일부만 펼친 소재: 없음
 
 | 묶음 | 소재 | 행 | 번호 선택 | 사유 여럿 |
 |---|---|---|---|---|
-| 플라스틱·고무 | [PP(폴리프로필렌)](pp.md) | 24 | 예 | 예 |
-| 플라스틱·고무 | [PE(폴리에틸렌)](pe.md) | 24 | 예 | 예 |
-| 플라스틱·고무 | [PET](pet.md) | 24 | 예 | 예 |
+| 플라스틱·고무 | [PP(폴리프로필렌)](pp.md) | 27 | 예 | 예 |
+| 플라스틱·고무 | [PE(폴리에틸렌)](pe.md) | 27 | 예 | 예 |
+| 플라스틱·고무 | [PET](pet.md) | 27 | 예 | 예 |
 | 플라스틱·고무 | [PS(폴리스티렌, 발포 아님)](ps.md) | 24 | 예 | 예 |
 | 플라스틱·고무 | [ABS 수지](abs.md) | 24 | 예 | 예 |
 | 플라스틱·고무 | [페놀수지](phenol_resin.md) | 24 | 예 | 예 |
@@ -25,7 +25,7 @@
 | 플라스틱·고무 | [합성고무](rubber.md) | 24 | 예 | 예 |
 | 금속 | [고철(철 스크랩)](ferrous_scrap.md) | 16 | 예 |  |
 | 금속 | [비철금속(구리·알루미늄 등)](nonferrous_scrap.md) | 16 | 예 |  |
-| 금속 | [폐금속캔](metal_can.md) | 16 | 예 |  |
+| 금속 | [폐금속캔](metal_can.md) | 31 | 예 |  |
 | 금속 | [폐금속용기(드럼 등)](metal_container.md) | 16 | 예 |  |
 | 광재(슬래그) | [고로슬래그(철광석 고로)](bf_slag.md) | 10 | 예 |  |
 | 광재(슬래그) | [제강슬래그](steel_slag.md) | 81 | 예 | 예 |
