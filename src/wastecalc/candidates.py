@@ -67,11 +67,11 @@ def code_candidates(kb: KB, answers_raw: dict, r: dict) -> list[str]:
         if prefixes:
             pool = _pool(kb, "DESIGNATED", prefixes)
             if mat_codes.get("DESIGNATED"):
-                # 소재 번호와 겹치는 사유(소재 자체가 지정 사유)는 소재 번호로, 그 밖의 사유(오염 등)는 그대로 둔다
+                # 소재 자체가 사유인 경로는 소재 번호로, 그 밖의 사유(오염 등)는 그 사유의 번호를 그대로 둔다
                 own = [c for c in pool if any(c.startswith(p) for p in mat_codes["DESIGNATED"])]
                 other_ids = [i for i in ids if not any(c.startswith(p) for p in mat_codes["DESIGNATED"]
                                                        for c in _pool(kb, "DESIGNATED", _designated_prefixes(kb, [i])))]
-                pool = own + _pool(kb, "DESIGNATED", _designated_prefixes(kb, other_ids))
+                pool = list(dict.fromkeys(own + _pool(kb, "DESIGNATED", _designated_prefixes(kb, other_ids))))
             out += pool
     if st["candidates"].get("NOT_DESIGNATED") != FALSE:
         kind = answers.get("waste_kind")

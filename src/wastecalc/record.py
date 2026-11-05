@@ -103,6 +103,9 @@ def _open_items(kb: KB, r: dict) -> list[dict]:
         if c.get("test"):
             item["test"] = {k: c["test"][k] for k in ("item", "method") if k in c["test"]}
         out.append(item)
+    if r.get("required_test"):
+        out.append({"fact": None, "question": r.get("message") or "시험이 필요합니다.", "state": "MISSING", "need": "TEST",
+                    "test": {k: r["required_test"][k] for k in ("item", "method") if k in r["required_test"]}})
     if r.get("consult"):
         out.append({"fact": None, "question": r["consult"]["why"], "state": "AUTHORITY", "need": "AUTHORITY"})
     return out

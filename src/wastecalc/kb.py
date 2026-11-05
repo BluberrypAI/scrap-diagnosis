@@ -364,6 +364,8 @@ def _validate_materials(kb: KB) -> list[str]:
             errors.append(f"소재 {mid}: 없는 묶음 {m.get('group')}")
         if m.get("unlisted"):
             continue
+        if m.get("code_needs_test") and m["code_needs_test"] not in kb.materials.get("code_tests", {}):
+            errors.append(f"소재 {mid}: 없는 시험 안내 {m['code_needs_test']}")
         if m.get("waste_kind") not in kinds:
             errors.append(f"소재 {mid}: waste_kind 값 오류 {m.get('waste_kind')}")
         for sec, prefixes in (m.get("codes") or {}).items():

@@ -131,7 +131,7 @@ PP 고체 예시는 ①~⑤, 5화면에서 51-03-01이 정해진다(두 번째 �
 |---|---|---|
 | 1 출력 계약 | 1차 완료 | `src/wastecalc/record.py`, `schemas/assessment_record.schema.json`, 웹 `GET /api/session/{id}/record`, MCP `assessment_record`. 항목별 상태·근거·쓰인 사실 출처·신뢰 수준(가장 약한 요소)·남은 확인 사항·record_hash. 복합소재 묶음 필드는 미구현 |
 | 2 카탈로그·소재 우선 | 1차 완료 | `rules/materials.yaml` 83종(13묶음). 첫 질문 소재(`compact.material_first` — 법 판단 엔진은 법 단계 순서 유지), 본질적 사실 미리 채움(사용자 답과 다르면 충돌), 소재 번호로 범위 제한(지정은 소재 자체가 사유일 때만), LLM 추출이 소재를 제안. 소재 49종은 질문만으로 번호 결정(테스트). 오니 등 번호가 여럿인 소재는 아직 목록 선택 |
-| 3 소재별 판정표 | 미착수 | |
+| 3 소재별 판정표 | 1차 완료 | `tools/material_tables.py` → `docs/material-tables/`(97종, 4,281행), 기대값 `tests/data/material_tables.json`, 회귀 `tests/test_material_tables.py`. 발견 사항은 `docs/material-tables-findings.md`. 카탈로그 98종으로 세분(오니·비철 광재·전지), 유기성·무기성 모르는 오니는 시험 안내 |
 | 4 빈틈 수정 | 미착수 | 소각시설 분진은 카탈로그에서 분진과 소각재를 나눠 일부 해소 |
 | 5 신뢰·증빙 | 일부 | 신뢰 수준 계산은 1단계에 포함. 증빙 첨부·유효기간 미착수 |
 | 6 검토·평가 | 미착수 | 카탈로그와 규칙 모두 UNVERIFIED |

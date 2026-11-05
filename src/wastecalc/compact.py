@@ -218,6 +218,8 @@ def compact(r: dict, kb: KB, answers: dict | None = None) -> dict:
     """answers(원래 입력)를 주면 남은 분류번호 후보 수와 보기별 남는 수도 붙인다."""
     out: dict[str, Any] = {k: r[k] for k in ("status", "summary", "conclusion", "as_of", "strict", "rule_db_version")
                            if k in r}
+    if r.get("required_test"):
+        out["required_test"] = r["required_test"]
     for k in ("reason", "message", "provisional", "stage", "stage_title"):
         if r.get(k) is not None:
             out[k] = r[k]

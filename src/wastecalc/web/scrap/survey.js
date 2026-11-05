@@ -390,7 +390,8 @@
         <div class="sv-badges">${dec.map(d => `<span>${esc(d.label)}</span>`).join('')}</div>
         <p class="sv-result-label">${esc(r.stage_title || '판정 결과')}</p><h1 class="sv-engine-h1">${esc(title)}</h1>
         ${last && last.why ? `<p class="sv-result-name">${esc(last.why)}</p>` : ''}
-        ${r.message && !r.consult ? `<p class="sv-helper">${esc(r.message)}</p>` : ''}</header>
+        ${r.message && !r.consult ? `<p class="sv-helper">${esc(r.message)}</p>` : ''}
+        ${r.required_test ? `<div class="sv-notice"><p><b>필요한 시험:</b> ${esc(r.required_test.item)}<br><small>${esc(r.required_test.method || '')}</small></p></div>` : ''}</header>
       ${provisional}${consult}${checksView(r)}${resolve}${reportingView(r)}${answeredList()}${trail.length ? evidence(trail) : ''}${errLine()}${actions}</main>`;
   }
 

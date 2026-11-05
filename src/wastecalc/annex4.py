@@ -141,6 +141,18 @@ def _classification_check(kb: KB, answers: dict, s3: dict) -> dict | None:
                 "unit": nxt.get("unit"), "asked_for_stage": "S3"}}
 
 
+def _all_reasons_match_material(kb: KB, s3: dict, mat_prefixes: list[str]) -> bool:
+    """성립한 지정 사유마다 그 번호 범위가 소재 번호와 겹치는지."""
+    m = kb.s4_map["designated"]
+    for b in s3.get("basis", []):
+        keys = [k for k in m if b["rule_id"].startswith(k)]
+        rng = m[max(keys, key=len)] if keys else []
+        if not any(c["id"].startswith(r) and any(c["id"].startswith(p) for p in mat_prefixes)
+                   for c in kb.annex4["codes"] for r in rng):
+            return False
+    return True
+
+
 def evaluate_s4(kb: KB, answers: dict, decided: list[dict]) -> dict:
     """반환: {"decided": entry} 또는 {"result": 미확정 결과}"""
     from .kb import material as _material
@@ -169,6 +181,11 @@ def evaluate_s4(kb: KB, answers: dict, decided: list[dict]) -> dict:
             kb, "NO_MIXTURE_RULE",
             "여러 소재가 섞여 나누기 어려운 폐기물의 분류번호를 정하는 법령 규정을 확인하지 못해 번호를 정하지 않습니다. "
             "나눌 수 있으면 소재별로 따로 문진하고, 어렵다면 섞인 소재와 대략의 비율을 정리해 관할 시·군·구에 확인하세요.")}
+    elif mat and mat.get("code_needs_test"):
+        spec = kb.materials.get("code_tests", {}).get(mat["code_needs_test"], {})
+        return {"result": {"status": "NEED_TEST", "stage": STAGE, "stage_title": kb.stages[STAGE]["title"],
+                           "reason": "CODE_NEEDS_TEST", "message": spec.get("message", "번호를 정하려면 시험·확인이 필요합니다."),
+                           "required_test": spec.get("test")}}
     elif mat_codes.get("GENERAL"):
         # 소재가 별표 4 번호를 정한다(예: 고철 → 51-29-01). 그룹 목록을 묻지 않는다.
         section = "GENERAL"
@@ -195,9 +212,9 @@ def evaluate_s4(kb: KB, answers: dict, decided: list[dict]) -> dict:
                   and any(c["id"].startswith(p) for p in prefixes)]
     if not candidates:
         return {"result": _expert(kb, "NO_CODE_IN_RANGE", f"번호 범위 {prefixes}에 해당하는 별표 4 번호가 없습니다.")}
-    if designated and mat_codes.get("DESIGNATED"):
-        # 소재 자체가 지정 사유일 때만(예: 액상 PP → 01-01-02) 소재 번호로 좁힌다.
-        # 기름·잔류물·PCB 등 다른 사유로 지정되면 번호는 그 사유를 따른다(겹치는 번호가 없으면 좁히지 않음).
+    if designated and mat_codes.get("DESIGNATED") and _all_reasons_match_material(kb, s3, mat_codes["DESIGNATED"]):
+        # 지정 사유가 모두 소재 자체에서 나온 경우에만(예: 액상 PP → 01-01-02) 소재 번호로 좁힌다.
+        # 기름·PCB·유해화학물질 등 다른 사유가 하나라도 있으면 좁히지 않는다(그 사유의 번호를 지우지 않음).
         narrowed = [c for c in candidates if any(c["id"].startswith(p) for p in mat_codes["DESIGNATED"])]
         if narrowed:
             candidates = narrowed
