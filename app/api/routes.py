@@ -242,14 +242,16 @@ def post_message(case_id: str, body: MessageIn, svc: ServiceDep) -> TurnResponse
         422: {"description": "facts(JSON) 값 오류: detail.message + detail.problems"},
     },
 )
-async def upload_document(
+def upload_document(
     case_id: str,
     svc: ServiceDep,
     settings: SettingsDep,
     file: Annotated[UploadFile, File()],
     facts: Annotated[str | None, Form()] = None,
 ) -> DocumentTurn:
-    data = await file.read(settings.max_upload_bytes + 1)
+    # 일반 def로 둔다: 아래 서비스는 동기 DB·AI 호출이라 async def 안에서 부르면
+    # 그동안 서버의 다른 모든 요청이 멈춘다. def는 FastAPI가 스레드에서 실행한다.
+    data = file.file.read(settings.max_upload_bytes + 1)
     if len(data) > settings.max_upload_bytes:
         raise api_error(413, f"파일이 너무 큽니다(최대 {settings.max_upload_bytes} bytes)")
     case = _run(svc, svc.get_case, case_id)
