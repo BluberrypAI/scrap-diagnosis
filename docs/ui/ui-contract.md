@@ -119,3 +119,10 @@ NO_CANDIDATE 충돌은 `fact`에 원인 사실 목록의 첫 키, `facts`에 전
 ## 6. 기타
 - `GET /catalog/facts`(새로 추가): 보드 편집·라벨용 카탈로그 요약(key, label, type, unit, values[{value,label}], parent). 내부 사실은 제외한다.
 - 오류 응답 형식: `{"detail": {"message": "…", …}}`. 화면은 `detail.message`를 보여 준다. 지금은 415 등 일부 오류의 `detail`이 문자열이라, 모두 이 형식으로 맞춘다(422 검증 오류는 FastAPI 기본 형식을 유지하고, 화면은 "입력값을 확인해 주세요"로 처리).
+
+## 구현 메모
+- `profile.facts` 응답은 항상 낸다(계산값 + 직접 지정값, 없으면 `{}`). 저장은 보낸 그대로다. `facilities`는 5개 값만 받고(그 밖은 422), `none`은 다른 값과 함께 보낼 수 없다(422). 5절 밖의 키(예: 예전 `site`)는 그대로 저장한다.
+- 오류 형식 통일은 `app/api/errors.py`의 `api_error`로 한다. 문서 업로드의 `facts` 값 오류(422)는 `detail.message` + `problems`다. FastAPI 요청 검증 422는 기본 형식을 유지한다.
+- 대화 기록(`conversation`)은 세션 state의 messages에서 만든다. 서류 업로드는 `role: "user"`, `text: "서류를 올렸어요: 파일명"`, `document_id`로 나온다. 이 기능 전에 쌓인 기록은 `at`이 null일 수 있다. 확정 건에 철회 `quick_reply`를 보내면 409(`case_status` 포함)다.
+- `CaseOut.summary.title`의 소재 라벨은 마지막 턴 Trace의 유효 사실(CLAIMED/EVIDENCED)에서 읽는다. `result_label`은 확정 전 FINAL_REVIEW 턴에서도 채운다(확정 검토 중).
+- 전체 API 설명과 예시는 `docs/api/api-spec.md`, 자동 명세는 `docs/api/openapi.json`이다.

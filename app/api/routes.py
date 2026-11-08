@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import StaleDataError
 
@@ -18,11 +18,15 @@ from app.api.deps import (
     TodayDep,
 )
 from app.api.documents import UnsupportedDocument
+from app.api.errors import ERROR_RESPONSES, ErrorResponse, api_error
+from app.api.profile import ProfileOptions, profile_options
 from app.api.schemas import (
     CaseCreate,
     CaseCreated,
     CaseDetail,
     CaseOut,
+    CatalogFact,
+    CatalogValue,
     CompanyCreate,
     CompanyOut,
     CompanyProfileUpdate,
@@ -43,7 +47,7 @@ from app.domain.case import CaseStatus
 from app.domain.verdict import TurnResponse
 from app.persistence.models import Company, WasteCase, new_id
 
-router = APIRouter()
+router = APIRouter(responses=ERROR_RESPONSES)
 STALE_MESSAGE = "다른 요청이 같은 문진을 먼저 갱신했습니다. 다시 시도하세요"
 
 
@@ -69,7 +73,7 @@ def _commit(svc: CaseService) -> None:
     except (StaleDataError, IntegrityError) as exc:
         # 같은 세션에 동시 요청: revision(낙관적 잠금) 또는 (session_id, seq) 유일 제약 충돌
         svc.db.rollback()
-        raise HTTPException(409, STALE_MESSAGE) from exc
+        raise api_error(409, STALE_MESSAGE) from exc
 
 
 def _case_out(svc: CaseService, case: WasteCase) -> CaseOut:
@@ -89,6 +93,7 @@ def _case_out(svc: CaseService, case: WasteCase) -> CaseOut:
             "diagnosis_started_at": rec.started_at if rec else None,
             "last_activity_at": rec.last_activity_at if rec else None,
             "as_of": rec.as_of if rec else None,
+            "summary": svc.summary(case, rec),
         }
     )
 
@@ -98,13 +103,13 @@ def _run(svc: CaseService, fn, *args, **kwargs):  # noqa: ANN001, ANN202
         return fn(*args, **kwargs)
     except ServiceError as exc:
         svc.db.rollback()
-        raise HTTPException(exc.status, {"message": exc.message, **exc.extra}) from exc
+        raise api_error(exc.status, exc.message, **exc.extra) from exc
     except UnsupportedDocument as exc:
         svc.db.rollback()
-        raise HTTPException(415, str(exc)) from exc
+        raise api_error(415, str(exc)) from exc
     except (StaleDataError, IntegrityError) as exc:
         svc.db.rollback()
-        raise HTTPException(409, STALE_MESSAGE) from exc
+        raise api_error(409, STALE_MESSAGE) from exc
 
 
 # ---- 기업 (개발용 최소 API) --------------------------------------------------------------
@@ -113,10 +118,16 @@ def _run(svc: CaseService, fn, *args, **kwargs):  # noqa: ANN001, ANN202
 @router.post("/companies", response_model=CompanyOut, status_code=201, tags=["companies"])
 def create_company(body: CompanyCreate, db: DbDep) -> Company:
     # TODO(auth): 가입·로그인 흐름에서 만든다. 지금은 개발용으로 열어 둔다.
-    company = Company(id=new_id(), name=body.name, profile=body.profile)
+    company = Company(id=new_id(), name=body.name, profile=body.profile.stored())
     db.add(company)
     db.commit()
     return company
+
+
+@router.get("/companies/profile-options", response_model=ProfileOptions, tags=["companies"])
+def get_profile_options() -> ProfileOptions:
+    """기업 정보 화면의 선택지(배출시설 종류). 인증 없이 부른다."""
+    return profile_options()
 
 
 @router.get("/companies/me", response_model=CompanyOut, tags=["companies"])
@@ -126,9 +137,48 @@ def get_my_company(company: CompanyDep) -> Company:
 
 @router.put("/companies/me/profile", response_model=CompanyOut, tags=["companies"])
 def update_profile(body: CompanyProfileUpdate, company: CompanyDep, db: DbDep) -> Company:
-    company.profile = body.profile  # 이후 새로 만드는 건부터 적용
+    company.profile = body.profile.stored()  # 이후 새로 만드는 건부터 적용
     db.commit()
     return company
+
+
+# ---- 카탈로그 ----------------------------------------------------------------------------
+
+
+@router.get("/catalog/facts", response_model=list[CatalogFact], tags=["catalog"])
+def get_catalog_facts(kb: KBDep) -> list[CatalogFact]:
+    """보드 편집·라벨용 사실 카탈로그 요약(카탈로그 순서). 내부 사실은 뺀다. 인증 없이 부른다."""
+    out = []
+    for fd in kb.catalog.values():
+        if fd.internal:
+            continue
+        if fd.type == "enum":
+            values = [
+                CatalogValue(
+                    value=v,
+                    label=fd.value_labels.get(v, v),
+                    parent_value=fd.value_parent.get(v) if fd.parent else None,
+                )
+                for v in fd.values or ()
+            ]
+        elif fd.type == "bool":
+            values = [
+                CatalogValue(value=True, label="예"),
+                CatalogValue(value=False, label="아니오"),
+            ]
+        else:
+            values = []
+        out.append(
+            CatalogFact(
+                key=fd.key,
+                label=fd.label or fd.question_hint or fd.key,
+                type=fd.type,
+                unit=fd.unit,
+                values=values,
+                parent=fd.parent,
+            )
+        )
+    return out
 
 
 # ---- 건 ----------------------------------------------------------------------------------
@@ -166,6 +216,7 @@ def get_case(case_id: str, svc: ServiceDep) -> CaseDetail:
         latest_turn=svc.latest_turn(case),
         documents=[DocumentOut.model_validate(d) for d in svc.documents(case)],
         handoff=current.handoff if current else None,
+        conversation=svc.conversation(case),
     )
 
 
@@ -181,7 +232,15 @@ def post_message(case_id: str, body: MessageIn, svc: ServiceDep) -> TurnResponse
 
 
 @router.post(
-    "/cases/{case_id}/documents", response_model=DocumentTurn, status_code=201, tags=["diagnosis"]
+    "/cases/{case_id}/documents",
+    response_model=DocumentTurn,
+    status_code=201,
+    tags=["diagnosis"],
+    responses={
+        413: {"model": ErrorResponse, "description": "파일이 너무 큼"},
+        415: {"model": ErrorResponse, "description": "지원하지 않는 파일 형식"},
+        422: {"description": "facts(JSON) 값 오류: detail.message + detail.problems"},
+    },
 )
 async def upload_document(
     case_id: str,
@@ -192,7 +251,7 @@ async def upload_document(
 ) -> DocumentTurn:
     data = await file.read(settings.max_upload_bytes + 1)
     if len(data) > settings.max_upload_bytes:
-        raise HTTPException(413, f"파일이 너무 큽니다(최대 {settings.max_upload_bytes} bytes)")
+        raise api_error(413, f"파일이 너무 큽니다(최대 {settings.max_upload_bytes} bytes)")
     case = _run(svc, svc.get_case, case_id)
     doc, turn = _run(
         svc,

@@ -14,11 +14,12 @@ from functools import cached_property
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import Depends, Header, HTTPException, Request
+from fastapi import Depends, Header, Request
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.agent.llm_client import LLMClient, make_client
+from app.api.errors import api_error
 from app.config import Settings, get_settings
 from app.persistence.db import create_all, make_engine, make_sessionmaker
 from app.persistence.models import Company
@@ -177,10 +178,10 @@ def current_company(
     TODO(auth): 로그인 토큰에서 사용자·기업을 꺼내고, 세부 권한(계정별 역할)을 적용한다.
     """
     if not x_company_id:
-        raise HTTPException(401, "X-Company-Id 헤더가 필요합니다")
+        raise api_error(401, "X-Company-Id 헤더가 필요합니다")
     company = db.get(Company, x_company_id)
     if company is None:
-        raise HTTPException(401, "알 수 없는 기업입니다")
+        raise api_error(401, "알 수 없는 기업입니다")
     return company
 
 

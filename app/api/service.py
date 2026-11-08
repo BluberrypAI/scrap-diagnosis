@@ -24,17 +24,19 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.agent import templates
 from app.agent.extractor import extract
 from app.agent.orchestrator import DiagnosisSession, QuickReply
 from app.agent.router import Branch
 from app.api.deps import KBInfo, LLMs
 from app.api.documents import extract_text
+from app.api.profile import profile_facts
 from app.config import Settings
 from app.domain.case import DIAGNOSABLE, CaseStatus, status_after_turn
 from app.domain.clock import seoul_date
 from app.domain.facts import FactStatus
 from app.domain.handoff import RESULT_NO_CODE, build_handoff, result_type_of
-from app.domain.verdict import TurnResponse, build_verdict
+from app.domain.verdict import TurnResponse, build_verdict, value_label
 from app.persistence.models import (
     Company,
     DiagnosisSessionRecord,
@@ -112,6 +114,78 @@ class CaseService:
             return None
         return TurnResponse.model_validate(row.payload["response"])
 
+    def conversation(self, case: WasteCase) -> list[dict[str, Any]]:
+        """세션 state에 쌓인 대화 기록을 화면용으로 바꾼다(docs/ui/ui-contract.md 2절)."""
+        out: list[dict[str, Any]] = []
+        for rec in sorted(case.sessions, key=lambda r: r.created_at):
+            for m in (rec.state or {}).get("messages", []):
+                role = m.get("role")
+                item: dict[str, Any] = {"turn_id": m.get("id", ""), "at": m.get("at")}
+                if role == "assistant":
+                    item.update(
+                        role="assistant",
+                        text=m.get("text", ""),
+                        branch=m.get("branch"),
+                        question_key=m.get("question_key"),
+                    )
+                elif role == "document":
+                    item.update(
+                        role="user",
+                        text=templates.DOCUMENT_MESSAGE.format(filename=m.get("text", "")),
+                        document_id=m.get("id"),
+                    )
+                else:
+                    item.update(
+                        role="user",
+                        text=m.get("text", ""),
+                        quick_reply=m.get("quick_reply"),
+                        memo=bool(m.get("memo")),
+                    )
+                out.append(item)
+        return out
+
+    def summary(self, case: WasteCase, rec: DiagnosisSessionRecord | None = None) -> dict[str, Any]:
+        """건 목록 카드(docs/ui/ui-contract.md 3절). 마지막 턴 Trace와 현재 판정에서 만든다."""
+        rec = rec if rec is not None else self.repo.latest_for_case(case.id)
+        row = self.repo.latest_turn(rec.id) if rec is not None else None
+        payload = row.payload if row is not None else {}
+        resp = payload.get("response") or {}
+        current = self.repo.current_verdict(case.id)
+
+        title = None
+        material = (payload.get("effective_facts") or {}).get("material") or {}
+        if material.get("value") is not None and material.get("status") in ("CLAIMED", "EVIDENCED"):
+            title = value_label(self.kb, "material", material["value"])
+        if not title and case.memo and case.memo.strip():
+            title = case.memo.strip().splitlines()[0][:30]
+
+        code = outcome = name = None
+        if current is not None:
+            code, outcome, name = current.code, current.outcome, current.name
+        elif resp.get("branch") == Branch.FINAL_REVIEW.value:
+            v = resp.get("verdict") or {}
+            code, outcome, name = v.get("waste_code"), v.get("outcome"), v.get("waste_name")
+        if code is not None:
+            result_label = f"{code} {name or ''}".strip()
+        else:
+            result_label = templates.OUTCOME_LABEL.get(outcome) if outcome else None
+
+        if case.status in templates.NEXT_ACTION_BY_STATUS:
+            next_action = templates.NEXT_ACTION_BY_STATUS[case.status]
+        elif case.status == CaseStatus.CODE_CONFIRMED.value and current is not None:
+            action = ((current.handoff or {}).get("route_guidance") or {}).get("action")
+            next_action = templates.NEXT_ACTION_BY_ROUTE.get(action or "RECOMMEND_ROUTE")
+        else:
+            next_action = templates.NEXT_ACTION_BY_BRANCH.get(resp.get("branch") or "")
+        return {
+            "title": title or templates.NEW_CASE_TITLE,
+            "code": code,
+            "outcome": outcome,
+            "result_label": result_label,
+            "status_label": templates.STATUS_LABEL.get(case.status, case.status),
+            "next_action": next_action,
+        }
+
     def documents(self, case: WasteCase) -> list[Document]:
         return list(
             self.db.scalars(
@@ -159,8 +233,11 @@ class CaseService:
         return case, resp
 
     def _seed_profile(self, s: DiagnosisSession) -> None:
-        """기업 프로필의 사이트 사실(PROFILE). 카탈로그에 없거나 값이 맞지 않는 키는 건너뛴다."""
-        facts = (self.company.profile or {}).get("facts") or {}
+        """기업 프로필의 사이트 사실(PROFILE). 카탈로그에 없거나 값이 맞지 않는 키는 건너뛴다.
+
+        사이트 사실 = facilities에서 계산한 값 + 직접 지정한 facts(직접 지정 우선).
+        """
+        facts = profile_facts(self.company.profile)
         for k, v in facts.items():
             try:
                 s.seed({k: v})
@@ -289,7 +366,15 @@ class CaseService:
             s.store.append(f)
         if evidenced:
             s.state.evidence_refused = False
-        s.messages.append({"role": "document", "id": doc.id, "text": filename, "memo": False})
+        s.messages.append(
+            {
+                "role": "document",
+                "id": doc.id,
+                "text": filename,
+                "memo": False,
+                "at": utcnow().isoformat(timespec="seconds"),
+            }
+        )
         resp = s.handle()
         self._finish_turn(case, ls)
         return doc, resp

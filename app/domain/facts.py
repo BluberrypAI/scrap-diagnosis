@@ -2,6 +2,11 @@
 
 같은 키의 사실은 덮어쓰지 않고 append한다. 평가에는 키별 '유효 사실'을 쓴다.
 유효 사실 우선순위: EVIDENCED > CLAIMED > 그 외(UNKNOWN, DECLARED_UNKNOWN), 같은 등급이면 최신.
+
+철회(retract, docs/ui/ui-contract.md 4절): 사용자가 "모름으로 되돌리기"를 누르면 그 키에
+`status=UNKNOWN, retracted=True` 행을 append한다(이력은 지우지 않는다). 유효 사실을 고를 때는
+철회 행보다 늦지 않게 기록된 같은 키의 진술(CLAIMED)을 무시한다. EVIDENCED는 무시하지 않고,
+철회 뒤에 다시 진술하면 그 값이 유효하다. 철회 행이 없는 이력의 동작은 이전과 같다.
 """
 
 from __future__ import annotations
@@ -50,6 +55,8 @@ class Fact(BaseModel):
     note: str | None = None  # 정량화되지 않은 진술 원문 요약
     quote: str | None = None  # 근거가 된 원문 일부
     recorded_at: datetime = Field(default_factory=_now)
+    # 사용자가 이 키의 앞선 진술을 철회함(status는 UNKNOWN). 앞선 CLAIMED를 평가에서 뺀다.
+    retracted: bool = False
 
     @property
     def is_known(self) -> bool:
@@ -61,8 +68,43 @@ def _sort_key(f: Fact) -> tuple:
     return (STATUS_RANK[f.status], f.recorded_at, f.source_ref, repr(f.value))
 
 
-def effective_fact(history: Iterable[Fact]) -> Fact | None:
+RETRACT_NOTE = "사용자가 철회"
+
+
+def retract_fact(key: str, *, source_ref: str = "", source_type: SourceType = "UTTERANCE") -> Fact:
+    """그 키를 '모르는 상태'로 되돌리는 철회 행."""
+    return Fact(
+        key=key,
+        value=None,
+        status=FactStatus.UNKNOWN,
+        source_type=source_type,
+        source_ref=source_ref,
+        note=RETRACT_NOTE,
+        retracted=True,
+    )
+
+
+def _retracted_claim(f: Fact, cut: datetime | None) -> bool:
+    return cut is not None and f.status == FactStatus.CLAIMED and f.recorded_at <= cut
+
+
+def active_facts(history: Iterable[Fact]) -> list[Fact]:
+    """철회된 진술(CLAIMED)을 뺀 이력. 키마다 마지막 철회 시각 이전의 진술을 뺀다.
+
+    입력 순서와 무관하다(기록 시각으로만 판단). 철회 행이 없으면 이력 그대로다.
+    """
     items = list(history)
+    cuts: dict[str, datetime] = {}
+    for f in items:
+        if f.retracted and (f.key not in cuts or f.recorded_at > cuts[f.key]):
+            cuts[f.key] = f.recorded_at
+    if not cuts:
+        return items
+    return [f for f in items if not _retracted_claim(f, cuts.get(f.key))]
+
+
+def effective_fact(history: Iterable[Fact]) -> Fact | None:
+    items = active_facts(history)
     if not items:
         return None
     return max(items, key=_sort_key)
