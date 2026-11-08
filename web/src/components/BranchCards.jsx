@@ -79,6 +79,7 @@ const MARK = { true: '✔', false: '✗' };
 /** FINAL_REVIEW(확정 전) / 인계 요약(확정 후) */
 export function FinalCard({ turn, confirmed, handoff, busy, onConfirm, onRecheck }) {
   const [json, setJson] = useState(false);
+  const [asking, setAsking] = useState(false); // 확정 전 화면 안 확인(네이티브 confirm은 테마·자동화 불가)
   const r = turn.ui.result;
   const v = turn.verdict;
   const guide = handoff?.route_guidance;
@@ -93,15 +94,25 @@ export function FinalCard({ turn, confirmed, handoff, busy, onConfirm, onRecheck
         <ul className="plain">{v.conditions.map((c, i) => <li key={i}>{MARK[c.satisfied] || '○'} {c.text}</li>)}</ul>
       )}
       {v.rationale.length > 0 && (
-        <details><summary>근거 보기</summary><ul className="plain">{v.rationale.map((x, i) => <li key={i}>{typeof x === 'string' ? x : JSON.stringify(x)}</li>)}</ul></details>
+        <details><summary>근거 보기</summary><ul className="plain">{v.rationale.map((x, i) => (
+          <li key={i}>{typeof x === 'string' ? x : <><strong>{x.ref}</strong>{x.excerpt && <> — “{x.excerpt}”</>}</>}</li>
+        ))}</ul></details>
       )}
       {!confirmed && (
         <>
           <p className="muted">{r.next_step}</p>
-          <div className="row">
-            <button type="button" className="button button-quiet" disabled={busy} onClick={onRecheck}>다시 확인할게요</button>
-            <button type="button" className="button button-primary" disabled={busy || !turn.ui.can_confirm} onClick={onConfirm}>확정</button>
-          </div>
+          {!asking ? (
+            <div className="row">
+              <button type="button" className="button button-quiet" disabled={busy} onClick={onRecheck}>다시 확인할게요</button>
+              <button type="button" className="button button-primary" disabled={busy || !turn.ui.can_confirm} onClick={() => setAsking(true)}>확정</button>
+            </div>
+          ) : (
+            <div className="row" role="alertdialog" aria-label="확정 확인">
+              <span>확정하면 판정이 기록되고 다음 단계로 넘어갑니다. 확정할까요?</span>
+              <button type="button" className="button button-quiet" disabled={busy} onClick={() => setAsking(false)}>취소</button>
+              <button type="button" className="button button-primary" disabled={busy} onClick={() => { setAsking(false); onConfirm(); }}>확정하기</button>
+            </div>
+          )}
         </>
       )}
       {confirmed && (

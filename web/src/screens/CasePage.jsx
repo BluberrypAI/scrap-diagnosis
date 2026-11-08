@@ -74,7 +74,6 @@ export default function CasePage({ id }) {
     go();
   };
   async function confirm() {
-    if (!window.confirm('확정하면 판정이 기록되고 다음 단계로 넘어갑니다. 확정할까요?')) return;
     setBusy(true);
     setErr(null);
     try {
