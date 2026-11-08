@@ -1,0 +1,32 @@
+# AI 전송 정책 (CORP-008, OPS-010, OPS-003)
+
+## 보내기 전 가리기
+`app/agent/redact.py`가 AI(추출기·응답기)에 보낼 문자열에서 식별 정보를 토큰으로 바꾼다.
+
+| 대상 | 토큰 |
+|---|---|
+| 사업자등록번호(xxx-xx-xxxxx, '사업자(등록)번호' 뒤 10자리) | `[사업자번호]` |
+| 법인등록번호(xxxxxx-xxxxxxx) | `[법인번호]` |
+| 주민등록번호 | `[주민번호]` |
+| 전화·휴대폰(02, 0xx, 010, +82) | `[전화번호]` |
+| 이메일 | `[이메일]` |
+| 상세주소(도로명+건물번호, 지번, 동·호) | `[주소]` |
+
+폐기물 분류번호(51-03-01), 수치(5%, mg/L, pH), 날짜는 가리지 않는다.
+수치 단위가 뒤따르는 "~로 5%" 같은 문장은 주소로 보지 않는다.
+
+## fail-closed
+- 가리기 중 오류가 나거나 가린 뒤에도 식별 패턴이 남으면 AI를 부르지 않는다.
+- 그 턴은 AI가 꺼진 것처럼 진행한다(버튼 답만 받는 질문 흐름, 응답은 템플릿).
+- Trace의 `extraction.llm_blocked`, `responder.llm_blocked`에 이유를 남긴다.
+
+## 사실 근거 문장(quote)
+guard는 모델이 실제로 본 '가린 문장'으로 quote를 검사한다. 저장된 사실의 quote도 가린 문장이다.
+
+## 서류 원문
+`allow_document_llm`(환경변수 `ALLOW_DOCUMENT_LLM`, 기본 false)이 꺼져 있으면 서류 원문은 AI로 보내지 않는다.
+서류 경로는 `extract(..., source="document")`로 불러야 이 차단이 적용된다.
+
+## Trace 기록
+`LLMCall.user`에는 가린 프롬프트만 들어가고, 원문의 `user_sha256`·`user_len`, 응답의 `raw_sha256`·`raw_len`이 붙는다.
+`trace_store_prompts=false`(`TRACE_STORE_PROMPTS`)면 프롬프트·응답 본문을 비우고 해시와 길이만 남긴다.
