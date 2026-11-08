@@ -23,7 +23,7 @@ from pydantic import BaseModel
 from app.domain.facts import Fact, FactStatus
 from app.domain.ranges import NumRange, range_satisfies
 from app.rules.evaluator import TV, EvaluationResult, UnknownFact, evaluate
-from app.rules.model import NUMERIC_OPS, FactDef, KnowledgeBase, QuestionGroup, iter_conds
+from app.rules.model import NUMERIC_OPS, FactDef, KnowledgeBase, QuestionGroup, Table, iter_conds
 
 FOCUS_WEIGHT = 1.5
 UNKNOWN_LABEL = "모름"
@@ -35,6 +35,7 @@ class SelectionContext:
 
     expanded_groups: frozenset[str] = frozenset()
     focus_codes: frozenset[str] = frozenset()  # 사용자가 주장한 코드
+    exclude_keys: frozenset[str] = frozenset()  # 묻지 않을 사실(증빙으로 한꺼번에 받을 사실 등)
 
 
 class ValueOption(BaseModel):
@@ -86,12 +87,25 @@ def _probabilities(fd: FactDef, keys: list[str]) -> list[float]:
     return [p / total for p in probs] if total > 0 else [1 / len(keys)] * len(keys)
 
 
-def numeric_segments(kb: KnowledgeBase, key: str) -> list[NumRange]:
-    """규칙에 나오는 임계값으로 수직선을 나누고, 모든 조건의 참거짓이 같은 조각끼리 합친다."""
+def table_of(kb: KnowledgeBase, ev: EvaluationResult | None) -> Table | None:
+    if ev is None or ev.table_id is None:
+        return None
+    return next((t for t in kb.tables if t.table_id == ev.table_id), None)
+
+
+def numeric_segments(
+    kb: KnowledgeBase, key: str, base: EvaluationResult | None = None
+) -> list[NumRange]:
+    """규칙에 나오는 임계값으로 수직선을 나누고, 모든 조건의 참거짓이 같은 조각끼리 합친다.
+
+    적용 테이블이 정해졌으면 그 테이블의 임계값만 쓴다.
+    """
+    t = table_of(kb, base)
+    tables = [t] if t is not None else list(kb.tables)
     conds = [
         c
-        for t in kb.tables
-        for r in t.rules
+        for tb in tables
+        for r in tb.rules
         for c in iter_conds(r.when)
         if c.fact == key and c.op in NUMERIC_OPS | {"eq", "ne"}
     ]
@@ -118,15 +132,49 @@ def numeric_segments(kb: KnowledgeBase, key: str) -> list[NumRange]:
     return [m for m, _ in merged]
 
 
-def value_domain(kb: KnowledgeBase, fd: FactDef) -> list[tuple[ValueOption, float]]:
+def referenced_values(kb: KnowledgeBase, base: EvaluationResult | None, key: str) -> list[str]:
+    """적용 테이블에서 이 사실 때문에 확정이 막힌 규칙의 조건(eq/in)에 나오는 값.
+
+    막는 규칙이 없으면 확정 후보가 될 수 있는(live) FALSE가 아닌 규칙에서 찾는다. 순서는 첫 등장 순.
+    """
+    t = table_of(kb, base)
+    if t is None or base is None:
+        return []
+    blocking = next((u for u in base.blocking_facts if u.key == key), None)
+    if blocking is not None:
+        alive = set(blocking.rule_ids)
+    else:
+        live = {c.key for c in base.live_candidates}
+        alive = {r.rule_id for r in base.rule_results if r.status != TV.FALSE and r.key in live}
+    out: dict[str, None] = {}
+    for r in t.rules:
+        if r.rule_id not in alive:
+            continue
+        for c in iter_conds(r.when):
+            if c.fact != key:
+                continue
+            if c.op == "eq":
+                out[str(c.value)] = None
+            elif c.op == "in":
+                for v in c.value:
+                    out[str(v)] = None
+    return list(out)
+
+
+def value_domain(
+    kb: KnowledgeBase, fd: FactDef, base: EvaluationResult | None = None
+) -> list[tuple[ValueOption, float]]:
     if fd.type == "enum":
-        keys = list(fd.values or ())
+        if fd.domain == "referenced":
+            keys = referenced_values(kb, base, fd.key)
+        else:
+            keys = list(fd.values or ())
         opts = [ValueOption(label=fd.value_labels.get(k, k), value=k) for k in keys]
     elif fd.type == "bool":
         keys = ["true", "false"]
         opts = [ValueOption(label="예", value=True), ValueOption(label="아니오", value=False)]
     else:
-        segs = numeric_segments(kb, fd.key)
+        segs = numeric_segments(kb, fd.key, base)
         keys = [s.label(fd.unit) for s in segs]
         opts = [ValueOption(label=s.label(fd.unit), value=s.model_dump()) for s in segs]
     if not opts:
@@ -140,7 +188,7 @@ def value_domain(kb: KnowledgeBase, fd: FactDef) -> list[tuple[ValueOption, floa
 def _outcome_size(ev: EvaluationResult) -> int:
     if ev.decided is not None:
         return 1
-    return len({c.code for c in ev.live_candidates})
+    return len({c.key for c in ev.live_candidates})
 
 
 def _unknown_rules(ev: EvaluationResult) -> set[str]:
@@ -240,6 +288,11 @@ def select_question(
 ) -> QuestionChoice | None:
     ctx = ctx or SelectionContext()
     pool_items: list[UnknownFact] = [u for u in base.blocking_facts if u.reason == "MISSING"]
+    # ask_last 사실(예: 별표4 번호 선택)은 확정을 막는 다른 사실이 모두 풀린 뒤에만 묻는다.
+    others = [u for u in base.blocking_facts if not kb.catalog[u.key].ask_last]
+    if others:
+        pool_items = [u for u in pool_items if not kb.catalog[u.key].ask_last]
+    pool_items = [u for u in pool_items if u.key not in ctx.exclude_keys]
     pool = {u.key for u in pool_items}
     if not pool:
         return None
@@ -248,7 +301,7 @@ def select_question(
 
     for u in sorted(pool_items, key=lambda x: x.key):
         fd = kb.catalog[u.key]
-        domain = value_domain(kb, fd)
+        domain = value_domain(kb, fd, base)
         if not domain:
             continue
         hyps = [(opt.label, {u.key: opt.value}, p) for opt, p in domain]
@@ -282,7 +335,7 @@ def select_question(
         p_none = 1.0
         for k in members:
             fd = kb.catalog[k]
-            dom = value_domain(kb, fd)
+            dom = value_domain(kb, fd, base)
             keys = [value_key(o.value) if fd.type != "number" else o.label for o, _ in dom]
             probs = dict(zip(keys, _probabilities(fd, keys), strict=True))
             p_none *= probs.get(value_key(fd.none_value), 1 / max(len(keys), 1))

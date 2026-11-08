@@ -1,0 +1,41 @@
+# 실제 변환 규칙(data/real) 시나리오. 기존 엔진은 PP 고체·오염 없음에 10문항을 물었다.
+- id: REAL-PP-CLEAN
+  description: "PP 사출 스크랩. 배출시설은 기업 프로필에서. 묶음 질문 두 번으로 확정"
+  as_of: 2026-11-08
+  setup: {facts: {emission_facility: true}}
+  answers: {material: pp, scope_screen: none, contamination_screen: none, physical_state: solid}
+- id: REAL-PP-PREFILL
+  description: "건 메모에서 소재·상태를 이미 앎"
+  as_of: 2026-11-08
+  setup: {facts: {emission_facility: true, material: pp, physical_state: solid}}
+  answers: {scope_screen: none, contamination_screen: none}
+- id: REAL-PP-EXPAND
+  description: "비교용: 묶음 질문을 펼쳐 하나씩 답함"
+  as_of: 2026-11-08
+  setup: {facts: {emission_facility: true}}
+  answers: {material: pp, scope_screen: expand, material_fate: released, circular_resource_recognized: false,
+            law_exclusion: none, contamination_screen: expand, designated_residue: false, oil_presence: none,
+            pcb_possible: false, toxic_chemical_discard: false, physical_state: solid}
+- id: REAL-H2SO4
+  description: "폐황산. pH는 성적서로 확인"
+  as_of: 2026-11-08
+  setup: {facts: {emission_facility: true, material: h2so4}}
+  answers: {scope_screen: none, contamination_screen: none, ph: unknown}
+  documents: {TEST_REPORT: {ph: 0.8}}
+- id: REAL-PP-TOXIC
+  description: "유해화학물질이 묻은 PP → 09번대 번호 선택"
+  as_of: 2026-11-08
+  setup: {facts: {emission_facility: true, material: pp, physical_state: solid}}
+  answers: {scope_screen: none, contamination_screen: expand, designated_residue: false, oil_presence: none,
+            pcb_possible: false, toxic_chemical_discard: true, annex4_code: 09-01-00}
+- id: REAL-NOT-WASTE
+  description: "아직 원료로 쓰는 물질 → 폐기물 아님(판정 불가로 안내)"
+  as_of: 2026-11-08
+  setup: {facts: {emission_facility: true, material: pp}}
+  answers: {contamination_screen: none, physical_state: solid, scope_screen: expand, material_fate: still_used,
+            circular_resource_recognized: false}
+- id: REAL-SLUDGE-NO-REPORT
+  description: "무기성 폐수 오니, 성적서 없음 → 판정 불가"
+  as_of: 2026-11-08
+  setup: {facts: {emission_facility: true, material: sludge_ww_inorganic}}
+  answers: {scope_screen: none, contamination_screen: none, sludge_facility_notified: true}

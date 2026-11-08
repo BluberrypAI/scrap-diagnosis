@@ -35,6 +35,13 @@ class FactDef:
     prior: dict[str, float] = field(default_factory=dict)  # 값(문자열화) → 사전확률. 비우면 균등
     help: str | None = None
     none_value: Any = None  # 묶음 질문 '모두 해당 없음'에서 넣을 값
+    # referenced: enum 값 영역을 'FALSE가 아닌 규칙의 조건에 나오는 값'으로 한정
+    # (예: 별표4 번호 선택)
+    domain: str | None = None
+    ask_last: bool = False  # 확정을 막는 다른 사실이 남아 있으면 묻지 않음
+    auto_single: bool = False  # 남은 선택지가 하나면 자동으로 채움
+    internal: bool = False  # LLM이 자유 진술에서 추출하지 않음(직전 질문의 선택지로만 받음)
+    value_aliases: dict[str, tuple[str, ...]] = field(default_factory=dict)
 
 
 # ---- 조건식 -------------------------------------------------------------------------------
@@ -92,6 +99,13 @@ class Outcome:
     code: str | None
     category: str | None = None  # GENERAL | DESIGNATED | HOUSEHOLD | ...
     name: str | None = None
+    # 코드 없는 결론의 사유 (NOT_WASTE, EXCLUDED, HOUSEHOLD, INTERPRETATION_NEEDED ...)
+    outcome: str | None = None
+
+    @property
+    def key(self) -> str:
+        """같은 결론인지 비교하는 키. 코드가 없으면 사유로 구분한다."""
+        return self.code if self.code is not None else f"@{self.outcome}"
 
 
 @dataclass(frozen=True)

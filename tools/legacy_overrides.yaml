@@ -1,0 +1,57 @@
+# 기존 엔진(resource_engine) 규칙을 변환할 때 사람이 정하는 보정값.
+# 기존 facts.yaml에는 없는 값(사전확률·법적 중요도·묶음 질문 기본값·증빙 문서 이름)을 여기서 둔다.
+# 변환기(tools/convert_legacy.py)가 이 파일을 읽어 data/real/facts_catalog.yaml에 합친다.
+
+facts:
+  material_fate:
+    legal_priority: 2
+    prior: {released: 0.9}
+    none_value: released
+  circular_resource_recognized:
+    legal_priority: 2
+    prior: {false: 0.97}
+    none_value: false
+    evidence_type: CIRCULAR_RESOURCE_CERTIFICATE
+  law_exclusion:
+    legal_priority: 2
+    prior: {none: 0.95}
+    none_value: none
+  emission_facility:
+    legal_priority: 2
+    evidence_type: EMISSION_FACILITY_PERMIT
+  designated_waste_emitted: {evidence_type: WASTE_DISCHARGE_REPORT}
+  daily_avg_kg: {evidence_type: WASTE_DISCHARGE_REPORT}
+  work_total_ton: {evidence_type: CONSTRUCTION_CONTRACT}
+  sludge_facility_notified: {evidence_type: FACILITY_NOTIFICATION}
+  designated_residue:
+    prior: {false: 0.9}
+    none_value: false
+  oil_presence:
+    prior: {none: 0.8}
+    none_value: none
+  pcb_possible:
+    prior: {false: 0.97}
+    none_value: false
+    evidence_type: EQUIPMENT_NAMEPLATE
+  toxic_chemical_discard:
+    prior: {false: 0.97}
+    none_value: false
+    evidence_type: MSDS
+
+groups:
+  - group_id: scope_screen
+    title: 이 물질은 사업장에서 더 쓰지 않아 내보내는 것이고, 아래 어느 것에도 해당하지 않나요?
+    help: >-
+      제조 공정에서 나와 버리거나 위탁·판매하는 물질은 대부분 '그렇다'입니다.
+      순환자원 인정을 받았거나, 방사성 물질·폐수·가축분뇨처럼 다른 법을 따르는 물질이면 '아니다/잘 모르겠다'를 고르세요.
+    facts: [material_fate, circular_resource_recognized, law_exclusion]
+    none_label: 그렇다 (내보내는 물질이고 해당 없음)
+    expand_label: 아니다 / 잘 모르겠다
+  - group_id: contamination_screen
+    title: 이 폐기물에 해당하는 것이 있나요? (기름·잔류물·PCB·유해화학물질)
+    help: >-
+      대부분의 제조 공정 폐기물은 '모두 해당 없음'입니다.
+      기름이 묻었거나, 용기에 내용물이 남았거나, PCB 기기·유해화학물질과 관련이 있으면 개별로 확인합니다.
+    facts: [designated_residue, oil_presence, pcb_possible, toxic_chemical_discard]
+    none_label: 모두 해당 없음
+    expand_label: 해당하는 게 있어요 / 잘 모르겠어요

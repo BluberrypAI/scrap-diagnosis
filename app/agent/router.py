@@ -18,11 +18,16 @@ from enum import StrEnum
 
 from pydantic import BaseModel
 
-from app.domain.facts import Fact, FactStore
+from app.domain.facts import Fact, FactStatus, FactStore
 from app.rules.conflicts import Conflict, detect_conflicts
-from app.rules.evaluator import EvaluationResult, evaluate
+from app.rules.evaluator import EvaluationResult, UnknownFact, evaluate
 from app.rules.model import KnowledgeBase
-from app.rules.selector import QuestionChoice, SelectionContext, select_question
+from app.rules.selector import (
+    QuestionChoice,
+    SelectionContext,
+    referenced_values,
+    select_question,
+)
 
 DEFAULT_MAX_QUESTIONS = 12
 
@@ -70,6 +75,45 @@ class SessionState:
         )
 
 
+def deferred_evidence_types(kb: KnowledgeBase, facts: dict[str, Fact]) -> set[str]:
+    """사용자가 '모름'이라 답한 사실의 증빙 종류. 같은 증빙으로 확인할 다른 사실은 묻지 않는다.
+
+    예: 납 용출 농도를 모른다 → 다른 용출 항목도 같은 시험성적서에서 나오므로 하나씩 묻지 않고
+    성적서를 한 번에 요청한다.
+    """
+    out = set()
+    for k, f in facts.items():
+        fd = kb.catalog.get(k)
+        if f.status == FactStatus.DECLARED_UNKNOWN and fd is not None and fd.evidence_type:
+            out.add(fd.evidence_type)
+    return out
+
+
+@dataclass
+class BlockingView:
+    askable: list[UnknownFact]  # 지금 물을 수 있는 사실
+    evidence: list[UnknownFact]  # 증빙으로 받을 사실
+    deferred_keys: set[str]  # 증빙으로 미룬 MISSING 사실
+
+
+def blocking_view(kb: KnowledgeBase, ev: EvaluationResult, facts: dict[str, Fact]) -> BlockingView:
+    """확정을 막는 사실을 '물을 것 / 증빙으로 받을 것'으로 나눈다.
+
+    - ask_last 사실(별표4 번호 선택)은 다른 막는 사실이 없을 때만 묻는다.
+    - 이미 '모름'이라 답한 증빙 종류의 사실은 묻지 않고 증빙으로 받는다.
+    """
+    deferred_types = deferred_evidence_types(kb, facts)
+    missing = [u for u in ev.blocking_facts if u.reason == "MISSING"]
+    deferred = [u for u in missing if u.evidence_type and u.evidence_type in deferred_types]
+    deferred_keys = {u.key for u in deferred}
+    missing = [u for u in missing if u.key not in deferred_keys]
+    others = [u for u in ev.blocking_facts if not kb.catalog[u.key].ask_last]
+    if others:
+        missing = [u for u in missing if not kb.catalog[u.key].ask_last]
+    evidence = [u for u in ev.blocking_facts if u.reason == "NEEDS_EVIDENCE"] + deferred
+    return BlockingView(askable=missing, evidence=evidence, deferred_keys=deferred_keys)
+
+
 def route(
     kb: KnowledgeBase,
     ev: EvaluationResult,
@@ -83,6 +127,7 @@ def route(
 ) -> RouteDecision:
     sub = SUB_ANSWER_USER_QUESTION if user_question else None
     decided = ev.decided is not None
+    view = blocking_view(kb, ev, facts)
 
     # 1. 충돌 / 후보 0개
     if conflicts:
@@ -103,9 +148,13 @@ def route(
         unsupported = ("AMBIGUOUS_TABLE", f"적용 테이블이 여럿: {ev.table_candidates}")
     elif ev.tie:
         unsupported = ("RULE_TIE", f"같은 우선순위 규칙이 서로 다른 코드: {ev.tie}")
+    elif decided and ev.decided.code is None:
+        # 코드 없는 결론(폐기물 아님·적용 제외·생활폐기물·해석 필요 등)은 판정 불가로 안내한다.
+        outcome = ev.decided.outcome or "NO_CODE"
+        unsupported = (outcome, f"코드 없는 결론: {outcome} (규칙 {ev.decided.rule_ids[0]})")
     elif not decided:
-        missing = [u for u in ev.blocking_facts if u.reason == "MISSING"]
-        needs_ev = [u for u in ev.blocking_facts if u.reason == "NEEDS_EVIDENCE"]
+        missing = view.askable
+        needs_ev = view.evidence
         if state.questions_asked >= max_questions and (missing or not needs_ev):
             unsupported = ("QUESTION_LIMIT", f"질문 상한 {max_questions}회 도달")
         elif not missing and (not needs_ev or state.evidence_refused):
@@ -123,8 +172,14 @@ def route(
         )
 
     # 3. 물어볼 사실
-    if not decided and any(u.reason == "MISSING" for u in ev.blocking_facts):
-        q = select_question(kb, facts, ev, as_of, state.selection_context())
+    if not decided and view.askable:
+        ctx = state.selection_context()
+        ctx = SelectionContext(
+            expanded_groups=ctx.expanded_groups,
+            focus_codes=ctx.focus_codes,
+            exclude_keys=frozenset(view.deferred_keys),
+        )
+        q = select_question(kb, facts, ev, as_of, ctx)
         if q is not None:
             return RouteDecision(
                 branch=Branch.ASK_FACT,
@@ -137,7 +192,7 @@ def route(
         # 값 영역을 만들 수 없는 사실만 남음 → 증빙 분기로 넘어간다
 
     # 4. 증빙 요청
-    needs_ev = [u for u in ev.blocking_facts if u.reason == "NEEDS_EVIDENCE"]
+    needs_ev = view.evidence
     if not decided and needs_ev:
         docs: dict[str, list[str]] = {}
         for u in needs_ev:
@@ -172,6 +227,33 @@ def route(
     )
 
 
+def auto_fill(kb: KnowledgeBase, ev: EvaluationResult, as_of: date) -> Fact | None:
+    """auto_single 사실만 확정을 막고 있고 남은 선택지가 하나면 그 값을 채운다.
+
+    기존 엔진의 '번호 후보가 하나면 그대로 정함'과 같다. 출처는 DERIVED로 남긴다.
+    """
+    if ev.decided is not None or not ev.blocking_facts:
+        return None
+    if any(not kb.catalog[u.key].auto_single for u in ev.blocking_facts):
+        return None
+    if len(ev.blocking_facts) != 1:
+        return None
+    (u,) = ev.blocking_facts
+    if u.reason != "MISSING":
+        return None
+    values = referenced_values(kb, ev, u.key)
+    if len(values) != 1:
+        return None
+    return Fact(
+        key=u.key,
+        value=values[0],
+        status=FactStatus.CLAIMED,
+        source_type="DERIVED",
+        source_ref="auto_single",
+        note="남은 선택지가 하나라 자동으로 정함",
+    )
+
+
 @dataclass
 class EngineStep:
     evaluation: EvaluationResult
@@ -189,9 +271,16 @@ def run_engine(
     max_questions: int = DEFAULT_MAX_QUESTIONS,
     user_question: str | None = None,
 ) -> EngineStep:
-    """평가 → 충돌 검사 → 분기 결정. 한 턴의 LLM 없는 부분 (md 10절 3~5단계)."""
+    """평가 → 자동 채움 → 충돌 검사 → 분기 결정. 한 턴의 LLM 없는 부분 (md 10절 3~5단계)."""
     effective = store.effective()
     ev = evaluate(kb, effective, as_of)
+    for _ in range(3):
+        filled = auto_fill(kb, ev, as_of)
+        if filled is None:
+            break
+        store.append(filled)
+        effective = store.effective()
+        ev = evaluate(kb, effective, as_of)
     conflicts = detect_conflicts(store.history, ev)
     decision = route(
         kb,

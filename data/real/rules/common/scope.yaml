@@ -1,0 +1,253 @@
+# 자동 생성: tools/convert_legacy.py (resource_engine 2f1355a). 직접 고치지 말고 변환기를 다시 실행.
+rules:
+- rule_id: S0-CIRCULAR
+  priority: 1100
+  when:
+    fact: circular_resource_recognized
+    op: eq
+    value: true
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: CIRCULAR_RESOURCE
+    name: 정부에서 순환자원으로 인정받은 물질은 법에서 폐기물로 보지 않습니다.
+  basis:
+  - type: LAW
+    ref: 순환경제사회 전환 촉진법 제21조제5항
+    source_id: ACT-CIRCULAR
+    excerpt: 제1항부터 제3항까지의 규정에 따라 기후에너지환경부장관의 인정을 받은 순환자원은 폐기물로 보지 아니한다.
+  review: UNVERIFIED
+- rule_id: S0-NOT-NEEDED
+  priority: 1100
+  when:
+    all:
+    - fact: material_fate
+      op: eq
+      value: still_used
+    - fact: circular_resource_recognized
+      op: eq
+      value: false
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: NOT_WASTE
+    name: 법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다. 아직 제품이나 원료로 쓰는 물질은 폐기물이 아닙니다.
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 제2조제1호
+    source_id: ACT-WASTE
+    excerpt: 사람의 생활이나 사업활동에 필요하지 아니하게 된 물질을 말한다.
+  review: UNVERIFIED
+- rule_id: S0-DIRECT-REINPUT
+  priority: 1100
+  when:
+    all:
+    - fact: material_fate
+      op: eq
+      value: same_process_reinput
+    - fact: circular_resource_recognized
+      op: eq
+      value: false
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: INTERPRETATION_NEEDED
+    name: 공정에서 나온 자투리를 따로 처리하지 않고 같은 공정에 바로 원료로 다시 넣으면 폐기물로 보지 않는다는 공식 해설 사례가 있습니다. 법 조문이 아닌 해설 사례가 근거라 전문가 확인을
+      권합니다.
+  basis:
+  - type: QA
+    ref: 폐기물 분류체계 및 분류방법 설명서(2023) 부록 2 사례 부록 2 p.118 사례(스펀지 불량품·부산물)
+    source_id: GUIDE23-QA
+    excerpt: 다만, 별도의 처리공정을 거치지 않고 바로 동일 사업장의 동일공정에 원료로 재투입하는 경우에는 폐기물에 해당되지 않습니다.
+  review: UNVERIFIED
+- rule_id: S0-CONTINUOUS-FEEDSTOCK
+  priority: 1100
+  when:
+    all:
+    - fact: material_fate
+      op: eq
+      value: continuous_feedstock
+    - fact: circular_resource_recognized
+      op: eq
+      value: false
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: INTERPRETATION_NEEDED
+    name: 발생한 시설에서 별도 가공 없이 연속공정으로 다른 제품의 원료로 바로 쓰면 폐기물로 보기 어렵다는 공식 해설 사례가 있습니다. 법 조문이 아닌 해설 사례가 근거라 전문가 확인을 권합니다.
+  basis:
+  - type: QA
+    ref: 폐기물 분류체계 및 분류방법 설명서(2023) 부록 2 사례 4.2.1 해석사례 p.50(출처 폐기물 질의·회신 사례집 2014.12)
+    source_id: GUIDE23-QA
+    excerpt: 동 제련 공정에서 발생된 부산물인 슬래그를 별도 가공·처리없이 슬래그 발생시설에서 연속공정으로 다른 제품 제조의 원료로 사용하는 경우 폐기물관리법에 따른 폐기물로 보기 어려움
+  review: UNVERIFIED
+- rule_id: S1-EX-RADIOACTIVE
+  priority: 1000
+  when:
+    fact: law_exclusion
+    op: eq
+    value: radioactive
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: EXCLUDED
+    name: 방사성 물질은 폐기물관리법이 아니라 원자력안전법으로 관리합니다.
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 제3조제1항제1호
+    source_id: ACT-WASTE
+    excerpt: 「원자력안전법」에 따른 방사성 물질과 이로 인하여 오염된 물질
+  review: UNVERIFIED
+- rule_id: S1-EX-GAS
+  priority: 1000
+  when:
+    fact: law_exclusion
+    op: eq
+    value: uncontained_gas
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: EXCLUDED
+    name: 용기에 담기지 않은 기체는 폐기물관리법을 적용하지 않습니다. 대기로 나가는 가스는 대기 관련 법이 관리합니다.
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 제3조제1항제2호
+    source_id: ACT-WASTE
+    excerpt: 용기에 들어 있지 아니한 기체상태의 물질
+  review: UNVERIFIED
+- rule_id: S1-EX-WASTEWATER
+  priority: 1000
+  when:
+    fact: law_exclusion
+    op: eq
+    value: wastewater
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: EXCLUDED
+    name: 수질오염방지시설로 보내거나 공공수역으로 내보내는 폐수는 폐기물관리법이 아니라 물환경보전법으로 관리합니다. 같은 액체라도 위탁업체에 폐기물로 넘기면 폐기물관리법 대상이 됩니다.
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 제3조제1항제3호
+    source_id: ACT-WASTE
+    excerpt: 「물환경보전법」에 따른 수질 오염 방지시설에 유입되거나 공공 수역(水域)으로 배출되는 폐수
+  review: UNVERIFIED
+- rule_id: S1-EX-MANURE
+  priority: 1000
+  when:
+    fact: law_exclusion
+    op: eq
+    value: livestock_manure
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: EXCLUDED
+    name: 가축분뇨는 폐기물관리법이 아니라 가축분뇨법으로 관리합니다.
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 제3조제1항제4호
+    source_id: ACT-WASTE
+    excerpt: 「가축분뇨의 관리 및 이용에 관한 법률」에 따른 가축분뇨
+  review: UNVERIFIED
+- rule_id: S1-EX-SEWAGE
+  priority: 1000
+  when:
+    fact: law_exclusion
+    op: eq
+    value: sewage_nightsoil
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: EXCLUDED
+    name: 하수와 분뇨는 폐기물관리법이 아니라 하수도법으로 관리합니다.
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 제3조제1항제5호
+    source_id: ACT-WASTE
+    excerpt: 「하수도법」에 따른 하수ㆍ분뇨
+  review: UNVERIFIED
+- rule_id: S1-EX-LIVESTOCK-DISEASE
+  priority: 1000
+  when:
+    fact: law_exclusion
+    op: eq
+    value: livestock_disease
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: EXCLUDED
+    name: 전염병에 걸린 가축 사체 등은 가축전염병예방법으로 관리합니다.
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 제3조제1항제6호
+    source_id: ACT-WASTE
+    excerpt: 「가축전염병예방법」 제22조제2항, 제23조, 제33조 및 제44조가 적용되는 가축의 사체, 오염 물건, 수입 금지 물건 및 검역 불합격품
+  review: UNVERIFIED
+- rule_id: S1-EX-AQUATIC-DISEASE
+  priority: 1000
+  when:
+    fact: law_exclusion
+    op: eq
+    value: aquatic_disease
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: EXCLUDED
+    name: 질병에 걸린 수산동물 사체 등은 수산생물질병 관리법으로 관리합니다.
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 제3조제1항제7호
+    source_id: ACT-WASTE
+    excerpt: 「수산생물질병 관리법」 제17조제2항, 제18조, 제25조제1항 각 호 및 제34조제1항이 적용되는 수산동물의 사체, 오염된 시설 또는 물건, 수입금지물건 및 검역 불합격품
+  review: UNVERIFIED
+- rule_id: S1-EX-AMMO
+  priority: 1000
+  when:
+    fact: law_exclusion
+    op: eq
+    value: military_ammo
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: EXCLUDED
+    name: 폐기하는 군 탄약은 군수품관리법으로 관리합니다.
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 제3조제1항제8호
+    source_id: ACT-WASTE
+    excerpt: 「군수품관리법」 제13조의2에 따라 폐기되는 탄약
+  review: UNVERIFIED
+- rule_id: S1-EX-PET-FUNERAL
+  priority: 1000
+  when:
+    fact: law_exclusion
+    op: eq
+    value: pet_funeral
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: EXCLUDED
+    name: 허가받은 동물장묘시설에서 처리하는 동물 사체는 폐기물관리법을 적용하지 않습니다.
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 제3조제1항제9호
+    source_id: ACT-WASTE
+    excerpt: 「동물보호법」 제69조제1항에 따른 동물장묘업의 허가를 받은 자가 설치ㆍ운영하는 동물장묘시설에서 처리되는 동물의 사체
+  review: UNVERIFIED
+- rule_id: S1-EX-FISHERIES
+  priority: 1000
+  when:
+    fact: law_exclusion
+    op: eq
+    value: fisheries_byproduct_unmixed
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: EXCLUDED
+    name: 다른 폐기물과 섞이지 않은 수산부산물만 따로 내보내면 폐기물관리법이 아니라 수산부산물 재활용법을 따릅니다. 다른 폐기물과 섞이면 폐기물관리법 대상입니다.
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 제3조제3항
+    source_id: ACT-WASTE
+    excerpt: 다른 폐기물과 혼합되지 않아 수산부산물만 배출ㆍ수집ㆍ운반ㆍ재활용하는 경우에는 이 법을 적용하지 아니한다.
+  review: UNVERIFIED

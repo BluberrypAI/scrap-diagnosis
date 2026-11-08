@@ -1,0 +1,56 @@
+# 자동 생성: tools/convert_legacy.py (resource_engine 2f1355a). 직접 고치지 말고 변환기를 다시 실행.
+rules:
+- rule_id: S2-HOUSEHOLD
+  priority: 400
+  when:
+    not:
+      any:
+      - fact: emission_facility
+        op: eq
+        value: true
+      - fact: public_facility
+        op: eq
+        value: public_wastewater
+      - fact: public_facility
+        op: eq
+        value: public_sewage
+      - fact: public_facility
+        op: eq
+        value: nightsoil
+      - fact: public_facility
+        op: eq
+        value: livestock_public
+      - fact: waste_facility
+        op: eq
+        value: true
+      - fact: designated_waste_emitted
+        op: eq
+        value: true
+      - fact: daily_avg_kg
+        op: gte
+        value: 300
+      - all:
+        - fact: work_type
+          op: eq
+          value: construction
+        - fact: work_total_ton
+          op: gte
+          value: 5
+      - all:
+        - fact: work_type
+          op: eq
+          value: series
+        - fact: work_total_ton
+          op: gte
+          value: 5
+  then:
+    code: null
+    category: OUT_OF_SCOPE
+    outcome: HOUSEHOLD
+    name: 생활폐기물(사업장폐기물이 아님)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 제2조제2호
+    source_id: ACT-WASTE
+    excerpt: “생활폐기물”이란 사업장폐기물 외의 폐기물을 말한다.
+  review: UNVERIFIED

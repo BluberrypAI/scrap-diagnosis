@@ -67,19 +67,29 @@ class RuleResult(BaseModel):
     priority: int
     code: str | None
     category: str | None
+    outcome: str | None = None
     status: TV
     conditions: list[CondResult]
     unknown_facts: list[str]  # 이 규칙의 결과를 바꿀 수 있는 미확인 사실
     eliminated_by: list[str]  # FALSE가 된 근거 사실 (TRUE면 성립 근거)
+
+    @property
+    def key(self) -> str:
+        return self.code if self.code is not None else f"@{self.outcome}"
 
 
 class Candidate(BaseModel):
     code: str | None
     category: str | None = None
     name: str | None = None
+    outcome: str | None = None  # 코드 없는 결론의 사유
     rule_ids: list[str]
     status: TV  # 근거 규칙 중 가장 강한 상태 (TRUE > UNKNOWN)
     priority: int
+
+    @property
+    def key(self) -> str:
+        return self.code if self.code is not None else f"@{self.outcome}"
 
 
 class UnknownFact(BaseModel):
@@ -251,6 +261,7 @@ def eval_rule(rule: Rule, facts: dict[str, Fact], catalog: dict[str, FactDef]) -
         priority=rule.priority,
         code=rule.then.code,
         category=rule.then.category,
+        outcome=rule.then.outcome,
         status=node.tv,
         conditions=leaves,
         unknown_facts=sorted({c.fact for c in node.open}),
@@ -295,16 +306,17 @@ def _unknown_facts(results: list[RuleResult], catalog: dict[str, FactDef]) -> li
 
 
 def _candidates(results: list[RuleResult], rules: dict[str, Rule]) -> list[Candidate]:
-    by_code: dict[str | None, Candidate] = {}
+    by_code: dict[str, Candidate] = {}
     for rr in results:
         if rr.status == TV.FALSE:
             continue
-        cand = by_code.get(rr.code)
+        cand = by_code.get(rr.key)
         if cand is None:
-            by_code[rr.code] = Candidate(
+            by_code[rr.key] = Candidate(
                 code=rr.code,
                 category=rr.category,
                 name=rules[rr.rule_id].then.name,
+                outcome=rr.outcome,
                 rule_ids=[rr.rule_id],
                 status=rr.status,
                 priority=rr.priority,
@@ -314,21 +326,48 @@ def _candidates(results: list[RuleResult], rules: dict[str, Rule]) -> list[Candi
             if rr.status == TV.TRUE:
                 cand.status = TV.TRUE
             cand.priority = max(cand.priority, rr.priority)
-    return sorted(by_code.values(), key=lambda c: (-c.priority, str(c.code)))
+    return sorted(by_code.values(), key=lambda c: (-c.priority, c.key))
 
 
-def _decide_priority(results: list[RuleResult]):
+def _is_ready(r: RuleResult, catalog: dict[str, FactDef]) -> bool:
+    """남은 미확인 사실이 모두 ask_last(예: 별표4 번호 선택)뿐인 규칙. 사실상 성립한 것으로 본다."""
+    return (
+        r.status == TV.UNKNOWN
+        and bool(r.unknown_facts)
+        and all(f in catalog and catalog[f].ask_last for f in r.unknown_facts)
+    )
+
+
+def _priority_floor(results: list[RuleResult], catalog: dict[str, FactDef]) -> int | None:
+    """확정 후보가 될 수 있는 가장 높은 우선순위: TRUE 규칙과 번호 선택만 남은 규칙 중 최댓값."""
+    ps = [r.priority for r in results if r.status == TV.TRUE or _is_ready(r, catalog)]
+    return max(ps, default=None)
+
+
+def _decide_priority(results: list[RuleResult], catalog: dict[str, FactDef]):
     trues = [r for r in results if r.status == TV.TRUE]
     unknowns = [r for r in results if r.status == TV.UNKNOWN]
-    if not trues:
+    floor = _priority_floor(results, catalog)
+    if floor is None:
         return None, unknowns, []
+    if not trues or max(r.priority for r in trues) < floor:
+        # 가장 높은 후보가 번호 선택만 남음 → 번호 선택 자체와, 선택지를 늘릴 수 있는
+        # (아직 선택지에 없는 결론을 내는) 그 대역 이상의 미확인 규칙만 막는다.
+        ready = [r for r in unknowns if r.priority >= floor and _is_ready(r, catalog)]
+        ready_keys = {r.key for r in ready}
+        others = [
+            r
+            for r in unknowns
+            if r.priority >= floor and not _is_ready(r, catalog) and r.key not in ready_keys
+        ]
+        return None, ready + others, []
     top_p = max(r.priority for r in trues)
     top = [r for r in trues if r.priority == top_p]
-    top_codes = {r.code for r in top}
-    if len(top_codes) > 1:
+    top_keys = {r.key for r in top}
+    if len(top_keys) > 1:
         return None, unknowns, sorted(r.rule_id for r in top)
-    (code,) = top_codes
-    blockers = [r for r in unknowns if r.code != code and r.priority >= top_p]
+    (key,) = top_keys
+    blockers = [r for r in unknowns if r.key != key and r.priority >= top_p]
     if blockers:
         return None, blockers, []
     return top[0], [], []
@@ -337,13 +376,13 @@ def _decide_priority(results: list[RuleResult]):
 def _decide_unique(results: list[RuleResult]):
     trues = [r for r in results if r.status == TV.TRUE]
     unknowns = [r for r in results if r.status == TV.UNKNOWN]
-    codes = {r.code for r in trues}
-    if len(codes) > 1:
+    keys = {r.key for r in trues}
+    if len(keys) > 1:
         return None, unknowns, sorted(r.rule_id for r in trues)
     if not trues:
         return None, unknowns, []
-    (code,) = codes
-    blockers = [r for r in unknowns if r.code != code]
+    (key,) = keys
+    blockers = [r for r in unknowns if r.key != key]
     if blockers:
         return None, blockers, []
     return trues[0], [], []
@@ -357,9 +396,8 @@ def evaluate_table(
     results = [eval_rule(r, facts, catalog) for r in rules]
     candidates = _candidates(results, rule_map)
     if table.hit_policy == "PRIORITY":
-        winner, blockers, tie = _decide_priority(results)
-        trues = [r for r in results if r.status == TV.TRUE]
-        floor = max((r.priority for r in trues), default=None)
+        winner, blockers, tie = _decide_priority(results, catalog)
+        floor = _priority_floor(results, catalog)
         live = [c for c in candidates if floor is None or c.priority >= floor]
     else:
         winner, blockers, tie = _decide_unique(results)
@@ -368,15 +406,15 @@ def evaluate_table(
     blocking = _unknown_facts(blockers, catalog)
     decided = None
     if winner is not None:
-        decided = next(c for c in candidates if c.code == winner.code)
+        decided = next(c for c in candidates if c.key == winner.key)
+        status_of = {r.rule_id: r.status for r in results}
         decided = decided.model_copy(
             update={
                 "rule_ids": [winner.rule_id]
                 + [
                     rid
                     for rid in decided.rule_ids
-                    if rid != winner.rule_id
-                    and next(r for r in results if r.rule_id == rid).status == TV.TRUE
+                    if rid != winner.rule_id and status_of[rid] == TV.TRUE
                 ]
             }
         )
@@ -433,8 +471,8 @@ def evaluate(kb: KnowledgeBase, facts: dict[str, Fact], as_of: date) -> Evaluati
     merged: dict[str | None, Candidate] = {}
     for r in sub:
         for c in r.candidates:
-            if c.code not in merged:
-                merged[c.code] = c.model_copy(update={"status": TV.UNKNOWN})
+            if c.key not in merged:
+                merged[c.key] = c.model_copy(update={"status": TV.UNKNOWN})
     agg: dict[str, set[str]] = {}
     for t, open_conds in pending:
         for c in open_conds:
@@ -454,7 +492,7 @@ def evaluate(kb: KnowledgeBase, facts: dict[str, Fact], as_of: date) -> Evaluati
                 evidence_type=fd.evidence_type if fd else None,
             )
         )
-    cands = sorted(merged.values(), key=lambda c: (-c.priority, str(c.code)))
+    cands = sorted(merged.values(), key=lambda c: (-c.priority, c.key))
     return EvaluationResult(
         as_of=as_of,
         table_status="PENDING",

@@ -8,7 +8,8 @@ import pytest
 from app.domain.facts import Fact, FactStatus
 from app.rules.loader import load_kb
 
-DATA = Path(__file__).resolve().parents[1] / "data"
+DATA = Path(__file__).resolve().parents[1] / "data" / "sample"
+REAL = Path(__file__).resolve().parents[1] / "data" / "real"
 AS_OF = date(2026, 11, 8)
 _T0 = datetime(2026, 11, 8, tzinfo=UTC)
 
@@ -36,3 +37,8 @@ CLEAN = dict(pcb_related=False, hazardous_residue=False, toxic_chemical=False)
 @pytest.fixture(scope="session")
 def kb():
     return load_kb(DATA)
+
+
+@pytest.fixture(scope="session")
+def real_kb():
+    return load_kb(REAL)

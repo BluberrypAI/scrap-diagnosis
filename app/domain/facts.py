@@ -34,7 +34,7 @@ STATUS_RANK: dict[FactStatus, int] = {
 
 KNOWN_STATUSES = frozenset({FactStatus.CLAIMED, FactStatus.EVIDENCED})
 
-SourceType = Literal["UTTERANCE", "DOCUMENT", "PROFILE", "SCREENING", "SIMULATION"]
+SourceType = Literal["UTTERANCE", "DOCUMENT", "PROFILE", "SCREENING", "SIMULATION", "DERIVED"]
 
 
 def _now() -> datetime:

@@ -1,8 +1,8 @@
 """CLI 시뮬레이터: 스크립트된 답변으로 질문 순서를 출력한다.
 
-uv run python scripts/simulate.py data/scenarios/sim-pp-film.yaml [...]
-uv run python scripts/simulate.py data/scenarios/       # 폴더 안 전부
-uv run python scripts/simulate.py --rules rules/sample --json data/scenarios/x.yaml
+uv run python scripts/simulate.py data/sample/scenarios/basic.yaml [...]
+uv run python scripts/simulate.py data/sample/scenarios/   # 폴더 안 전부
+uv run python scripts/simulate.py --data data/real data/real/scenarios/
 """
 
 from __future__ import annotations
@@ -33,8 +33,8 @@ def main() -> int:
         sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser()
     ap.add_argument("paths", nargs="+")
-    ap.add_argument("--data", default=str(ROOT / "data"))
-    ap.add_argument("--rules", default="rules/sample")
+    ap.add_argument("--data", default=str(ROOT / "data" / "sample"))
+    ap.add_argument("--rules", default="rules/tables")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
     kb = load_kb(args.data, args.rules)

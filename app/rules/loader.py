@@ -38,6 +38,8 @@ from app.rules.model import (
     iter_conds,
 )
 
+_YAML_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
 
 class RuleDataError(ValueError):
     """규칙 데이터가 스키마나 카탈로그와 맞지 않음."""
@@ -45,7 +47,7 @@ class RuleDataError(ValueError):
 
 def _read_yaml(path: Path) -> Any:
     with path.open(encoding="utf-8") as fh:
-        return yaml.safe_load(fh)
+        return yaml.load(fh, Loader=_YAML_LOADER)  # noqa: S506 (SafeLoader 계열)
 
 
 def _date(v: Any) -> date | None:
@@ -108,7 +110,17 @@ def parse_catalog(raw: list[dict]) -> dict[str, FactDef]:
             prior=prior,
             help=item.get("help"),
             none_value=item.get("none_value"),
+            domain=item.get("domain"),
+            ask_last=bool(item.get("ask_last", False)),
+            auto_single=bool(item.get("auto_single", False)),
+            internal=bool(item.get("internal", False)),
+            value_aliases={
+                str(k): tuple(str(a) for a in v)
+                for k, v in (item.get("value_aliases") or {}).items()
+            },
         )
+        if out[key].domain not in (None, "referenced"):
+            raise RuleDataError(f"facts_catalog[{key}]: domain은 referenced만 지원합니다")
         if out[key].ask_cost <= 0:
             raise RuleDataError(f"facts_catalog[{key}]: ask_cost는 0보다 커야 합니다")
     return out
@@ -208,12 +220,19 @@ def _parse_rule(raw: dict, origin: str, hit_policy: str) -> Rule:
     if "when" not in raw or "then" not in raw:
         raise RuleDataError(f"{where}: when과 then이 필요합니다")
     then = raw["then"] or {}
+    if not then.get("code") and not then.get("outcome"):
+        raise RuleDataError(f"{where}: then에는 code 또는 outcome이 필요합니다")
     if hit_policy == "PRIORITY" and "priority" not in raw:
         raise RuleDataError(f"{where}: PRIORITY 테이블의 규칙에는 priority가 필요합니다")
     return Rule(
         rule_id=rid,
         when=parse_expr(raw["when"], where),
-        then=Outcome(code=then.get("code"), category=then.get("category"), name=then.get("name")),
+        then=Outcome(
+            code=then.get("code"),
+            category=then.get("category"),
+            name=then.get("name"),
+            outcome=then.get("outcome"),
+        ),
         priority=int(raw.get("priority", 0)),
         basis=_parse_basis(raw.get("basis"), where),
         review=raw.get("review"),
@@ -332,9 +351,18 @@ def validate(
         if t.applies_when is not None:
             for c in iter_conds(t.applies_when):
                 _check_cond(c, kb_catalog, f"{t.origin}:applies_when")
+        in_table: set[str] = set()
         for r in t.rules:
+            # 테이블 안에서는 유일. 여러 테이블이 같은 공통 조각을 포함하는 것은 허용한다.
+            if r.rule_id in in_table:
+                raise RuleDataError(f"rule_id 중복: {r.rule_id} ({t.table_id})")
+            in_table.add(r.rule_id)
             if r.rule_id in seen:
-                raise RuleDataError(f"rule_id 중복: {r.rule_id} ({seen[r.rule_id]}, {r.origin})")
+                if seen[r.rule_id] != r.origin:
+                    raise RuleDataError(
+                        f"rule_id 중복: {r.rule_id} ({seen[r.rule_id]}, {r.origin})"
+                    )
+                continue  # 공통 조각의 같은 규칙은 이미 검사함
             seen[r.rule_id] = r.origin
             for c in iter_conds(r.when):
                 _check_cond(c, kb_catalog, f"{r.origin}:{r.rule_id}")
@@ -346,7 +374,7 @@ def validate(
                 for b in rs[i + 1 :]:
                     if (
                         a.priority == b.priority
-                        and a.then.code != b.then.code
+                        and a.then.key != b.then.key
                         and not _provably_disjoint(a, b)
                     ):
                         warnings.append(
@@ -357,7 +385,7 @@ def validate(
             rs = list(t.rules)
             for i, a in enumerate(rs):
                 for b in rs[i + 1 :]:
-                    if a.then.code != b.then.code and not _provably_disjoint(a, b):
+                    if a.then.key != b.then.key and not _provably_disjoint(a, b):
                         warnings.append(
                             f"{t.table_id}: UNIQUE 규칙 {a.rule_id}, {b.rule_id}가 겹칠 수 있음"
                         )
@@ -424,7 +452,7 @@ def build_kb(
     )
 
 
-def load_kb(data_dir: Path | str, rules_dir: str = "rules/sample") -> KnowledgeBase:
+def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeBase:
     data_dir = Path(data_dir)
     catalog = parse_catalog(_read_yaml(data_dir / "facts_catalog.yaml"))
     groups_path = data_dir / "question_groups.yaml"
