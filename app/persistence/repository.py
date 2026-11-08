@@ -4,6 +4,8 @@
 - 사실: FactRecord를 seq 순서로 읽어 FactStore를 다시 쌓는다. 저장은 새로 늘어난 이력만 append.
 - 세션 상태: DiagnosisSession.export_state() JSON (SessionState, last_question, messages ...)
 - Trace: 이번 요청에서 새로 생긴 턴만 TraceRecord로 append. 불변 행은 고치지 않는다.
+- 규칙 버전: 세션에 저장된 kb_version이 지금 규칙과 다르면 복원하지 않고 KBChanged를 낸다
+  (조용히 새 규칙으로 이어 가지 않는다). rebase만 allow_kb_change=True로 연다.
 """
 
 from __future__ import annotations
@@ -43,6 +45,7 @@ def fact_to_row(session_id: str, seq: int, f: Fact) -> FactRecord:
         quote=f.quote,
         recorded_at=f.recorded_at,
         retracted=f.retracted,
+        revoked=f.revoked,
     )
 
 
@@ -58,8 +61,18 @@ def row_to_fact(r: FactRecord) -> Fact:
             "quote": r.quote,
             "recorded_at": as_utc(r.recorded_at),
             "retracted": bool(r.retracted),
+            "revoked": bool(r.revoked),
         }
     )
+
+
+class KBChanged(Exception):
+    """저장된 세션의 규칙 버전과 지금 규칙이 다름 → 409 KB_CHANGED, rebase 후 진행."""
+
+    def __init__(self, session_kb_version: str, current_kb_version: str):
+        super().__init__("규칙 버전이 바뀌었습니다")
+        self.session_kb_version = session_kb_version
+        self.current_kb_version = current_kb_version
 
 
 @dataclass
@@ -77,9 +90,11 @@ class SessionRepository:
         *,
         extractor_llm: LLMClient | None = None,
         responder_llm: LLMClient | None = None,
+        kb_version: str | None = None,
     ):
         self.db = db
         self.kb = kb
+        self.kb_version = kb_version  # 지금 규칙 버전. None이면 비교하지 않는다
         self.extractor_llm = extractor_llm
         self.responder_llm = responder_llm
 
@@ -118,7 +133,12 @@ class SessionRepository:
             .limit(1)
         ).first()
 
-    def load(self, rec: DiagnosisSessionRecord) -> LoadedSession:
+    def kb_changed(self, rec: DiagnosisSessionRecord | None) -> bool:
+        return rec is not None and self.kb_version is not None and rec.kb_version != self.kb_version
+
+    def load(self, rec: DiagnosisSessionRecord, *, allow_kb_change: bool = False) -> LoadedSession:
+        if not allow_kb_change and self.kb_changed(rec):
+            raise KBChanged(rec.kb_version, self.kb_version or "")
         rows = self.db.scalars(
             select(FactRecord).where(FactRecord.session_id == rec.id).order_by(FactRecord.seq)
         ).all()

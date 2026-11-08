@@ -13,7 +13,6 @@ from fastapi.testclient import TestClient
 from tests.api_support import Api, build_app, fake_llm, to_film_oil_question
 
 ROOT = Path(__file__).resolve().parents[1]
-DOC_FACTS = json.dumps({"oil_content_pct": 2})
 
 
 @pytest.fixture
@@ -158,7 +157,7 @@ def test_upload_too_large_and_bad_facts_use_detail_message(api):
 def test_conversation_persists_with_quick_reply_labels(api):
     cid = api.create_case(memo="PP 필름 자투리")["case"]["id"]
     to_film_oil_question(api, cid)
-    api.upload(cid, b"oil 2%", filename="rep.txt", facts=DOC_FACTS)
+    api.submit_document(cid, {"oil_content_pct": 2}, b"oil 2%", "rep.txt")
     conv = api.get(f"/cases/{cid}").json()["conversation"]
     assert conv[0]["role"] == "user" and conv[0]["memo"] and conv[0]["text"] == "PP 필름 자투리"
     users = [m for m in conv if m["role"] == "user"]
@@ -182,7 +181,7 @@ def test_conversation_persists_with_quick_reply_labels(api):
 def test_conversation_survives_reopen(api):
     cid = api.create_case()["case"]["id"]
     to_film_oil_question(api, cid)
-    api.upload(cid, b"oil 2%", facts=DOC_FACTS)
+    api.submit_document(cid, {"oil_content_pct": 2}, b"oil 2%")
     before = api.get(f"/cases/{cid}").json()["conversation"]
     assert api.post(f"/cases/{cid}/confirm").status_code == 200
     assert api.post(f"/cases/{cid}/reopen").status_code == 200
@@ -206,7 +205,7 @@ def test_case_summary_in_list_and_detail(api):
     to_film_oil_question(api, cid)
     s = api.get(f"/cases/{cid}").json()["case"]["summary"]
     assert s["title"] != "새 폐기물" and s["next_action"]
-    api.upload(cid, b"oil 2%", facts=DOC_FACTS)
+    api.submit_document(cid, {"oil_content_pct": 2}, b"oil 2%")
     s = api.get(f"/cases/{cid}").json()["case"]["summary"]
     assert s["code"] == "SAMPLE-A" and s["result_label"].startswith("SAMPLE-A")  # 확정 검토 중
     assert api.post(f"/cases/{cid}/confirm").status_code == 200
@@ -227,7 +226,7 @@ def test_retract_via_api_and_409_when_confirmed(api):
     turn = api.reply(cid, "material", "PP")  # 다시 진술하면 유효
     assert any(f["key"] == "material" for f in turn["ui"]["board"]["facts"])
 
-    api.upload(cid, b"oil 2%", facts=DOC_FACTS)
+    api.submit_document(cid, {"oil_content_pct": 2}, b"oil 2%")
     assert api.post(f"/cases/{cid}/confirm").status_code == 200
     r = api.post(
         f"/cases/{cid}/diagnosis/messages",

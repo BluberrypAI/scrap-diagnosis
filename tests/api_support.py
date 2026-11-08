@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -14,6 +15,9 @@ from app.config import Settings
 from app.main import create_app
 from app.rules.model import KnowledgeBase
 from tests.conftest import AS_OF, DATA
+
+# 서버가 보내는 검수 정보(서류 값 적용)
+REVIEW = {"reviewer": "검수자", "reviewed_at": "2026-11-08T10:00:00+09:00"}
 
 # 기업 프로필(사이트 사실). SAMPLE 카탈로그의 emission_facility만 판정에 쓰인다.
 PROFILE = {"site": "제1공장", "facts": {"emission_facility": True, "not_in_catalog": 1}}
@@ -105,6 +109,30 @@ class Api:
             files={"file": (filename, content, content_type)},
             data=data,
         )
+
+    def apply(self, case_id: str, doc_id: str, items: list[dict]):  # noqa: ANN201
+        """검수 완료 값 적용. items에 reviewer·reviewed_at이 없으면 REVIEW로 채운다."""
+        return self.post(
+            f"/cases/{case_id}/documents/{doc_id}/values/apply",
+            json={"values": [{**REVIEW, **i} for i in items]},
+        )
+
+    def submit_document(
+        self,
+        case_id: str,
+        facts: dict,
+        content: bytes = b"doc",
+        filename: str = "report.txt",
+    ) -> dict:
+        """서류 업로드(후보 저장) → 후보 전부를 검수 완료로 적용. 적용 결과 turn을 돌려준다."""
+        r = self.upload(case_id, content, filename, facts=json.dumps(facts))
+        assert r.status_code == 201, r.text
+        body = r.json()
+        version = body["document"]["version"]
+        items = [{"value_id": v["id"], "document_version": version} for v in body["values"]]
+        a = self.apply(case_id, body["document"]["id"], items)
+        assert a.status_code == 200, a.text
+        return {"document": body["document"], "values": body["values"], "turn": a.json()}
 
     def container(self):  # noqa: ANN201
         return self.app.state.container

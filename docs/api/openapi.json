@@ -30,6 +30,94 @@
         "title": "AnsweredItem",
         "type": "object"
       },
+      "ApplyIn": {
+        "properties": {
+          "values": {
+            "items": {
+              "$ref": "#/components/schemas/ApplyValueIn"
+            },
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Values",
+            "type": "array"
+          }
+        },
+        "required": [
+          "values"
+        ],
+        "title": "ApplyIn",
+        "type": "object"
+      },
+      "ApplyValueIn": {
+        "description": "검수 완료 값 하나. value_id(후보 행) 또는 fact_key 중 하나는 있어야 한다.\n\nvalue를 주지 않으면 후보 값을 그대로 쓴다(value_id일 때만). reject=true면 적용하지 않고\n그 후보를 REJECTED로 둔다.",
+        "properties": {
+          "document_version": {
+            "minimum": 1.0,
+            "title": "Document Version",
+            "type": "integer"
+          },
+          "fact_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fact Key"
+          },
+          "reject": {
+            "default": false,
+            "title": "Reject",
+            "type": "boolean"
+          },
+          "reviewed_at": {
+            "format": "date-time",
+            "title": "Reviewed At",
+            "type": "string"
+          },
+          "reviewer": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Reviewer",
+            "type": "string"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "maxLength": 30,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "value": {
+            "title": "Value"
+          },
+          "value_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Id"
+          }
+        },
+        "required": [
+          "document_version",
+          "reviewer",
+          "reviewed_at"
+        ],
+        "title": "ApplyValueIn",
+        "type": "object"
+      },
       "Board": {
         "description": "판정 보드(1.2절).",
         "properties": {
@@ -175,6 +263,56 @@
           "editable"
         ],
         "title": "BoardFact",
+        "type": "object"
+      },
+      "Body_replace_document_cases__case_id__documents__document_id__versions_post": {
+        "properties": {
+          "facts": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Facts"
+          },
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_replace_document_cases__case_id__documents__document_id__versions_post",
+        "type": "object"
+      },
+      "Body_replace_document_internal_v1_cases__case_id__documents__document_id__versions_post": {
+        "properties": {
+          "facts": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Facts"
+          },
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_replace_document_internal_v1_cases__case_id__documents__document_id__versions_post",
         "type": "object"
       },
       "Body_upload_document_cases__case_id__documents_post": {
@@ -475,6 +613,11 @@
           "id": {
             "title": "Id",
             "type": "string"
+          },
+          "kb_changed": {
+            "default": false,
+            "title": "Kb Changed",
+            "type": "boolean"
           },
           "last_activity_at": {
             "anyOf": [
@@ -1258,6 +1401,31 @@
           "size": {
             "title": "Size",
             "type": "integer"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "values": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/DocumentValueOut"
+            },
+            "title": "Values",
+            "type": "array"
+          },
+          "version": {
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
           }
         },
         "required": [
@@ -1273,12 +1441,21 @@
         "type": "object"
       },
       "DocumentTurn": {
+        "description": "업로드·파일 교체 응답. 값은 후보(UNVERIFIED)로만 저장되고 판정(turn)은 바뀌지 않는다.",
         "properties": {
           "document": {
             "$ref": "#/components/schemas/DocumentOut"
           },
           "turn": {
             "$ref": "#/components/schemas/TurnResponse"
+          },
+          "values": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/DocumentValueOut"
+            },
+            "title": "Values",
+            "type": "array"
           }
         },
         "required": [
@@ -1286,6 +1463,112 @@
           "turn"
         ],
         "title": "DocumentTurn",
+        "type": "object"
+      },
+      "DocumentValueOut": {
+        "description": "서류 값 한 줄. UNVERIFIED(검수 대기)는 판정에 쓰지 않는다. APPLIED만 EVIDENCED로 쓰인다.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "document_id": {
+            "title": "Document Id",
+            "type": "string"
+          },
+          "document_version": {
+            "title": "Document Version",
+            "type": "integer"
+          },
+          "fact_key": {
+            "title": "Fact Key",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At"
+          },
+          "reviewer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewer"
+          },
+          "status": {
+            "enum": [
+              "UNVERIFIED",
+              "APPLIED",
+              "REJECTED",
+              "REVOKED"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "id",
+          "document_id",
+          "document_version",
+          "fact_key",
+          "status",
+          "created_at"
+        ],
+        "title": "DocumentValueOut",
         "type": "object"
       },
       "EditView": {
@@ -1919,6 +2202,37 @@
           "review"
         ],
         "title": "ResultView",
+        "type": "object"
+      },
+      "RevokeIn": {
+        "description": "서류 효력 해제. document_version을 주면 그 버전만, 없으면 모든 버전.",
+        "properties": {
+          "document_version": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Version"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "title": "RevokeIn",
         "type": "object"
       },
       "TopCandidate": {
@@ -3032,6 +3346,7 @@
     },
     "/cases/{case_id}/documents": {
       "post": {
+        "description": "서류 업로드. `facts`(JSON 객체)는 검수 대기 후보(UNVERIFIED)로만 저장한다(판정 불변).\n\n판정에 쓰려면 검수 뒤 `…/documents/{doc}/values/apply`로 적용한다.",
         "operationId": "upload_document_cases__case_id__documents_post",
         "parameters": [
           {
@@ -3132,10 +3447,457 @@
             "description": "지원하지 않는 파일 형식"
           },
           "422": {
-            "description": "facts(JSON) 값 오류: detail.message + detail.problems"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "facts 값 형식 오류: details.problems"
           }
         },
         "summary": "Upload Document",
+        "tags": [
+          "diagnosis"
+        ]
+      }
+    },
+    "/cases/{case_id}/documents/{document_id}/revoke": {
+      "post": {
+        "description": "서류(또는 그 버전)에서 온 증빙의 효력을 해제하고 다시 평가한다. 이력은 남는다.",
+        "operationId": "revoke_document_cases__case_id__documents__document_id__revoke_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/RevokeIn"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Revoke Document",
+        "tags": [
+          "diagnosis"
+        ]
+      }
+    },
+    "/cases/{case_id}/documents/{document_id}/values/apply": {
+      "post": {
+        "description": "검수 완료된 서류 값을 EVIDENCED로 적용하고 다시 평가한다(원문 대조 없음, 형식만 검사).",
+        "operationId": "apply_document_values_cases__case_id__documents__document_id__values_apply_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Apply Document Values",
+        "tags": [
+          "diagnosis"
+        ]
+      }
+    },
+    "/cases/{case_id}/documents/{document_id}/versions": {
+      "post": {
+        "description": "같은 서류의 파일 교체(새 버전). 이전 버전에서 적용된 값은 자동으로 효력이 해제된다.",
+        "operationId": "replace_document_cases__case_id__documents__document_id__versions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_replace_document_cases__case_id__documents__document_id__versions_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentTurn"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "파일이 너무 큼"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "지원하지 않는 파일 형식"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "facts 값 형식 오류: details.problems"
+          }
+        },
+        "summary": "Replace Document",
+        "tags": [
+          "diagnosis"
+        ]
+      }
+    },
+    "/cases/{case_id}/rebase": {
+      "post": {
+        "description": "저장된 규칙 버전이 바뀐 건(KB_CHANGED)을 지금 규칙으로 다시 평가한다. 확정 건은 409.",
+        "operationId": "rebase_cases__case_id__rebase_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Rebase",
         "tags": [
           "diagnosis"
         ]
@@ -4308,6 +5070,7 @@
     },
     "/internal/v1/cases/{case_id}/documents": {
       "post": {
+        "description": "서류 업로드. `facts`(JSON 객체)는 검수 대기 후보(UNVERIFIED)로만 저장한다(판정 불변).\n\n판정에 쓰려면 검수 뒤 `…/documents/{doc}/values/apply`로 적용한다.",
         "operationId": "upload_document_internal_v1_cases__case_id__documents_post",
         "parameters": [
           {
@@ -4424,10 +5187,525 @@
             "description": "지원하지 않는 파일 형식"
           },
           "422": {
-            "description": "facts(JSON) 값 오류: detail.message + detail.problems"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "facts 값 형식 오류: details.problems"
           }
         },
         "summary": "Upload Document",
+        "tags": [
+          "internal",
+          "diagnosis"
+        ]
+      }
+    },
+    "/internal/v1/cases/{case_id}/documents/{document_id}/revoke": {
+      "post": {
+        "description": "서류(또는 그 버전)에서 온 증빙의 효력을 해제하고 다시 평가한다. 이력은 남는다.",
+        "operationId": "revoke_document_internal_v1_cases__case_id__documents__document_id__revoke_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/RevokeIn"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Revoke Document",
+        "tags": [
+          "internal",
+          "diagnosis"
+        ]
+      }
+    },
+    "/internal/v1/cases/{case_id}/documents/{document_id}/values/apply": {
+      "post": {
+        "description": "검수 완료된 서류 값을 EVIDENCED로 적용하고 다시 평가한다(원문 대조 없음, 형식만 검사).",
+        "operationId": "apply_document_values_internal_v1_cases__case_id__documents__document_id__values_apply_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Apply Document Values",
+        "tags": [
+          "internal",
+          "diagnosis"
+        ]
+      }
+    },
+    "/internal/v1/cases/{case_id}/documents/{document_id}/versions": {
+      "post": {
+        "description": "같은 서류의 파일 교체(새 버전). 이전 버전에서 적용된 값은 자동으로 효력이 해제된다.",
+        "operationId": "replace_document_internal_v1_cases__case_id__documents__document_id__versions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_replace_document_internal_v1_cases__case_id__documents__document_id__versions_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentTurn"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "파일이 너무 큼"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "지원하지 않는 파일 형식"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "facts 값 형식 오류: details.problems"
+          }
+        },
+        "summary": "Replace Document",
+        "tags": [
+          "internal",
+          "diagnosis"
+        ]
+      }
+    },
+    "/internal/v1/cases/{case_id}/rebase": {
+      "post": {
+        "description": "저장된 규칙 버전이 바뀐 건(KB_CHANGED)을 지금 규칙으로 다시 평가한다. 확정 건은 409.",
+        "operationId": "rebase_internal_v1_cases__case_id__rebase_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Rebase",
         "tags": [
           "internal",
           "diagnosis"

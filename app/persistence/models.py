@@ -164,6 +164,8 @@ class FactRecord(Base):
     recorded_at: Mapped[datetime] = mapped_column(UTCDateTime())
     # 사용자 철회 행(status UNKNOWN). 앞선 같은 키의 CLAIMED를 평가에서 뺀다(app/domain/facts.py).
     retracted: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    # 서류 효력 해제 표시 행(status UNKNOWN). 같은 키·출처(source_ref)의 앞선 EVIDENCED를 뺀다.
+    revoked: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
 
 
 class Document(Base):
@@ -176,9 +178,45 @@ class Document(Base):
     size: Mapped[int] = mapped_column(Integer, default=0)
     sha256: Mapped[str] = mapped_column(String(64))
     extracted_text: Mapped[str | None] = mapped_column(Text)
-    # {"method": "llm"|"manual"|"none", "accepted": {key: value}, "rejected": [...]}
+    # {"method": "manual"|"none", "candidates": {key: value}, "accepted": {}}.
+    # 0005부터 업로드 값은 판정에 쓰지 않는 후보(document_values)다. accepted는 이전 호환(빈 객체).
     extracted_facts: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    # 파일 버전. 같은 서류의 파일을 바꾸면 1씩 올리고 파일 정보(이름·해시·본문)를 새 파일로 바꾼다.
+    version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
     created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)
+    updated_at: Mapped[datetime | None] = mapped_column(UTCDateTime())  # 마지막 파일 교체 시각
+
+    values: Mapped[list[DocumentValue]] = relationship(
+        order_by="(DocumentValue.created_at, DocumentValue.id)", viewonly=True
+    )
+
+
+class DocumentValue(Base):
+    """서류 값 한 줄(후보 → 검수 → 적용).
+
+    - UNVERIFIED: 업로드·직접 입력으로 들어온 후보. 판정에 쓰지 않는다.
+    - APPLIED: 서버가 검수 완료로 보낸 값. 같은 값이 EVIDENCED 사실로 append돼 있다.
+    - REJECTED: 검수에서 버린 후보.
+    - REVOKED: 서류 교체·검수 취소로 효력이 해제됨(사실 이력에는 해제 표시 행).
+    엔진은 서류 원문과 값을 대조하지 않는다. 형식(빈 값·숫자 칸의 글자·선택지 밖 값)만 거른다.
+    """
+
+    __tablename__ = "document_values"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    document_id: Mapped[str] = mapped_column(ForeignKey("documents.id"), index=True)
+    document_version: Mapped[int] = mapped_column(Integer)
+    case_id: Mapped[str] = mapped_column(ForeignKey("waste_cases.id"), index=True)
+    session_id: Mapped[str | None] = mapped_column(ForeignKey("diagnosis_sessions.id"))
+    fact_key: Mapped[str] = mapped_column(String(100))
+    value: Mapped[Any] = mapped_column(JSON, nullable=True)
+    unit: Mapped[str | None] = mapped_column(String(30))
+    status: Mapped[str] = mapped_column(String(20), default="UNVERIFIED")
+    reviewer: Mapped[str | None] = mapped_column(String(200))
+    reviewed_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    note: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)
+    updated_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
 
 
 class VerdictRecord(Base):
@@ -213,7 +251,12 @@ class VerdictRecord(Base):
 
 
 class TraceRecord(Base):
-    """Decision Trace 한 줄. kind: TURN(문진 한 턴) | DOCUMENT | CONFIRM | REOPEN."""
+    """Decision Trace 한 줄.
+
+    kind: TURN(문진 한 턴) | DOCUMENT(업로드·파일 교체) | APPLY(검수 값 적용)
+    | REVOKE(서류 효력 해제)
+    | CONFIRM | REOPEN | REBASE(규칙 버전 갱신).
+    """
 
     __tablename__ = "trace_turns"
     __table_args__ = (UniqueConstraint("session_id", "seq"),)

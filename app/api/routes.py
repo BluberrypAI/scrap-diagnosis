@@ -22,6 +22,7 @@ from app.api.documents import UnsupportedDocument
 from app.api.errors import ERROR_RESPONSES, ErrorResponse, api_error
 from app.api.profile import ProfileOptions, profile_options
 from app.api.schemas import (
+    ApplyIn,
     CaseCreate,
     CaseCreated,
     CaseDetail,
@@ -36,19 +37,22 @@ from app.api.schemas import (
     ConfirmOut,
     DocumentOut,
     DocumentTurn,
+    DocumentValueOut,
     MessageIn,
     PagingInfo,
     ReopenIn,
     ReopenOut,
+    RevokeIn,
     TraceOut,
     TraceRowOut,
     TraceSessionOut,
     VerdictOut,
 )
 from app.api.service import CaseService, ServiceError
+from app.config import Settings
 from app.domain.case import CaseStatus
 from app.domain.verdict import TurnResponse
-from app.persistence.models import Company, WasteCase, new_id
+from app.persistence.models import Company, Document, WasteCase, new_id
 
 # 라우터 구성
 # - dev_router: 개발용 기업 API. 루트 경로에만 둔다(prod에서는 404).
@@ -107,8 +111,15 @@ def _case_out(svc: CaseService, case: WasteCase) -> CaseOut:
             "last_activity_at": rec.last_activity_at if rec else None,
             "as_of": rec.as_of if rec else None,
             "summary": svc.summary(case, rec),
+            "kb_changed": svc.repo.kb_changed(rec),
         }
     )
+
+
+def _doc_out(svc: CaseService, doc: Document) -> DocumentOut:
+    out = DocumentOut.model_validate(doc)
+    out.values = [DocumentValueOut.model_validate(v) for v in svc.document_values(doc)]
+    return out
 
 
 def _run(svc: CaseService, fn, *args, **kwargs):  # noqa: ANN001, ANN202
@@ -268,7 +279,7 @@ def get_case(case_id: str, svc: ServiceDep) -> CaseDetail:
         current_verdict=VerdictOut.model_validate(current) if current else None,
         verdicts=[VerdictOut.model_validate(v) for v in svc.repo.verdicts(case.id)],
         latest_turn=svc.latest_turn(case),
-        documents=[DocumentOut.model_validate(d) for d in svc.documents(case)],
+        documents=[_doc_out(svc, d) for d in svc.documents(case)],
         handoff=current.handoff if current else None,
         conversation=svc.conversation(case),
     )
@@ -287,16 +298,26 @@ def post_message(case_id: str, body: MessageIn, svc: ServiceDep) -> TurnResponse
     return resp
 
 
+DOCUMENT_UPLOAD_RESPONSES: dict[int | str, dict] = {
+    413: {"model": ErrorResponse, "description": "파일이 너무 큼"},
+    415: {"model": ErrorResponse, "description": "지원하지 않는 파일 형식"},
+    422: {"model": ErrorResponse, "description": "facts 값 형식 오류: details.problems"},
+}
+
+
+def _read_upload(file: UploadFile, settings: Settings) -> bytes:
+    data = file.file.read(settings.max_upload_bytes + 1)
+    if len(data) > settings.max_upload_bytes:
+        raise api_error(413, f"파일이 너무 큽니다(최대 {settings.max_upload_bytes} bytes)")
+    return data
+
+
 @case_router.post(
     "/cases/{case_id}/documents",
     response_model=DocumentTurn,
     status_code=201,
     tags=["diagnosis"],
-    responses={
-        413: {"model": ErrorResponse, "description": "파일이 너무 큼"},
-        415: {"model": ErrorResponse, "description": "지원하지 않는 파일 형식"},
-        422: {"description": "facts(JSON) 값 오류: detail.message + detail.problems"},
-    },
+    responses=DOCUMENT_UPLOAD_RESPONSES,
 )
 def upload_document(
     case_id: str,
@@ -305,13 +326,15 @@ def upload_document(
     file: Annotated[UploadFile, File()],
     facts: Annotated[str | None, Form()] = None,
 ) -> DocumentTurn:
-    # 일반 def로 둔다: 아래 서비스는 동기 DB·AI 호출이라 async def 안에서 부르면
+    """서류 업로드. `facts`(JSON 객체)는 검수 대기 후보(UNVERIFIED)로만 저장한다(판정 불변).
+
+    판정에 쓰려면 검수 뒤 `…/documents/{doc}/values/apply`로 적용한다.
+    """
+    # 일반 def로 둔다: 아래 서비스는 동기 DB 호출이라 async def 안에서 부르면
     # 그동안 서버의 다른 모든 요청이 멈춘다. def는 FastAPI가 스레드에서 실행한다.
-    data = file.file.read(settings.max_upload_bytes + 1)
-    if len(data) > settings.max_upload_bytes:
-        raise api_error(413, f"파일이 너무 큽니다(최대 {settings.max_upload_bytes} bytes)")
+    data = _read_upload(file, settings)
     case = _run(svc, svc.get_case, case_id)
-    doc, turn = _run(
+    doc, turn, values = _run(
         svc,
         svc.upload_document,
         case,
@@ -321,7 +344,93 @@ def upload_document(
         manual_facts=facts,
     )
     _commit(svc)
-    return DocumentTurn(document=DocumentOut.model_validate(doc), turn=turn)
+    return DocumentTurn(
+        document=_doc_out(svc, doc),
+        turn=turn,
+        values=[DocumentValueOut.model_validate(v) for v in values],
+    )
+
+
+@case_router.post(
+    "/cases/{case_id}/documents/{document_id}/versions",
+    response_model=DocumentTurn,
+    status_code=201,
+    tags=["diagnosis"],
+    responses=DOCUMENT_UPLOAD_RESPONSES,
+)
+def replace_document(
+    case_id: str,
+    document_id: str,
+    svc: ServiceDep,
+    settings: SettingsDep,
+    file: Annotated[UploadFile, File()],
+    facts: Annotated[str | None, Form()] = None,
+) -> DocumentTurn:
+    """같은 서류의 파일 교체(새 버전). 이전 버전에서 적용된 값은 자동으로 효력이 해제된다."""
+    data = _read_upload(file, settings)
+    case = _run(svc, svc.get_case, case_id)
+    doc, turn, values = _run(
+        svc,
+        svc.replace_document,
+        case,
+        document_id,
+        filename=file.filename or "document",
+        content_type=file.content_type,
+        data=data,
+        manual_facts=facts,
+    )
+    _commit(svc)
+    return DocumentTurn(
+        document=_doc_out(svc, doc),
+        turn=turn,
+        values=[DocumentValueOut.model_validate(v) for v in values],
+    )
+
+
+@case_router.post(
+    "/cases/{case_id}/documents/{document_id}/values/apply",
+    response_model=TurnResponse,
+    tags=["diagnosis"],
+)
+def apply_document_values(
+    case_id: str, document_id: str, body: ApplyIn, svc: ServiceDep
+) -> TurnResponse:
+    """검수 완료된 서류 값을 EVIDENCED로 적용하고 다시 평가한다(원문 대조 없음, 형식만 검사)."""
+    case = _run(svc, svc.get_case, case_id)
+    turn, _ = _run(svc, svc.apply_values, case, document_id, body.values)
+    _commit(svc)
+    return turn
+
+
+@case_router.post(
+    "/cases/{case_id}/documents/{document_id}/revoke",
+    response_model=TurnResponse,
+    tags=["diagnosis"],
+)
+def revoke_document(
+    case_id: str, document_id: str, svc: ServiceDep, body: RevokeIn | None = None
+) -> TurnResponse:
+    """서류(또는 그 버전)에서 온 증빙의 효력을 해제하고 다시 평가한다. 이력은 남는다."""
+    case = _run(svc, svc.get_case, case_id)
+    turn, _ = _run(
+        svc,
+        svc.revoke_document,
+        case,
+        document_id,
+        reason=body.reason if body else None,
+        version=body.document_version if body else None,
+    )
+    _commit(svc)
+    return turn
+
+
+@case_router.post("/cases/{case_id}/rebase", response_model=TurnResponse, tags=["diagnosis"])
+def rebase(case_id: str, svc: ServiceDep) -> TurnResponse:
+    """저장된 규칙 버전이 바뀐 건(KB_CHANGED)을 지금 규칙으로 다시 평가한다. 확정 건은 409."""
+    case = _run(svc, svc.get_case, case_id)
+    turn = _run(svc, svc.rebase, case)
+    _commit(svc)
+    return turn
 
 
 @case_router.post("/cases/{case_id}/confirm", response_model=ConfirmOut, tags=["diagnosis"])

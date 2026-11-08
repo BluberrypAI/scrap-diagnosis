@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 from app.domain.facts import Fact, FactStatus
@@ -44,6 +45,34 @@ def coerce_value(fd: FactDef, value: Any) -> Any:
         return float(str(value).replace(",", "").rstrip("%").strip())
     except ValueError as exc:
         raise AnswerError(f"{fd.key}: 숫자 값이 필요합니다: {value!r}") from exc
+
+
+def check_document_value(kb: KnowledgeBase, key: str, value: Any, unit: str | None = None) -> Any:
+    """서류 값의 형식만 거른다(원문 대조는 하지 않는다). 맞으면 카탈로그 타입으로 바꾼 값.
+
+    거르는 것: 카탈로그에 없는 키, 빈 값('-'·공백 포함), 숫자 칸의 글자·무한대·NaN, 선택지 밖 값,
+    카탈로그 단위와 다른 단위(엔진은 단위를 환산하지 않는다).
+    """
+    fd = kb.catalog.get(key)
+    if fd is None:
+        raise AnswerError(f"카탈로그에 없는 사실 키 {key}")
+    if value is None or (isinstance(value, str) and value.strip() in ("", "-")):
+        raise AnswerError(f"{key}: 빈 값입니다")
+    if fd.type == "number" and isinstance(value, str):
+        text = value.replace(",", "").rstrip("%").strip()
+        if not text or any(c.isalpha() for c in text):  # '5mg', 'nan', 'inf', '미검출' 등
+            raise AnswerError(f"{key}: 숫자 값이 필요합니다: {value!r}")
+    try:
+        out = coerce_value(fd, value)
+    except AnswerError:
+        raise
+    except (TypeError, ValueError) as exc:  # 범위(dict) 값 형식 오류 등
+        raise AnswerError(f"{key}: 값 형식이 올바르지 않습니다: {value!r}") from exc
+    if isinstance(out, float) and not math.isfinite(out):
+        raise AnswerError(f"{key}: 숫자 값이 필요합니다: {value!r}")
+    if unit is not None and unit.strip() and fd.unit and unit.strip() != fd.unit:
+        raise AnswerError(f"{key}: 단위가 다릅니다({unit!r}, 기준 {fd.unit!r})")
+    return out
 
 
 def fact_answer(

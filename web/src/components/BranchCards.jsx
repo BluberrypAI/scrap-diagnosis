@@ -26,8 +26,9 @@ export function EvidenceCard({ docs, disabled, onUpload, onText }) {
       <ul className="plain">{docs.map((d) => <li key={d.evidence_type}><strong>{d.label}</strong> <span className="muted">확인 항목: {d.fact_labels.join(', ')}</span></li>)}</ul>
       <label className="wd-field"><span>파일 (.pdf/.txt/.md)</span>
         <input type="file" accept=".pdf,.txt,.md" onChange={(e) => setFile(e.target.files?.[0] || null)} /></label>
+      <p className="muted">서류에서 읽은 값을 입력하면 &lsquo;검수 대기&rsquo;로 저장돼요. 검수가 끝난 값만 판정에 쓰여요.</p>
       <details>
-        <summary>값 직접 입력 (서류 해석이 꺼진 환경용)</summary>
+        <summary>서류 값 입력</summary>
         <textarea className="wd-input" rows={2} placeholder='{"oil_content_pct": 2}' value={facts} onChange={(e) => setFacts(e.target.value)} />
       </details>
       {err && <p className="wd-alert" role="alert">{err}</p>}
@@ -35,6 +36,34 @@ export function EvidenceCard({ docs, disabled, onUpload, onText }) {
         <button type="button" className="button button-primary" disabled={disabled || (!file && !facts.trim())} onClick={submit}>서류 올리기</button>
         <button type="button" className="button button-quiet" disabled={disabled} onClick={() => onText(EVIDENCE_REFUSE_REPLY)}>{EVIDENCE_REFUSE_REPLY}</button>
       </div>
+    </section>
+  );
+}
+
+/**
+ * 검수 대기 서류 값. 업로드 값은 후보(UNVERIFIED)일 뿐이라 판정에 쓰이지 않는다.
+ * onApply가 있으면(개발용) "검수 완료로 적용" 버튼을 보인다. 운영에서는 서버의 검수 흐름이 적용한다.
+ * @param {{items: {doc: any, value: any}[], labels?: Record<string, string>, disabled?: boolean, onApply?: ((items: {doc: any, value: any}[]) => void)|null}} p
+ */
+export function PendingReview({ items, labels = {}, disabled, onApply = null }) {
+  if (!items.length) return null;
+  return (
+    <section className="wd-card qcard" aria-label="검수 대기">
+      <h3>검수 대기 <span className="muted">({items.length})</span></h3>
+      <p className="muted">서류 값은 검수가 끝나야 판정에 쓰여요.</p>
+      <ul className="plain">
+        {items.map(({ doc, value }) => (
+          <li key={value.id}>
+            <strong>{labels[value.fact_key] || value.fact_key}</strong> = {typeof value.value === 'object' ? JSON.stringify(value.value) : String(value.value)}{value.unit ? ` ${value.unit}` : ''}{' '}
+            <span className="muted">{doc.filename} v{value.document_version} · 검수 대기</span>
+          </li>
+        ))}
+      </ul>
+      {onApply && (
+        <div className="row">
+          <button type="button" className="button button-small" disabled={disabled} onClick={() => onApply(items)}>검수 완료로 적용 (개발용)</button>
+        </div>
+      )}
     </section>
   );
 }

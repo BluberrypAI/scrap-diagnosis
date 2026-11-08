@@ -5,6 +5,9 @@
   REQUEST_EVIDENCE/UNSUPPORTED → NEEDS_INFO). FINAL_REVIEW도 확정 전까지는 DIAGNOSING이다.
 - confirm: 서버가 다시 평가해 확정 가능할 때만 → CODE_CONFIRMED (판정 버전 고정, Trace 불변)
 - reopen: CODE_CONFIRMED에서만 → DIAGNOSING (이전 판정은 superseded로 보존)
+- 서류: 업로드 값은 후보(document_values)일 뿐이고, 검수 완료 값 적용(apply)만 EVIDENCED가 된다.
+  효력 해제(revoke)·파일 교체(새 버전)는 그 서류의 증빙을 평가에서 뺀다(이력은 보존).
+- 규칙 버전: 세션의 kb_version이 지금 규칙과 다르면 쓰기는 409 KB_CHANGED, rebase로 맞춘다.
 
 코드 없는 결론(폐기물 아님 등, result_type NO_CODE)도 규칙 엔진이 낸 결론이라 확정할 수 있고,
 건 상태는 분류번호가 있는 결론과 같은 CODE_CONFIRMED다(docs/handoff-contract.md).
@@ -25,22 +28,32 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.agent import templates
-from app.agent.extractor import extract
 from app.agent.orchestrator import DiagnosisSession, QuickReply
 from app.agent.router import Branch
 from app.api.deps import KBInfo, LLMs
 from app.api.documents import extract_text
 from app.api.profile import profile_facts
+from app.api.schemas import ApplyValueIn
 from app.config import Settings
 from app.domain.case import DIAGNOSABLE, CaseStatus, status_after_turn
 from app.domain.clock import seoul_date
-from app.domain.facts import FactStatus
+from app.domain.facts import (
+    REVOKE_NOTE,
+    Fact,
+    FactStatus,
+    active_facts,
+    document_source_ref,
+    revoke_fact,
+    source_matches,
+)
 from app.domain.handoff import RESULT_NO_CODE, build_handoff, result_type_of
+from app.domain.ranges import NumRange
 from app.domain.verdict import TurnResponse, build_verdict, value_label
 from app.persistence.models import (
     Company,
     DiagnosisSessionRecord,
     Document,
+    DocumentValue,
     FactRecord,
     TraceRecord,
     VerdictRecord,
@@ -48,9 +61,19 @@ from app.persistence.models import (
     new_id,
     utcnow,
 )
-from app.persistence.repository import LoadedSession, SessionRepository, row_to_fact
-from app.rules.answers import AnswerError, fact_answer
+from app.persistence.repository import KBChanged, LoadedSession, SessionRepository, row_to_fact
+from app.rules.answers import AnswerError, check_document_value
 from app.rules.model import KnowledgeBase
+
+# 서류 값 상태(document_values.status)
+VALUE_UNVERIFIED = "UNVERIFIED"  # 검수 대기 후보(판정에 안 씀)
+VALUE_APPLIED = "APPLIED"  # 검수 완료 → EVIDENCED
+VALUE_REJECTED = "REJECTED"  # 검수에서 버림
+VALUE_REVOKED = "REVOKED"  # 서류 교체·검수 취소로 효력 해제
+
+
+def _json_value(v: Any) -> Any:
+    return v.model_dump(mode="json") if isinstance(v, NumRange) else v
 
 
 class ServiceError(Exception):
@@ -81,7 +104,11 @@ class CaseService:
         self.today = today  # 고정한 법 기준일(테스트). None이면 대화 시작 시각의 서울 날짜
         self.company = company
         self.repo = SessionRepository(
-            db, kb, extractor_llm=llms.extractor, responder_llm=llms.responder
+            db,
+            kb,
+            extractor_llm=llms.extractor,
+            responder_llm=llms.responder,
+            kb_version=kb_info.version,
         )
 
     # ---- 조회 ----------------------------------------------------------------------------
@@ -256,7 +283,7 @@ class CaseService:
 
     # ---- 문진 ----------------------------------------------------------------------------
 
-    def _open_session(self, case: WasteCase) -> LoadedSession:
+    def _open_session(self, case: WasteCase, *, allow_kb_change: bool = False) -> LoadedSession:
         if CaseStatus(case.status) not in DIAGNOSABLE:
             raise ServiceError(
                 409,
@@ -264,7 +291,20 @@ class CaseService:
                 "CASE_NOT_DIAGNOSABLE",
                 case_status=case.status,
             )
-        return self.repo.load(self.session_record(case))
+        return self._load(self.session_record(case), allow_kb_change=allow_kb_change)
+
+    def _load(self, rec: DiagnosisSessionRecord, *, allow_kb_change: bool = False) -> LoadedSession:
+        """세션 복원. 저장된 규칙 버전이 지금과 다르면 409 KB_CHANGED(rebase 후 진행)."""
+        try:
+            return self.repo.load(rec, allow_kb_change=allow_kb_change)
+        except KBChanged as exc:
+            raise ServiceError(
+                409,
+                "규칙 버전이 바뀌었습니다. rebase로 지금 규칙에 맞춘 뒤 진행하세요",
+                "KB_CHANGED",
+                session_kb_version=exc.session_kb_version,
+                current_kb_version=exc.current_kb_version,
+            ) from exc
 
     def _finish_turn(self, case: WasteCase, ls: LoadedSession) -> None:
         now = utcnow()
@@ -282,6 +322,26 @@ class CaseService:
         return resp
 
     # ---- 문서 ----------------------------------------------------------------------------
+    # 서류 값: 후보 → 검수 → 적용(docs/api/server-engine-contract.md 3절).
+    # - 업로드·직접 입력 값은 후보(document_values, UNVERIFIED)로만 저장한다. 판정은 바뀌지 않는다.
+    # - 서버가 검수 완료로 보낸 값만 EVIDENCED 사실로 append한다(source_ref = 문서id@v버전).
+    # - 엔진은 서류 원문과 값을 대조하지 않는다. 형식만 거른다(check_document_value).
+    # - 자동 읽기(OCR·AI)는 하지 않는다(document-extraction-v1 계약만 둔다). 원문은 저장만 한다.
+
+    def get_document(self, case: WasteCase, document_id: str) -> Document:
+        doc = self.db.get(Document, document_id)
+        if doc is None or doc.case_id != case.id:
+            raise ServiceError(404, "서류를 찾을 수 없습니다", "DOCUMENT_NOT_FOUND")
+        return doc
+
+    def document_values(self, doc: Document) -> list[DocumentValue]:
+        return list(
+            self.db.scalars(
+                select(DocumentValue)
+                .where(DocumentValue.document_id == doc.id)
+                .order_by(DocumentValue.created_at, DocumentValue.id)
+            ).all()
+        )
 
     def upload_document(
         self,
@@ -291,92 +351,130 @@ class CaseService:
         content_type: str | None,
         data: bytes,
         manual_facts: str | None,
-    ) -> tuple[Document, TurnResponse]:
+    ) -> tuple[Document, TurnResponse, list[DocumentValue]]:
         ls = self._open_session(case)
-        s = ls.session
-        manual = self._parse_manual_facts(manual_facts) if manual_facts else None
+        manual = self._parse_manual_facts(manual_facts) if manual_facts else {}
         text = extract_text(filename, content_type, data)
-        doc = Document(
-            id=new_id(),
-            case_id=case.id,
-            filename=filename,
-            content_type=content_type,
-            size=len(data),
-            sha256=hashlib.sha256(data).hexdigest(),
-            extracted_text=text,
-        )
+        doc = Document(id=new_id(), case_id=case.id, version=1)
+        self._set_file(doc, filename, content_type, data, text, manual)
         self.db.add(doc)
+        values = self._store_candidates(case, ls, doc, manual)
+        self._document_trace(ls, doc, text, values)
+        return doc, self._document_turn(case, ls, doc, filename), values
 
-        calls: list[dict] = []
-        rejected: list[dict] = []
-        if manual is not None:
-            method = "manual"
-            facts = [
-                fact_answer(self.kb, k, v, source_ref=doc.id).model_copy(
-                    update={"quote": None, "note": "문서 업로드 시 직접 입력"}
-                )
-                for k, v in manual.items()
-            ]
-        elif self.llms.extractor is not None and text.strip():
-            method = "llm"
-            ex, llm_calls = extract(
-                self.llms.extractor,
-                self.kb,
-                text[: self.settings.document_text_limit],
-                effective=s.store.effective(),
-                last_question=s.last_question,
-                recent=[],
-                message_id=doc.id,
-                prompt_version=s.prompt_version,
-            )
-            calls = [c.model_dump(mode="json") for c in llm_calls]
-            rejected = list(ex.rejected)
-            facts = []
-            for f in ex.facts:
-                # 문서에서는 값이 확인된 사실만 증빙으로 받는다('모름'·미정량 진술은 버림)
-                if f.status == FactStatus.CLAIMED and f.value is not None:
-                    facts.append(f)
-                else:
-                    rejected.append({"key": f.key, "reason": "값이 없는 사실(문서 증빙 아님)"})
-        else:
-            method = "none"
-            facts = []
+    def replace_document(
+        self,
+        case: WasteCase,
+        document_id: str,
+        *,
+        filename: str,
+        content_type: str | None,
+        data: bytes,
+        manual_facts: str | None,
+    ) -> tuple[Document, TurnResponse, list[DocumentValue]]:
+        """같은 서류의 새 파일(새 버전). 이전 버전에서 적용된 값은 자동으로 효력을 해제한다."""
+        ls = self._open_session(case)
+        doc = self.get_document(case, document_id)
+        manual = self._parse_manual_facts(manual_facts) if manual_facts else {}
+        text = extract_text(filename, content_type, data)
+        prev = doc.version
+        # 교체 시점까지의 모든 버전(이전 표기 '문서id' 포함)을 해제한다 = 이전 파일 전부
+        revoked_keys, revoked_rows = self._revoke(
+            ls,
+            doc,
+            document_source_ref(doc.id),
+            version=None,
+            note=f"새 파일(v{prev + 1})로 교체",
+            include_unverified=True,
+        )
+        doc.version = prev + 1
+        doc.updated_at = utcnow()
+        self._set_file(doc, filename, content_type, data, text, manual)
+        values = self._store_candidates(case, ls, doc, manual)
+        self._document_trace(
+            ls,
+            doc,
+            text,
+            values,
+            replaced_version=prev,
+            revoked_keys=revoked_keys,
+            revoked_value_ids=[r.id for r in revoked_rows],
+        )
+        return doc, self._document_turn(case, ls, doc, filename), values
 
-        evidenced = [
-            f.model_copy(
-                update={
-                    "status": FactStatus.EVIDENCED,
-                    "source_type": "DOCUMENT",
-                    "source_ref": doc.id,
-                    "recorded_at": utcnow(),
-                }
-            )
-            for f in facts
-        ]
+    def _set_file(
+        self,
+        doc: Document,
+        filename: str,
+        content_type: str | None,
+        data: bytes,
+        text: str,
+        manual: dict[str, Any],
+    ) -> None:
+        doc.filename = filename
+        doc.content_type = content_type
+        doc.size = len(data)
+        doc.sha256 = hashlib.sha256(data).hexdigest()
+        doc.extracted_text = text
         doc.extracted_facts = {
-            "method": method,
-            "accepted": {f.key: f.model_dump(mode="json")["value"] for f in evidenced},
-            "rejected": rejected,
+            "method": "manual" if manual else "none",
+            "candidates": {k: _json_value(v) for k, v in manual.items()},
+            "accepted": {},  # 이전 호환. 업로드 값은 더 이상 바로 적용되지 않는다
         }
+
+    def _store_candidates(
+        self, case: WasteCase, ls: LoadedSession, doc: Document, manual: dict[str, Any]
+    ) -> list[DocumentValue]:
+        out = []
+        for k, v in manual.items():
+            row = DocumentValue(
+                id=new_id(),
+                document_id=doc.id,
+                document_version=doc.version,
+                case_id=case.id,
+                session_id=ls.record.id,
+                fact_key=k,
+                value=_json_value(v),
+                unit=None,
+                status=VALUE_UNVERIFIED,
+                note="업로드 시 직접 입력(검수 대기)",
+                created_at=utcnow(),
+            )
+            self.db.add(row)
+            out.append(row)
+        return out
+
+    def _document_trace(
+        self,
+        ls: LoadedSession,
+        doc: Document,
+        text: str,
+        values: list[DocumentValue],
+        **extra: Any,
+    ) -> None:
         self.repo.add_trace(
             ls.record,
             "DOCUMENT",
-            doc.id[:12],
+            new_id()[:12],
             {
                 "document_id": doc.id,
-                "filename": filename,
+                "document_version": doc.version,
+                "filename": doc.filename,
                 "sha256": doc.sha256,
-                "method": method,
+                "method": doc.extracted_facts["method"],
                 "text_chars": len(text),
-                "llm_calls": calls,
-                "appended_facts": [f.model_dump(mode="json") for f in evidenced],
-                "rejected": rejected,
+                "candidates": [
+                    {"value_id": r.id, "fact_key": r.fact_key, "value": r.value} for r in values
+                ],
+                "appended_facts": [],  # 후보는 사실이 아니다(검수 후 apply로만 반영)
+                **extra,
             },
         )
-        for f in evidenced:
-            s.store.append(f)
-        if evidenced:
-            s.state.evidence_refused = False
+
+    def _document_turn(
+        self, case: WasteCase, ls: LoadedSession, doc: Document, filename: str
+    ) -> TurnResponse:
+        s = ls.session
         s.messages.append(
             {
                 "role": "document",
@@ -388,9 +486,10 @@ class CaseService:
         )
         resp = s.handle()
         self._finish_turn(case, ls)
-        return doc, resp
+        return resp
 
     def _parse_manual_facts(self, raw: str) -> dict[str, Any]:
+        """업로드의 facts(JSON 객체 {사실 키: 값}). 형식이 틀린 항목이 하나라도 있으면 422."""
         try:
             data = json.loads(raw)
         except json.JSONDecodeError as exc:
@@ -399,20 +498,266 @@ class CaseService:
             ) from exc
         if not isinstance(data, dict):
             raise ServiceError(422, "facts는 JSON 객체여야 합니다", "VALIDATION_ERROR")
+        out: dict[str, Any] = {}
         problems = []
         for k, v in data.items():
-            if k not in self.kb.catalog:
-                problems.append({"key": k, "reason": "카탈로그에 없는 사실 키"})
-                continue
             try:
-                fact_answer(self.kb, k, v)
+                out[k] = check_document_value(self.kb, k, v)
             except AnswerError as exc:
-                problems.append({"key": k, "reason": str(exc)})
+                problems.append({"key": k, "value": v, "reason": str(exc)})
         if problems:
             raise ServiceError(
-                422, "문서 사실 값이 올바르지 않습니다", "VALIDATION_ERROR", problems=problems
+                422, "서류 값 형식이 올바르지 않습니다", "VALIDATION_ERROR", problems=problems
             )
-        return data
+        return out
+
+    def apply_values(
+        self, case: WasteCase, document_id: str, items: list[ApplyValueIn]
+    ) -> tuple[TurnResponse, list[DocumentValue]]:
+        """서버가 검수 완료로 보낸 값을 EVIDENCED로 적용하고 다시 평가한다."""
+        ls = self._open_session(case)
+        s = ls.session
+        doc = self.get_document(case, document_id)
+        stale = {i.document_version for i in items if i.document_version != doc.version}
+        rows: dict[str, DocumentValue] = {}
+        problems: list[dict[str, Any]] = []
+        for idx, item in enumerate(items):
+            if not item.value_id:
+                continue
+            row = self.db.get(DocumentValue, item.value_id)
+            if row is None or row.document_id != doc.id:
+                problems.append(
+                    {"index": idx, "value_id": item.value_id, "reason": "이 서류의 값이 아닙니다"}
+                )
+            elif row.document_version != doc.version:
+                stale.add(row.document_version)
+            else:
+                rows[item.value_id] = row
+        if stale:
+            raise ServiceError(
+                409,
+                "서류 버전이 바뀌었습니다. 최신 버전으로 다시 검수하세요",
+                "DOCUMENT_VERSION_MISMATCH",
+                document_id=doc.id,
+                current_version=doc.version,
+                sent_versions=sorted(stale),
+            )
+        plan: list[tuple[ApplyValueIn, DocumentValue | None, str, Any]] = []
+        for idx, item in enumerate(items):
+            row = rows.get(item.value_id or "")
+            if item.value_id and row is None:
+                continue  # 위에서 problems에 넣음
+            key = item.fact_key or (row.fact_key if row else "")
+            base = {"index": idx, "value_id": item.value_id, "key": key}
+            if row is not None and item.fact_key and item.fact_key != row.fact_key:
+                problems.append({**base, "reason": f"값 행의 사실 키는 {row.fact_key}입니다"})
+                continue
+            if item.reject:
+                if row is None:
+                    problems.append({**base, "reason": "reject에는 value_id가 필요합니다"})
+                else:
+                    plan.append((item, row, key, None))
+                continue
+            raw = item.value if "value" in item.model_fields_set or row is None else row.value
+            unit = item.unit if item.unit is not None else (row.unit if row else None)
+            try:
+                plan.append((item, row, key, check_document_value(self.kb, key, raw, unit)))
+            except AnswerError as exc:
+                problems.append({**base, "value": raw, "reason": str(exc)})
+        if problems:
+            raise ServiceError(
+                422, "서류 값 형식이 올바르지 않습니다", "VALIDATION_ERROR", problems=problems
+            )
+
+        ref = document_source_ref(doc.id, doc.version)
+        now = utcnow()
+        appended: list[Fact] = []
+        touched: list[DocumentValue] = []
+        for item, row, key, value in plan:
+            if row is None:
+                row = DocumentValue(
+                    id=new_id(),
+                    document_id=doc.id,
+                    document_version=doc.version,
+                    case_id=case.id,
+                    session_id=ls.record.id,
+                    fact_key=key,
+                    created_at=now,
+                )
+                self.db.add(row)
+            row.reviewer = item.reviewer
+            row.reviewed_at = item.reviewed_at
+            row.updated_at = now
+            touched.append(row)
+            if item.reject:
+                row.status = VALUE_REJECTED
+                continue
+            jv = _json_value(value)
+            if row.value is not None and row.value != jv:
+                row.note = f"후보 값 {row.value!r}을 검수에서 {jv!r}로 고침"
+            row.value = jv
+            row.unit = item.unit if item.unit is not None else row.unit
+            row.status = VALUE_APPLIED
+            s.store.append(
+                Fact(
+                    key=key,
+                    value=value,
+                    status=FactStatus.EVIDENCED,
+                    source_type="DOCUMENT",
+                    source_ref=ref,
+                    note=f"서류 값 검수 완료({item.reviewer})",
+                )
+            )
+            appended.append(s.store.history[-1])
+        if appended:
+            s.state.evidence_refused = False
+        self.repo.add_trace(
+            ls.record,
+            "APPLY",
+            new_id()[:12],
+            {
+                "document_id": doc.id,
+                "document_version": doc.version,
+                "source_ref": ref,
+                "values": [
+                    {
+                        "value_id": r.id,
+                        "fact_key": r.fact_key,
+                        "value": r.value,
+                        "unit": r.unit,
+                        "status": r.status,
+                        "reviewer": r.reviewer,
+                        "reviewed_at": r.reviewed_at.isoformat() if r.reviewed_at else None,
+                    }
+                    for r in touched
+                ],
+                "appended_facts": [f.model_dump(mode="json") for f in appended],
+            },
+        )
+        resp = s.handle()
+        self._finish_turn(case, ls)
+        return resp, touched
+
+    def revoke_document(
+        self, case: WasteCase, document_id: str, *, reason: str | None, version: int | None
+    ) -> tuple[TurnResponse, list[DocumentValue]]:
+        """서류(또는 그 버전)에서 온 증빙의 효력을 해제하고 다시 평가한다. 이력은 남긴다."""
+        ls = self._open_session(case)
+        doc = self.get_document(case, document_id)
+        if version is not None and version > doc.version:
+            raise ServiceError(
+                409,
+                "없는 서류 버전입니다",
+                "DOCUMENT_VERSION_MISMATCH",
+                document_id=doc.id,
+                current_version=doc.version,
+                sent_versions=[version],
+            )
+        ref = document_source_ref(doc.id, version)
+        keys, rows = self._revoke(
+            ls,
+            doc,
+            ref,
+            version=version,
+            note=f"{REVOKE_NOTE}: {reason}" if reason else REVOKE_NOTE,
+            include_unverified=False,
+        )
+        self.repo.add_trace(
+            ls.record,
+            "REVOKE",
+            new_id()[:12],
+            {
+                "document_id": doc.id,
+                "document_version": version,
+                "source_ref": ref,
+                "reason": reason,
+                "revoked_keys": keys,
+                "revoked_value_ids": [r.id for r in rows],
+            },
+        )
+        resp = ls.session.handle()
+        self._finish_turn(case, ls)
+        return resp, rows
+
+    def _revoke(
+        self,
+        ls: LoadedSession,
+        doc: Document,
+        ref: str,
+        *,
+        version: int | None,
+        note: str,
+        include_unverified: bool,
+    ) -> tuple[list[str], list[DocumentValue]]:
+        """ref 출처의 유효한 증빙마다 해제 표시 행을 append하고 값 행을 REVOKED로 바꾼다."""
+        s = ls.session
+        keys = sorted(
+            {
+                f.key
+                for f in active_facts(s.store.history)
+                if f.status == FactStatus.EVIDENCED
+                and f.source_type == "DOCUMENT"
+                and source_matches(f.source_ref, ref)
+            }
+        )
+        for k in keys:
+            s.store.append(revoke_fact(k, ref, note=note))
+        statuses = {VALUE_APPLIED, VALUE_UNVERIFIED} if include_unverified else {VALUE_APPLIED}
+        now = utcnow()
+        rows = [
+            r
+            for r in self.document_values(doc)
+            if r.status in statuses and (version is None or r.document_version == version)
+        ]
+        for r in rows:
+            r.status = VALUE_REVOKED
+            r.updated_at = now
+            r.note = note
+        return keys, rows
+
+    # ---- 규칙 버전 -----------------------------------------------------------------------
+
+    def kb_changed(self, case: WasteCase) -> bool:
+        return self.repo.kb_changed(self.repo.latest_for_case(case.id))
+
+    def rebase(self, case: WasteCase) -> TurnResponse:
+        """지금 규칙으로 다시 평가하고 세션의 규칙 버전을 갱신한다(Trace REBASE).
+
+        확정된 건은 409(판정 버전은 건드리지 않는다. reopen하면 지금 규칙으로 이어 간다).
+        """
+        if case.status == CaseStatus.CODE_CONFIRMED.value:
+            raise ServiceError(
+                409,
+                "확정된 건은 rebase할 수 없습니다(reopen하면 지금 규칙으로 이어 갑니다)",
+                "CASE_NOT_DIAGNOSABLE",
+                case_status=case.status,
+            )
+        ls = self._open_session(case, allow_kb_change=True)
+        self._rebase_record(ls, trigger="rebase")
+        resp = ls.session.handle()
+        self._finish_turn(case, ls)
+        return resp
+
+    def _rebase_record(self, ls: LoadedSession, *, trigger: str) -> None:
+        rec = ls.record
+        self.repo.add_trace(
+            rec,
+            "REBASE",
+            new_id()[:12],
+            {
+                "trigger": trigger,
+                "changed": rec.kb_version != self.kb_info.version,
+                "from_kb_version": rec.kb_version,
+                "to_kb_version": self.kb_info.version,
+                "from_kb_dir": rec.kb_dir,
+                "to_kb_dir": self.kb_info.kb_dir,
+                "from_table_versions": rec.table_versions,
+                "to_table_versions": self.kb_info.table_versions,
+            },
+        )
+        rec.kb_dir = self.kb_info.kb_dir
+        rec.kb_version = self.kb_info.version
+        rec.table_versions = dict(self.kb_info.table_versions)
 
     # ---- 확정·재개 -----------------------------------------------------------------------
 
@@ -531,13 +876,16 @@ class CaseService:
             current.reopened_at = now
             current.reopen_reason = reason
         rec = self.session_record(case)
-        ls = self.repo.load(rec)
+        ls = self._load(rec, allow_kb_change=True)
         self.repo.add_trace(
             rec,
             "REOPEN",
             new_id()[:12],
             {"superseded_version": current.version if current else None, "reason": reason},
         )
+        if self.repo.kb_changed(rec):
+            # 확정 건은 rebase할 수 없으므로 reopen이 지금 규칙으로 맞춘다(이전 판정은 그대로 보존)
+            self._rebase_record(ls, trigger="reopen")
         ls.session.case_status = CaseStatus.DIAGNOSING.value
         # 같은 사실·같은 법 기준일(as_of)로 문진을 이어 간다. as_of는 바꾸지 않는다.
         resp = ls.session.handle()

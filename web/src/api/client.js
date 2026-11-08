@@ -133,8 +133,19 @@ export function createClient(opts = {}) {
       form.append('file', file, /** @type {any} */ (file).name || 'document');
       if (facts && Object.keys(facts).length) form.append('facts', JSON.stringify(facts));
       const d = await request('POST', `/cases/${encodeURIComponent(id)}/documents`, form);
-      return { document: d.document, turn: normalizeTurn(d.turn) };
+      // facts는 검수 대기 후보(values, UNVERIFIED)로만 저장된다. turn(판정)은 그대로다.
+      return { document: d.document, turn: normalizeTurn(d.turn), values: d.values || [] };
     },
+    /**
+     * 검수 완료 값 적용(EVIDENCED). 운영에서는 서버(scrap-server)의 검수 흐름이 부른다. 참조 화면은 개발용.
+     * @param {string} id @param {string} docId
+     * @param {{value_id?: string, fact_key?: string, value?: any, document_version: number, reviewer: string, reviewed_at: string}[]} values
+     */
+    applyDocumentValues: async (id, docId, values) =>
+      normalizeTurn(await request('POST', `/cases/${encodeURIComponent(id)}/documents/${encodeURIComponent(docId)}/values/apply`, { values })),
+    /** @param {string} id @param {string} docId @param {string|null} [reason] */
+    revokeDocument: async (id, docId, reason = null) =>
+      normalizeTurn(await request('POST', `/cases/${encodeURIComponent(id)}/documents/${encodeURIComponent(docId)}/revoke`, { reason })),
     /** @param {string} id @param {string|null} [expected_code] */
     confirm: async (id, expected_code = null) => {
       const d = await request('POST', `/cases/${encodeURIComponent(id)}/confirm`, expected_code ? { expected_code } : {});

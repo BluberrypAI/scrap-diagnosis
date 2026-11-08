@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import QuestionCard from '../components/QuestionCard.jsx';
 import Board from '../components/Board.jsx';
+import { PendingReview } from '../components/BranchCards.jsx';
 import { normalizeQuestion } from '../api/normalize.js';
 
 const q = (o) => normalizeQuestion({ unit: 'fact', facts: [o.key], text: '질문', ...o });
@@ -46,5 +47,21 @@ describe('Board', () => {
     render(<Board board={board} onReply={onReply} />);
     await userEvent.click(screen.getByRole('button', { name: '되돌리기' }));
     expect(onReply).toHaveBeenCalledWith({ key: 'material', kind: 'retract' }, expect.any(String));
+  });
+});
+
+describe('PendingReview', () => {
+  const doc = { id: 'd1', filename: 'r.txt', version: 1 };
+  const value = { id: 'v1', fact_key: 'oil_content_pct', value: 2, unit: null, status: 'UNVERIFIED', document_version: 1 };
+
+  it('검수 대기 값을 보여 주고, 개발용 버튼은 onApply가 있을 때만', async () => {
+    const onApply = vi.fn();
+    const { rerender } = render(<PendingReview items={[{ doc, value }]} labels={{ oil_content_pct: '유분' }} onApply={onApply} />);
+    expect(screen.getByText('유분')).toBeInTheDocument();
+    expect(screen.getByText(/v1 · 검수 대기/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: '검수 완료로 적용 (개발용)' }));
+    expect(onApply).toHaveBeenCalledWith([{ doc, value }]);
+    rerender(<PendingReview items={[{ doc, value }]} onApply={null} />);
+    expect(screen.queryByRole('button', { name: /검수 완료로 적용/ })).toBeNull();
   });
 });

@@ -33,7 +33,11 @@
 | `GET /cases` | O | 내 건 목록(`summary` 포함). 배열 그대로, 옵션 `page`·`size`(전체 건수는 `X-Total-Count`). 서버용 `/internal/v1/cases`는 `{items, pagingInfo}` | 200 `CaseOut[]` | 401 |
 | `GET /cases/{id}` | O | 건 상세: `case, current_verdict, verdict_history, latest_turn, documents, handoff, conversation` | 200 `CaseDetail` | 401, 404 |
 | `POST /cases/{id}/diagnosis/messages` | O | 말(`text`) 또는 버튼(`quick_reply`) 한 턴 | 200 `TurnResponse` | 404, 409, 422 |
-| `POST /cases/{id}/documents` | O | 서류 업로드(multipart: `file`, 선택 `facts` JSON) → 같은 턴에 반영 | 201 `{document, turn}` | 404, 409, 413, 415, 422 |
+| `POST /cases/{id}/documents` | O | 서류 업로드(multipart: `file`, 선택 `facts` JSON). `facts`는 검수 대기 후보로만 저장(판정 불변) | 201 `{document, turn, values}` | 404, 409, 413, 415, 422 |
+| `POST /cases/{id}/documents/{doc}/versions` | O | 서류 파일 교체(새 버전). 이전 버전 증빙은 자동 해제 | 201 `{document, turn, values}` | 404, 409, 413, 415, 422 |
+| `POST /cases/{id}/documents/{doc}/values/apply` | O | 검수 완료 값 적용 → EVIDENCED, 다시 평가 | 200 `TurnResponse` | 404, 409, 422 |
+| `POST /cases/{id}/documents/{doc}/revoke` | O | 서류(버전) 효력 해제 `{reason?, document_version?}` | 200 `TurnResponse` | 404, 409 |
+| `POST /cases/{id}/rebase` | O | 규칙 버전이 바뀐 건(`KB_CHANGED`)을 지금 규칙으로 다시 평가 | 200 `TurnResponse` | 404, 409 |
 | `POST /cases/{id}/confirm` | O | 확정 `{expected_code?}`. 서버가 다시 평가한다 | 200 `{case, verdict, handoff, frozen_trace_rows}` | 404, 409 |
 | `POST /cases/{id}/reopen` | O | 확정 건 다시 열기 `{reason?}` | 200 `{case, superseded_verdict, turn}` | 404, 409 |
 | `GET /cases/{id}/trace` | O | 사실 이력·턴 Trace·판정 버전(감사용) | 200 `TraceOut` | 404 |
@@ -76,10 +80,16 @@ POST /cases/C1/diagnosis/messages
                                                   "allow_free_number": true, …}}}
 
 POST /cases/C1/documents   (multipart) file=시험성적서.pdf, facts={"oil_content_pct": 2}   # facts는 선택, 수동 입력
-→ 201 {"document": {"id": "D1", "filename": "…", "extracted_facts": {…}},
-       "turn": {"branch": "FINAL_REVIEW", "verdict": {"status": "CONFIRMABLE", "waste_code": "51-03-01", …},
-                "ui": {"can_confirm": true, "result": {"result_type": "WASTE_CODE", "code": "51-03-01",
-                       "conclusion": "…", "review": "UNVERIFIED"}}}}
+→ 201 {"document": {"id": "D1", "version": 1, "values": [{"id": "V1", "status": "UNVERIFIED", …}], …},
+       "values": [{"id": "V1", "fact_key": "oil_content_pct", "value": 2, "status": "UNVERIFIED", …}],
+       "turn": {"branch": "ASK_FACT", …}}      # 후보일 뿐 판정은 그대로
+
+POST /cases/C1/documents/D1/values/apply   # 서버가 검수를 마친 뒤
+     {"values": [{"value_id": "V1", "document_version": 1, "reviewer": "…", "reviewed_at": "…"}]}
+→ 200 {"branch": "FINAL_REVIEW",
+       "verdict": {"status": "CONFIRMABLE", "waste_code": "51-03-01", …},
+       "ui": {"can_confirm": true, "result": {"result_type": "WASTE_CODE", "code": "51-03-01",
+              "conclusion": "…", "review": "UNVERIFIED"}}}
 
 POST /cases/C1/confirm   {"expected_code": "51-03-01"}
 → 200 {"case": {"status": "CODE_CONFIRMED", "summary": {"status_label": "확정", "code": "51-03-01", …}},
@@ -100,11 +110,14 @@ POST /cases/C1/confirm   {"expected_code": "51-03-01"}
          "ui": {"requested_documents": [{"evidence_type": "TEST_REPORT", "label": "시험성적서", …}],
                 "board": {"documents_needed": […]}}}
 
-POST /cases/C1/documents   file=report.pdf
-→ 201 {"document": {…, "extracted_facts": {"oil_content_pct": {"value": 2, …}}}, "turn": {"branch": "FINAL_REVIEW", …}}
+POST /cases/C1/documents   file=report.pdf, facts={"oil_content_pct": 2}
+→ 201 {"document": {"id": "D1", "version": 1, …}, "values": [{"id": "V1", "status": "UNVERIFIED", …}],
+       "turn": {"branch": "REQUEST_EVIDENCE", …}}         # 검수 대기
+POST /cases/C1/documents/D1/values/apply   {"values": [{"value_id": "V1", "document_version": 1, "reviewer": "…", "reviewed_at": "…"}]}
+→ 200 {"branch": "FINAL_REVIEW", …}
 ```
 
-- 서류 값은 `DOCUMENT` 출처의 `EVIDENCED` 사실이 된다(보드에서 "서류로 확인"). 말한 값과 서류 값이 다르면 `RESOLVE_CONFLICT` 턴이 오고 `ui.conflicts`의 `choices`로 해결한다.
+- 업로드 값은 후보일 뿐이다. 검수 완료로 적용(apply)한 값만 `DOCUMENT` 출처의 `EVIDENCED` 사실이 된다(보드에서 "서류로 확인"). 엔진은 원문과 대조하지 않고 형식(빈 값, "-", 숫자 칸의 글자, 선택지 밖 값)만 거른다. 자세한 흐름·해제·교체는 `server-engine-contract.md` 3.1절. 말한 값과 서류 값이 다르면 `RESOLVE_CONFLICT` 턴이 오고 `ui.conflicts`의 `choices`로 해결한다.
 - 지원 형식: PDF·텍스트 등. 그 밖은 415, 크기 한도(기본 10MiB) 초과는 413.
 - 업로드는 대화 기록에 "서류를 올렸어요: 파일명"으로 남는다.
 
@@ -180,10 +193,10 @@ POST /cases/C1/diagnosis/messages {"quick_reply": {"key": "material", "kind": "r
 |---|---|---|
 | 401 | `X-Company-Id` 없음·모르는 기업(`COMPANY_REQUIRED`) | - |
 | 404 | 건 없음·다른 기업의 건 | - |
-| 409 | 문진 불가 상태(확정 건에 메시지·서류·철회), 이미 확정, 확정 불가, 화면 결론과 서버 판정 불일치, 다른 요청이 먼저 갱신 | `case_status` / `branch`·`reason`·`failure_reason` / `server_code`·`server_outcome` |
+| 409 | 문진 불가 상태(확정 건에 메시지·서류·철회), 이미 확정, 확정 불가, 화면 결론과 서버 판정 불일치, 다른 요청이 먼저 갱신, 규칙 버전 바뀜(`KB_CHANGED`), 서류 버전 바뀜(`DOCUMENT_VERSION_MISMATCH`) | `case_status` / `branch`·`reason`·`failure_reason` / `server_code`·`server_outcome` / `session_kb_version`·`current_kb_version` / `current_version`·`sent_versions` |
 | 413 | 업로드 파일이 너무 큼 | - |
 | 415 | 지원하지 않는 파일 형식 | - |
-| 422 | (A) 요청 형식 오류: `details.errors`. (B) 서류 `facts` 값이 JSON 객체가 아니거나 카탈로그에 맞지 않음 | (B) `detail.message` + `problems` |
+| 422 | (A) 요청 형식 오류: `details.errors`. (B) 서류 값(업로드 `facts`·적용 `values`) 형식 오류: JSON 객체 아님, 카탈로그에 없는 키, 빈 값·"-", 숫자 칸의 글자, 선택지 밖 값, 다른 단위 | (B) `detail.message` + `details.problems` |
 
 동시에 같은 건을 갱신하면 늦은 요청이 409(`다른 요청이 같은 문진을 먼저 갱신했습니다…`)를 받는다. 다시 `GET /cases/{id}`로 읽고 시도하면 된다.
 
