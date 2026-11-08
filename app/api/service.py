@@ -5,6 +5,9 @@
   REQUEST_EVIDENCE/UNSUPPORTED → NEEDS_INFO). FINAL_REVIEW도 확정 전까지는 DIAGNOSING이다.
 - confirm: 서버가 다시 평가해 확정 가능할 때만 → CODE_CONFIRMED (판정 버전 고정, Trace 불변)
 - reopen: CODE_CONFIRMED에서만 → DIAGNOSING (이전 판정은 superseded로 보존)
+- 서류: 업로드 값은 후보(document_values)일 뿐이고, 검수 완료 값 적용(apply)만 EVIDENCED가 된다.
+  효력 해제(revoke)·파일 교체(새 버전)는 그 서류의 증빙을 평가에서 뺀다(이력은 보존).
+- 규칙 버전: 세션의 kb_version이 지금 규칙과 다르면 쓰기는 409 KB_CHANGED, rebase로 맞춘다.
 
 코드 없는 결론(폐기물 아님 등, result_type NO_CODE)도 규칙 엔진이 낸 결론이라 확정할 수 있고,
 건 상태는 분류번호가 있는 결론과 같은 CODE_CONFIRMED다(docs/handoff-contract.md).

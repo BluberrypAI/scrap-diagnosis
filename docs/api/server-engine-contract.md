@@ -40,18 +40,54 @@ scrap-server 담당자가 엔진(waste-diagnosis)을 부를 때 쓰는 규약이
 | `POST /internal/v1/cases` | 건 만들기 + 문진 시작 `{memo?, quantity?, unit?, period?}` | 201 `{case, turn}` | 401, 400, 422 |
 | `GET /internal/v1/cases?status=&page=&size=` | 내 기업의 건 목록(최근 갱신순, `summary` 포함) | 200 `{items, pagingInfo}` | 401, 400, 422 |
 | `GET /internal/v1/cases/{id}` | 건 상세(현재 판정·이력·마지막 턴·서류·인계 객체·대화 기록) | 200 `CaseDetail` | 401, 404 |
-| `POST /internal/v1/cases/{id}/diagnosis/messages` | 문진 답변 `{text}` 또는 `{quick_reply}` (둘 중 하나) | 200 `TurnResponse` | 404, 409 `CASE_NOT_DIAGNOSABLE`, 409 `CONCURRENT_UPDATE`, 422 |
-| `POST /internal/v1/cases/{id}/documents` | 서류 업로드(multipart: `file`, 선택 `facts` JSON 문자열) | 201 `{document, turn}` | 404, 409, 413, 415, 422 |
-| `POST /internal/v1/cases/{id}/confirm` | 확정 `{expected_code?}`. 서버가 지금 사실로 다시 평가한다 | 200 `{case, verdict, handoff, frozen_trace_rows}` | 404, 409 `NOT_CONFIRMABLE`·`ALREADY_CONFIRMED`·`CODE_MISMATCH` |
-| `POST /internal/v1/cases/{id}/reopen` | 확정 건 다시 열기 `{reason?}` | 200 `{case, superseded_verdict, turn}` | 404, 409 `NOT_REOPENABLE` |
+| `POST /internal/v1/cases/{id}/diagnosis/messages` | 문진 답변 `{text}` 또는 `{quick_reply}` (둘 중 하나) | 200 `TurnResponse` | 404, 409 `CASE_NOT_DIAGNOSABLE`·`KB_CHANGED`·`CONCURRENT_UPDATE`, 422 |
+| `POST /internal/v1/cases/{id}/documents` | 서류 업로드(multipart: `file`, 선택 `facts` JSON 문자열). `facts`는 검수 대기 후보(UNVERIFIED)로만 저장하고 판정은 바뀌지 않는다 | 201 `{document, turn, values}` | 404, 409 `CASE_NOT_DIAGNOSABLE`·`KB_CHANGED`, 413, 415, 422 |
+| `POST /internal/v1/cases/{id}/documents/{doc}/versions` | 같은 서류의 파일 교체(새 버전, multipart는 업로드와 같음). 이전 버전에서 적용된 값·대기 후보는 자동으로 효력 해제(REVOKED) | 201 `{document, turn, values}` | 404 `DOCUMENT_NOT_FOUND`, 409, 413, 415, 422 |
+| `POST /internal/v1/cases/{id}/confirm` | 확정 `{expected_code?}`. 서버가 지금 사실로 다시 평가한다 | 200 `{case, verdict, handoff, frozen_trace_rows}` | 404, 409 `NOT_CONFIRMABLE`·`ALREADY_CONFIRMED`·`CODE_MISMATCH`·`KB_CHANGED` |
+| `POST /internal/v1/cases/{id}/reopen` | 확정 건 다시 열기 `{reason?}`. 규칙 버전이 바뀌었으면 지금 규칙으로 맞춘다(Trace `REOPEN` → `REBASE`) | 200 `{case, superseded_verdict, turn}` | 404, 409 `NOT_REOPENABLE` |
 | `GET /internal/v1/cases/{id}/trace` | 근거 추적(세션·사실·턴·판정) | 200 `TraceOut` | 404 |
 | `GET /internal/v1/catalog/facts` | 사실 카탈로그 요약(라벨·선택지) | 200 `CatalogFact[]` | 401 |
-| `POST /internal/v1/cases/{id}/documents/{doc}/values/apply` | 검수 완료된 서류 값 적용 | (예정) | |
-| `POST /internal/v1/cases/{id}/documents/{doc}/revoke` | 서류 효력 해제 | (예정) | |
-| `POST /internal/v1/cases/{id}/rebase` | 현재 규칙 버전에 맞춰 다시 평가 | (예정) | `KB_CHANGED`와 한 쌍 |
+| `POST /internal/v1/cases/{id}/documents/{doc}/values/apply` | 검수 완료된 서류 값 적용 `{values: [...]}`(3.1절). EVIDENCED로 반영하고 다시 평가 | 200 `TurnResponse` | 404 `DOCUMENT_NOT_FOUND`, 409 `DOCUMENT_VERSION_MISMATCH`·`CASE_NOT_DIAGNOSABLE`·`KB_CHANGED`, 422 |
+| `POST /internal/v1/cases/{id}/documents/{doc}/revoke` | 서류 효력 해제 `{reason?, document_version?}`. 버전을 빼면 모든 버전 | 200 `TurnResponse` | 404, 409 `DOCUMENT_VERSION_MISMATCH`·`CASE_NOT_DIAGNOSABLE`·`KB_CHANGED` |
+| `POST /internal/v1/cases/{id}/rebase` | 저장된 규칙 버전이 바뀐 건을 지금 규칙으로 다시 평가(본문 없음). 확정 건은 409 | 200 `TurnResponse` | 404, 409 `CASE_NOT_DIAGNOSABLE` |
+| `POST /internal/v1/cases/{id}/documents/{doc}/extract` | 서류 자동 읽기(OCR·AI, `document-extraction-v1`) | 미구현 | 값은 사람이 입력한다 |
 | `DELETE /internal/v1/companies/{id}/data` | 기업 탈퇴 시 데이터 삭제(멱등) | (예정) | |
 
-호출 순서: 건 생성 → (메시지·서류 반복) → 확정 → 필요하면 reopen → 다시 메시지·확정. 건 상태 전이는 `api-spec.md` 7절.
+호출 순서: 건 생성 → (메시지·서류 업로드 → 검수 → 적용 반복) → 확정 → 필요하면 reopen → 다시 메시지·확정. 건 상태 전이는 `api-spec.md` 7절. 모든 경로는 루트(참조 화면·개발용)에도 같은 모양으로 있다.
+
+### 3.1 서류 값: 후보 → 검수 → 적용
+
+엔진은 서류 원문과 값을 대조하지 않는다(값이 맞는지 엔진이 판단할 수 없다). **검수가 끝난 값만 판정에 쓴다.** 자동 읽기(OCR·AI)는 하지 않으므로 값은 사람이 입력한다.
+
+1. **업로드**: `POST …/documents`(multipart `file`, 선택 `facts` = `{"사실 키": 값}` JSON 문자열). 값은 `document_values`에 `UNVERIFIED` 후보로 저장된다. 판정·사실 이력은 바뀌지 않는다(응답 `turn`은 같은 판정). 응답 `values`와 `document.values`에 후보가 있다(`id`, `fact_key`, `value`, `document_version`, `status`).
+2. **형식 검사**(업로드·적용 모두): 카탈로그에 없는 키, 빈 값(`""`, `"-"`, `null`), 숫자 칸의 글자(`"약 2"`, `"5mg"`, `"nan"`), 선택지 밖 값, 카탈로그 단위와 다른 `unit`은 `422 VALIDATION_ERROR`이고 `details.problems[{key, value, reason, index?, value_id?}]`에 항목별로 나온다. 하나라도 틀리면 아무것도 저장하지 않는다.
+3. **적용**: 서버가 검수 결과를 보낸다.
+
+```json
+POST /internal/v1/cases/C1/documents/D1/values/apply
+{"values": [
+  {"value_id": "V1", "document_version": 1, "reviewer": "검수자 id", "reviewed_at": "2026-11-09T10:00:00+09:00"},
+  {"value_id": "V2", "value": 7, "document_version": 1, "reviewer": "…", "reviewed_at": "…"},
+  {"fact_key": "ph", "value": 6.5, "unit": "pH", "document_version": 1, "reviewer": "…", "reviewed_at": "…"},
+  {"value_id": "V3", "reject": true, "document_version": 1, "reviewer": "…", "reviewed_at": "…"}
+]}
+```
+
+- `value_id`(후보 행) 또는 `fact_key` 중 하나는 있어야 한다. `value_id`이면서 `value`를 빼면 후보 값을 그대로 쓰고, 주면 검수에서 고친 값으로 쓴다(행 `note`에 남음). `fact_key`만 주면 새 값 행을 만든다. `reject: true`는 적용하지 않고 후보를 `REJECTED`로 둔다.
+- 적용한 값은 사실 이력에 `EVIDENCED`, `source_type: DOCUMENT`, `source_ref: "D1@v1"`(문서 id + 버전)로 append되고 다시 평가한 `TurnResponse`를 돌려준다. 값 행은 `APPLIED`(+`reviewer`, `reviewed_at`), Trace에는 `APPLY` 행이 남는다. 화면용 `document_id`·인계 객체 `evidence[].document_id`는 버전 없는 문서 id다.
+- `document_version`이 지금 서류 버전과 다르면(그 사이 파일 교체) `409 DOCUMENT_VERSION_MISMATCH`(`details: {document_id, current_version, sent_versions}`). 최신 버전 기준으로 다시 검수한다.
+4. **효력 해제**: `POST …/documents/D1/revoke` `{reason?, document_version?}`. 그 서류(버전을 주면 그 버전)에서 온 증빙을 평가에서 뺀다. 사실 이력은 지우지 않고 키마다 해제 표시 행(`status: UNKNOWN`, `revoked: true`, `source_ref: "D1"` 또는 `"D1@v2"`)을 append한다. 적용된 값 행은 `REVOKED`, Trace는 `REVOKE`. 해제 뒤 같은 값을 다시 적용(apply)하면 다시 유효하다.
+5. **파일 교체**: `POST …/documents/D1/versions`(multipart). 서류 버전이 1 오르고 파일 정보가 새 파일로 바뀐다. 이전 버전에서 적용된 값과 대기 후보는 자동으로 `REVOKED`(Trace `DOCUMENT`에 `replaced_version`, `revoked_keys`). 새 파일의 `facts`는 새 버전의 후보다.
+
+값 행 상태: `UNVERIFIED`(검수 대기, 판정에 안 씀) → `APPLIED` | `REJECTED`, `APPLIED` → `REVOKED`(해제·교체). 이 기능 전에 업로드로 바로 EVIDENCED가 된 사실(`source_ref`가 버전 없는 문서 id)도 revoke·교체로 해제된다.
+
+### 3.2 규칙 버전 불일치(KB_CHANGED)와 rebase
+
+건마다 문진을 시작할 때의 규칙 버전(`kb_version`, 규칙 데이터 파일 해시)을 저장한다. 엔진의 규칙이 바뀐 뒤 그 건을 다시 부르면:
+- 쓰기(메시지·서류 업로드·교체·적용·해제·확정)는 `409 KB_CHANGED`(`details: {session_kb_version, current_kb_version}`). 조용히 새 규칙으로 이어 가지 않는다.
+- 읽기(`GET` 상세·목록·trace)는 그대로 되고 `case.kb_changed: true`가 붙는다.
+- `POST …/rebase`(본문 없음): 같은 사실을 지금 규칙으로 다시 평가하고 저장된 규칙 버전을 바꾼다. Trace에 `REBASE`(`from_kb_version`, `to_kb_version`, 테이블 버전 전후) 행이 남는다. 응답은 `TurnResponse`. 그 뒤 평소처럼 이어 간다.
+- 확정된 건(`CODE_CONFIRMED`)은 rebase할 수 없다(409 `CASE_NOT_DIAGNOSABLE`). 확정된 판정 버전은 만들 때의 `kb_version` 그대로 보존된다. 확정 건을 `reopen`하면 그 자리에서 지금 규칙으로 맞춘다(Trace `REOPEN` → `REBASE`).
 
 ### 루트 경로와의 차이
 
@@ -95,18 +131,20 @@ scrap-server 담당자가 엔진(waste-diagnosis)을 부를 때 쓰는 규약이
 | 401 | `AUTH_REQUIRED` | `Authorization` 없음·형식 오류·토큰 불일치, 또는 prod인데 엔진에 토큰 미설정 | - |
 | 401 / 400 | `COMPANY_REQUIRED` | `X-Company-Id` 없음. 내부 경로는 400, 루트 경로는 401(모르는 기업도 401) | - |
 | 404 | `CASE_NOT_FOUND` | 건이 없거나 다른 기업의 건 | - |
+| 404 | `DOCUMENT_NOT_FOUND` | 그 건에 없는 서류 id | - |
 | 404 | `ENDPOINT_DISABLED` | prod에서 막힌 개발용 경로 | - |
 | 404 / 405 | `NOT_FOUND` | 없는 경로(프레임워크 기본) | - |
-| 409 | `CASE_NOT_DIAGNOSABLE` | 문진할 수 없는 상태(확정 건에 메시지·서류, 세션 없음). reopen 후 진행 | `case_status` |
+| 409 | `CASE_NOT_DIAGNOSABLE` | 문진할 수 없는 상태(확정 건에 메시지·서류·적용·해제·rebase, 세션 없음). reopen 후 진행 | `case_status` |
 | 409 | `ALREADY_CONFIRMED` | 이미 확정된 건을 다시 확정 | `case_status` |
 | 409 | `NOT_CONFIRMABLE` | 아직 확정 조건을 채우지 못함 | `branch`, `reason`, `failure_reason` |
 | 409 | `NOT_REOPENABLE` | 확정되지 않은 건을 reopen | `case_status` |
 | 409 | `CODE_MISMATCH` | `expected_code`가 서버 재평가 결론과 다름 | `server_code`, `server_outcome` |
 | 409 | `CONCURRENT_UPDATE` | 같은 건을 다른 요청이 먼저 갱신. 다시 `GET`하고 재시도 | - |
-| 409 | `KB_CHANGED` | (예정) 저장된 규칙 버전과 현재 규칙이 다름. `rebase` 후 진행 | `session_kb_version`, `current_kb_version` |
+| 409 | `KB_CHANGED` | 저장된 규칙 버전과 현재 규칙이 다름(3.2절). `rebase` 후 진행 | `session_kb_version`, `current_kb_version` |
+| 409 | `DOCUMENT_VERSION_MISMATCH` | 적용·해제에 보낸 `document_version`이 지금 서류 버전과 다름(파일 교체됨) 또는 없는 버전 | `document_id`, `current_version`, `sent_versions` |
 | 413 | `FILE_TOO_LARGE` | 업로드가 `MAX_UPLOAD_BYTES`(기본 10MB) 초과 | - |
 | 415 | `UNSUPPORTED_DOCUMENT` | 지원하지 않는 파일 형식 | - |
-| 422 | `VALIDATION_ERROR` | 요청 형식 오류, 또는 서류 `facts` 값 오류 | 형식 오류: `errors[{loc,msg,type}]`. 서류 값: `problems[{key,…}]` |
+| 422 | `VALIDATION_ERROR` | 요청 형식 오류, 또는 서류 값 형식 오류(업로드 `facts`·적용 `values`) | 형식 오류: `errors[{loc,msg,type}]`. 서류 값: `problems[{key, value, reason, index?, value_id?}]` |
 | 5xx | `INTERNAL_ERROR` | 엔진 내부 오류 | - |
 
 서버는 모르는 `code`를 받으면 HTTP 상태만으로 처리하고 `message`를 그대로 기록한다.
@@ -121,4 +159,4 @@ scrap-server 담당자가 엔진(waste-diagnosis)을 부를 때 쓰는 규약이
 | `DB_CREATE_ALL` | `true` | 운영은 `false`로 두고 `alembic upgrade head` |
 | `MAX_UPLOAD_BYTES` | 10485760 | 서류 업로드 상한 |
 
-이미지는 `Dockerfile`(uvicorn, 포트 8030). 기존 개발 DB에는 `alembic upgrade head`(0004: `companies.external_id`)가 필요하다.
+이미지는 `Dockerfile`(uvicorn, 포트 8030). 기존 개발 DB에는 `alembic upgrade head`(0004: `companies.external_id`, 0005: `document_values`, `documents.version`, `fact_records.revoked`)가 필요하다.
