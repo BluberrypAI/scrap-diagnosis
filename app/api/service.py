@@ -21,7 +21,7 @@ import json
 from datetime import date
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.agent import templates
@@ -54,10 +54,11 @@ from app.rules.model import KnowledgeBase
 
 
 class ServiceError(Exception):
-    def __init__(self, status: int, message: str, **extra: Any):
+    def __init__(self, status: int, message: str, code: str | None = None, **extra: Any):
         super().__init__(message)
         self.status = status
         self.message = message
+        self.code = code
         self.extra = extra
 
 
@@ -88,19 +89,28 @@ class CaseService:
     def get_case(self, case_id: str) -> WasteCase:
         case = self.db.get(WasteCase, case_id)
         if case is None or case.company_id != self.company.id:
-            raise ServiceError(404, "건을 찾을 수 없습니다")  # 다른 기업의 건도 404
+            raise ServiceError(
+                404, "건을 찾을 수 없습니다", "CASE_NOT_FOUND"
+            )  # 다른 기업의 건도 404
         return case
 
-    def list_cases(self, status: CaseStatus | None) -> list[WasteCase]:
-        q = select(WasteCase).where(WasteCase.company_id == self.company.id)
+    def list_cases(
+        self, status: CaseStatus | None, *, page: int | None = None, size: int | None = None
+    ) -> tuple[list[WasteCase], int]:
+        """(건 목록, 전체 건수). page·size를 주면 그 쪽만 자른다(1부터)."""
+        cond = [WasteCase.company_id == self.company.id]
         if status is not None:
-            q = q.where(WasteCase.status == status.value)
-        return list(self.db.scalars(q.order_by(WasteCase.updated_at.desc())).all())
+            cond.append(WasteCase.status == status.value)
+        total = self.db.scalar(select(func.count()).select_from(WasteCase).where(*cond)) or 0
+        q = select(WasteCase).where(*cond).order_by(WasteCase.updated_at.desc(), WasteCase.id)
+        if page is not None and size is not None:
+            q = q.offset((page - 1) * size).limit(size)
+        return list(self.db.scalars(q).all()), total
 
     def session_record(self, case: WasteCase) -> DiagnosisSessionRecord:
         rec = self.repo.latest_for_case(case.id)
         if rec is None:
-            raise ServiceError(409, "문진 세션이 없습니다")
+            raise ServiceError(409, "문진 세션이 없습니다", "CASE_NOT_DIAGNOSABLE")
         return rec
 
     def session_id_of(self, case: WasteCase) -> str | None:
@@ -251,6 +261,7 @@ class CaseService:
             raise ServiceError(
                 409,
                 f"{case.status} 상태에서는 문진할 수 없습니다(확정 건은 reopen 후 진행)",
+                "CASE_NOT_DIAGNOSABLE",
                 case_status=case.status,
             )
         return self.repo.load(self.session_record(case))
@@ -383,9 +394,11 @@ class CaseService:
         try:
             data = json.loads(raw)
         except json.JSONDecodeError as exc:
-            raise ServiceError(422, f"facts는 JSON 객체여야 합니다: {exc}") from exc
+            raise ServiceError(
+                422, f"facts는 JSON 객체여야 합니다: {exc}", "VALIDATION_ERROR"
+            ) from exc
         if not isinstance(data, dict):
-            raise ServiceError(422, "facts는 JSON 객체여야 합니다")
+            raise ServiceError(422, "facts는 JSON 객체여야 합니다", "VALIDATION_ERROR")
         problems = []
         for k, v in data.items():
             if k not in self.kb.catalog:
@@ -396,7 +409,9 @@ class CaseService:
             except AnswerError as exc:
                 problems.append({"key": k, "reason": str(exc)})
         if problems:
-            raise ServiceError(422, "문서 사실 값이 올바르지 않습니다", problems=problems)
+            raise ServiceError(
+                422, "문서 사실 값이 올바르지 않습니다", "VALIDATION_ERROR", problems=problems
+            )
         return data
 
     # ---- 확정·재개 -----------------------------------------------------------------------
@@ -409,7 +424,9 @@ class CaseService:
         다르면 409이며 server_code·server_outcome을 돌려준다. 보내지 않으면 비교하지 않는다.
         """
         if case.status == CaseStatus.CODE_CONFIRMED.value:
-            raise ServiceError(409, "이미 확정된 건입니다", case_status=case.status)
+            raise ServiceError(
+                409, "이미 확정된 건입니다", "ALREADY_CONFIRMED", case_status=case.status
+            )
         ls = self._open_session(case)
         s = ls.session
         step = s.peek()  # 클라이언트를 믿지 않고 서버가 지금 사실로 다시 평가한다
@@ -418,6 +435,7 @@ class CaseService:
             raise ServiceError(
                 409,
                 "아직 확정할 수 없습니다",
+                "NOT_CONFIRMABLE",
                 branch=d.branch.value,
                 reason=d.reason,
                 failure_reason=d.failure_reason,
@@ -430,6 +448,7 @@ class CaseService:
             raise ServiceError(
                 409,
                 "화면의 결론과 서버 판정이 다릅니다",
+                "CODE_MISMATCH",
                 server_code=decided.code,
                 server_outcome=outcome,
             )
@@ -502,7 +521,9 @@ class CaseService:
         self, case: WasteCase, reason: str | None
     ) -> tuple[VerdictRecord | None, TurnResponse]:
         if case.status != CaseStatus.CODE_CONFIRMED.value:
-            raise ServiceError(409, "확정된 건만 다시 열 수 있습니다", case_status=case.status)
+            raise ServiceError(
+                409, "확정된 건만 다시 열 수 있습니다", "NOT_REOPENABLE", case_status=case.status
+            )
         current = self.repo.current_verdict(case.id)
         if current is not None:
             now = utcnow()

@@ -2,7 +2,7 @@
 name = "waste-diagnosis"
 version = "0.1.0"
 description = "폐기물 코드 판정 엔진과 문진 에이전트"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.20.1",
     "fastapi>=0.162.2",
@@ -34,7 +34,7 @@ testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py312"
 # 서브에이전트 작업 공간(.claude/worktrees)은 검사하지 않는다
 extend-exclude = [".claude"]
 

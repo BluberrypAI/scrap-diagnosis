@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     # M4: API·영속화. 개발은 SQLite(저장소 기준 var/app.db), 운영은 PostgreSQL URL.
     database_url: str = f"sqlite:///{(ROOT / 'var' / 'app.db').as_posix()}"
     db_create_all: bool = True  # 개발 편의: 시작할 때 테이블 생성. 운영은 alembic upgrade head
+    # 배포 환경. prod: 서비스 토큰 필수, 개발용 엔드포인트(기업 생성·수정, 루트 경로) 차단
+    app_env: Literal["dev", "prod"] = "dev"
+    # scrap-server가 /internal/v1을 부를 때 보내는 Bearer 토큰(ENGINE_SERVICE_TOKEN). prod 필수.
+    engine_service_token: str | None = None
     max_upload_bytes: int = 10 * 1024 * 1024
     document_text_limit: int = 20000  # 문서 추출 때 LLM에 넘기는 최대 글자 수
 

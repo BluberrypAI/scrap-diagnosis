@@ -7,12 +7,13 @@ from contextlib import asynccontextmanager
 from datetime import date
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from sqlalchemy import Engine
 
 from app.agent.llm_client import LLMClient
-from app.api.deps import _UNSET, AppContainer
-from app.api.routes import router
+from app.api.deps import _UNSET, INTERNAL_PREFIX, AppContainer, require_service_auth
+from app.api.errors import install_error_handlers
+from app.api.routes import case_router, dev_router, internal_list_router, root_list_router
 from app.config import Settings, get_settings
 from app.rules.model import KnowledgeBase
 
@@ -50,7 +51,15 @@ def create_app(
         lifespan=lifespan,
     )
     app.state.container = container
-    app.include_router(router)
+    install_error_handlers(app)
+    # 루트 경로: 참조 화면·개발용(X-Company-Id만). prod에서는 company 의존성이 404로 막는다.
+    app.include_router(dev_router)
+    app.include_router(root_list_router)
+    app.include_router(case_router)
+    # /internal/v1: scrap-server용. 같은 핸들러를 서비스 토큰 인증 아래에 한 번 더 올린다.
+    internal_deps = [Depends(require_service_auth)]
+    for r in (internal_list_router, case_router):
+        app.include_router(r, prefix=INTERNAL_PREFIX, tags=["internal"], dependencies=internal_deps)
 
     @app.get("/health", tags=["meta"])
     def health() -> dict:

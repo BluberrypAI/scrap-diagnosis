@@ -7,6 +7,7 @@ KB·LLM·DB 엔진은 앱마다 한 번 만든다(처음 쓸 때 또는 시작 �
 from __future__ import annotations
 
 import hashlib
+import hmac
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from datetime import date
@@ -15,14 +16,15 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import Depends, Header, Request
-from sqlalchemy import Engine
+from sqlalchemy import Engine, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.agent.llm_client import LLMClient, make_client
 from app.api.errors import api_error
 from app.config import Settings, get_settings
 from app.persistence.db import create_all, make_engine, make_sessionmaker
-from app.persistence.models import Company
+from app.persistence.models import Company, new_id
 from app.rules.loader import load_kb
 from app.rules.model import KnowledgeBase
 
@@ -169,19 +171,89 @@ def get_settings_dep(request: Request) -> Settings:
 DbDep = Annotated[Session, Depends(get_db)]
 
 
+INTERNAL_PREFIX = "/internal/v1"
+
+
+def is_internal(request: Request) -> bool:
+    return request.url.path.startswith(INTERNAL_PREFIX + "/")
+
+
+def require_service_auth(
+    request: Request,
+    settings: SettingsDep,
+    authorization: Annotated[str | None, Header()] = None,
+) -> None:
+    """/internal/v1 서비스 인증: `Authorization: Bearer <ENGINE_SERVICE_TOKEN>`.
+
+    - 토큰을 설정했으면 dev·prod 모두 요구한다(상수 시간 비교).
+    - 토큰이 없고 prod면 모든 내부 호출을 거절한다(설정 누락으로 열리지 않게).
+    - 토큰이 없고 dev면 통과한다(로컬 개발 편의).
+    """
+    expected = settings.engine_service_token
+    if not expected:
+        if settings.app_env == "prod":
+            raise api_error(
+                401, "서비스 토큰이 설정되지 않아 내부 API를 쓸 수 없습니다", "AUTH_REQUIRED"
+            )
+        return
+    scheme, _, given = (authorization or "").partition(" ")
+    ok = scheme.lower() == "bearer" and hmac.compare_digest(
+        given.strip().encode(), expected.encode()
+    )
+    if not ok:
+        raise api_error(
+            401,
+            "서비스 토큰이 없거나 올바르지 않습니다",
+            "AUTH_REQUIRED",
+        )
+
+
+def require_dev_endpoint(settings: SettingsDep) -> None:
+    """개발용 엔드포인트(기업 생성·수정): prod에서는 없는 것처럼 404."""
+    if settings.app_env == "prod":
+        raise api_error(404, "사용할 수 없는 경로입니다", "ENDPOINT_DISABLED")
+
+
+def _provision_company(db: Session, external_id: str) -> Company:
+    """서버 기업 ID를 처음 보면 최소 내부 레코드를 만든다(동시 첫 호출은 유일 제약으로 합친다)."""
+    company = db.scalars(select(Company).where(Company.external_id == external_id)).first()
+    if company is not None:
+        return company
+    company = Company(id=new_id(), name=f"기업 {external_id}", external_id=external_id, profile={})
+    db.add(company)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        company = db.scalars(select(Company).where(Company.external_id == external_id)).one()
+    return company
+
+
 def current_company(
+    request: Request,
     db: DbDep,
+    settings: SettingsDep,
     x_company_id: Annotated[str | None, Header()] = None,
 ) -> Company:
-    """임시 기업 격리: X-Company-Id 헤더.
+    """기업 격리.
 
-    TODO(auth): 로그인 토큰에서 사용자·기업을 꺼내고, 세부 권한(계정별 역할)을 적용한다.
+    - `/internal/v1`: 서비스 토큰이 확인된 요청에서만 `X-Company-Id`(서버 기업 ID)를 믿는다.
+      처음 보는 ID는 자동 생성한다.
+    - 루트 경로(참조 화면·개발용): `X-Company-Id`는 개발용 기업(POST /companies) id.
+      prod에서는 헤더만으로 접근할 수 없으므로 막는다.
     """
+    if is_internal(request):
+        require_service_auth(request, settings, request.headers.get("authorization"))
+        if not x_company_id:
+            raise api_error(400, "X-Company-Id 헤더가 필요합니다", "COMPANY_REQUIRED")
+        return _provision_company(db, x_company_id)
+    if settings.app_env == "prod":
+        raise api_error(404, "사용할 수 없는 경로입니다", "ENDPOINT_DISABLED")
     if not x_company_id:
-        raise api_error(401, "X-Company-Id 헤더가 필요합니다")
+        raise api_error(401, "X-Company-Id 헤더가 필요합니다", "COMPANY_REQUIRED")
     company = db.get(Company, x_company_id)
     if company is None:
-        raise api_error(401, "알 수 없는 기업입니다")
+        raise api_error(401, "알 수 없는 기업입니다", "COMPANY_REQUIRED")
     return company
 
 

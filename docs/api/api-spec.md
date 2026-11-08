@@ -12,14 +12,12 @@
 
 형식을 바꾸면 해당 계약 문서와 이 문서, `openapi.json`을 함께 고친다. 기존 필드는 지우거나 뜻을 바꾸지 않고 추가만 한다.
 
-## 2. 인증(임시)
+## 2. 인증
 
-로그인은 다른 팀이 만든다. 지금은 헤더 한 줄로 기업을 구분한다.
-
-- `X-Company-Id: <기업 id>` 헤더가 필요하다. 없거나 모르는 기업이면 401.
-- 인증 없이 부르는 API: `GET /health`, `POST /companies`(개발용 가입), `GET /companies/profile-options`, `GET /catalog/facts`.
+- **scrap-server → 엔진:** `/internal/v1/...` 경로에 `Authorization: Bearer <ENGINE_SERVICE_TOKEN>` + 서버가 인증한 `X-Company-Id`를 보낸다. 경로·인증·오류 코드·페이징은 **`docs/api/server-engine-contract.md`**가 기준이다.
+- **참조 화면·개발용(루트 경로, 이 문서의 3절 이하 표기):** `X-Company-Id: <개발용 기업 id>` 헤더만 쓴다. 없거나 모르는 기업이면 401. `APP_ENV=prod`에서는 막힌다.
+- 인증 없이 부르는 API: `GET /health`, `POST /companies`(개발용 가입, prod 404), `GET /companies/profile-options`, `GET /catalog/facts`.
 - 다른 기업의 건은 404로 보인다(존재 여부를 알려 주지 않는다).
-- 로그인이 붙으면 이 헤더만 토큰에서 꺼낸 기업 id로 바뀐다(`app/api/deps.py`의 `current_company`, TODO(auth)). 요청·응답 형식은 그대로다.
 
 ## 3. 엔드포인트
 
@@ -32,7 +30,7 @@
 | `GET /companies/profile-options` | - | 기업 정보 화면 선택지(배출시설 종류) | 200 | - |
 | `GET /catalog/facts` | - | 사실 카탈로그 요약(보드 편집·라벨용, 내부 사실 제외) | 200 `CatalogFact[]` | - |
 | `POST /cases` | O | 건 만들기 + 문진 시작 `{memo?, quantity?, unit?, period?}` | 201 `{case, turn}` | 401, 422 |
-| `GET /cases` | O | 내 건 목록(`summary` 포함) | 200 `CaseOut[]` | 401 |
+| `GET /cases` | O | 내 건 목록(`summary` 포함). 배열 그대로, 옵션 `page`·`size`(전체 건수는 `X-Total-Count`). 서버용 `/internal/v1/cases`는 `{items, pagingInfo}` | 200 `CaseOut[]` | 401 |
 | `GET /cases/{id}` | O | 건 상세: `case, current_verdict, verdict_history, latest_turn, documents, handoff, conversation` | 200 `CaseDetail` | 401, 404 |
 | `POST /cases/{id}/diagnosis/messages` | O | 말(`text`) 또는 버튼(`quick_reply`) 한 턴 | 200 `TurnResponse` | 404, 409, 422 |
 | `POST /cases/{id}/documents` | O | 서류 업로드(multipart: `file`, 선택 `facts` JSON) → 같은 턴에 반영 | 201 `{document, turn}` | 404, 409, 413, 415, 422 |
@@ -176,16 +174,16 @@ POST /cases/C1/diagnosis/messages {"quick_reply": {"key": "material", "kind": "r
 
 ## 8. 오류 형식
 
-모든 오류(FastAPI 요청 검증 422 제외)는 `{"detail": {"message": "…", …추가 필드}}`다. 화면은 `detail.message`를 보여 준다. 요청 형식 검증 오류(422)는 FastAPI 기본 형식 `{"detail": [{"loc": […], "msg": "…", "type": "…"}]}`이고, 화면은 "입력값을 확인해 주세요"로 처리한다.
+모든 오류는 `{"detail": {"code": "CASE_NOT_FOUND", "message": "…", "details": {…}}}`다. `code`는 기계용(전체 표는 `server-engine-contract.md` 5절), `message`는 화면에 보여 주는 한국어 문장이다. 요청 형식 검증 오류(422)도 같은 형식(`VALIDATION_ERROR`, `details.errors[{loc,msg,type}]`)이다. 기존 호환을 위해 `details`의 키가 `detail` 바로 아래에도 남아 있다.
 
 | 코드 | 상황 | `detail` 추가 필드 |
 |---|---|---|
-| 401 | `X-Company-Id` 없음·모르는 기업 | - |
+| 401 | `X-Company-Id` 없음·모르는 기업(`COMPANY_REQUIRED`) | - |
 | 404 | 건 없음·다른 기업의 건 | - |
 | 409 | 문진 불가 상태(확정 건에 메시지·서류·철회), 이미 확정, 확정 불가, 화면 결론과 서버 판정 불일치, 다른 요청이 먼저 갱신 | `case_status` / `branch`·`reason`·`failure_reason` / `server_code`·`server_outcome` |
 | 413 | 업로드 파일이 너무 큼 | - |
 | 415 | 지원하지 않는 파일 형식 | - |
-| 422 | (A) 요청 형식 오류: 기본 형식. (B) 서류 `facts` 값이 JSON 객체가 아니거나 카탈로그에 맞지 않음 | (B) `detail.message` + `problems` |
+| 422 | (A) 요청 형식 오류: `details.errors`. (B) 서류 `facts` 값이 JSON 객체가 아니거나 카탈로그에 맞지 않음 | (B) `detail.message` + `problems` |
 
 동시에 같은 건을 갱신하면 늦은 요청이 409(`다른 요청이 같은 문진을 먼저 갱신했습니다…`)를 받는다. 다시 `GET /cases/{id}`로 읽고 시도하면 된다.
 
