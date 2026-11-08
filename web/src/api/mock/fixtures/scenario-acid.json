@@ -1,0 +1,3586 @@
+{
+  "id": "acid",
+  "title": "도금 라인 폐황산 (시험성적서 요청)",
+  "match": [
+    "황산",
+    "폐산",
+    "염산",
+    "도금",
+    "산·알칼리"
+  ],
+  "start": {
+    "memo": "a_contam",
+    "empty": "a_contam"
+  },
+  "memo_facts": [
+    {
+      "key": "material_group",
+      "label": "소재 분류",
+      "value": "acid_alkali",
+      "value_label": "산·알칼리",
+      "status": "CLAIMED",
+      "source_type": "UTTERANCE",
+      "source_label": "말함",
+      "quote": "도금 라인 폐황산",
+      "recorded_at": "2026-11-08T21:59:32+09:00",
+      "editable": true,
+      "edit": {
+        "input": "choice",
+        "value_type": "enum",
+        "unit": null,
+        "options": [
+          {
+            "value": "plastic",
+            "label": "플라스틱·고무"
+          },
+          {
+            "value": "metal",
+            "label": "금속"
+          },
+          {
+            "value": "slag",
+            "label": "광재(슬래그)"
+          },
+          {
+            "value": "dust_ash",
+            "label": "분진·소각재"
+          },
+          {
+            "value": "sand",
+            "label": "주물사·폐사·내화물"
+          },
+          {
+            "value": "sludge",
+            "label": "오니(슬러지)"
+          },
+          {
+            "value": "oil",
+            "label": "기름"
+          },
+          {
+            "value": "acid_alkali",
+            "label": "산·알칼리"
+          },
+          {
+            "value": "solvent_paint",
+            "label": "용제·페인트"
+          },
+          {
+            "value": "wood_paper_fiber",
+            "label": "목재·종이·섬유·유리"
+          },
+          {
+            "value": "catalyst_adsorbent",
+            "label": "촉매·흡착제"
+          },
+          {
+            "value": "product",
+            "label": "제품·복합물"
+          },
+          {
+            "value": "special",
+            "label": "여러 소재가 섞여 나누기 어려운 것"
+          }
+        ]
+      }
+    },
+    {
+      "key": "material",
+      "label": "소재",
+      "value": "h2so4",
+      "value_label": "폐황산",
+      "status": "CLAIMED",
+      "source_type": "UTTERANCE",
+      "source_label": "말함",
+      "quote": "도금 라인 폐황산",
+      "recorded_at": "2026-11-08T21:59:32+09:00",
+      "editable": true,
+      "edit": {
+        "input": "choice",
+        "value_type": "enum",
+        "unit": null,
+        "options": [
+          {
+            "value": "pp",
+            "label": "PP(폴리프로필렌)"
+          },
+          {
+            "value": "pe",
+            "label": "PE(폴리에틸렌)"
+          },
+          {
+            "value": "pet",
+            "label": "PET"
+          },
+          {
+            "value": "ps",
+            "label": "PS(폴리스티렌, 발포 아님)"
+          },
+          {
+            "value": "abs",
+            "label": "ABS 수지"
+          },
+          {
+            "value": "phenol_resin",
+            "label": "페놀수지"
+          },
+          {
+            "value": "other_resin",
+            "label": "그 밖의 합성수지(PC, 나일론 등)"
+          },
+          {
+            "value": "pvc",
+            "label": "PVC(염화비닐)"
+          },
+          {
+            "value": "pu_foam",
+            "label": "폴리우레탄폼"
+          },
+          {
+            "value": "eps",
+            "label": "발포합성수지(스티로폼)"
+          },
+          {
+            "value": "plastic_packaging",
+            "label": "플라스틱 포장재"
+          },
+          {
+            "value": "fishing_net",
+            "label": "폐어망"
+          },
+          {
+            "value": "aqua_buoy",
+            "label": "양식용 부자"
+          },
+          {
+            "value": "rubber",
+            "label": "합성고무"
+          },
+          {
+            "value": "hcl",
+            "label": "폐염산"
+          },
+          {
+            "value": "h2so4",
+            "label": "폐황산"
+          },
+          {
+            "value": "hno3",
+            "label": "폐질산"
+          },
+          {
+            "value": "hf",
+            "label": "폐불산"
+          },
+          {
+            "value": "acid_lcd_semi",
+            "label": "LCD·반도체 공정 폐산"
+          },
+          {
+            "value": "acid_other",
+            "label": "그 밖의 폐산"
+          },
+          {
+            "value": "caustic_solution",
+            "label": "폐가성소다수(수산화나트륨 수용액)"
+          },
+          {
+            "value": "ammonia_solution",
+            "label": "폐암모니아수"
+          },
+          {
+            "value": "naoh_solid",
+            "label": "고체 수산화나트륨"
+          },
+          {
+            "value": "koh_solid",
+            "label": "고체 수산화칼륨"
+          },
+          {
+            "value": "alkali_other",
+            "label": "그 밖의 폐알칼리(액체)"
+          },
+          {
+            "value": "sludge_ww_pulp_paper",
+            "label": "펄프·제지 폐수처리 오니"
+          },
+          {
+            "value": "sludge_ww_stone",
+            "label": "석재·골재 생산 폐수처리 오니"
+          },
+          {
+            "value": "sludge_ww_organic",
+            "label": "그 밖의 폐수처리 오니(유기성)"
+          },
+          {
+            "value": "sludge_ww_inorganic",
+            "label": "그 밖의 폐수처리 오니(무기성)"
+          },
+          {
+            "value": "sludge_ww_unknown",
+            "label": "폐수처리 오니(유기성·무기성 모름)"
+          },
+          {
+            "value": "sludge_proc_pulp_paper",
+            "label": "펄프·제지 공정 오니"
+          },
+          {
+            "value": "sludge_proc_glass_etching",
+            "label": "유리식각 공정 오니"
+          },
+          {
+            "value": "sludge_proc_silicon",
+            "label": "실리콘 (제조)공정 오니"
+          }
+        ]
+      }
+    },
+    {
+      "key": "emission_facility",
+      "label": "배출시설 허가·신고",
+      "value": true,
+      "value_label": "예",
+      "status": "CLAIMED",
+      "source_type": "PROFILE",
+      "source_label": "기업 정보",
+      "quote": null,
+      "recorded_at": "2026-11-08T21:59:32+09:00",
+      "editable": true,
+      "edit": {
+        "input": "choice",
+        "value_type": "bool",
+        "unit": null,
+        "options": [
+          {
+            "label": "예",
+            "value": true
+          },
+          {
+            "label": "아니오",
+            "value": false
+          }
+        ]
+      }
+    }
+  ],
+  "steps": {
+    "a_contam": {
+      "branch_reason": "확정을 막는 미확인 사실 중 'contamination_screen' 선택",
+      "next": {
+        "default": "a_scope"
+      },
+      "turn": {
+        "case_id": "",
+        "session_id": "",
+        "turn_id": "",
+        "branch": "ASK_FACT",
+        "sub_branch": null,
+        "message": "이 폐기물에 해당하는 것이 있나요? (기름·잔류물·PCB·유해화학물질)을(를) 알려 주세요.",
+        "verdict": {
+          "status": "IN_PROGRESS",
+          "waste_code": null,
+          "waste_name": null,
+          "category": null,
+          "outcome": null,
+          "candidates": [
+            {
+              "code": "02-01-02",
+              "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+              "outcome": null,
+              "rule_ids": [
+                "h2so4:DESIGNATED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+              "outcome": "NO_GENERAL_CODE",
+              "rule_ids": [
+                "h2so4:NO_GENERAL"
+              ]
+            },
+            {
+              "code": null,
+              "name": "다른 법이 적용되는 물질은 폐기물관리법의 폐기물이 아닙니다.",
+              "outcome": "EXCLUDED",
+              "rule_ids": [
+                "S0-EXCLUDED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다.",
+              "outcome": "NOT_WASTE",
+              "rule_ids": [
+                "S0-NOT-NEEDED"
+              ]
+            },
+            {
+              "code": "02-01-02",
+              "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+              "outcome": null,
+              "rule_ids": [
+                "h2so4:DESIGNATED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+              "outcome": "NO_GENERAL_CODE",
+              "rule_ids": [
+                "h2so4:NO_GENERAL"
+              ]
+            },
+            {
+              "code": null,
+              "name": "다른 법이 적용되는 물질은 폐기물관리법의 폐기물이 아닙니다.",
+              "outcome": "EXCLUDED",
+              "rule_ids": [
+                "S0-EXCLUDED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다.",
+              "outcome": "NOT_WASTE",
+              "rule_ids": [
+                "S0-NOT-NEEDED"
+              ]
+            },
+            {
+              "code": "02-01-02",
+              "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+              "outcome": null,
+              "rule_ids": [
+                "h2so4:DESIGNATED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+              "outcome": "NO_GENERAL_CODE",
+              "rule_ids": [
+                "h2so4:NO_GENERAL"
+              ]
+            },
+            {
+              "code": null,
+              "name": "다른 법이 적용되는 물질은 폐기물관리법의 폐기물이 아닙니다.",
+              "outcome": "EXCLUDED",
+              "rule_ids": [
+                "S0-EXCLUDED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다.",
+              "outcome": "NOT_WASTE",
+              "rule_ids": [
+                "S0-NOT-NEEDED"
+              ]
+            },
+            {
+              "code": "02-01-02",
+              "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+              "outcome": null,
+              "rule_ids": [
+                "h2so4:DESIGNATED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+              "outcome": "NO_GENERAL_CODE",
+              "rule_ids": [
+                "h2so4:NO_GENERAL"
+              ]
+            },
+            {
+              "code": null,
+              "name": "다른 법이 적용되는 물질은 폐기물관리법의 폐기물이 아닙니다.",
+              "outcome": "EXCLUDED",
+              "rule_ids": [
+                "S0-EXCLUDED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다.",
+              "outcome": "NOT_WASTE",
+              "rule_ids": [
+                "S0-NOT-NEEDED"
+              ]
+            },
+            {
+              "code": "02-01-02",
+              "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+              "outcome": null,
+              "rule_ids": [
+                "h2so4:DESIGNATED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+              "outcome": "NO_GENERAL_CODE",
+              "rule_ids": [
+                "h2so4:NO_GENERAL"
+              ]
+            },
+            {
+              "code": null,
+              "name": "다른 법이 적용되는 물질은 폐기물관리법의 폐기물이 아닙니다.",
+              "outcome": "EXCLUDED",
+              "rule_ids": [
+                "S0-EXCLUDED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다.",
+              "outcome": "NOT_WASTE",
+              "rule_ids": [
+                "S0-NOT-NEEDED"
+              ]
+            }
+          ],
+          "conditions": [],
+          "rationale": [],
+          "failure_reason": null,
+          "review": null
+        },
+        "ui": {
+          "can_confirm": false,
+          "suggested_replies": [],
+          "requested_documents": [],
+          "question": {
+            "key": "contamination_screen",
+            "unit": "group",
+            "facts": [
+              "oil_presence",
+              "pcb_possible",
+              "toxic_chemical_discard"
+            ],
+            "options": [
+              {
+                "label": "모두 해당 없음",
+                "value": {
+                  "oil_presence": "none",
+                  "pcb_possible": false,
+                  "toxic_chemical_discard": false
+                },
+                "kind": "none_all"
+              },
+              {
+                "label": "해당하는 게 있어요 / 잘 모르겠어요",
+                "value": null,
+                "kind": "expand"
+              }
+            ],
+            "text": "이 폐기물에 해당하는 것이 있나요? (기름·잔류물·PCB·유해화학물질)",
+            "help": "대부분의 제조 공정 폐기물은 '모두 해당 없음'입니다. 절삭유·윤활유를 쓰는 공정, 변압기·콘덴서 관련 폐기물, 유해화학물질을 폐기하는 경우에만 '해당하는 게 있어요'를 고르세요.",
+            "input": "group",
+            "value_type": null,
+            "allow_unknown": false,
+            "allow_free_number": false,
+            "items": [
+              {
+                "key": "oil_presence",
+                "label": "기름 묻음·섞임"
+              },
+              {
+                "key": "pcb_possible",
+                "label": "PCB 사용 기기·절연유 관련"
+              },
+              {
+                "key": "toxic_chemical_discard",
+                "label": "유해화학물질 폐기"
+              }
+            ],
+            "answered_items": []
+          },
+          "board": {
+            "facts": [
+              {
+                "key": "material_group",
+                "label": "소재 분류",
+                "value": "acid_alkali",
+                "value_label": "산·알칼리",
+                "status": "CLAIMED",
+                "source_type": "UTTERANCE",
+                "source_label": "말함",
+                "quote": "도금 라인 폐황산",
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "plastic",
+                      "label": "플라스틱·고무"
+                    },
+                    {
+                      "value": "metal",
+                      "label": "금속"
+                    },
+                    {
+                      "value": "slag",
+                      "label": "광재(슬래그)"
+                    },
+                    {
+                      "value": "dust_ash",
+                      "label": "분진·소각재"
+                    },
+                    {
+                      "value": "sand",
+                      "label": "주물사·폐사·내화물"
+                    },
+                    {
+                      "value": "sludge",
+                      "label": "오니(슬러지)"
+                    },
+                    {
+                      "value": "oil",
+                      "label": "기름"
+                    },
+                    {
+                      "value": "acid_alkali",
+                      "label": "산·알칼리"
+                    },
+                    {
+                      "value": "solvent_paint",
+                      "label": "용제·페인트"
+                    },
+                    {
+                      "value": "wood_paper_fiber",
+                      "label": "목재·종이·섬유·유리"
+                    },
+                    {
+                      "value": "catalyst_adsorbent",
+                      "label": "촉매·흡착제"
+                    },
+                    {
+                      "value": "product",
+                      "label": "제품·복합물"
+                    },
+                    {
+                      "value": "special",
+                      "label": "여러 소재가 섞여 나누기 어려운 것"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "material",
+                "label": "소재",
+                "value": "h2so4",
+                "value_label": "폐황산",
+                "status": "CLAIMED",
+                "source_type": "UTTERANCE",
+                "source_label": "말함",
+                "quote": "도금 라인 폐황산",
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "pp",
+                      "label": "PP(폴리프로필렌)"
+                    },
+                    {
+                      "value": "pe",
+                      "label": "PE(폴리에틸렌)"
+                    },
+                    {
+                      "value": "pet",
+                      "label": "PET"
+                    },
+                    {
+                      "value": "ps",
+                      "label": "PS(폴리스티렌, 발포 아님)"
+                    },
+                    {
+                      "value": "abs",
+                      "label": "ABS 수지"
+                    },
+                    {
+                      "value": "phenol_resin",
+                      "label": "페놀수지"
+                    },
+                    {
+                      "value": "other_resin",
+                      "label": "그 밖의 합성수지(PC, 나일론 등)"
+                    },
+                    {
+                      "value": "pvc",
+                      "label": "PVC(염화비닐)"
+                    },
+                    {
+                      "value": "pu_foam",
+                      "label": "폴리우레탄폼"
+                    },
+                    {
+                      "value": "eps",
+                      "label": "발포합성수지(스티로폼)"
+                    },
+                    {
+                      "value": "plastic_packaging",
+                      "label": "플라스틱 포장재"
+                    },
+                    {
+                      "value": "fishing_net",
+                      "label": "폐어망"
+                    },
+                    {
+                      "value": "aqua_buoy",
+                      "label": "양식용 부자"
+                    },
+                    {
+                      "value": "rubber",
+                      "label": "합성고무"
+                    },
+                    {
+                      "value": "hcl",
+                      "label": "폐염산"
+                    },
+                    {
+                      "value": "h2so4",
+                      "label": "폐황산"
+                    },
+                    {
+                      "value": "hno3",
+                      "label": "폐질산"
+                    },
+                    {
+                      "value": "hf",
+                      "label": "폐불산"
+                    },
+                    {
+                      "value": "acid_lcd_semi",
+                      "label": "LCD·반도체 공정 폐산"
+                    },
+                    {
+                      "value": "acid_other",
+                      "label": "그 밖의 폐산"
+                    },
+                    {
+                      "value": "caustic_solution",
+                      "label": "폐가성소다수(수산화나트륨 수용액)"
+                    },
+                    {
+                      "value": "ammonia_solution",
+                      "label": "폐암모니아수"
+                    },
+                    {
+                      "value": "naoh_solid",
+                      "label": "고체 수산화나트륨"
+                    },
+                    {
+                      "value": "koh_solid",
+                      "label": "고체 수산화칼륨"
+                    },
+                    {
+                      "value": "alkali_other",
+                      "label": "그 밖의 폐알칼리(액체)"
+                    },
+                    {
+                      "value": "sludge_ww_pulp_paper",
+                      "label": "펄프·제지 폐수처리 오니"
+                    },
+                    {
+                      "value": "sludge_ww_stone",
+                      "label": "석재·골재 생산 폐수처리 오니"
+                    },
+                    {
+                      "value": "sludge_ww_organic",
+                      "label": "그 밖의 폐수처리 오니(유기성)"
+                    },
+                    {
+                      "value": "sludge_ww_inorganic",
+                      "label": "그 밖의 폐수처리 오니(무기성)"
+                    },
+                    {
+                      "value": "sludge_ww_unknown",
+                      "label": "폐수처리 오니(유기성·무기성 모름)"
+                    },
+                    {
+                      "value": "sludge_proc_pulp_paper",
+                      "label": "펄프·제지 공정 오니"
+                    },
+                    {
+                      "value": "sludge_proc_glass_etching",
+                      "label": "유리식각 공정 오니"
+                    },
+                    {
+                      "value": "sludge_proc_silicon",
+                      "label": "실리콘 (제조)공정 오니"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "emission_facility",
+                "label": "배출시설 허가·신고",
+                "value": true,
+                "value_label": "예",
+                "status": "CLAIMED",
+                "source_type": "PROFILE",
+                "source_label": "기업 정보",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              }
+            ],
+            "pending": [
+              {
+                "key": "oil_presence",
+                "label": "기름 묻음·섞임",
+                "reason": "MISSING"
+              },
+              {
+                "key": "pcb_possible",
+                "label": "PCB 사용 기기·절연유 관련",
+                "reason": "MISSING"
+              },
+              {
+                "key": "toxic_chemical_discard",
+                "label": "유해화학물질 폐기",
+                "reason": "MISSING"
+              }
+            ],
+            "progress": {
+              "questions_asked": 1,
+              "max_questions": 12
+            },
+            "candidates_count": 20,
+            "top_candidates": [
+              {
+                "code": "02-01-02",
+                "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+                "outcome": null
+              },
+              {
+                "code": null,
+                "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+                "outcome": "NO_GENERAL_CODE"
+              },
+              {
+                "code": null,
+                "name": "다른 법이 적용되는 물질은 폐기물관리법의 폐기물이 아닙니다.",
+                "outcome": "EXCLUDED"
+              },
+              {
+                "code": null,
+                "name": "법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다.",
+                "outcome": "NOT_WASTE"
+              }
+            ],
+            "documents_needed": []
+          },
+          "conflicts": [],
+          "result": null
+        },
+        "case_status": "DIAGNOSING"
+      }
+    },
+    "a_scope": {
+      "branch_reason": "확정을 막는 미확인 사실 중 'scope_screen' 선택",
+      "next": {
+        "default": "a_ph"
+      },
+      "turn": {
+        "case_id": "",
+        "session_id": "",
+        "turn_id": "",
+        "branch": "ASK_FACT",
+        "sub_branch": null,
+        "message": "이 물질은 사업장에서 더 쓰지 않아 내보내는 것이고, 아래 어느 것에도 해당하지 않나요?을(를) 알려 주세요.",
+        "verdict": {
+          "status": "IN_PROGRESS",
+          "waste_code": null,
+          "waste_name": null,
+          "category": null,
+          "outcome": null,
+          "candidates": [
+            {
+              "code": "02-01-02",
+              "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+              "outcome": null,
+              "rule_ids": [
+                "h2so4:DESIGNATED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+              "outcome": "NO_GENERAL_CODE",
+              "rule_ids": [
+                "h2so4:NO_GENERAL"
+              ]
+            },
+            {
+              "code": null,
+              "name": "다른 법이 적용되는 물질은 폐기물관리법의 폐기물이 아닙니다.",
+              "outcome": "EXCLUDED",
+              "rule_ids": [
+                "S0-EXCLUDED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다.",
+              "outcome": "NOT_WASTE",
+              "rule_ids": [
+                "S0-NOT-NEEDED"
+              ]
+            },
+            {
+              "code": "02-01-02",
+              "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+              "outcome": null,
+              "rule_ids": [
+                "h2so4:DESIGNATED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+              "outcome": "NO_GENERAL_CODE",
+              "rule_ids": [
+                "h2so4:NO_GENERAL"
+              ]
+            }
+          ],
+          "conditions": [],
+          "rationale": [],
+          "failure_reason": null,
+          "review": null
+        },
+        "ui": {
+          "can_confirm": false,
+          "suggested_replies": [],
+          "requested_documents": [],
+          "question": {
+            "key": "scope_screen",
+            "unit": "group",
+            "facts": [
+              "material_fate",
+              "circular_resource_recognized",
+              "law_exclusion"
+            ],
+            "options": [
+              {
+                "label": "그렇다 (내보내는 물질이고 해당 없음)",
+                "value": {
+                  "material_fate": "released",
+                  "circular_resource_recognized": false,
+                  "law_exclusion": "none"
+                },
+                "kind": "none_all"
+              },
+              {
+                "label": "아니다 / 잘 모르겠다",
+                "value": null,
+                "kind": "expand"
+              }
+            ],
+            "text": "이 물질은 사업장에서 더 쓰지 않아 내보내는 것이고, 아래 어느 것에도 해당하지 않나요?",
+            "help": "공정도에서 이 물질이 어디로 가는지 확인하세요. 팔거나 재활용업체에 넘겨도 사업에 필요 없게 된 물질이면 폐기물입니다. 재활용이 가능하다는 이유만으로 폐기물에서 빠지지 않습니다.",
+            "input": "group",
+            "value_type": null,
+            "allow_unknown": false,
+            "allow_free_number": false,
+            "items": [
+              {
+                "key": "material_fate",
+                "label": "이 물질을 어떻게 하는지"
+              },
+              {
+                "key": "circular_resource_recognized",
+                "label": "순환자원 인정서"
+              },
+              {
+                "key": "law_exclusion",
+                "label": "다른 법 적용 대상"
+              }
+            ],
+            "answered_items": []
+          },
+          "board": {
+            "facts": [
+              {
+                "key": "material_group",
+                "label": "소재 분류",
+                "value": "acid_alkali",
+                "value_label": "산·알칼리",
+                "status": "CLAIMED",
+                "source_type": "UTTERANCE",
+                "source_label": "말함",
+                "quote": "도금 라인 폐황산",
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "plastic",
+                      "label": "플라스틱·고무"
+                    },
+                    {
+                      "value": "metal",
+                      "label": "금속"
+                    },
+                    {
+                      "value": "slag",
+                      "label": "광재(슬래그)"
+                    },
+                    {
+                      "value": "dust_ash",
+                      "label": "분진·소각재"
+                    },
+                    {
+                      "value": "sand",
+                      "label": "주물사·폐사·내화물"
+                    },
+                    {
+                      "value": "sludge",
+                      "label": "오니(슬러지)"
+                    },
+                    {
+                      "value": "oil",
+                      "label": "기름"
+                    },
+                    {
+                      "value": "acid_alkali",
+                      "label": "산·알칼리"
+                    },
+                    {
+                      "value": "solvent_paint",
+                      "label": "용제·페인트"
+                    },
+                    {
+                      "value": "wood_paper_fiber",
+                      "label": "목재·종이·섬유·유리"
+                    },
+                    {
+                      "value": "catalyst_adsorbent",
+                      "label": "촉매·흡착제"
+                    },
+                    {
+                      "value": "product",
+                      "label": "제품·복합물"
+                    },
+                    {
+                      "value": "special",
+                      "label": "여러 소재가 섞여 나누기 어려운 것"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "material",
+                "label": "소재",
+                "value": "h2so4",
+                "value_label": "폐황산",
+                "status": "CLAIMED",
+                "source_type": "UTTERANCE",
+                "source_label": "말함",
+                "quote": "도금 라인 폐황산",
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "pp",
+                      "label": "PP(폴리프로필렌)"
+                    },
+                    {
+                      "value": "pe",
+                      "label": "PE(폴리에틸렌)"
+                    },
+                    {
+                      "value": "pet",
+                      "label": "PET"
+                    },
+                    {
+                      "value": "ps",
+                      "label": "PS(폴리스티렌, 발포 아님)"
+                    },
+                    {
+                      "value": "abs",
+                      "label": "ABS 수지"
+                    },
+                    {
+                      "value": "phenol_resin",
+                      "label": "페놀수지"
+                    },
+                    {
+                      "value": "other_resin",
+                      "label": "그 밖의 합성수지(PC, 나일론 등)"
+                    },
+                    {
+                      "value": "pvc",
+                      "label": "PVC(염화비닐)"
+                    },
+                    {
+                      "value": "pu_foam",
+                      "label": "폴리우레탄폼"
+                    },
+                    {
+                      "value": "eps",
+                      "label": "발포합성수지(스티로폼)"
+                    },
+                    {
+                      "value": "plastic_packaging",
+                      "label": "플라스틱 포장재"
+                    },
+                    {
+                      "value": "fishing_net",
+                      "label": "폐어망"
+                    },
+                    {
+                      "value": "aqua_buoy",
+                      "label": "양식용 부자"
+                    },
+                    {
+                      "value": "rubber",
+                      "label": "합성고무"
+                    },
+                    {
+                      "value": "hcl",
+                      "label": "폐염산"
+                    },
+                    {
+                      "value": "h2so4",
+                      "label": "폐황산"
+                    },
+                    {
+                      "value": "hno3",
+                      "label": "폐질산"
+                    },
+                    {
+                      "value": "hf",
+                      "label": "폐불산"
+                    },
+                    {
+                      "value": "acid_lcd_semi",
+                      "label": "LCD·반도체 공정 폐산"
+                    },
+                    {
+                      "value": "acid_other",
+                      "label": "그 밖의 폐산"
+                    },
+                    {
+                      "value": "caustic_solution",
+                      "label": "폐가성소다수(수산화나트륨 수용액)"
+                    },
+                    {
+                      "value": "ammonia_solution",
+                      "label": "폐암모니아수"
+                    },
+                    {
+                      "value": "naoh_solid",
+                      "label": "고체 수산화나트륨"
+                    },
+                    {
+                      "value": "koh_solid",
+                      "label": "고체 수산화칼륨"
+                    },
+                    {
+                      "value": "alkali_other",
+                      "label": "그 밖의 폐알칼리(액체)"
+                    },
+                    {
+                      "value": "sludge_ww_pulp_paper",
+                      "label": "펄프·제지 폐수처리 오니"
+                    },
+                    {
+                      "value": "sludge_ww_stone",
+                      "label": "석재·골재 생산 폐수처리 오니"
+                    },
+                    {
+                      "value": "sludge_ww_organic",
+                      "label": "그 밖의 폐수처리 오니(유기성)"
+                    },
+                    {
+                      "value": "sludge_ww_inorganic",
+                      "label": "그 밖의 폐수처리 오니(무기성)"
+                    },
+                    {
+                      "value": "sludge_ww_unknown",
+                      "label": "폐수처리 오니(유기성·무기성 모름)"
+                    },
+                    {
+                      "value": "sludge_proc_pulp_paper",
+                      "label": "펄프·제지 공정 오니"
+                    },
+                    {
+                      "value": "sludge_proc_glass_etching",
+                      "label": "유리식각 공정 오니"
+                    },
+                    {
+                      "value": "sludge_proc_silicon",
+                      "label": "실리콘 (제조)공정 오니"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "emission_facility",
+                "label": "배출시설 허가·신고",
+                "value": true,
+                "value_label": "예",
+                "status": "CLAIMED",
+                "source_type": "PROFILE",
+                "source_label": "기업 정보",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "oil_presence",
+                "label": "기름 묻음·섞임",
+                "value": "none",
+                "value_label": "기름이 묻거나 섞이지 않음",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "none",
+                      "label": "기름이 묻거나 섞이지 않음"
+                    },
+                    {
+                      "value": "present",
+                      "label": "기름이 묻어 있거나 섞여 있음"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "pcb_possible",
+                "label": "PCB 사용 기기·절연유 관련",
+                "value": false,
+                "value_label": "아니오",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "toxic_chemical_discard",
+                "label": "유해화학물질 폐기",
+                "value": false,
+                "value_label": "아니오",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              }
+            ],
+            "pending": [
+              {
+                "key": "material_fate",
+                "label": "이 물질을 어떻게 하는지",
+                "reason": "MISSING"
+              },
+              {
+                "key": "circular_resource_recognized",
+                "label": "순환자원 인정서",
+                "reason": "MISSING"
+              },
+              {
+                "key": "law_exclusion",
+                "label": "다른 법 적용 대상",
+                "reason": "MISSING"
+              }
+            ],
+            "progress": {
+              "questions_asked": 2,
+              "max_questions": 12
+            },
+            "candidates_count": 6,
+            "top_candidates": [
+              {
+                "code": "02-01-02",
+                "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+                "outcome": null
+              },
+              {
+                "code": null,
+                "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+                "outcome": "NO_GENERAL_CODE"
+              },
+              {
+                "code": null,
+                "name": "다른 법이 적용되는 물질은 폐기물관리법의 폐기물이 아닙니다.",
+                "outcome": "EXCLUDED"
+              },
+              {
+                "code": null,
+                "name": "법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다.",
+                "outcome": "NOT_WASTE"
+              }
+            ],
+            "documents_needed": []
+          },
+          "conflicts": [],
+          "result": null
+        },
+        "case_status": "DIAGNOSING"
+      }
+    },
+    "a_ph": {
+      "branch_reason": "확정을 막는 미확인 사실 중 'ph' 선택",
+      "next": {
+        "default": "a_evidence"
+      },
+      "turn": {
+        "case_id": "",
+        "session_id": "",
+        "turn_id": "",
+        "branch": "ASK_FACT",
+        "sub_branch": null,
+        "message": "이 폐액의 pH(수소이온 농도지수)는 얼마인가요?",
+        "verdict": {
+          "status": "IN_PROGRESS",
+          "waste_code": null,
+          "waste_name": null,
+          "category": null,
+          "outcome": null,
+          "candidates": [
+            {
+              "code": "02-01-02",
+              "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+              "outcome": null,
+              "rule_ids": [
+                "h2so4:DESIGNATED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+              "outcome": "NO_GENERAL_CODE",
+              "rule_ids": [
+                "h2so4:NO_GENERAL"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "fact": "ph",
+              "text": "pH: 2 이하",
+              "satisfied": null,
+              "evidence": "TEST_REPORT"
+            },
+            {
+              "fact": "material",
+              "text": "소재: 폐황산",
+              "satisfied": true,
+              "evidence": null
+            }
+          ],
+          "rationale": [],
+          "failure_reason": null,
+          "review": null
+        },
+        "ui": {
+          "can_confirm": false,
+          "suggested_replies": [],
+          "requested_documents": [],
+          "question": {
+            "key": "ph",
+            "unit": "fact",
+            "facts": [
+              "ph"
+            ],
+            "options": [
+              {
+                "label": "2 이하",
+                "value": {
+                  "lo": null,
+                  "lo_inc": true,
+                  "hi": 2,
+                  "hi_inc": true
+                },
+                "kind": "value"
+              },
+              {
+                "label": "2 초과",
+                "value": {
+                  "lo": 2,
+                  "lo_inc": false,
+                  "hi": null,
+                  "hi_inc": false
+                },
+                "kind": "value"
+              },
+              {
+                "label": "모름",
+                "value": null,
+                "kind": "unknown"
+              }
+            ],
+            "text": "이 폐액의 pH(수소이온 농도지수)는 얼마인가요?",
+            "help": "시험: 수소이온농도(pH) — 폐기물공정시험기준 ES 06304.1 수소이온농도-유리전극법. 성적서에서 확인할 값: pH 값(0.01 단위), 측정 온도, 시료 채취일",
+            "input": "number",
+            "value_type": "number",
+            "allow_unknown": true,
+            "allow_free_number": true,
+            "items": [],
+            "answered_items": []
+          },
+          "board": {
+            "facts": [
+              {
+                "key": "material_group",
+                "label": "소재 분류",
+                "value": "acid_alkali",
+                "value_label": "산·알칼리",
+                "status": "CLAIMED",
+                "source_type": "UTTERANCE",
+                "source_label": "말함",
+                "quote": "도금 라인 폐황산",
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "plastic",
+                      "label": "플라스틱·고무"
+                    },
+                    {
+                      "value": "metal",
+                      "label": "금속"
+                    },
+                    {
+                      "value": "slag",
+                      "label": "광재(슬래그)"
+                    },
+                    {
+                      "value": "dust_ash",
+                      "label": "분진·소각재"
+                    },
+                    {
+                      "value": "sand",
+                      "label": "주물사·폐사·내화물"
+                    },
+                    {
+                      "value": "sludge",
+                      "label": "오니(슬러지)"
+                    },
+                    {
+                      "value": "oil",
+                      "label": "기름"
+                    },
+                    {
+                      "value": "acid_alkali",
+                      "label": "산·알칼리"
+                    },
+                    {
+                      "value": "solvent_paint",
+                      "label": "용제·페인트"
+                    },
+                    {
+                      "value": "wood_paper_fiber",
+                      "label": "목재·종이·섬유·유리"
+                    },
+                    {
+                      "value": "catalyst_adsorbent",
+                      "label": "촉매·흡착제"
+                    },
+                    {
+                      "value": "product",
+                      "label": "제품·복합물"
+                    },
+                    {
+                      "value": "special",
+                      "label": "여러 소재가 섞여 나누기 어려운 것"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "material",
+                "label": "소재",
+                "value": "h2so4",
+                "value_label": "폐황산",
+                "status": "CLAIMED",
+                "source_type": "UTTERANCE",
+                "source_label": "말함",
+                "quote": "도금 라인 폐황산",
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "pp",
+                      "label": "PP(폴리프로필렌)"
+                    },
+                    {
+                      "value": "pe",
+                      "label": "PE(폴리에틸렌)"
+                    },
+                    {
+                      "value": "pet",
+                      "label": "PET"
+                    },
+                    {
+                      "value": "ps",
+                      "label": "PS(폴리스티렌, 발포 아님)"
+                    },
+                    {
+                      "value": "abs",
+                      "label": "ABS 수지"
+                    },
+                    {
+                      "value": "phenol_resin",
+                      "label": "페놀수지"
+                    },
+                    {
+                      "value": "other_resin",
+                      "label": "그 밖의 합성수지(PC, 나일론 등)"
+                    },
+                    {
+                      "value": "pvc",
+                      "label": "PVC(염화비닐)"
+                    },
+                    {
+                      "value": "pu_foam",
+                      "label": "폴리우레탄폼"
+                    },
+                    {
+                      "value": "eps",
+                      "label": "발포합성수지(스티로폼)"
+                    },
+                    {
+                      "value": "plastic_packaging",
+                      "label": "플라스틱 포장재"
+                    },
+                    {
+                      "value": "fishing_net",
+                      "label": "폐어망"
+                    },
+                    {
+                      "value": "aqua_buoy",
+                      "label": "양식용 부자"
+                    },
+                    {
+                      "value": "rubber",
+                      "label": "합성고무"
+                    },
+                    {
+                      "value": "hcl",
+                      "label": "폐염산"
+                    },
+                    {
+                      "value": "h2so4",
+                      "label": "폐황산"
+                    },
+                    {
+                      "value": "hno3",
+                      "label": "폐질산"
+                    },
+                    {
+                      "value": "hf",
+                      "label": "폐불산"
+                    },
+                    {
+                      "value": "acid_lcd_semi",
+                      "label": "LCD·반도체 공정 폐산"
+                    },
+                    {
+                      "value": "acid_other",
+                      "label": "그 밖의 폐산"
+                    },
+                    {
+                      "value": "caustic_solution",
+                      "label": "폐가성소다수(수산화나트륨 수용액)"
+                    },
+                    {
+                      "value": "ammonia_solution",
+                      "label": "폐암모니아수"
+                    },
+                    {
+                      "value": "naoh_solid",
+                      "label": "고체 수산화나트륨"
+                    },
+                    {
+                      "value": "koh_solid",
+                      "label": "고체 수산화칼륨"
+                    },
+                    {
+                      "value": "alkali_other",
+                      "label": "그 밖의 폐알칼리(액체)"
+                    },
+                    {
+                      "value": "sludge_ww_pulp_paper",
+                      "label": "펄프·제지 폐수처리 오니"
+                    },
+                    {
+                      "value": "sludge_ww_stone",
+                      "label": "석재·골재 생산 폐수처리 오니"
+                    },
+                    {
+                      "value": "sludge_ww_organic",
+                      "label": "그 밖의 폐수처리 오니(유기성)"
+                    },
+                    {
+                      "value": "sludge_ww_inorganic",
+                      "label": "그 밖의 폐수처리 오니(무기성)"
+                    },
+                    {
+                      "value": "sludge_ww_unknown",
+                      "label": "폐수처리 오니(유기성·무기성 모름)"
+                    },
+                    {
+                      "value": "sludge_proc_pulp_paper",
+                      "label": "펄프·제지 공정 오니"
+                    },
+                    {
+                      "value": "sludge_proc_glass_etching",
+                      "label": "유리식각 공정 오니"
+                    },
+                    {
+                      "value": "sludge_proc_silicon",
+                      "label": "실리콘 (제조)공정 오니"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "emission_facility",
+                "label": "배출시설 허가·신고",
+                "value": true,
+                "value_label": "예",
+                "status": "CLAIMED",
+                "source_type": "PROFILE",
+                "source_label": "기업 정보",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "oil_presence",
+                "label": "기름 묻음·섞임",
+                "value": "none",
+                "value_label": "기름이 묻거나 섞이지 않음",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "none",
+                      "label": "기름이 묻거나 섞이지 않음"
+                    },
+                    {
+                      "value": "present",
+                      "label": "기름이 묻어 있거나 섞여 있음"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "pcb_possible",
+                "label": "PCB 사용 기기·절연유 관련",
+                "value": false,
+                "value_label": "아니오",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "toxic_chemical_discard",
+                "label": "유해화학물질 폐기",
+                "value": false,
+                "value_label": "아니오",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "material_fate",
+                "label": "이 물질을 어떻게 하는지",
+                "value": "released",
+                "value_label": "내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "still_used",
+                      "label": "제품이나 원료로 계속 쓴다 (아직 필요함)"
+                    },
+                    {
+                      "value": "same_process_reinput",
+                      "label": "따로 처리하지 않고 같은 공정에 바로 다시 넣는다"
+                    },
+                    {
+                      "value": "continuous_feedstock",
+                      "label": "따로 처리하지 않고 발생한 시설에서 연속공정으로 다른 제품의 원료로 바로 넣는다"
+                    },
+                    {
+                      "value": "released",
+                      "label": "내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "circular_resource_recognized",
+                "label": "순환자원 인정서",
+                "value": false,
+                "value_label": "아니오",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "law_exclusion",
+                "label": "다른 법 적용 대상",
+                "value": "none",
+                "value_label": "해당 없음",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "none",
+                      "label": "해당 없음"
+                    },
+                    {
+                      "value": "radioactive",
+                      "label": "원자력안전법에 따른 방사성 물질 또는 그로 오염된 물질"
+                    },
+                    {
+                      "value": "uncontained_gas",
+                      "label": "용기에 들어 있지 않은 기체"
+                    },
+                    {
+                      "value": "wastewater",
+                      "label": "수질오염방지시설로 들어가거나 공공수역으로 배출되는 폐수"
+                    },
+                    {
+                      "value": "livestock_manure",
+                      "label": "가축분뇨"
+                    },
+                    {
+                      "value": "sewage_nightsoil",
+                      "label": "하수도법에 따른 하수·분뇨"
+                    }
+                  ]
+                }
+              }
+            ],
+            "pending": [
+              {
+                "key": "ph",
+                "label": "pH",
+                "reason": "MISSING"
+              }
+            ],
+            "progress": {
+              "questions_asked": 3,
+              "max_questions": 12
+            },
+            "candidates_count": 2,
+            "top_candidates": [
+              {
+                "code": "02-01-02",
+                "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+                "outcome": null
+              },
+              {
+                "code": null,
+                "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+                "outcome": "NO_GENERAL_CODE"
+              }
+            ],
+            "documents_needed": [
+              {
+                "evidence_type": "TEST_REPORT",
+                "label": "시험성적서",
+                "facts": [
+                  "ph"
+                ],
+                "fact_labels": [
+                  "pH"
+                ]
+              }
+            ]
+          },
+          "conflicts": [],
+          "result": null
+        },
+        "case_status": "DIAGNOSING"
+      }
+    },
+    "a_evidence": {
+      "branch_reason": "pH는 시험성적서로만 확정할 수 있어 서류를 요청",
+      "next": {
+        "upload": "a_final",
+        "refuse": "a_refused",
+        "default": "a_evidence"
+      },
+      "turn": {
+        "case_id": "",
+        "session_id": "",
+        "turn_id": "",
+        "branch": "REQUEST_EVIDENCE",
+        "sub_branch": null,
+        "message": "확정하려면 서류 확인이 필요합니다. 시험성적서를 올려 주세요. (확인할 항목: pH)",
+        "verdict": {
+          "status": "NEEDS_EVIDENCE",
+          "waste_code": null,
+          "waste_name": null,
+          "category": null,
+          "outcome": null,
+          "candidates": [
+            {
+              "code": "02-01-02",
+              "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+              "outcome": null,
+              "rule_ids": [
+                "h2so4:DESIGNATED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+              "outcome": "NO_GENERAL_CODE",
+              "rule_ids": [
+                "h2so4:NO_GENERAL"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "fact": "ph",
+              "text": "pH: 2 이하",
+              "satisfied": null,
+              "evidence": "TEST_REPORT"
+            },
+            {
+              "fact": "material",
+              "text": "소재: 폐황산",
+              "satisfied": true,
+              "evidence": null
+            }
+          ],
+          "rationale": [],
+          "failure_reason": null,
+          "review": null
+        },
+        "ui": {
+          "can_confirm": false,
+          "suggested_replies": [
+            "서류가 없어요"
+          ],
+          "requested_documents": [
+            {
+              "evidence_type": "TEST_REPORT",
+              "label": "시험성적서",
+              "facts": [
+                "ph"
+              ],
+              "fact_labels": [
+                "pH"
+              ]
+            }
+          ],
+          "question": null,
+          "board": {
+            "facts": [
+              {
+                "key": "material_group",
+                "label": "소재 분류",
+                "value": "acid_alkali",
+                "value_label": "산·알칼리",
+                "status": "CLAIMED",
+                "source_type": "UTTERANCE",
+                "source_label": "말함",
+                "quote": "도금 라인 폐황산",
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "plastic",
+                      "label": "플라스틱·고무"
+                    },
+                    {
+                      "value": "metal",
+                      "label": "금속"
+                    },
+                    {
+                      "value": "slag",
+                      "label": "광재(슬래그)"
+                    },
+                    {
+                      "value": "dust_ash",
+                      "label": "분진·소각재"
+                    },
+                    {
+                      "value": "sand",
+                      "label": "주물사·폐사·내화물"
+                    },
+                    {
+                      "value": "sludge",
+                      "label": "오니(슬러지)"
+                    },
+                    {
+                      "value": "oil",
+                      "label": "기름"
+                    },
+                    {
+                      "value": "acid_alkali",
+                      "label": "산·알칼리"
+                    },
+                    {
+                      "value": "solvent_paint",
+                      "label": "용제·페인트"
+                    },
+                    {
+                      "value": "wood_paper_fiber",
+                      "label": "목재·종이·섬유·유리"
+                    },
+                    {
+                      "value": "catalyst_adsorbent",
+                      "label": "촉매·흡착제"
+                    },
+                    {
+                      "value": "product",
+                      "label": "제품·복합물"
+                    },
+                    {
+                      "value": "special",
+                      "label": "여러 소재가 섞여 나누기 어려운 것"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "material",
+                "label": "소재",
+                "value": "h2so4",
+                "value_label": "폐황산",
+                "status": "CLAIMED",
+                "source_type": "UTTERANCE",
+                "source_label": "말함",
+                "quote": "도금 라인 폐황산",
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "pp",
+                      "label": "PP(폴리프로필렌)"
+                    },
+                    {
+                      "value": "pe",
+                      "label": "PE(폴리에틸렌)"
+                    },
+                    {
+                      "value": "pet",
+                      "label": "PET"
+                    },
+                    {
+                      "value": "ps",
+                      "label": "PS(폴리스티렌, 발포 아님)"
+                    },
+                    {
+                      "value": "abs",
+                      "label": "ABS 수지"
+                    },
+                    {
+                      "value": "phenol_resin",
+                      "label": "페놀수지"
+                    },
+                    {
+                      "value": "other_resin",
+                      "label": "그 밖의 합성수지(PC, 나일론 등)"
+                    },
+                    {
+                      "value": "pvc",
+                      "label": "PVC(염화비닐)"
+                    },
+                    {
+                      "value": "pu_foam",
+                      "label": "폴리우레탄폼"
+                    },
+                    {
+                      "value": "eps",
+                      "label": "발포합성수지(스티로폼)"
+                    },
+                    {
+                      "value": "plastic_packaging",
+                      "label": "플라스틱 포장재"
+                    },
+                    {
+                      "value": "fishing_net",
+                      "label": "폐어망"
+                    },
+                    {
+                      "value": "aqua_buoy",
+                      "label": "양식용 부자"
+                    },
+                    {
+                      "value": "rubber",
+                      "label": "합성고무"
+                    },
+                    {
+                      "value": "hcl",
+                      "label": "폐염산"
+                    },
+                    {
+                      "value": "h2so4",
+                      "label": "폐황산"
+                    },
+                    {
+                      "value": "hno3",
+                      "label": "폐질산"
+                    },
+                    {
+                      "value": "hf",
+                      "label": "폐불산"
+                    },
+                    {
+                      "value": "acid_lcd_semi",
+                      "label": "LCD·반도체 공정 폐산"
+                    },
+                    {
+                      "value": "acid_other",
+                      "label": "그 밖의 폐산"
+                    },
+                    {
+                      "value": "caustic_solution",
+                      "label": "폐가성소다수(수산화나트륨 수용액)"
+                    },
+                    {
+                      "value": "ammonia_solution",
+                      "label": "폐암모니아수"
+                    },
+                    {
+                      "value": "naoh_solid",
+                      "label": "고체 수산화나트륨"
+                    },
+                    {
+                      "value": "koh_solid",
+                      "label": "고체 수산화칼륨"
+                    },
+                    {
+                      "value": "alkali_other",
+                      "label": "그 밖의 폐알칼리(액체)"
+                    },
+                    {
+                      "value": "sludge_ww_pulp_paper",
+                      "label": "펄프·제지 폐수처리 오니"
+                    },
+                    {
+                      "value": "sludge_ww_stone",
+                      "label": "석재·골재 생산 폐수처리 오니"
+                    },
+                    {
+                      "value": "sludge_ww_organic",
+                      "label": "그 밖의 폐수처리 오니(유기성)"
+                    },
+                    {
+                      "value": "sludge_ww_inorganic",
+                      "label": "그 밖의 폐수처리 오니(무기성)"
+                    },
+                    {
+                      "value": "sludge_ww_unknown",
+                      "label": "폐수처리 오니(유기성·무기성 모름)"
+                    },
+                    {
+                      "value": "sludge_proc_pulp_paper",
+                      "label": "펄프·제지 공정 오니"
+                    },
+                    {
+                      "value": "sludge_proc_glass_etching",
+                      "label": "유리식각 공정 오니"
+                    },
+                    {
+                      "value": "sludge_proc_silicon",
+                      "label": "실리콘 (제조)공정 오니"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "emission_facility",
+                "label": "배출시설 허가·신고",
+                "value": true,
+                "value_label": "예",
+                "status": "CLAIMED",
+                "source_type": "PROFILE",
+                "source_label": "기업 정보",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "oil_presence",
+                "label": "기름 묻음·섞임",
+                "value": "none",
+                "value_label": "기름이 묻거나 섞이지 않음",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "none",
+                      "label": "기름이 묻거나 섞이지 않음"
+                    },
+                    {
+                      "value": "present",
+                      "label": "기름이 묻어 있거나 섞여 있음"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "pcb_possible",
+                "label": "PCB 사용 기기·절연유 관련",
+                "value": false,
+                "value_label": "아니오",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "toxic_chemical_discard",
+                "label": "유해화학물질 폐기",
+                "value": false,
+                "value_label": "아니오",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "material_fate",
+                "label": "이 물질을 어떻게 하는지",
+                "value": "released",
+                "value_label": "내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "still_used",
+                      "label": "제품이나 원료로 계속 쓴다 (아직 필요함)"
+                    },
+                    {
+                      "value": "same_process_reinput",
+                      "label": "따로 처리하지 않고 같은 공정에 바로 다시 넣는다"
+                    },
+                    {
+                      "value": "continuous_feedstock",
+                      "label": "따로 처리하지 않고 발생한 시설에서 연속공정으로 다른 제품의 원료로 바로 넣는다"
+                    },
+                    {
+                      "value": "released",
+                      "label": "내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "circular_resource_recognized",
+                "label": "순환자원 인정서",
+                "value": false,
+                "value_label": "아니오",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "law_exclusion",
+                "label": "다른 법 적용 대상",
+                "value": "none",
+                "value_label": "해당 없음",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "none",
+                      "label": "해당 없음"
+                    },
+                    {
+                      "value": "radioactive",
+                      "label": "원자력안전법에 따른 방사성 물질 또는 그로 오염된 물질"
+                    },
+                    {
+                      "value": "uncontained_gas",
+                      "label": "용기에 들어 있지 않은 기체"
+                    },
+                    {
+                      "value": "wastewater",
+                      "label": "수질오염방지시설로 들어가거나 공공수역으로 배출되는 폐수"
+                    },
+                    {
+                      "value": "livestock_manure",
+                      "label": "가축분뇨"
+                    },
+                    {
+                      "value": "sewage_nightsoil",
+                      "label": "하수도법에 따른 하수·분뇨"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "ph",
+                "label": "pH",
+                "value": {
+                  "lo": null,
+                  "lo_inc": true,
+                  "hi": 2,
+                  "hi_inc": true
+                },
+                "value_label": "2 이하",
+                "status": "CLAIMED",
+                "source_type": "UTTERANCE",
+                "source_label": "말함",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "number",
+                  "value_type": "number",
+                  "unit": null,
+                  "options": []
+                }
+              }
+            ],
+            "pending": [
+              {
+                "key": "ph",
+                "label": "pH",
+                "reason": "NEEDS_EVIDENCE"
+              }
+            ],
+            "progress": {
+              "questions_asked": 3,
+              "max_questions": 12
+            },
+            "candidates_count": 2,
+            "top_candidates": [
+              {
+                "code": "02-01-02",
+                "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+                "outcome": null
+              },
+              {
+                "code": null,
+                "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+                "outcome": "NO_GENERAL_CODE"
+              }
+            ],
+            "documents_needed": [
+              {
+                "evidence_type": "TEST_REPORT",
+                "label": "시험성적서",
+                "facts": [
+                  "ph"
+                ],
+                "fact_labels": [
+                  "pH"
+                ]
+              }
+            ]
+          },
+          "conflicts": [],
+          "result": null
+        },
+        "case_status": "NEEDS_INFO"
+      }
+    },
+    "a_refused": {
+      "branch_reason": "증빙 거부 → 결론을 낼 수 없음",
+      "next": {
+        "upload": "a_final",
+        "default": "a_refused"
+      },
+      "turn": {
+        "case_id": "",
+        "session_id": "",
+        "turn_id": "",
+        "branch": "UNSUPPORTED",
+        "sub_branch": null,
+        "message": "시험성적서가 없으면 pH를 확인할 수 없어 분류번호를 정할 수 없습니다. 성적서를 받으면 이 건에 올려 이어서 진행해 주세요.",
+        "verdict": {
+          "status": "UNDETERMINABLE",
+          "waste_code": null,
+          "waste_name": null,
+          "category": null,
+          "outcome": null,
+          "candidates": [
+            {
+              "code": "02-01-02",
+              "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+              "outcome": null,
+              "rule_ids": [
+                "h2so4:DESIGNATED"
+              ]
+            },
+            {
+              "code": null,
+              "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+              "outcome": "NO_GENERAL_CODE",
+              "rule_ids": [
+                "h2so4:NO_GENERAL"
+              ]
+            }
+          ],
+          "conditions": [],
+          "rationale": [],
+          "failure_reason": "EVIDENCE_REFUSED",
+          "review": null
+        },
+        "ui": {
+          "can_confirm": false,
+          "suggested_replies": [],
+          "requested_documents": [],
+          "question": null,
+          "board": {
+            "facts": [
+              {
+                "key": "material_group",
+                "label": "소재 분류",
+                "value": "acid_alkali",
+                "value_label": "산·알칼리",
+                "status": "CLAIMED",
+                "source_type": "UTTERANCE",
+                "source_label": "말함",
+                "quote": "도금 라인 폐황산",
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "plastic",
+                      "label": "플라스틱·고무"
+                    },
+                    {
+                      "value": "metal",
+                      "label": "금속"
+                    },
+                    {
+                      "value": "slag",
+                      "label": "광재(슬래그)"
+                    },
+                    {
+                      "value": "dust_ash",
+                      "label": "분진·소각재"
+                    },
+                    {
+                      "value": "sand",
+                      "label": "주물사·폐사·내화물"
+                    },
+                    {
+                      "value": "sludge",
+                      "label": "오니(슬러지)"
+                    },
+                    {
+                      "value": "oil",
+                      "label": "기름"
+                    },
+                    {
+                      "value": "acid_alkali",
+                      "label": "산·알칼리"
+                    },
+                    {
+                      "value": "solvent_paint",
+                      "label": "용제·페인트"
+                    },
+                    {
+                      "value": "wood_paper_fiber",
+                      "label": "목재·종이·섬유·유리"
+                    },
+                    {
+                      "value": "catalyst_adsorbent",
+                      "label": "촉매·흡착제"
+                    },
+                    {
+                      "value": "product",
+                      "label": "제품·복합물"
+                    },
+                    {
+                      "value": "special",
+                      "label": "여러 소재가 섞여 나누기 어려운 것"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "material",
+                "label": "소재",
+                "value": "h2so4",
+                "value_label": "폐황산",
+                "status": "CLAIMED",
+                "source_type": "UTTERANCE",
+                "source_label": "말함",
+                "quote": "도금 라인 폐황산",
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "pp",
+                      "label": "PP(폴리프로필렌)"
+                    },
+                    {
+                      "value": "pe",
+                      "label": "PE(폴리에틸렌)"
+                    },
+                    {
+                      "value": "pet",
+                      "label": "PET"
+                    },
+                    {
+                      "value": "ps",
+                      "label": "PS(폴리스티렌, 발포 아님)"
+                    },
+                    {
+                      "value": "abs",
+                      "label": "ABS 수지"
+                    },
+                    {
+                      "value": "phenol_resin",
+                      "label": "페놀수지"
+                    },
+                    {
+                      "value": "other_resin",
+                      "label": "그 밖의 합성수지(PC, 나일론 등)"
+                    },
+                    {
+                      "value": "pvc",
+                      "label": "PVC(염화비닐)"
+                    },
+                    {
+                      "value": "pu_foam",
+                      "label": "폴리우레탄폼"
+                    },
+                    {
+                      "value": "eps",
+                      "label": "발포합성수지(스티로폼)"
+                    },
+                    {
+                      "value": "plastic_packaging",
+                      "label": "플라스틱 포장재"
+                    },
+                    {
+                      "value": "fishing_net",
+                      "label": "폐어망"
+                    },
+                    {
+                      "value": "aqua_buoy",
+                      "label": "양식용 부자"
+                    },
+                    {
+                      "value": "rubber",
+                      "label": "합성고무"
+                    },
+                    {
+                      "value": "hcl",
+                      "label": "폐염산"
+                    },
+                    {
+                      "value": "h2so4",
+                      "label": "폐황산"
+                    },
+                    {
+                      "value": "hno3",
+                      "label": "폐질산"
+                    },
+                    {
+                      "value": "hf",
+                      "label": "폐불산"
+                    },
+                    {
+                      "value": "acid_lcd_semi",
+                      "label": "LCD·반도체 공정 폐산"
+                    },
+                    {
+                      "value": "acid_other",
+                      "label": "그 밖의 폐산"
+                    },
+                    {
+                      "value": "caustic_solution",
+                      "label": "폐가성소다수(수산화나트륨 수용액)"
+                    },
+                    {
+                      "value": "ammonia_solution",
+                      "label": "폐암모니아수"
+                    },
+                    {
+                      "value": "naoh_solid",
+                      "label": "고체 수산화나트륨"
+                    },
+                    {
+                      "value": "koh_solid",
+                      "label": "고체 수산화칼륨"
+                    },
+                    {
+                      "value": "alkali_other",
+                      "label": "그 밖의 폐알칼리(액체)"
+                    },
+                    {
+                      "value": "sludge_ww_pulp_paper",
+                      "label": "펄프·제지 폐수처리 오니"
+                    },
+                    {
+                      "value": "sludge_ww_stone",
+                      "label": "석재·골재 생산 폐수처리 오니"
+                    },
+                    {
+                      "value": "sludge_ww_organic",
+                      "label": "그 밖의 폐수처리 오니(유기성)"
+                    },
+                    {
+                      "value": "sludge_ww_inorganic",
+                      "label": "그 밖의 폐수처리 오니(무기성)"
+                    },
+                    {
+                      "value": "sludge_ww_unknown",
+                      "label": "폐수처리 오니(유기성·무기성 모름)"
+                    },
+                    {
+                      "value": "sludge_proc_pulp_paper",
+                      "label": "펄프·제지 공정 오니"
+                    },
+                    {
+                      "value": "sludge_proc_glass_etching",
+                      "label": "유리식각 공정 오니"
+                    },
+                    {
+                      "value": "sludge_proc_silicon",
+                      "label": "실리콘 (제조)공정 오니"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "emission_facility",
+                "label": "배출시설 허가·신고",
+                "value": true,
+                "value_label": "예",
+                "status": "CLAIMED",
+                "source_type": "PROFILE",
+                "source_label": "기업 정보",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "oil_presence",
+                "label": "기름 묻음·섞임",
+                "value": "none",
+                "value_label": "기름이 묻거나 섞이지 않음",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "none",
+                      "label": "기름이 묻거나 섞이지 않음"
+                    },
+                    {
+                      "value": "present",
+                      "label": "기름이 묻어 있거나 섞여 있음"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "pcb_possible",
+                "label": "PCB 사용 기기·절연유 관련",
+                "value": false,
+                "value_label": "아니오",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "toxic_chemical_discard",
+                "label": "유해화학물질 폐기",
+                "value": false,
+                "value_label": "아니오",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "material_fate",
+                "label": "이 물질을 어떻게 하는지",
+                "value": "released",
+                "value_label": "내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "still_used",
+                      "label": "제품이나 원료로 계속 쓴다 (아직 필요함)"
+                    },
+                    {
+                      "value": "same_process_reinput",
+                      "label": "따로 처리하지 않고 같은 공정에 바로 다시 넣는다"
+                    },
+                    {
+                      "value": "continuous_feedstock",
+                      "label": "따로 처리하지 않고 발생한 시설에서 연속공정으로 다른 제품의 원료로 바로 넣는다"
+                    },
+                    {
+                      "value": "released",
+                      "label": "내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "circular_resource_recognized",
+                "label": "순환자원 인정서",
+                "value": false,
+                "value_label": "아니오",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "law_exclusion",
+                "label": "다른 법 적용 대상",
+                "value": "none",
+                "value_label": "해당 없음",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "none",
+                      "label": "해당 없음"
+                    },
+                    {
+                      "value": "radioactive",
+                      "label": "원자력안전법에 따른 방사성 물질 또는 그로 오염된 물질"
+                    },
+                    {
+                      "value": "uncontained_gas",
+                      "label": "용기에 들어 있지 않은 기체"
+                    },
+                    {
+                      "value": "wastewater",
+                      "label": "수질오염방지시설로 들어가거나 공공수역으로 배출되는 폐수"
+                    },
+                    {
+                      "value": "livestock_manure",
+                      "label": "가축분뇨"
+                    },
+                    {
+                      "value": "sewage_nightsoil",
+                      "label": "하수도법에 따른 하수·분뇨"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "ph",
+                "label": "pH",
+                "value": {
+                  "lo": null,
+                  "lo_inc": true,
+                  "hi": 2,
+                  "hi_inc": true
+                },
+                "value_label": "2 이하",
+                "status": "CLAIMED",
+                "source_type": "UTTERANCE",
+                "source_label": "말함",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "number",
+                  "value_type": "number",
+                  "unit": null,
+                  "options": []
+                }
+              }
+            ],
+            "pending": [
+              {
+                "key": "ph",
+                "label": "pH",
+                "reason": "NEEDS_EVIDENCE"
+              }
+            ],
+            "progress": {
+              "questions_asked": 3,
+              "max_questions": 12
+            },
+            "candidates_count": 2,
+            "top_candidates": [
+              {
+                "code": "02-01-02",
+                "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+                "outcome": null
+              },
+              {
+                "code": null,
+                "name": "지정폐기물이 아닌 폐산입니다. 일반폐기물 세부 번호는 담당자 확인이 필요합니다.",
+                "outcome": "NO_GENERAL_CODE"
+              }
+            ],
+            "documents_needed": [
+              {
+                "evidence_type": "TEST_REPORT",
+                "label": "시험성적서",
+                "facts": [
+                  "ph"
+                ],
+                "fact_labels": [
+                  "pH"
+                ]
+              }
+            ]
+          },
+          "conflicts": [],
+          "result": null
+        },
+        "case_status": "NEEDS_INFO"
+      }
+    },
+    "a_final": {
+      "branch_reason": "서류로 pH 확인 → 후보 하나(h2so4:DESIGNATED)",
+      "next": {},
+      "confirm": {
+        "guidance": {
+          "action": "RECOMMEND_ROUTE",
+          "summary": "분류번호와 구분(지정/일반)에 맞는 처리 경로와 처리업체를 추천합니다.",
+          "notes": [
+            "지정폐기물이면 지정폐기물 처리 허가를 받은 업체만 추천한다.",
+            "판정은 검토 전 규칙(UNVERIFIED)에 따른 참고 판정임을 함께 안내한다."
+          ]
+        },
+        "kb": {
+          "kb_version": "208334c435f08fb3",
+          "table_id": "h2so4",
+          "table_version": "2026.11.0+re-2f1355a"
+        }
+      },
+      "turn": {
+        "case_id": "",
+        "session_id": "",
+        "turn_id": "",
+        "branch": "FINAL_REVIEW",
+        "sub_branch": null,
+        "message": "분류번호는 02-01-02 폐황산(폐황산이 포함된 2차폐축전지는 제외한다) (지정폐기물)로 판정됩니다. 내용이 맞으면 확정해 주세요. 이 판정은 검토 전 규칙(UNVERIFIED)에 따른 것이라 참고용입니다.",
+        "verdict": {
+          "status": "CONFIRMABLE",
+          "waste_code": "02-01-02",
+          "waste_name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+          "category": "DESIGNATED",
+          "outcome": null,
+          "candidates": [
+            {
+              "code": "02-01-02",
+              "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+              "outcome": null,
+              "rule_ids": [
+                "h2so4:DESIGNATED"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "fact": "material",
+              "text": "소재: 폐황산",
+              "satisfied": true,
+              "evidence": null
+            },
+            {
+              "fact": "ph",
+              "text": "pH: 2 이하",
+              "satisfied": true,
+              "evidence": "TEST_REPORT"
+            }
+          ],
+          "rationale": [
+            {
+              "id": "B1",
+              "type": "LAW",
+              "ref": "폐기물관리법 시행령 별표 1 제2호가목 폐산",
+              "excerpt": "액체상태의 폐기물로서 수소이온 농도지수가 2.0 이하인 것으로 한정한다."
+            },
+            {
+              "id": "B2",
+              "type": "LAW",
+              "ref": "폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 02-01-02",
+              "excerpt": "02-01-02 폐황산(폐황산이 포함된 2차폐축전지는 제외한다)"
+            }
+          ],
+          "failure_reason": null,
+          "review": "UNVERIFIED"
+        },
+        "ui": {
+          "can_confirm": true,
+          "suggested_replies": [
+            "확정",
+            "다시 확인할게요"
+          ],
+          "requested_documents": [],
+          "question": null,
+          "board": {
+            "facts": [
+              {
+                "key": "material_group",
+                "label": "소재 분류",
+                "value": "acid_alkali",
+                "value_label": "산·알칼리",
+                "status": "CLAIMED",
+                "source_type": "UTTERANCE",
+                "source_label": "말함",
+                "quote": "도금 라인 폐황산",
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "plastic",
+                      "label": "플라스틱·고무"
+                    },
+                    {
+                      "value": "metal",
+                      "label": "금속"
+                    },
+                    {
+                      "value": "slag",
+                      "label": "광재(슬래그)"
+                    },
+                    {
+                      "value": "dust_ash",
+                      "label": "분진·소각재"
+                    },
+                    {
+                      "value": "sand",
+                      "label": "주물사·폐사·내화물"
+                    },
+                    {
+                      "value": "sludge",
+                      "label": "오니(슬러지)"
+                    },
+                    {
+                      "value": "oil",
+                      "label": "기름"
+                    },
+                    {
+                      "value": "acid_alkali",
+                      "label": "산·알칼리"
+                    },
+                    {
+                      "value": "solvent_paint",
+                      "label": "용제·페인트"
+                    },
+                    {
+                      "value": "wood_paper_fiber",
+                      "label": "목재·종이·섬유·유리"
+                    },
+                    {
+                      "value": "catalyst_adsorbent",
+                      "label": "촉매·흡착제"
+                    },
+                    {
+                      "value": "product",
+                      "label": "제품·복합물"
+                    },
+                    {
+                      "value": "special",
+                      "label": "여러 소재가 섞여 나누기 어려운 것"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "material",
+                "label": "소재",
+                "value": "h2so4",
+                "value_label": "폐황산",
+                "status": "CLAIMED",
+                "source_type": "UTTERANCE",
+                "source_label": "말함",
+                "quote": "도금 라인 폐황산",
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "pp",
+                      "label": "PP(폴리프로필렌)"
+                    },
+                    {
+                      "value": "pe",
+                      "label": "PE(폴리에틸렌)"
+                    },
+                    {
+                      "value": "pet",
+                      "label": "PET"
+                    },
+                    {
+                      "value": "ps",
+                      "label": "PS(폴리스티렌, 발포 아님)"
+                    },
+                    {
+                      "value": "abs",
+                      "label": "ABS 수지"
+                    },
+                    {
+                      "value": "phenol_resin",
+                      "label": "페놀수지"
+                    },
+                    {
+                      "value": "other_resin",
+                      "label": "그 밖의 합성수지(PC, 나일론 등)"
+                    },
+                    {
+                      "value": "pvc",
+                      "label": "PVC(염화비닐)"
+                    },
+                    {
+                      "value": "pu_foam",
+                      "label": "폴리우레탄폼"
+                    },
+                    {
+                      "value": "eps",
+                      "label": "발포합성수지(스티로폼)"
+                    },
+                    {
+                      "value": "plastic_packaging",
+                      "label": "플라스틱 포장재"
+                    },
+                    {
+                      "value": "fishing_net",
+                      "label": "폐어망"
+                    },
+                    {
+                      "value": "aqua_buoy",
+                      "label": "양식용 부자"
+                    },
+                    {
+                      "value": "rubber",
+                      "label": "합성고무"
+                    },
+                    {
+                      "value": "hcl",
+                      "label": "폐염산"
+                    },
+                    {
+                      "value": "h2so4",
+                      "label": "폐황산"
+                    },
+                    {
+                      "value": "hno3",
+                      "label": "폐질산"
+                    },
+                    {
+                      "value": "hf",
+                      "label": "폐불산"
+                    },
+                    {
+                      "value": "acid_lcd_semi",
+                      "label": "LCD·반도체 공정 폐산"
+                    },
+                    {
+                      "value": "acid_other",
+                      "label": "그 밖의 폐산"
+                    },
+                    {
+                      "value": "caustic_solution",
+                      "label": "폐가성소다수(수산화나트륨 수용액)"
+                    },
+                    {
+                      "value": "ammonia_solution",
+                      "label": "폐암모니아수"
+                    },
+                    {
+                      "value": "naoh_solid",
+                      "label": "고체 수산화나트륨"
+                    },
+                    {
+                      "value": "koh_solid",
+                      "label": "고체 수산화칼륨"
+                    },
+                    {
+                      "value": "alkali_other",
+                      "label": "그 밖의 폐알칼리(액체)"
+                    },
+                    {
+                      "value": "sludge_ww_pulp_paper",
+                      "label": "펄프·제지 폐수처리 오니"
+                    },
+                    {
+                      "value": "sludge_ww_stone",
+                      "label": "석재·골재 생산 폐수처리 오니"
+                    },
+                    {
+                      "value": "sludge_ww_organic",
+                      "label": "그 밖의 폐수처리 오니(유기성)"
+                    },
+                    {
+                      "value": "sludge_ww_inorganic",
+                      "label": "그 밖의 폐수처리 오니(무기성)"
+                    },
+                    {
+                      "value": "sludge_ww_unknown",
+                      "label": "폐수처리 오니(유기성·무기성 모름)"
+                    },
+                    {
+                      "value": "sludge_proc_pulp_paper",
+                      "label": "펄프·제지 공정 오니"
+                    },
+                    {
+                      "value": "sludge_proc_glass_etching",
+                      "label": "유리식각 공정 오니"
+                    },
+                    {
+                      "value": "sludge_proc_silicon",
+                      "label": "실리콘 (제조)공정 오니"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "emission_facility",
+                "label": "배출시설 허가·신고",
+                "value": true,
+                "value_label": "예",
+                "status": "CLAIMED",
+                "source_type": "PROFILE",
+                "source_label": "기업 정보",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "oil_presence",
+                "label": "기름 묻음·섞임",
+                "value": "none",
+                "value_label": "기름이 묻거나 섞이지 않음",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "none",
+                      "label": "기름이 묻거나 섞이지 않음"
+                    },
+                    {
+                      "value": "present",
+                      "label": "기름이 묻어 있거나 섞여 있음"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "pcb_possible",
+                "label": "PCB 사용 기기·절연유 관련",
+                "value": false,
+                "value_label": "아니오",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "toxic_chemical_discard",
+                "label": "유해화학물질 폐기",
+                "value": false,
+                "value_label": "아니오",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "material_fate",
+                "label": "이 물질을 어떻게 하는지",
+                "value": "released",
+                "value_label": "내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "still_used",
+                      "label": "제품이나 원료로 계속 쓴다 (아직 필요함)"
+                    },
+                    {
+                      "value": "same_process_reinput",
+                      "label": "따로 처리하지 않고 같은 공정에 바로 다시 넣는다"
+                    },
+                    {
+                      "value": "continuous_feedstock",
+                      "label": "따로 처리하지 않고 발생한 시설에서 연속공정으로 다른 제품의 원료로 바로 넣는다"
+                    },
+                    {
+                      "value": "released",
+                      "label": "내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "circular_resource_recognized",
+                "label": "순환자원 인정서",
+                "value": false,
+                "value_label": "아니오",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "bool",
+                  "unit": null,
+                  "options": [
+                    {
+                      "label": "예",
+                      "value": true
+                    },
+                    {
+                      "label": "아니오",
+                      "value": false
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "law_exclusion",
+                "label": "다른 법 적용 대상",
+                "value": "none",
+                "value_label": "해당 없음",
+                "status": "CLAIMED",
+                "source_type": "SCREENING",
+                "source_label": "묶음 답",
+                "quote": null,
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": true,
+                "edit": {
+                  "input": "choice",
+                  "value_type": "enum",
+                  "unit": null,
+                  "options": [
+                    {
+                      "value": "none",
+                      "label": "해당 없음"
+                    },
+                    {
+                      "value": "radioactive",
+                      "label": "원자력안전법에 따른 방사성 물질 또는 그로 오염된 물질"
+                    },
+                    {
+                      "value": "uncontained_gas",
+                      "label": "용기에 들어 있지 않은 기체"
+                    },
+                    {
+                      "value": "wastewater",
+                      "label": "수질오염방지시설로 들어가거나 공공수역으로 배출되는 폐수"
+                    },
+                    {
+                      "value": "livestock_manure",
+                      "label": "가축분뇨"
+                    },
+                    {
+                      "value": "sewage_nightsoil",
+                      "label": "하수도법에 따른 하수·분뇨"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "ph",
+                "label": "pH",
+                "value": 1.2,
+                "value_label": "1.2",
+                "status": "EVIDENCED",
+                "source_type": "DOCUMENT",
+                "source_label": "서류",
+                "quote": "수소이온농도(pH) 1.2",
+                "recorded_at": "2026-11-08T21:59:32+09:00",
+                "editable": false,
+                "edit": null
+              }
+            ],
+            "pending": [],
+            "progress": {
+              "questions_asked": 3,
+              "max_questions": 12
+            },
+            "candidates_count": 1,
+            "top_candidates": [
+              {
+                "code": "02-01-02",
+                "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+                "outcome": null
+              }
+            ],
+            "documents_needed": []
+          },
+          "conflicts": [],
+          "result": {
+            "result_type": "WASTE_CODE",
+            "code": "02-01-02",
+            "name": "폐황산(폐황산이 포함된 2차폐축전지는 제외한다)",
+            "category": "DESIGNATED",
+            "outcome": null,
+            "conclusion": "분류번호 02-01-02 폐황산(폐황산이 포함된 2차폐축전지는 제외한다)로 판정됩니다",
+            "next_step": "확정하면 경로 추천으로 넘어갑니다",
+            "review": "UNVERIFIED"
+          }
+        },
+        "case_status": "DIAGNOSING"
+      }
+    }
+  }
+}
