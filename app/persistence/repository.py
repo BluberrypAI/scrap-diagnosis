@@ -109,6 +109,7 @@ class SessionRepository:
         kb_version: str,
         table_versions: dict[str, str],
         started_at: datetime,
+        company_profile_version: str | None = None,
     ) -> LoadedSession:
         rec = DiagnosisSessionRecord(
             id=session.session_id,
@@ -119,6 +120,7 @@ class SessionRepository:
             kb_dir=kb_dir,
             kb_version=kb_version,
             table_versions=table_versions,
+            company_profile_version=company_profile_version,
             state=session.export_state(),
         )
         self.db.add(rec)

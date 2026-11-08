@@ -92,6 +92,13 @@ class HandoffKB(BaseModel):
     table_version: str | None
 
 
+class HandoffInputs(BaseModel):
+    """기업 정보 입력 요약(diagnosis-handoff-v1에 추가된 필드)."""
+
+    company_profile_version: str | None = None  # 서버가 보낸 기업 정보 버전
+    confirmed_profile_keys: list[str] = []  # 서버가 확인된 값으로 보낸 사실 키(유효한 것만)
+
+
 class Handoff(BaseModel):
     contract: str = CONTRACT
     case_id: str
@@ -108,6 +115,7 @@ class Handoff(BaseModel):
     review: str
     timestamps: HandoffTimestamps
     kb: HandoffKB
+    inputs: HandoffInputs = HandoffInputs()
 
 
 def build_handoff(
@@ -124,6 +132,7 @@ def build_handoff(
     diagnosis_started_at: datetime,
     confirmed_at: datetime,
     as_of: date,
+    company_profile_version: str | None = None,
 ) -> Handoff:
     """확정 시점의 인계 객체. 안내 항목이 없으면 KeyError(로드 때 이미 검증하므로 나오면 버그)."""
     result_type = result_type_of(decided)
@@ -161,4 +170,12 @@ def build_handoff(
             as_of=as_of.isoformat(),
         ),
         kb=HandoffKB(kb_version=kb_version, table_id=table_id, table_version=table_version),
+        inputs=HandoffInputs(
+            company_profile_version=company_profile_version,
+            confirmed_profile_keys=sorted(
+                k
+                for k, f in effective.items()
+                if f.is_known and f.source_type == "PROFILE_CONFIRMED"
+            ),
+        ),
     )

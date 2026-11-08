@@ -54,7 +54,17 @@ class CompanyOut(_ORM):
 # ---- 건 ----------------------------------------------------------------------------------
 
 
-class CaseCreate(BaseModel):
+class ConfirmedProfile(BaseModel):
+    """서버가 사용자 확인을 거쳐 보내는 기업 정보 값(PROFILE_CONFIRMED).
+
+    확인 안 된 기본값은 보내지 않는다.
+    """
+
+    confirmed_facts: dict[str, Any] = Field(default_factory=dict)  # {사실 키: 값}
+    company_profile_version: str | None = Field(default=None, max_length=64)
+
+
+class CaseCreate(ConfirmedProfile):
     memo: str | None = Field(default=None, max_length=2000)  # 종류 메모
     quantity: float | None = Field(default=None, ge=0)
     unit: str | None = Field(default=None, max_length=20)
@@ -108,6 +118,7 @@ class VerdictOut(_ORM):
     verdict: dict[str, Any]
     trace_turn_id: str | None
     handoff: dict[str, Any] | None  # diagnosis-handoff-v1 (docs/handoff-contract.md)
+    company_profile_version: str | None = None  # 서버가 보낸 기업 정보 버전
     confirmed_at: SeoulDateTime
     superseded_at: SeoulDateTime | None
     reopened_at: SeoulDateTime | None
@@ -187,7 +198,7 @@ class CaseDetail(BaseModel):
 # ---- 문진 --------------------------------------------------------------------------------
 
 
-class MessageIn(BaseModel):
+class MessageIn(ConfirmedProfile):
     """자유 진술(text) 또는 선택지 버튼(quick_reply) 중 하나."""
 
     text: str | None = Field(default=None, max_length=4000)
@@ -329,3 +340,15 @@ class PagingInfo(BaseModel):
 class CaseListPage(BaseModel):
     items: list[CaseOut]
     pagingInfo: PagingInfo
+
+
+class DeletionOut(BaseModel):
+    """기업 데이터 삭제 결과·이력(CORP-009)."""
+
+    company_hash: str  # 서버 기업 ID의 SHA-256(hex)
+    status: Literal["DONE", "FAILED"]
+    counts: dict[str, int]  # 테이블별 삭제 건수
+    attempts: int
+    error: str | None = None
+    started_at: SeoulDateTime
+    finished_at: SeoulDateTime | None = None

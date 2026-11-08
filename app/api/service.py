@@ -95,6 +95,8 @@ class CaseService:
         settings: Settings,
         today: date | None,
         company: Company,
+        *,
+        seed_local_profile: bool = True,
     ):
         self.db = db
         self.kb = kb
@@ -103,6 +105,8 @@ class CaseService:
         self.settings = settings
         self.today = today  # 고정한 법 기준일(테스트). None이면 대화 시작 시각의 서울 날짜
         self.company = company
+        # 엔진 자체 기업 정보로 사이트 사실을 넣는 경로(개발·참조 화면 전용). 내부 호출·prod는 끈다.
+        self.seed_local_profile = seed_local_profile and settings.app_env != "prod"
         self.repo = SessionRepository(
             db,
             kb,
@@ -233,8 +237,16 @@ class CaseService:
     # ---- 생성 ----------------------------------------------------------------------------
 
     def create_case(
-        self, *, memo: str | None, quantity: float | None, unit: str | None, period: str | None
+        self,
+        *,
+        memo: str | None,
+        quantity: float | None,
+        unit: str | None,
+        period: str | None,
+        confirmed_facts: dict[str, Any] | None = None,
+        company_profile_version: str | None = None,
     ) -> tuple[WasteCase, TurnResponse]:
+        confirmed = self._check_confirmed(confirmed_facts)
         case = WasteCase(
             id=new_id(),
             company_id=self.company.id,
@@ -256,7 +268,10 @@ class CaseService:
             max_questions=self.settings.max_questions,
             prompt_version=self.settings.prompt_version,
         )
-        self._seed_profile(s)
+        if self.seed_local_profile:
+            self._seed_profile(s)
+        for k, v in confirmed.items():
+            s.seed({k: v}, source_type="PROFILE_CONFIRMED")
         resp = s.start(memo.strip() if memo and memo.strip() else None)
         ls = self.repo.create(
             case,
@@ -265,9 +280,43 @@ class CaseService:
             kb_version=self.kb_info.version,
             table_versions=self.kb_info.table_versions,
             started_at=started_at,
+            company_profile_version=company_profile_version,
         )
         self._finish_turn(case, ls)
         return case, resp
+
+    def _check_confirmed(self, facts: dict[str, Any] | None) -> dict[str, Any]:
+        """서버가 확인된 값으로 보낸 기업 정보를 형식 검사한다. 하나라도 틀리면 422."""
+        out: dict[str, Any] = {}
+        problems = []
+        for k, v in (facts or {}).items():
+            try:
+                out[k] = check_document_value(self.kb, k, v)
+            except AnswerError as exc:
+                problems.append({"key": k, "value": v, "reason": str(exc)})
+        if problems:
+            raise ServiceError(
+                422, "기업 정보 값 형식이 올바르지 않습니다", "VALIDATION_ERROR", problems=problems
+            )
+        return out
+
+    def _apply_confirmed(
+        self, ls: LoadedSession, confirmed: dict[str, Any], version: str | None
+    ) -> None:
+        """메시지와 함께 온 확인된 기업 정보. 이미 같은 값으로 넣은 키는 건너뛴다.
+
+        서버가 매번 다시 보내도 사용자가 나중에 고친 답을 덮어쓰지 않게 한다.
+        """
+        s = ls.session
+        for k, v in confirmed.items():
+            same = any(
+                f.source_type == "PROFILE_CONFIRMED" and f.key == k and f.value == v
+                for f in s.store.history
+            )
+            if not same:
+                s.seed({k: v}, source_type="PROFILE_CONFIRMED")
+        if version is not None:
+            ls.record.company_profile_version = version
 
     def _seed_profile(self, s: DiagnosisSession) -> None:
         """기업 프로필의 사이트 사실(PROFILE). 카탈로그에 없거나 값이 맞지 않는 키는 건너뛴다.
@@ -314,9 +363,17 @@ class CaseService:
         self.repo.save(ls)
 
     def message(
-        self, case: WasteCase, *, text: str | None, quick_reply: QuickReply | None
+        self,
+        case: WasteCase,
+        *,
+        text: str | None,
+        quick_reply: QuickReply | None,
+        confirmed_facts: dict[str, Any] | None = None,
+        company_profile_version: str | None = None,
     ) -> TurnResponse:
+        confirmed = self._check_confirmed(confirmed_facts)
         ls = self._open_session(case)
+        self._apply_confirmed(ls, confirmed, company_profile_version)
         resp = ls.session.handle(text=text, quick_reply=quick_reply)
         self._finish_turn(case, ls)
         return resp
@@ -813,6 +870,7 @@ class CaseService:
             diagnosis_started_at=ls.record.started_at,
             confirmed_at=now,
             as_of=s.as_of,
+            company_profile_version=ls.record.company_profile_version,
         ).model_dump(mode="json")
         verdict = VerdictRecord(
             case_id=case.id,
@@ -832,6 +890,7 @@ class CaseService:
             verdict=build_verdict(self.kb, step, s.rule_index).model_dump(mode="json"),
             trace_turn_id=last.turn_id if last else None,
             handoff=handoff,
+            company_profile_version=ls.record.company_profile_version,
             confirmed_at=now,
         )
         self.db.add(verdict)

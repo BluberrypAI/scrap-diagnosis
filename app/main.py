@@ -13,7 +13,13 @@ from sqlalchemy import Engine
 from app.agent.llm_client import LLMClient
 from app.api.deps import _UNSET, INTERNAL_PREFIX, AppContainer, require_service_auth
 from app.api.errors import install_error_handlers
-from app.api.routes import case_router, dev_router, internal_list_router, root_list_router
+from app.api.routes import (
+    case_router,
+    company_data_router,
+    dev_router,
+    internal_list_router,
+    root_list_router,
+)
 from app.config import Settings, get_settings
 from app.rules.model import KnowledgeBase
 
@@ -58,7 +64,7 @@ def create_app(
     app.include_router(case_router)
     # /internal/v1: scrap-server용. 같은 핸들러를 서비스 토큰 인증 아래에 한 번 더 올린다.
     internal_deps = [Depends(require_service_auth)]
-    for r in (internal_list_router, case_router):
+    for r in (internal_list_router, case_router, company_data_router):
         app.include_router(r, prefix=INTERNAL_PREFIX, tags=["internal"], dependencies=internal_deps)
 
     @app.get("/health", tags=["meta"])

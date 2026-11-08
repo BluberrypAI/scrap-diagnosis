@@ -48,6 +48,7 @@ SOURCE_LABEL = {
     "UTTERANCE": "말함",
     "DOCUMENT": "서류",
     "PROFILE": "기업 정보",
+    "PROFILE_CONFIRMED": "기업 정보(확인됨)",
     "SCREENING": "묶음 답",
     "DERIVED": "자동",
     "SIMULATION": "시험",

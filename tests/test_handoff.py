@@ -57,6 +57,7 @@ HANDOFF_KEYS = {
     "review",
     "timestamps",
     "kb",
+    "inputs",  # 기업 정보 입력 요약(추가 필드)
 }
 # 실제 KB: 아직 공정에서 쓰는 PP → 폐기물 아님(코드 없는 결론)
 NOT_WASTE_FACTS = {

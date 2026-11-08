@@ -35,14 +35,18 @@
     "confirmed_at": "2026-11-08T09:20:41+09:00",
     "as_of": "2026-11-08"
   },
-  "kb": {"kb_version": "…", "table_id": "pp", "table_version": "2026.11.0+re-2f1355a"}
+  "kb": {"kb_version": "…", "table_id": "pp", "table_version": "2026.11.0+re-2f1355a"},
+  "inputs": {"company_profile_version": "p7 | null", "confirmed_profile_keys": ["emission_facility"]}
 }
 ```
 
 규칙
-- `facts`에는 값이 알려진 유효 사실만 넣는다. 각 사실에는 출처를 함께 넣는다(UTTERANCE / DOCUMENT / PROFILE / SCREENING / DERIVED).
+- `facts`에는 값이 알려진 유효 사실만 넣는다. 각 사실에는 출처를 함께 넣는다(UTTERANCE / DOCUMENT / PROFILE / PROFILE_CONFIRMED / SCREENING / DERIVED).
 - 시각은 모두 ISO 8601이며 시간대를 붙인다. 저장은 UTC로 하고, 인계 객체에는 Asia/Seoul로 낸다.
 - `as_of`(법 기준일)는 **대화를 시작한 날짜(Asia/Seoul)**다. reopen해도 바꾸지 않는다.
+
+- `inputs`(추가 필드, 기존 필드는 그대로): 서버가 보낸 기업 정보 입력의 요약이다. `company_profile_version`은 서버가 건 생성·문진 답변에 보낸 기업 정보 버전(없으면 null), `confirmed_profile_keys`는 서버가 사용자 확인을 거쳐 보낸 값(`source_type = PROFILE_CONFIRMED`) 중 유효한 사실 키다. 판정 버전(Verdict)에도 같은 `company_profile_version`이 남는다. 이 필드가 없는 이전 객체는 `inputs`가 없다.
+- `facts[].source_type`에 `PROFILE_CONFIRMED`가 더해졌다(서버가 확인한 기업 정보).
 
 ## result_type / outcome → route_guidance.action
 | result_type | outcome | action | 경로추천 AI가 할 일 |
