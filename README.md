@@ -2,7 +2,7 @@
 
 폐기물 분류 코드 판정 엔진과 문진 에이전트. 원칙은 **LLM은 제안하고, 규칙 엔진이 판정하고, 서버가 검증한다.**
 
-현재 진행: M1(엔진 코어), M2(질문 선택·라우터·시뮬레이터), M2R(기존 엔진 실제 규칙 변환), M3(LLM 추출·응답·guard) 완료. 결과: `docs/m3-report.md`.
+현재 진행: M1(엔진 코어), M2(질문 선택·라우터·시뮬레이터), M2R(기존 엔진 실제 규칙 변환), M3(LLM 추출·응답·guard), M4(API·영속화·문서·confirm/reopen·Trace) 완료. 결과: `docs/m3-report.md`, `docs/m4-report.md`.
 
 ## 실행
 ```bash
@@ -26,6 +26,29 @@ uv run python tools/convert_legacy.py --regression
 uv run python tools/legacy_regression.py --write
 ```
 
+## API 서버 (M4)
+```bash
+uv run uvicorn app.main:app --port 8030      # 문서: http://localhost:8030/docs
+uv run alembic upgrade head                  # 운영 스키마(DATABASE_URL). 개발은 시작 시 create_all
+uv run alembic -x url=sqlite:///var/other.db upgrade head
+```
+- 설정(`.env`/환경변수): `DATABASE_URL`(기본 `sqlite:///<저장소>/var/app.db`), `KB_DIR`(기본 `data/real`),
+  `DB_CREATE_ALL`(기본 true), `LLM_PROVIDER`(off면 LLM 없이 선택지 버튼·라벨만 받음)
+- 기업 격리: 임시로 `X-Company-Id` 헤더(TODO: 실제 인증). 다른 기업의 건은 404.
+
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| POST | `/companies` | (개발용) 기업 생성. `profile.facts`는 문진 시작 때 PROFILE 사실 |
+| GET / PUT | `/companies/me`, `/companies/me/profile` | 내 기업 조회·프로필 수정 |
+| POST | `/cases` | 건 생성(memo·quantity·unit·period) → 첫 턴 응답 |
+| GET | `/cases?status=` | 상태별 목록 |
+| GET | `/cases/{id}` | 건 상세 + 현재 판정·판정 버전·마지막 턴·문서 |
+| POST | `/cases/{id}/diagnosis/messages` | `{text}` 또는 `{quick_reply:{key,kind,value}}` → md 10절 응답 |
+| POST | `/cases/{id}/documents` | multipart `file`(.txt/.md/.pdf), 선택 `facts`(JSON) → EVIDENCED → 재평가 |
+| POST | `/cases/{id}/confirm` | 서버 재평가 후 판정 버전 고정 → `CODE_CONFIRMED` (불가 시 409) |
+| POST | `/cases/{id}/reopen` | `CODE_CONFIRMED`에서만. 이전 판정은 버전으로 보존 |
+| GET | `/cases/{id}/trace` | Decision Trace 전체(사실 이력·턴·확정 기록) |
+
 ## 데이터
 - `data/sample/` — 엔진 검증용 SAMPLE 규칙. `SAMPLE-` 코드와 `(샘플)` 조문만 있다.
 - `data/real/` — 기존 엔진에서 변환한 실제 규칙(자동 생성, 직접 고치지 않음)
@@ -46,6 +69,8 @@ uv run python tools/legacy_regression.py --write
 - `app/agent/{llm_client,extractor,guard,responder,templates,orchestrator}.py` — LLM 제안·검증, 한 턴 처리
 - `app/domain/{verdict,trace}.py` — 응답 스키마(md 10절), Decision Trace
 - `tools/convert_legacy.py`, `tools/legacy_regression.py` — 기존 규칙 변환과 회귀 비교
+- `app/main.py`, `app/api/` — FastAPI 앱 팩토리, 라우터, 서비스(상태 전이), 문서 텍스트 추출
+- `app/persistence/` — SQLAlchemy 모델·저장소(요청마다 DB 행에서 문진 세션 복원), `alembic/` 마이그레이션
 
 ## 기존 엔진 대비 질문을 줄이는 장치
 1. 질문 풀은 확정을 실제로 막는 사실(`blocking_facts`)로만 만든다.

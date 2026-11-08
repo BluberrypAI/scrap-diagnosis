@@ -25,6 +25,12 @@ class Settings(BaseSettings):
     max_questions: int = 12
     prompt_version: str = "m3.1"
 
+    # M4: API·영속화. 개발은 SQLite(저장소 기준 var/app.db), 운영은 PostgreSQL URL.
+    database_url: str = f"sqlite:///{(ROOT / 'var' / 'app.db').as_posix()}"
+    db_create_all: bool = True  # 개발 편의: 시작할 때 테이블 생성. 운영은 alembic upgrade head
+    max_upload_bytes: int = 10 * 1024 * 1024
+    document_text_limit: int = 20000  # 문서 추출 때 LLM에 넘기는 최대 글자 수
+
     @property
     def llm_enabled(self) -> bool:
         return self.llm_provider == "azure" and all(
