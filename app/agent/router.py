@@ -25,6 +25,7 @@ from app.rules.model import KnowledgeBase
 from app.rules.selector import (
     QuestionChoice,
     SelectionContext,
+    implied_child,
     referenced_values,
     select_question,
 )
@@ -227,13 +228,24 @@ def route(
     )
 
 
-def auto_fill(kb: KnowledgeBase, ev: EvaluationResult, as_of: date) -> Fact | None:
-    """auto_single 사실만 확정을 막고 있고 남은 선택지가 하나면 그 값을 채운다.
+def auto_fill(
+    kb: KnowledgeBase,
+    ev: EvaluationResult,
+    as_of: date,
+    facts: dict[str, Fact] | None = None,
+) -> Fact | None:
+    """남은 선택지가 하나뿐인 사실을 채운다. 출처는 DERIVED로 남긴다.
 
-    기존 엔진의 '번호 후보가 하나면 그대로 정함'과 같다. 출처는 DERIVED로 남긴다.
+    - 상위 분류에 속한 세부 값이 하나뿐이면 그 값(예: 소재 분류 → 소재). facts가 있을 때만.
+    - auto_single 사실만 확정을 막고 있고 남은 선택지가 하나면 그 값.
+      기존 엔진의 '번호 후보가 하나면 그대로 정함'과 같다.
     """
     if ev.decided is not None or not ev.blocking_facts:
         return None
+    if facts is not None:
+        implied = implied_child(kb, facts, ev)
+        if implied is not None:
+            return implied
     if any(not kb.catalog[u.key].auto_single for u in ev.blocking_facts):
         return None
     if len(ev.blocking_facts) != 1:
@@ -275,7 +287,7 @@ def run_engine(
     effective = store.effective()
     ev = evaluate(kb, effective, as_of)
     for _ in range(3):
-        filled = auto_fill(kb, ev, as_of)
+        filled = auto_fill(kb, ev, as_of, effective)
         if filled is None:
             break
         store.append(filled)

@@ -42,6 +42,10 @@ class FactDef:
     auto_single: bool = False  # 남은 선택지가 하나면 자동으로 채움
     internal: bool = False  # LLM이 자유 진술에서 추출하지 않음(직전 질문의 선택지로만 받음)
     value_aliases: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    # 2단계 질문: 상위 분류 사실 키와 '값 → 상위 분류 값' 대응(예: material → material_group).
+    # 상위 분류를 모르면 상위 분류를 먼저 묻고, 알면 이 사실의 선택지를 그 분류의 값으로 줄인다.
+    parent: str | None = None
+    value_parent: dict[str, str] = field(default_factory=dict)
 
 
 # ---- 조건식 -------------------------------------------------------------------------------

@@ -6,6 +6,9 @@
 - 기존 라벨의 waste_kind는 새 카탈로그에 없으므로
   추출된 material의 waste_kind(기존 materials.yaml)로 비교
 - 라벨이 드물어(사례당 1~3개) 재현율은 참고값이다. 라벨에 없는 추출은 '추가 추출'로만 센다.
+- 소재 분류 보조 지표(material_group_fallback): waste_kind 라벨이 있는데 소재를 뽑지 못한 경우,
+  뽑은 material_group이 그 waste_kind를 가진 소재들의 분류(기존 materials.yaml group)에 드는지 센다.
+  waste_kind 'other'처럼 여러 분류에 걸친 종류는 따로(unique_group_*) 본다.
 """
 
 from __future__ import annotations
@@ -58,6 +61,10 @@ def main() -> int:
     kb = load_kb(ROOT / "data" / "real")
     mats = yaml.safe_load((legacy / "rules" / "materials.yaml").read_text(encoding="utf-8"))
     kind_of = {k: v.get("waste_kind") for k, v in mats["materials"].items()}
+    groups_of_kind: dict[str, set[str]] = {}
+    for v in mats["materials"].values():
+        if v.get("waste_kind") and v.get("group"):
+            groups_of_kind.setdefault(v["waste_kind"], set()).add(v["group"])
     cases = [c for c in load_cases(legacy / "testdata" / "cases.jsonl") if c.get("facts")]
 
     def run(c: dict) -> dict:
@@ -78,13 +85,17 @@ def main() -> int:
             if k == "waste_kind":
                 m = got.get("material")
                 kind = kind_of.get(m) if m else None
+                g = got.get("material_group")
                 rows.append(
                     {
                         "key": k,
                         "expected": v,
-                        "got": f"material={m}({kind})",
+                        "got": f"material={m}({kind}) material_group={g}",
                         "comparable": True,
                         "hit": kind == v,
+                        "material": m,
+                        "group": g,
+                        "expected_groups": sorted(groups_of_kind.get(v, ())),
                     }
                 )
             elif k in kb.catalog:
@@ -118,6 +129,27 @@ def main() -> int:
 
     comp = [r for x in results for r in x["rows"] if r["comparable"]]
     hits = sum(1 for r in comp if r["hit"])
+    kind_rows = [r for r in comp if r["key"] == "waste_kind"]
+    no_mat = [r for r in kind_rows if not r["material"]]
+    g_comp = [r for r in no_mat if r["expected_groups"]]
+    g_unique = [r for r in g_comp if len(r["expected_groups"]) == 1]
+
+    def g_hit(r: dict) -> bool:
+        return r["group"] in r["expected_groups"]
+
+    kind_ok = sum(1 for r in kind_rows if r["hit"] or (not r["material"] and g_hit(r)))
+    fallback = {
+        "waste_kind_labels": len(kind_rows),
+        "no_material": len(no_mat),
+        "comparable": len(g_comp),  # 그 waste_kind를 가진 소재가 있는 라벨
+        "group_hit": sum(1 for r in g_comp if g_hit(r)),
+        "group_wrong": sum(1 for r in g_comp if r["group"] and not g_hit(r)),
+        "group_empty": sum(1 for r in g_comp if not r["group"]),
+        "unique_group_comparable": len(g_unique),
+        "unique_group_hit": sum(1 for r in g_unique if g_hit(r)),
+        # 소재로 맞히거나, 소재가 없을 때 분류로 맞힌 waste_kind 라벨
+        "material_or_group_hit": f"{kind_ok}/{len(kind_rows)}",
+    }
     by_key = Counter((r["key"], r["hit"]) for r in comp)
     rejected = sum(len(x["rejected"]) for x in results)
     extracted = sum(len(x["extracted"]) for x in results)
@@ -127,6 +159,7 @@ def main() -> int:
         "comparable_facts": len(comp),
         "value_accuracy": f"{hits}/{len(comp)}",
         "by_key": {f"{k}:{'hit' if h else 'miss'}": n for (k, h), n in sorted(by_key.items())},
+        "material_group_fallback": fallback,
         "extracted_total": extracted,
         "guard_rejected": rejected,
         "guard_rejection_rate": round(rejected / (rejected + extracted), 3)

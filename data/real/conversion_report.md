@@ -14,6 +14,23 @@
 | INTERPRET | 300 | 해석 필요, 질의회신 근거 규칙 |
 | GENERAL | 100 | 사업장일반폐기물 코드 |
 
+## 소재 2단계 질문
+- 소재 분류(material_group, 기존 materials.yaml groups) → 그 분류의 소재(material).
+- 규칙은 소재만 참조한다. 분류는 소재 선택지를 줄이고, 소재가 하나면 자동으로 정한다.
+- plastic 플라스틱·고무: 소재 14개
+- metal 금속: 소재 4개
+- slag 광재(슬래그): 소재 6개
+- dust_ash 분진·소각재: 소재 8개
+- sand 주물사·폐사·내화물: 소재 5개
+- sludge 오니(슬러지): 소재 11개
+- oil 기름: 소재 7개
+- acid_alkali 산·알칼리: 소재 11개
+- solvent_paint 용제·페인트: 소재 5개
+- wood_paper_fiber 목재·종이·섬유·유리: 소재 9개
+- catalyst_adsorbent 촉매·흡착제: 소재 6개
+- product 제품·복합물: 소재 10개
+- special 여러 소재가 섞여 나누기 어려운 것: 소재 1개
+
 ## 변환하지 않은 기능
 - 결정 카드(해석 선택, residue_choice 등): 해석 필요 규칙은 판정 불가로 안내한다.
 - S5 재활용 유형(별표 4의3), S6 배출자신고·처리계획: 이번 범위 밖.

@@ -97,16 +97,32 @@ EXTRACT_SYSTEM = """너는 사업장 폐기물 문진의 '사실 추출기'다. 
 5. '직전 질문'에 대해 "모르겠다/몰라요/확인이 안 된다"고 하면 그 사실을 status "DECLARED_UNKNOWN"으로 낸다.
 6. 직전 질문이 묶음 질문(group)이면:
    - "다 없어요/해당 없음/아니요 전부" → group_answer.choice = "none_all"
+   - 질문이 "…해당하지 않나요?", "…그런가요?"처럼 '그렇다'가 '모두 해당 없음'인 형태면
+     "네", "그렇다", "맞아요", "네 해당 없어요", "네 버리는 거고 해당 없어요" 같은 짧은 긍정도
+     group_answer.choice = "none_all"이다. 이때 구성 사실을 facts로 하나씩 나누어 내지 마라.
    - "있어요/하나 있어요/잘 모르겠어요" → group_answer.choice = "expand" (구체적으로 말한 사실은 facts에도 넣는다)
 7. quote에는 근거가 된 사용자 발화 원문 일부를 그대로 복사한다(바꾸어 쓰지 마라).
 8. 사용자가 분류번호(예: 51-03-01)를 말하면 user_code_claim에 그 번호를 그대로 쓴다. 그 번호를 사실로 넣지 마라.
 9. 사용자가 무언가를 물으면(예: "왜 기름이 중요해?") user_question에 그 질문을 쓴다.
 10. 서류·시험성적서가 없다거나 구할 수 없다고 하면 evidence_refused = true.
-11. 뽑을 것이 없으면 facts는 빈 배열이다."""
+11. 뽑을 것이 없으면 facts는 빈 배열이다.
+12. 상위 분류가 있는 사실('사실 목록'에서 parent가 적힌 사실. 예: 소재 material의 parent는
+   소재 분류 material_group):
+   - 폐기물의 종류를 말하면 상위 분류 사실을 뽑는다(values와 aliases 참고).
+     예: "폐유기용제", "폐알칼리", "폐유", "분진", "오니", "폐축전지".
+   - 세부 값(예: "PP", "폐황산", "시너")을 분명히 말했으면 세부 사실도 함께 뽑는다.
+   - 큰 분류만 말했으면 세부 사실은 비운다. 큰 분류만 듣고 세부 값을 짐작하지 마라."""
 
 
 def catalog_view(kb: KnowledgeBase, last_question: QuestionChoice | None) -> list[dict]:
-    """LLM에 보여 줄 사실 목록. internal 사실은 직전 질문일 때 그 선택지만 보여 준다."""
+    """LLM에 보여 줄 사실 목록. internal 사실은 직전 질문일 때 그 선택지만 보여 준다.
+
+    상위 분류가 있는 사실에는 parent를, 상위 분류 사실에는 세부 사실 키(detail_facts)를 붙인다.
+    """
+    details: dict[str, list[str]] = {}
+    for fd in kb.catalog.values():
+        if fd.parent:
+            details.setdefault(fd.parent, []).append(fd.key)
     out = []
     for fd in kb.catalog.values():
         if fd.internal:
@@ -115,7 +131,10 @@ def catalog_view(kb: KnowledgeBase, last_question: QuestionChoice | None) -> lis
             vals = {str(o.value): o.label for o in last_question.value_options if o.kind == "value"}
             out.append(_fact_view(fd, vals))
             continue
-        out.append(_fact_view(fd))
+        view = _fact_view(fd)
+        if fd.key in details:
+            view["detail_facts"] = details[fd.key]
+        out.append(view)
     return out
 
 
@@ -125,6 +144,8 @@ def _fact_view(fd: FactDef, values: dict[str, str] | None = None) -> dict:
         v["label"] = fd.label
     if fd.unit:
         v["unit"] = fd.unit
+    if fd.parent:
+        v["parent"] = fd.parent
     if fd.type == "enum":
         v["values"] = (
             values
