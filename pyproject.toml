@@ -35,6 +35,8 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# 서브에이전트 작업 공간(.claude/worktrees)은 검사하지 않는다
+extend-exclude = [".claude"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
