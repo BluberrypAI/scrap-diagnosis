@@ -58,3 +58,20 @@
 | NO_CODE | NO_MIXTURE_RULE | MANUAL_CLASSIFICATION | 소재별로 분리해 따로 문진하거나, 관할 기관에 확인하도록 안내한다 |
 
 이 표는 데이터 파일(`data/<kb>/outcome_guidance.yaml`)로 두고, 코드에 하드코딩하지 않는다.
+
+## 구현 메모
+계약 필드는 바꾸지 않았다. 구현하면서 정한 세부 사항이다.
+- 저장: `verdicts.handoff`(JSON). `result_type`·`outcome`은 판정 버전 열로도 둔다. 마이그레이션 `0002`.
+- `GET /cases/{id}`의 `handoff`는 현재(대체되지 않은) 확정 판정의 것이다. reopen 뒤 다시 확정할 때까지는 null이고,
+  이전 버전의 인계 객체는 `verdicts[].handoff`에 남는다.
+- `waste_name`은 코드 없는 결론이면 null이다. `category`는 규칙의 값을 그대로 낸다(예: 폐기물 아님은 `OUT_OF_SCOPE`).
+- `facts`: 값이 있는 유효 사실(CLAIMED·EVIDENCED)만. 값은 저장 형식 그대로다(구간 응답은 `{lo, lo_inc, hi, hi_inc}`).
+  출처 SCREENING은 아직 없다(묶음 질문 답은 UTTERANCE로 들어온다).
+- `evidence`: 유효 사실 중 출처가 DOCUMENT인 것. `document_id`는 업로드한 문서 id.
+- `basis`: 확정 규칙(`rule_ids[0]`)의 근거. id는 응답 `verdict.rationale`과 같은 B1, B2 …
+- `review`: 규칙의 review 값(없으면 `UNVERIFIED`). 지금 모든 규칙이 `UNVERIFIED`다.
+- `timestamps`: 초 단위 ISO 8601, `+09:00`. 한국은 일광절약시간이 없어 고정 오프셋을 쓴다.
+- `route_guidance`: `data/<kb>/outcome_guidance.yaml`(표 전체, real·sample 같은 내용). 계약 표의 행이나 규칙에 쓰인
+  outcome의 항목이 하나라도 없으면 KB 로드(서버 시작)가 실패한다. action·outcome은 계약의 값만 받는다.
+- confirm의 `expected_code`: 코드 없는 결론이면 outcome(`NOT_WASTE` 또는 `@NOT_WASTE`)과 비교한다. 분류번호를 보내면 409.
+
