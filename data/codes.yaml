@@ -1,0 +1,9 @@
+# 코드표 (SAMPLE). 실제 법령 분류 코드가 아니다.
+codes:
+  - {code: SAMPLE-A, name: "폐합성수지 필름(샘플)", category: GENERAL}
+  - {code: SAMPLE-B, name: "유분 함유 폐합성수지(샘플)", category: DESIGNATED}
+  - {code: SAMPLE-C, name: "폐합성수지 성형품(샘플)", category: GENERAL}
+  - {code: SAMPLE-Z, name: "그 밖의 폐합성수지(샘플)", category: GENERAL}
+  - {code: SAMPLE-D1, name: "PCB 함유 폐기물(샘플)", category: DESIGNATED}
+  - {code: SAMPLE-D2, name: "유해 잔류물 부착 폐기물(샘플)", category: DESIGNATED}
+  - {code: SAMPLE-D3, name: "폐유해화학물질(샘플)", category: DESIGNATED}

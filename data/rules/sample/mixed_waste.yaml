@@ -1,0 +1,22 @@
+# SAMPLE 규칙 테이블: 혼합 소재. UNIQUE 정책 예시.
+table_id: mixed_waste
+title: 혼합 소재 폐기물 (샘플)
+version: "2026.11.0"
+effective_from: "2026-01-01"
+hit_policy: UNIQUE
+applies_when: { fact: material, op: eq, value: MIXED }
+rules:
+  - rule_id: MX-001
+    when:
+      all:
+        - { fact: emission_facility, op: eq, value: true }
+    then: { code: SAMPLE-Z, category: GENERAL }
+    basis:
+      - { type: LAW, ref: "(샘플) 시행규칙 별표 X 혼합" }
+  - rule_id: MX-002
+    when:
+      all:
+        - { fact: emission_facility, op: eq, value: false }
+    then: { code: SAMPLE-C, category: GENERAL }
+    basis:
+      - { type: LAW, ref: "(샘플) 시행규칙 별표 X 혼합(배출시설 외)" }
