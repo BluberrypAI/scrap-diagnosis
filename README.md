@@ -2,7 +2,7 @@
 
 폐기물 분류 코드 판정 엔진과 문진 에이전트. 원칙은 **LLM은 제안하고, 규칙 엔진이 판정하고, 서버가 검증한다.**
 
-현재 진행: M1(엔진 코어), M2(질문 선택·라우터·시뮬레이터), M2R(기존 엔진 실제 규칙 변환) 완료.
+현재 진행: M1(엔진 코어), M2(질문 선택·라우터·시뮬레이터), M2R(기존 엔진 실제 규칙 변환), M3(LLM 추출·응답·guard) 완료. 결과: `docs/m3-report.md`.
 
 ## 실행
 ```bash
@@ -11,6 +11,13 @@ uv run pytest
 uv run ruff check . && uv run ruff format --check .
 uv run python scripts/simulate.py data/sample/scenarios/
 uv run python scripts/simulate.py --data data/real data/real/scenarios/
+```
+
+골든 평가(LLM 설정은 `.env`, 이름은 `.env.example`):
+```bash
+uv run python scripts/eval.py --mock-extractor   # LLM 없이
+uv run python scripts/eval.py                    # 실제 Azure
+uv run python scripts/eval_extractor.py          # 기존 질의회신 60건 추출 평가
 ```
 
 기존 엔진 규칙을 다시 변환할 때(기존 저장소: `C:/Users/zxc20/re_project/resource_engine`):
@@ -36,6 +43,8 @@ uv run python tools/legacy_regression.py --write
 - `app/rules/conflicts.py` — 진술과 문서의 충돌, 후보 0개 설명
 - `app/agent/router.py` — 결정적 분기 라우터. `run_engine`은 한 턴의 LLM 없는 부분(자동 채움 포함)
 - `app/agent/simulation.py`, `scripts/simulate.py` — 스크립트 답변 시뮬레이터
+- `app/agent/{llm_client,extractor,guard,responder,templates,orchestrator}.py` — LLM 제안·검증, 한 턴 처리
+- `app/domain/{verdict,trace}.py` — 응답 스키마(md 10절), Decision Trace
 - `tools/convert_legacy.py`, `tools/legacy_regression.py` — 기존 규칙 변환과 회귀 비교
 
 ## 기존 엔진 대비 질문을 줄이는 장치

@@ -4,7 +4,10 @@ version = "0.1.0"
 description = "폐기물 코드 판정 엔진과 문진 에이전트"
 requires-python = ">=3.11"
 dependencies = [
+    "openai>=2",
     "pydantic>=2.7",
+    "pydantic-settings>=2",
+    "python-dotenv>=1",
     "pyyaml>=6.0",
 ]
 
@@ -28,3 +31,9 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# LLM 프롬프트·안내 문구는 문장 단위로 둔다
+"app/agent/extractor.py" = ["E501"]
+"app/agent/responder.py" = ["E501"]
+"app/agent/templates.py" = ["E501"]

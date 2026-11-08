@@ -281,7 +281,7 @@ def run_engine(
         store.append(filled)
         effective = store.effective()
         ev = evaluate(kb, effective, as_of)
-    conflicts = detect_conflicts(store.history, ev)
+    conflicts = detect_conflicts(store.history, ev, kb)
     decision = route(
         kb,
         ev,

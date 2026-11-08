@@ -12,7 +12,8 @@ from pydantic import BaseModel
 
 from app.domain.facts import Fact, FactStatus
 from app.domain.ranges import NumRange, contains
-from app.rules.evaluator import TV, EvaluationResult
+from app.rules.evaluator import TV, EvaluationResult, eval_cond
+from app.rules.model import KnowledgeBase, iter_conds
 
 
 class Conflict(BaseModel):
@@ -43,17 +44,46 @@ def _conflict_message(key: str, claimed: Any, evidenced: Any) -> str:
     return f"{said}과 문서 값({evidenced})이 다릅니다."
 
 
+def _label(kb: KnowledgeBase | None, key: str) -> str:
+    fd = kb.catalog.get(key) if kb is not None else None
+    return (fd.label or key) if fd else key
+
+
 def _latest(items: list[Fact]) -> Fact | None:
     return max(items, key=lambda f: (f.recorded_at, f.source_ref, repr(f.value)), default=None)
 
 
-def claim_vs_evidence(history: list[Fact]) -> list[Conflict]:
+def _matters(kb: KnowledgeBase, ev: EvaluationResult | None, key: str, a: Any, b: Any) -> bool:
+    """두 값이 규칙 조건의 참·거짓을 하나라도 다르게 만드는지.
+
+    결론에 영향 없는 차이는 충돌이 아니다.
+
+    예: pH 기준 2.0 이하에서 진술 '1 정도'와 성적서 0.8은 같은 쪽 → 충돌로 보지 않는다.
+    """
+    tables = [t for t in kb.tables if ev is not None and t.table_id == ev.table_id] or list(
+        kb.tables
+    )
+    conds = [c for t in tables for r in t.rules for c in iter_conds(r.when) if c.fact == key]
+    if not conds:
+        return False
+    fa = {key: Fact(key=key, value=a, status=FactStatus.EVIDENCED)}
+    fb = {key: Fact(key=key, value=b, status=FactStatus.EVIDENCED)}
+    return any(
+        eval_cond(c, fa, kb.catalog).status != eval_cond(c, fb, kb.catalog).status for c in conds
+    )
+
+
+def claim_vs_evidence(
+    history: list[Fact], kb: KnowledgeBase | None = None, ev: EvaluationResult | None = None
+) -> list[Conflict]:
     out = []
     for key in sorted({f.key for f in history}):
         hist = [f for f in history if f.key == key and f.value is not None]
         claimed = _latest([f for f in hist if f.status == FactStatus.CLAIMED])
         evidenced = _latest([f for f in hist if f.status == FactStatus.EVIDENCED])
         if claimed is None or evidenced is None:
+            continue
+        if kb is not None and not _matters(kb, ev, key, claimed.value, evidenced.value):
             continue
         if not _same(claimed.value, evidenced.value):
             cv = (
@@ -67,7 +97,7 @@ def claim_vs_evidence(history: list[Fact]) -> list[Conflict]:
                     facts=[key],
                     claimed=cv,
                     evidenced=evidenced.value,
-                    message=_conflict_message(key, cv, evidenced.value),
+                    message=_conflict_message(_label(kb, key), cv, evidenced.value),
                 )
             )
     return out
@@ -98,8 +128,10 @@ def explain_no_candidate(ev: EvaluationResult) -> Conflict | None:
     )
 
 
-def detect_conflicts(history: list[Fact], ev: EvaluationResult) -> list[Conflict]:
-    out = claim_vs_evidence(history)
+def detect_conflicts(
+    history: list[Fact], ev: EvaluationResult, kb: KnowledgeBase | None = None
+) -> list[Conflict]:
+    out = claim_vs_evidence(history, kb, ev)
     nc = explain_no_candidate(ev)
     if nc is not None:
         out.append(nc)

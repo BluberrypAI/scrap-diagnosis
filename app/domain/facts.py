@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from typing import Literal
 
@@ -69,16 +69,28 @@ def effective_fact(history: Iterable[Fact]) -> Fact | None:
 
 
 class FactStore:
-    """append-only 사실 이력."""
+    """append-only 사실 이력.
+
+    append로 들어오는 사실은 기록 시각이 항상 앞의 것보다 늦도록 맞춘다. 한 턴 안에서 연달아
+    들어온 사실도 '같은 등급이면 최신' 규칙이 들어온 순서대로 적용되게 하기 위해서다.
+    (생성자로 넘긴 이력은 그대로 둔다 — 순서 불변성 테스트는 이력 자체의 시각으로 판단한다.)
+    """
+
+    _TICK = timedelta(microseconds=1)
 
     def __init__(self, facts: Iterable[Fact] = ()) -> None:
         self._facts: list[Fact] = list(facts)
+        self._last = max((f.recorded_at for f in self._facts), default=None)
 
     def append(self, fact: Fact) -> None:
+        if self._last is not None and fact.recorded_at <= self._last:
+            fact = fact.model_copy(update={"recorded_at": self._last + self._TICK})
+        self._last = fact.recorded_at
         self._facts.append(fact)
 
     def extend(self, facts: Iterable[Fact]) -> None:
-        self._facts.extend(facts)
+        for f in facts:
+            self.append(f)
 
     @property
     def history(self) -> list[Fact]:
