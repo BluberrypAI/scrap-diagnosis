@@ -1,11 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { api } from '../api/index.js';
+import { api, USE_MOCK } from '../api/index.js';
+import { factLabel } from '../api/normalize.js';
 import { STATUS_LABEL } from '../lib/labels.js';
 import { useLoad } from '../lib/useLoad.js';
 import { navigate } from '../lib/router.js';
 import QuestionCard from '../components/QuestionCard.jsx';
 import Board from '../components/Board.jsx';
-import { ConflictCard, EvidenceCard, FinalCard, UnsupportedCard } from '../components/BranchCards.jsx';
+import { ConflictCard, EvidenceCard, FinalCard, PendingReview, UnsupportedCard } from '../components/BranchCards.jsx';
+
+// 개발·목 모드에서만 "검수 완료로 적용" 버튼을 보인다(운영에서는 서버의 검수 흐름이 적용한다).
+const DEV_REVIEW = import.meta.env.DEV || USE_MOCK;
+const DEV_REVIEWER = '참조 화면(개발용)';
 
 export default function CasePage({ id }) {
   const { data, error, loading, reload } = useLoad(() => api.getCase(id), [id]);
@@ -13,6 +18,7 @@ export default function CasePage({ id }) {
   const [turn, setTurn] = useState(null);
   const [kase, setKase] = useState(null);
   const [handoff, setHandoff] = useState(null);
+  const [docs, setDocs] = useState([]);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
   const [retry, setRetry] = useState(null);
@@ -27,6 +33,7 @@ export default function CasePage({ id }) {
     setTurn(data.latest_turn);
     setKase(data.case);
     setHandoff(data.handoff);
+    setDocs(data.documents || []);
   }, [data]);
 
   if (error) return <p className="wd-alert" role="alert">{error.message} <a href="#/cases">목록으로</a></p>;
@@ -70,7 +77,28 @@ export default function CasePage({ id }) {
   const sendFile = (file, facts) => {
     const f = file || new Blob([JSON.stringify(facts)], { type: 'application/json' });
     if (!file) f.name = 'manual-facts.json';
-    const go = () => run(`서류 올림: ${f.name || 'manual-facts.json'}`, () => api.uploadDocument(id, f, facts).then((d) => d.turn), go);
+    // 값은 검수 대기 후보로만 저장된다(판정은 그대로). 검수 완료 값만 적용(apply)되어 판정에 쓰인다.
+    const go = () => run(`서류 올림: ${f.name || 'manual-facts.json'}`, () => api.uploadDocument(id, f, facts).then((d) => {
+      setDocs((ds) => [...ds.filter((x) => x.id !== d.document.id), d.document]);
+      return d.turn;
+    }), go);
+    go();
+  };
+  /** 개발용: 검수 대기 값을 검수 완료로 적용한다(서류별로 apply 호출) */
+  const applyPending = (items) => {
+    const byDoc = new Map();
+    for (const it of items) byDoc.set(it.doc.id, [...(byDoc.get(it.doc.id) || []), it]);
+    const reviewed_at = new Date().toISOString();
+    const go = () => run('서류 값 검수 완료 (개발용)', async () => {
+      let t = null;
+      for (const [docId, its] of byDoc) {
+        t = await api.applyDocumentValues(id, docId, its.map(({ doc, value }) => (
+          { value_id: value.id, document_version: doc.version ?? 1, reviewer: DEV_REVIEWER, reviewed_at })));
+      }
+      const ids = new Set(items.map((i) => i.value.id));
+      setDocs((ds) => ds.map((d) => ({ ...d, values: (d.values || []).map((v) => (ids.has(v.id) ? { ...v, status: 'APPLIED' } : v)) })));
+      return t;
+    }, go);
     go();
   };
   async function confirm() {
@@ -92,6 +120,10 @@ export default function CasePage({ id }) {
     else setHint(`오른쪽 판정 보드에서 '${key}' 항목을 고치거나 되돌려 주세요.`);
   };
 
+  const pending = docs.flatMap((d) => (d.values || [])
+    .filter((v) => v.status === 'UNVERIFIED' && v.document_version === (d.version ?? 1))
+    .map((v) => ({ doc: d, value: v })));
+  const pendingLabels = Object.fromEntries(pending.map(({ value }) => [value.fact_key, factLabel(value.fact_key) || value.fact_key]));
   const q = turn.ui.question;
   const showEvidence = (turn.branch === 'REQUEST_EVIDENCE' || upload) && turn.ui.requested_documents.length > 0;
   let card = null;
@@ -120,6 +152,7 @@ export default function CasePage({ id }) {
         {err && <p className="wd-alert" role="alert">{err} {retry && <button type="button" className="button button-small" onClick={retry}>다시 보내기</button>}</p>}
         {hint && <p className="wd-alert is-info">{hint}</p>}
         {card}
+        {!confirmed && <PendingReview items={pending} labels={pendingLabels} disabled={busy} onApply={DEV_REVIEW ? applyPending : null} />}
         {confirmed ? (
           <div className="row">
             <p className="muted">확정된 건입니다. 고치려면 기록에서 다시 여세요.</p>

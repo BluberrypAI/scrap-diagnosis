@@ -190,15 +190,36 @@ export function createMockClient() {
       await wait();
       const rec = find(id);
       locked(rec);
+      // 실제 서버처럼 값은 검수 대기 후보로만 저장하고 판정은 그대로 둔다
+      const docId = uid('doc');
+      const values = Object.entries(facts || {}).map(([k, v]) => ({
+        id: uid('val'), document_id: docId, document_version: 1, fact_key: k, value: v, unit: null, status: 'UNVERIFIED',
+        reviewer: null, reviewed_at: null, note: null, created_at: nowIso(), updated_at: null,
+      }));
       const document = {
-        id: uid('doc'), filename: file.name || 'document', content_type: file.type || null, size: file.size || 0, sha256: '',
-        extracted_facts: facts || {}, created_at: nowIso(),
+        id: docId, filename: file.name || 'document', content_type: file.type || null, size: file.size || 0, sha256: '',
+        extracted_facts: { method: values.length ? 'manual' : 'none', candidates: facts || {}, accepted: {} },
+        version: 1, values, created_at: nowIso(), updated_at: null,
       };
       rec.docs.push(document);
-      advance(rec, { upload: true });
       const turn = makeTurn(rec);
       record(rec, `서류 올림: ${document.filename}`, {}, turn);
-      return { document, turn: normalizeTurn(turn) };
+      return { document: clone(document), turn: normalizeTurn(turn), values: clone(values) };
+    },
+    async applyDocumentValues(id, docId, items) {
+      await wait();
+      const rec = find(id);
+      locked(rec);
+      const doc = rec.docs.find((d) => d.id === docId);
+      if (!doc) throw new ApiError('서류를 찾을 수 없습니다', { status: 404, kind: 'not_found' });
+      for (const it of items) {
+        const v = doc.values.find((x) => x.id === it.value_id);
+        if (v) Object.assign(v, { status: 'APPLIED', reviewer: it.reviewer, reviewed_at: it.reviewed_at, updated_at: nowIso() });
+      }
+      advance(rec, { upload: true }); // 시나리오의 '서류 확인' 단계
+      const turn = makeTurn(rec);
+      record(rec, '서류 값 검수 완료', {}, turn);
+      return normalizeTurn(turn);
     },
     async confirm(id) {
       await wait();
