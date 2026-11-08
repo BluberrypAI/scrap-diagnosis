@@ -451,10 +451,37 @@ class Converter:
             parts.append(note["text"])
         return "\n".join(parts) or None
 
+    def material_group_fact(self, mats: dict[str, dict]) -> dict:
+        """소재 2단계 질문의 1단계: 기존 materials.yaml groups(변환한 소재가 있는 분류만)."""
+        ov = self.ov.get("material_group") or {}
+        used = {m["group"] for m in mats.values()}
+        unknown = used - set(self.groups_meta)
+        if unknown:
+            raise SystemExit(f"materials.yaml groups에 없는 분류: {sorted(unknown)}")
+        groups = {g: meta for g, meta in self.groups_meta.items() if g in used}
+        labels = {g: (ov.get("labels") or {}).get(g, meta["label"]) for g, meta in groups.items()}
+        aliases = ov.get("aliases") or {}
+        hints = {g: (ov.get("hints") or {}).get(g, m.get("hint")) for g, m in groups.items()}
+        help_lines = [f"{labels[g]}: {h}" for g, h in hints.items() if h]
+        counts = Counter(m["group"] for m in mats.values())
+        self.report["material_groups"] = [f"{g} {labels[g]}: 소재 {counts[g]}개" for g in groups]
+        return {
+            "key": "material_group",
+            "label": ov.get("label", "소재 분류"),
+            "type": "enum",
+            "values": labels,
+            "value_aliases": {g: list(aliases[g]) for g in groups if aliases.get(g)},
+            "ask_cost": 1,
+            "legal_priority": 1,
+            "question_hint": ov.get("question_hint", "어떤 종류의 폐기물인가요?"),
+            "help": "\n".join(help_lines) or None,
+        }
+
     def catalog(self) -> list[dict]:
         ov = self.ov.get("facts") or {}
         out: list[dict] = []
         mats = {k: v for k, v in self.materials.items() if not v.get("unlisted")}
+        out.append(self.material_group_fact(mats))
         out.append(
             {
                 "key": "material",
@@ -466,6 +493,8 @@ class Converter:
                 "legal_priority": 1,
                 "question_hint": self.facts["material"]["question"],
                 "help": self.help_text(self.facts["material"]),
+                "parent": "material_group",
+                "value_parent": {k: v["group"] for k, v in mats.items()},
             }
         )
         for fid, f in self.facts.items():
@@ -578,6 +607,11 @@ class Converter:
             f"| HOUSEHOLD | {P_HOUSEHOLD} | 사업장 조건 모두 거짓 → 생활폐기물 |",
             f"| INTERPRET | {P_INTERPRET} | 해석 필요, 질의회신 근거 규칙 |",
             f"| GENERAL | {P_GENERAL} | 사업장일반폐기물 코드 |",
+            "",
+            "## 소재 2단계 질문",
+            "- 소재 분류(material_group, 기존 materials.yaml groups) → 그 분류의 소재(material).",
+            "- 규칙은 소재만 참조한다. 분류는 소재 선택지를 줄이고, 소재가 하나면 자동으로 정한다.",
+            *[f"- {x}" for x in self.report.get("material_groups", [])],
             "",
             "## 변환하지 않은 기능",
             "- 결정 카드(해석 선택, residue_choice 등): 해석 필요 규칙은 판정 불가로 안내한다.",

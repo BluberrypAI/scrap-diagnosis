@@ -17,14 +17,17 @@ SCENARIOS = {
     for s in yaml.safe_load((REAL / "scenarios" / "basic.yaml").read_text(encoding="utf-8"))
 }
 
+# 소재를 미리 모르면 소재 분류 → 소재 두 단계로 묻는다(소재 질문 1개 → 2개).
 EXPECT = {
-    "REAL-PP-CLEAN": ("FINAL_REVIEW", "51-03-01", 4),
+    "REAL-PP-CLEAN": ("FINAL_REVIEW", "51-03-01", 5),
     "REAL-PP-PREFILL": ("FINAL_REVIEW", "51-03-01", 2),
-    "REAL-PP-EXPAND": ("FINAL_REVIEW", "51-03-01", 11),
+    "REAL-PP-EXPAND": ("FINAL_REVIEW", "51-03-01", 12),
     "REAL-H2SO4": ("FINAL_REVIEW", "02-01-02", 3),
     "REAL-PP-TOXIC": ("FINAL_REVIEW", "09-01-00", 6),
     "REAL-NOT-WASTE": ("UNSUPPORTED", None, 4),
     "REAL-SLUDGE-NO-REPORT": ("UNSUPPORTED", None, 4),
+    "REAL-SOLVENT-GROUP": ("FINAL_REVIEW", "04-02-00", 3),
+    "REAL-MIXED-AUTO": ("UNSUPPORTED", None, 3),
 }
 
 
@@ -125,5 +128,5 @@ def test_first_question_is_fast(real_kb):
     t = time.perf_counter()
     step = run_engine(real_kb, FactStore(), SessionState(), AS_OF)
     elapsed = time.perf_counter() - t
-    assert step.decision.question.key == "material"
+    assert step.decision.question.key == "material_group"
     assert elapsed < 1.0, elapsed

@@ -38,6 +38,32 @@ facts:
     none_value: false
     evidence_type: MSDS
 
+# 소재 2단계 질문의 1단계(큰 분류). 값·라벨·예시는 기존 materials.yaml의 groups에서 온다.
+# 여기서는 질문 문구, 라벨 보정, 큰 분류만 말할 때 쓰는 표현(별칭)을 정한다.
+material_group:
+  label: 소재 분류
+  question_hint: 어떤 종류의 폐기물인가요? 가장 가까운 분류를 골라 주세요.
+  labels:
+    # '목록에 없는 소재(unlisted)'는 변환하지 않았으므로 이 분류에는 섞인 소재만 남는다.
+    special: 여러 소재가 섞여 나누기 어려운 것
+  hints:
+    special: 여러 재질이 섞여 분리하기 어려운 폐기물
+  # 세부 소재 하나를 가리키는 말(예: 폐윤활유, 폐활성탄)은 넣지 않는다. 그건 소재(material)로 뽑는다.
+  aliases:
+    plastic: [폐합성수지, 폐플라스틱, 플라스틱, 합성수지, 폐합성고무]
+    metal: [폐금속, 금속 스크랩, 금속류]
+    slag: [광재, 슬래그, 폐광재]
+    dust_ash: [분진, 집진 분진, 소각재]
+    sand: [폐주물사, 주물사, 폐사]
+    sludge: [오니, 슬러지]
+    oil: [폐유, 폐오일]
+    acid_alkali: [폐산, 폐알칼리, 폐산·알칼리]
+    solvent_paint: [폐유기용제, 유기용제, 폐페인트, 폐도료]
+    wood_paper_fiber: [폐목재, 폐섬유]
+    catalyst_adsorbent: [폐촉매, 폐흡착·흡수제]
+    product: [폐전기전자제품, 폐전지, 폐축전지, 폐배터리]
+    special: [혼합폐기물]
+
 groups:
   - group_id: scope_screen
     title: 이 물질은 사업장에서 더 쓰지 않아 내보내는 것이고, 아래 어느 것에도 해당하지 않나요?

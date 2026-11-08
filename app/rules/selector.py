@@ -9,12 +9,20 @@
    gain이 모두 0이면 결과를 바꾸지 못하는 질문이므로, 규칙 해소 정도(resolve)로만 고른다.
    동점이면 legal_priority, 그다음 key 사전순.
 묶음 질문(question_groups)도 하나의 질문 단위로 같은 식으로 점수를 매긴다.
+
+2단계 질문(카탈로그의 parent/value_parent, 예: 소재 → 소재 분류)
+- 상위 분류를 모르면 세부 사실 대신 상위 분류를 묻는다. 선택지는 세부 값이 하나라도 남은 분류.
+  점수는 세부 값 가정의 결과를 분류별로 합쳐 계산한다(분류 확률 = 세부 값 확률의 합,
+  남는 후보 = 세부 값별 후보의 합집합). 분류가 하나뿐이면 묻지 않고 세부 사실을 바로 묻는다.
+- 상위 분류를 알면 세부 사실의 선택지를 그 분류의 값으로 줄인다. 해당 값이 없으면 줄이지 않는다.
+- 상위 분류를 '모름'이라 답했으면 세부 사실을 전체 선택지로 묻는다.
+- 세부 값을 직접 말하면 상위 분류와 달라도 세부 값이 이긴다(상위 분류는 규칙이 참조하지 않음).
 """
 
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 from typing import Any, Literal
 
@@ -161,14 +169,73 @@ def referenced_values(kb: KnowledgeBase, base: EvaluationResult | None, key: str
     return list(out)
 
 
+def parent_value(fd: FactDef, facts: dict[str, Fact] | None) -> str | None:
+    """세부 사실(fd)의 상위 분류 값. 상위 분류가 없거나 아직 모르면 None."""
+    if fd.parent is None or not facts:
+        return None
+    f = facts.get(fd.parent)
+    return str(f.value) if f is not None and f.is_known else None
+
+
+def values_under_parent(fd: FactDef, keys: list[str], facts: dict[str, Fact] | None) -> list[str]:
+    """상위 분류를 알면 그 분류의 값만 남긴다. 남는 값이 없으면(분류와 맞지 않음) 줄이지 않는다."""
+    pv = parent_value(fd, facts)
+    if pv is None:
+        return keys
+    kept = [k for k in keys if fd.value_parent.get(k) == pv]
+    return kept or keys
+
+
+def parent_to_ask(kb: KnowledgeBase, fd: FactDef, facts: dict[str, Fact]) -> FactDef | None:
+    """세부 사실 대신 먼저 물을 상위 분류. 이미 알거나 '모름'이라 답했으면 None."""
+    if fd.parent is None:
+        return None
+    f = facts.get(fd.parent)
+    if f is not None and (f.is_known or f.status == FactStatus.DECLARED_UNKNOWN):
+        return None
+    return kb.catalog[fd.parent]
+
+
+def implied_child(kb: KnowledgeBase, facts: dict[str, Fact], base: EvaluationResult) -> Fact | None:
+    """상위 분류에 속한 세부 값이 하나뿐이면 그 값을 채운다(출처 DERIVED).
+
+    예: 소재 분류 '여러 소재가 섞여 나누기 어려운 것' → 소재 '혼합물'.
+    """
+    for u in base.blocking_facts:
+        if u.reason != "MISSING":
+            continue
+        fd = kb.catalog[u.key]
+        pv = parent_value(fd, facts)
+        if pv is None:
+            continue
+        vals = [k for k in (fd.values or ()) if fd.value_parent.get(k) == pv]
+        if len(vals) != 1:
+            continue
+        pfd = kb.catalog[fd.parent]
+        return Fact(
+            key=fd.key,
+            value=vals[0],
+            status=FactStatus.CLAIMED,
+            source_type="DERIVED",
+            source_ref="parent_single",
+            note=f"'{pfd.value_labels.get(pv, pv)}'에 해당하는 값이 하나라 자동으로 정함",
+        )
+    return None
+
+
 def value_domain(
-    kb: KnowledgeBase, fd: FactDef, base: EvaluationResult | None = None
+    kb: KnowledgeBase,
+    fd: FactDef,
+    base: EvaluationResult | None = None,
+    facts: dict[str, Fact] | None = None,
 ) -> list[tuple[ValueOption, float]]:
+    """질문 선택지와 확률. facts를 주면 상위 분류로 선택지를 줄인다."""
     if fd.type == "enum":
         if fd.domain == "referenced":
             keys = referenced_values(kb, base, fd.key)
         else:
             keys = list(fd.values or ())
+        keys = values_under_parent(fd, keys, facts)
         opts = [ValueOption(label=fd.value_labels.get(k, k), value=k) for k in keys]
     elif fd.type == "bool":
         keys = ["true", "false"]
@@ -185,10 +252,14 @@ def value_domain(
 # ---- 가정 평가 -------------------------------------------------------------------------
 
 
-def _outcome_size(ev: EvaluationResult) -> int:
+def _outcome_keys(ev: EvaluationResult) -> frozenset[str]:
     if ev.decided is not None:
-        return 1
-    return len({c.key for c in ev.live_candidates})
+        return frozenset({ev.decided.key})
+    return frozenset(c.key for c in ev.live_candidates)
+
+
+def _outcome_size(ev: EvaluationResult) -> int:
+    return len(_outcome_keys(ev))
 
 
 def _unknown_rules(ev: EvaluationResult) -> set[str]:
@@ -207,40 +278,73 @@ def _hypo_fact(key: str, value: Any) -> Fact:
     )
 
 
-@dataclass
-class _Scored:
-    entry: ScoreEntry
-    choice_base: dict = field(default_factory=dict)
+@dataclass(frozen=True)
+class _Hypo:
+    """선택지 하나를 가정했을 때의 결과."""
+
+    label: str
+    p: float
+    keys: frozenset[str]  # 남는 후보(확정이면 그 하나)
+    resolve: float  # 해소되는 규칙 수
 
 
-def _score(
+def _run_hypotheses(
     kb: KnowledgeBase,
     facts: dict[str, Fact],
     base: EvaluationResult,
     as_of: date,
-    unit: str,
-    key: str,
     hypotheses: list[tuple[str, dict[str, Any], float]],
-    legal_priority: float,
-    cost: float,
-    focus: float,
-) -> ScoreEntry:
-    n0 = max(_outcome_size(base), 1)
+) -> list[_Hypo]:
     open0 = _unknown_rules(base)
-    exp_log, resolve = 0.0, 0.0
-    outcomes: dict[str, int] = {}
+    out = []
     for label, assignment, p in hypotheses:
         hypo = dict(facts)
         for k, v in assignment.items():
             hypo[k] = _hypo_fact(k, v)
         ev = evaluate(kb, hypo, as_of)
-        n = _outcome_size(ev)
-        outcomes[label] = n
-        exp_log += p * math.log(max(n, 1))
         if ev.decided is not None or ev.table_status != base.table_status:
-            resolve += p * max(len(open0), 1)
+            resolve = max(len(open0), 1)
         else:
-            resolve += p * len(open0 - _unknown_rules(ev))
+            resolve = len(open0 - _unknown_rules(ev))
+        out.append(_Hypo(label=label, p=p, keys=_outcome_keys(ev), resolve=resolve))
+    return out
+
+
+def _merge_by_parent(
+    child: FactDef, parent: FactDef, domain: list[tuple[ValueOption, float]], runs: list[_Hypo]
+) -> list[tuple[str, _Hypo]]:
+    """세부 값 가정 결과를 상위 분류 값별로 합친다. 순서는 상위 분류의 값 순서."""
+    by_parent: dict[str, list[_Hypo]] = {}
+    for (opt, _), h in zip(domain, runs, strict=True):
+        by_parent.setdefault(child.value_parent[str(opt.value)], []).append(h)
+    out = []
+    for pv in parent.values or ():
+        hs = by_parent.get(pv)
+        if not hs:
+            continue
+        p = sum(h.p for h in hs)
+        merged = _Hypo(
+            label=parent.value_labels.get(pv, pv),
+            p=p,
+            keys=frozenset().union(*(h.keys for h in hs)),
+            resolve=sum(h.p * h.resolve for h in hs) / p if p > 0 else 0.0,
+        )
+        out.append((pv, merged))
+    return out
+
+
+def _entry(
+    base: EvaluationResult,
+    unit: str,
+    key: str,
+    hypos: list[_Hypo],
+    legal_priority: float,
+    cost: float,
+    focus: float,
+) -> ScoreEntry:
+    n0 = max(_outcome_size(base), 1)
+    exp_log = sum(h.p * math.log(max(len(h.keys), 1)) for h in hypos)
+    resolve = sum(h.p * h.resolve for h in hypos)
     gain = max(0.0, math.log(n0) - exp_log)
     score = legal_priority * gain / cost * focus
     return ScoreEntry(
@@ -252,7 +356,7 @@ def _score(
         cost=cost,
         focus=focus,
         score=round(score, 6),
-        outcomes=outcomes,
+        outcomes={h.label: len(h.keys) for h in hypos},
     )
 
 
@@ -301,22 +405,40 @@ def select_question(
 
     for u in sorted(pool_items, key=lambda x: x.key):
         fd = kb.catalog[u.key]
-        domain = value_domain(kb, fd, base)
+        domain = value_domain(kb, fd, base, facts)
         if not domain:
             continue
         hyps = [(opt.label, {u.key: opt.value}, p) for opt, p in domain]
-        e = _score(
-            kb,
-            facts,
-            base,
-            as_of,
-            "fact",
-            u.key,
-            hyps,
-            fd.legal_priority,
-            fd.ask_cost,
-            _focus(kb, {u.key}, ctx),
-        )
+        runs = _run_hypotheses(kb, facts, base, as_of, hyps)
+        focus = _focus(kb, {u.key}, ctx)
+        pfd = parent_to_ask(kb, fd, facts)
+        merged = _merge_by_parent(fd, pfd, domain, runs) if pfd is not None else []
+        if pfd is not None and len(merged) >= 2 and ("fact", pfd.key) not in choices:
+            # 상위 분류를 먼저 묻는다(예: 소재 97개 대신 소재 분류 13개).
+            entries.append(
+                _entry(
+                    base,
+                    "fact",
+                    pfd.key,
+                    [h for _, h in merged],
+                    pfd.legal_priority,
+                    pfd.ask_cost,
+                    focus,
+                )
+            )
+            choices[("fact", pfd.key)] = QuestionChoice(
+                unit="fact",
+                key=pfd.key,
+                facts=[pfd.key],
+                reason=u.reason,
+                question_hint=pfd.question_hint,
+                help=pfd.help,
+                value_options=[ValueOption(label=h.label, value=pv) for pv, h in merged]
+                + [ValueOption(label=UNKNOWN_LABEL, kind="unknown")],
+                score_breakdown=[],
+            )
+            continue
+        e = _entry(base, "fact", u.key, runs, fd.legal_priority, fd.ask_cost, focus)
         entries.append(e)
         choices[("fact", u.key)] = QuestionChoice(
             unit="fact",
@@ -335,20 +457,17 @@ def select_question(
         p_none = 1.0
         for k in members:
             fd = kb.catalog[k]
-            dom = value_domain(kb, fd, base)
+            dom = value_domain(kb, fd, base, facts)
             keys = [value_key(o.value) if fd.type != "number" else o.label for o, _ in dom]
             probs = dict(zip(keys, _probabilities(fd, keys), strict=True))
             p_none *= probs.get(value_key(fd.none_value), 1 / max(len(keys), 1))
         hyps = [(g.none_label, none_assign, p_none), (g.expand_label, {}, 1 - p_none)]
         lp = max(kb.catalog[k].legal_priority for k in members)
-        e = _score(
-            kb,
-            facts,
+        e = _entry(
             base,
-            as_of,
             "group",
             g.group_id,
-            hyps,
+            _run_hypotheses(kb, facts, base, as_of, hyps),
             lp,
             g.ask_cost,
             _focus(kb, set(members), ctx),

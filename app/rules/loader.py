@@ -7,6 +7,7 @@
 - PRIORITY 테이블에서 같은 우선순위에 다른 코드가 있으면 경고한다.
 - UNIQUE 테이블에서 정적으로 서로 배타임을 보일 수 없는 규칙 쌍은 경고한다.
 - 코드표(codes.yaml)가 있으면 규칙 결과 코드가 코드표에 있어야 한다.
+- 상위 분류(parent)가 있는 사실은 모든 값이 상위 분류 값 하나에 대응해야 한다.
 """
 
 from __future__ import annotations
@@ -118,12 +119,46 @@ def parse_catalog(raw: list[dict]) -> dict[str, FactDef]:
                 str(k): tuple(str(a) for a in v)
                 for k, v in (item.get("value_aliases") or {}).items()
             },
+            parent=item.get("parent"),
+            value_parent={str(k): str(v) for k, v in (item.get("value_parent") or {}).items()},
         )
         if out[key].domain not in (None, "referenced"):
             raise RuleDataError(f"facts_catalog[{key}]: domain은 referenced만 지원합니다")
         if out[key].ask_cost <= 0:
             raise RuleDataError(f"facts_catalog[{key}]: ask_cost는 0보다 커야 합니다")
+    for fd in out.values():
+        _check_parent(fd, out)
     return out
+
+
+def _check_parent(fd: FactDef, catalog: dict[str, FactDef]) -> None:
+    """상위 분류(parent) 검증: 둘 다 enum, 한 단계만, 모든 값이 상위 분류 값 하나에 대응."""
+    where = f"facts_catalog[{fd.key}]"
+    if fd.parent is None:
+        if fd.value_parent:
+            raise RuleDataError(f"{where}: value_parent에는 parent가 필요합니다")
+        return
+    parent = catalog.get(fd.parent)
+    if parent is None:
+        raise RuleDataError(f"{where}: 카탈로그에 없는 parent '{fd.parent}'")
+    if parent.key == fd.key:
+        raise RuleDataError(f"{where}: 자기 자신을 parent로 둘 수 없습니다")
+    if fd.type != "enum" or parent.type != "enum":
+        raise RuleDataError(f"{where}: parent는 enum 사실끼리만 쓸 수 있습니다")
+    if parent.parent is not None:
+        raise RuleDataError(f"{where}: parent '{parent.key}'에도 parent가 있음(한 단계만 지원)")
+    if fd.domain is not None:
+        raise RuleDataError(f"{where}: domain이 있는 사실에는 parent를 둘 수 없습니다")
+    values = set(fd.values or ())
+    unknown = sorted(set(fd.value_parent) - values)
+    if unknown:
+        raise RuleDataError(f"{where}: value_parent에 값 영역에 없는 값 {unknown}")
+    missing = sorted(values - set(fd.value_parent))
+    if missing:
+        raise RuleDataError(f"{where}: value_parent에 상위 분류가 없는 값 {missing}")
+    bad = sorted({v for v in fd.value_parent.values() if v not in (parent.values or ())})
+    if bad:
+        raise RuleDataError(f"{where}: value_parent의 상위 분류 값이 '{parent.key}'에 없음 {bad}")
 
 
 # ---- 조건식 ------------------------------------------------------------------------------
