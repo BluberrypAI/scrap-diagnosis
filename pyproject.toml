@@ -4,11 +4,18 @@ version = "0.1.0"
 description = "폐기물 코드 판정 엔진과 문진 에이전트"
 requires-python = ">=3.11"
 dependencies = [
+    "alembic>=1.20.1",
+    "fastapi>=0.162.2",
+    "httpx>=0.28.1",
     "openai>=2",
     "pydantic>=2.7",
     "pydantic-settings>=2",
+    "pypdf>=7.0.0",
     "python-dotenv>=1",
+    "python-multipart>=0.0.33",
     "pyyaml>=6.0",
+    "sqlalchemy>=2",
+    "uvicorn>=0.54.0",
 ]
 
 [dependency-groups]
@@ -31,6 +38,9 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.isort]
+known-third-party = ["alembic"]  # 저장소의 alembic/ 폴더를 패키지로 착각하지 않게
 
 [tool.ruff.lint.per-file-ignores]
 # LLM 프롬프트·안내 문구는 문장 단위로 둔다

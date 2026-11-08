@@ -1,4 +1,4 @@
-"""문진 세션 한 턴 처리 (md 10절). 영속화는 M4에서 붙인다.
+"""문진 세션 한 턴 처리 (md 10절). 영속화는 `export_state`/`from_state`로 한다(M4).
 
 1. 메시지 저장
 2. (자유 진술) extractor → guard → 사실 append / (버튼) quick_reply → 결정적 append
@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import uuid
+from collections.abc import Iterable
 from datetime import date
 from typing import Any, Literal
 
@@ -69,6 +70,99 @@ class DiagnosisSession:
         self.traces: list[TraceTurn] = []
         self.case_status = "DIAGNOSING"
         self.rule_index: dict[str, Rule] = {r.rule_id: r for t in kb.tables for r in t.rules}
+
+    # ---- 영속화 (M4) ---------------------------------------------------------------------
+    # 사실 이력(store)과 Trace는 저장소가 행 단위로 따로 쌓는다(append-only). 여기서는 그 밖의
+    # 세션 상태만 JSON으로 내보낸다. 사실 키에 대한 특별 처리는 없다(키·값만 그대로 저장).
+
+    STATE_VERSION = 1
+
+    def export_state(self) -> dict:
+        """사실 이력·Trace를 뺀 세션 상태(JSON 직렬화 가능)."""
+        return {
+            "version": self.STATE_VERSION,
+            "case_id": self.case_id,
+            "session_id": self.session_id,
+            "as_of": self.as_of.isoformat(),
+            "max_questions": self.max_questions,
+            "prompt_version": self.prompt_version,
+            "case_status": self.case_status,
+            "state": {
+                "questions_asked": self.state.questions_asked,
+                "expanded_groups": sorted(self.state.expanded_groups),
+                "focus_codes": sorted(self.state.focus_codes),
+                "evidence_refused": self.state.evidence_refused,
+            },
+            "last_question": (
+                self.last_question.model_dump(mode="json") if self.last_question else None
+            ),
+            "messages": list(self.messages),
+        }
+
+    def to_state(self) -> dict:
+        """세션 전체(사실 이력·Trace 포함). 파일 저장·테스트용."""
+        return {
+            **self.export_state(),
+            "facts": [f.model_dump(mode="json") for f in self.store.history],
+            "traces": [t.model_dump(mode="json") for t in self.traces],
+        }
+
+    @classmethod
+    def from_state(
+        cls,
+        kb: KnowledgeBase,
+        state: dict,
+        *,
+        facts: Iterable[Fact | dict] | None = None,
+        traces: Iterable[TraceTurn | dict] | None = None,
+        extractor_llm: LLMClient | None = None,
+        responder_llm: LLMClient | None = None,
+    ) -> DiagnosisSession:
+        """`export_state`(또는 `to_state`) 결과와 사실 이력으로 세션을 다시 만든다.
+
+        facts/traces를 주지 않으면 state 안의 'facts'/'traces'를 쓴다. 사실은 저장된 순서대로
+        다시 쌓는다(기록 시각은 그대로 둔다 → 유효 사실 선택이 저장 전과 같다).
+        """
+        s = cls(
+            kb,
+            extractor_llm=extractor_llm,
+            responder_llm=responder_llm,
+            case_id=state["case_id"],
+            session_id=state["session_id"],
+            as_of=date.fromisoformat(state["as_of"]),
+            max_questions=state.get("max_questions", 12),
+            prompt_version=state.get("prompt_version", "m3.1"),
+        )
+        raw_facts = state.get("facts", []) if facts is None else facts
+        s.store = FactStore(f if isinstance(f, Fact) else Fact.model_validate(f) for f in raw_facts)
+        raw_traces = state.get("traces", []) if traces is None else traces
+        s.traces = [
+            t if isinstance(t, TraceTurn) else TraceTurn.model_validate(t) for t in raw_traces
+        ]
+        st = state.get("state") or {}
+        s.state = SessionState(
+            questions_asked=st.get("questions_asked", 0),
+            expanded_groups=set(st.get("expanded_groups", ())),
+            focus_codes=set(st.get("focus_codes", ())),
+            evidence_refused=st.get("evidence_refused", False),
+        )
+        lq = state.get("last_question")
+        s.last_question = QuestionChoice.model_validate(lq) if lq else None
+        s.messages = list(state.get("messages", []))
+        s.case_status = state.get("case_status", "DIAGNOSING")
+        return s
+
+    def peek(self) -> EngineStep:
+        """사실·상태를 바꾸지 않고 지금 사실로 엔진을 돌린다(확정 전 서버 재검증용)."""
+        state = SessionState(
+            questions_asked=self.state.questions_asked,
+            expanded_groups=set(self.state.expanded_groups),
+            focus_codes=set(self.state.focus_codes),
+            evidence_refused=self.state.evidence_refused,
+        )
+        return run_engine(
+            self.kb, self.store.copy(), state, self.as_of, max_questions=self.max_questions
+        )
 
     # ---- 시작 ----------------------------------------------------------------------------
 
