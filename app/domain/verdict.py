@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from app.agent import templates
 from app.agent.router import Branch, EngineStep, blocking_view
 from app.domain.clock import seoul_iso
-from app.domain.facts import Fact, FactStatus
+from app.domain.facts import Fact, FactStatus, document_id_of
 from app.domain.ranges import NumRange
 from app.rules.evaluator import TV
 from app.rules.model import Cond, FactDef, KnowledgeBase, Rule, iter_conds
@@ -433,7 +433,7 @@ def board_fact(kb: KnowledgeBase, f: Fact) -> BoardFact:
         status=f.status.value,
         source_type=f.source_type,
         source_label=templates.SOURCE_LABEL.get(f.source_type, f.source_type),
-        document_id=(f.source_ref or None) if f.source_type == "DOCUMENT" else None,
+        document_id=(document_id_of(f.source_ref) or None) if f.source_type == "DOCUMENT" else None,
         quote=f.quote,
         recorded_at=seoul_iso(f.recorded_at) if isinstance(f.recorded_at, datetime) else None,
         editable=editable,
@@ -486,7 +486,7 @@ def _claim_conflict(kb: KnowledgeBase, step: EngineStep, c: Any) -> ConflictView
     key = c.facts[0]
     label = fact_label(kb, key)
     ef = step.effective.get(key)
-    doc = ef.source_ref if ef is not None and ef.source_type == "DOCUMENT" else None
+    doc = document_id_of(ef.source_ref) if ef is not None and ef.source_type == "DOCUMENT" else None
     ev_label = value_label(kb, key, c.evidenced)
     return ConflictView(
         kind=c.kind,

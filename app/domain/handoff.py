@@ -13,7 +13,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from app.domain.clock import seoul_iso
-from app.domain.facts import Fact
+from app.domain.facts import Fact, document_id_of
 from app.rules.evaluator import Candidate
 from app.rules.model import KnowledgeBase, Rule
 
@@ -137,7 +137,7 @@ def build_handoff(
         d = f.model_dump(mode="json")
         facts[k] = HandoffFact(value=d["value"], status=d["status"], source_type=f.source_type)
         if f.source_type == "DOCUMENT" and f.source_ref:
-            evidence.append(HandoffEvidence(fact=k, document_id=f.source_ref))
+            evidence.append(HandoffEvidence(fact=k, document_id=document_id_of(f.source_ref)))
     basis = [
         HandoffBasis(id=f"B{i}", type=b.type, ref=b.ref, excerpt=b.excerpt)
         for i, b in enumerate(rule.basis if rule else (), start=1)

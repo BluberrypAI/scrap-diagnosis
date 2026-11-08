@@ -88,6 +88,8 @@ class CaseOut(_ORM):
     last_activity_at: SeoulDateTime | None = None
     as_of: date | None = None
     summary: CaseSummary | None = None  # 건 목록 카드(ui-v1)
+    # 저장된 규칙 버전(kb_version)이 지금 규칙과 다름. 문진·서류·확정은 409 KB_CHANGED → rebase 필요
+    kb_changed: bool = False
 
 
 class VerdictOut(_ORM):
@@ -112,14 +114,38 @@ class VerdictOut(_ORM):
     reopen_reason: str | None
 
 
+DocumentValueStatus = Literal["UNVERIFIED", "APPLIED", "REJECTED", "REVOKED"]
+
+
+class DocumentValueOut(_ORM):
+    """서류 값 한 줄. UNVERIFIED(검수 대기)는 판정에 쓰지 않는다. APPLIED만 EVIDENCED로 쓰인다."""
+
+    id: str
+    document_id: str
+    document_version: int
+    fact_key: str
+    value: Any = None
+    unit: str | None = None
+    status: DocumentValueStatus
+    reviewer: str | None = None
+    reviewed_at: SeoulDateTime | None = None
+    note: str | None = None
+    created_at: SeoulDateTime
+    updated_at: SeoulDateTime | None = None
+
+
 class DocumentOut(_ORM):
     id: str
     filename: str
     content_type: str | None
     size: int
     sha256: str
+    # {"method": "manual"|"none", "candidates": {key: value}, "accepted": {}} (accepted는 이전 호환)
     extracted_facts: dict[str, Any]
+    version: int = 1  # 파일 버전(교체할 때마다 1씩 오름)
     created_at: SeoulDateTime
+    updated_at: SeoulDateTime | None = None
+    values: list[DocumentValueOut] = []  # 이 서류의 값(모든 버전·상태, 만든 순서)
 
 
 class CaseCreated(BaseModel):
@@ -176,8 +202,45 @@ class MessageIn(BaseModel):
 
 
 class DocumentTurn(BaseModel):
+    """업로드·파일 교체 응답. 값은 후보(UNVERIFIED)로만 저장되고 판정(turn)은 바뀌지 않는다."""
+
     document: DocumentOut
     turn: TurnResponse
+    values: list[DocumentValueOut] = []  # 이번에 저장한 후보
+
+
+class ApplyValueIn(BaseModel):
+    """검수 완료 값 하나. value_id(후보 행) 또는 fact_key 중 하나는 있어야 한다.
+
+    value를 주지 않으면 후보 값을 그대로 쓴다(value_id일 때만). reject=true면 적용하지 않고
+    그 후보를 REJECTED로 둔다.
+    """
+
+    value_id: str | None = None
+    fact_key: str | None = None
+    value: Any = None
+    unit: str | None = Field(default=None, max_length=30)
+    document_version: int = Field(ge=1)
+    reviewer: str = Field(min_length=1, max_length=200)
+    reviewed_at: datetime
+    reject: bool = False
+
+    @model_validator(mode="after")
+    def _ref(self) -> ApplyValueIn:
+        if not self.value_id and not self.fact_key:
+            raise ValueError("value_id 또는 fact_key가 필요합니다")
+        return self
+
+
+class ApplyIn(BaseModel):
+    values: list[ApplyValueIn] = Field(min_length=1, max_length=200)
+
+
+class RevokeIn(BaseModel):
+    """서류 효력 해제. document_version을 주면 그 버전만, 없으면 모든 버전."""
+
+    reason: str | None = Field(default=None, max_length=1000)
+    document_version: int | None = Field(default=None, ge=1)
 
 
 class ConfirmIn(BaseModel):

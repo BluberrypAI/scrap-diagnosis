@@ -56,9 +56,7 @@ def api(kb, tmp_path) -> Api:
 
 def finish_with_document(api: Api, case_id: str) -> dict:
     to_film_oil_question(api, case_id)
-    r = api.upload(case_id, b"oil 2%", facts=json.dumps({"oil_content_pct": 2}))
-    assert r.status_code == 201, r.text
-    return r.json()["turn"]
+    return api.submit_document(case_id, {"oil_content_pct": 2}, b"oil 2%")["turn"]
 
 
 # ---- 응답 스키마·생성 --------------------------------------------------------------------
@@ -126,9 +124,8 @@ def test_status_transitions_and_list_filter(api):
     assert ids("") == {cid, other}
     assert api.get("/cases?status=BOGUS").status_code == 422
 
-    # 증빙 업로드 → EVIDENCED → FINAL_REVIEW, 건은 확정 전까지 DIAGNOSING
-    r = api.upload(cid, b"oil 2%", facts=json.dumps({"oil_content_pct": 2}))
-    t = r.json()["turn"]
+    # 증빙 업로드(후보) → 검수 완료 적용 → EVIDENCED → FINAL_REVIEW, 건은 확정 전까지 DIAGNOSING
+    t = api.submit_document(cid, {"oil_content_pct": 2}, b"oil 2%")["turn"]
     assert t["branch"] == "FINAL_REVIEW" and t["case_status"] == "DIAGNOSING"
     assert api.get(f"/cases/{cid}").json()["case"]["status"] == "DIAGNOSING"
 
@@ -146,44 +143,26 @@ def test_unsupported_needs_info_then_back_to_diagnosing(api):
 # ---- 문서 --------------------------------------------------------------------------------
 
 
-def test_document_llm_extraction_becomes_evidenced(api):
+def test_document_upload_does_not_call_llm_or_add_facts(api):
+    """자동 읽기는 하지 않는다: 원문은 저장만 하고 AI에 보내지 않으며, 판정도 바뀌지 않는다."""
     cid = api.create_case()["case"]["id"]
-    to_film_oil_question(api, cid)
+    before = to_film_oil_question(api, cid)
+    calls = len(api.llm.calls)
     text = "시험성적서\n시료: PP 필름\n유분 함량: 2.0 %\n"
-    api.llm.push(
-        "extract",
-        normalize_extract(
-            {
-                "facts": [
-                    {"key": "oil_content_pct", "value": 2.0, "quote": "유분 함량: 2.0 %"},
-                    {"key": "form", "status": "UNKNOWN", "quote": "PP 필름"},  # 값 없음 → 버림
-                ]
-            }
-        ),
-    )
     r = api.upload(cid, text.encode("utf-8"), filename="성적서.txt")
     assert r.status_code == 201, r.text
     body = r.json()
     doc, turn = body["document"], body["turn"]
     assert_turn_contract(turn, cid)
-    assert turn["branch"] == "FINAL_REVIEW" and turn["ui"]["can_confirm"]
-    assert turn["verdict"]["waste_code"] == "SAMPLE-A"
-    oil = next(c for c in turn["verdict"]["conditions"] if c["fact"] == "oil_content_pct")
-    assert oil["satisfied"] is True and oil["evidence"] == "TEST_REPORT"
-    assert doc["extracted_facts"]["method"] == "llm"
-    assert doc["extracted_facts"]["accepted"] == {"oil_content_pct": 2.0}
+    assert len(api.llm.calls) == calls  # 문서 원문을 AI에 보내지 않음
+    assert turn["branch"] == before["branch"] == "ASK_FACT"
+    assert turn["ui"]["question"]["key"] == "oil_content_pct"
+    assert doc["extracted_facts"]["method"] == "none" and doc["extracted_facts"]["accepted"] == {}
+    assert doc["version"] == 1 and body["values"] == []
     assert doc["sha256"] and doc["size"] == len(text.encode("utf-8"))
-
     trace = api.get(f"/cases/{cid}/trace").json()["sessions"][0]
-    oil_rows = [f for f in trace["facts"] if f["key"] == "oil_content_pct"]
-    assert oil_rows[-1]["status"] == "EVIDENCED" and oil_rows[-1]["source_type"] == "DOCUMENT"
-    assert oil_rows[-1]["source_ref"] == doc["id"]
-    assert oil_rows[-1]["quote"] == "유분 함량: 2.0 %"
-    kinds = [t["kind"] for t in trace["turns"]]
-    assert kinds[-2:] == ["DOCUMENT", "TURN"]
-    doc_trace = trace["turns"][-2]["payload"]
-    assert doc_trace["llm_calls"] and doc_trace["rejected"]  # 원본 LLM 출력·버린 사실 기록
-
+    assert not [f for f in trace["facts"] if f["source_type"] == "DOCUMENT"]
+    assert [t["kind"] for t in trace["turns"]][-2:] == ["DOCUMENT", "TURN"]
     with api.container().sessionmaker() as db:
         row = db.get(Document, doc["id"])
         assert row.extracted_text == text and row.case_id == cid
@@ -192,17 +171,9 @@ def test_document_llm_extraction_becomes_evidenced(api):
 def test_document_pdf_text_extraction(api):
     cid = api.create_case()["case"]["id"]
     to_film_oil_question(api, cid)
-    api.llm.push(
-        "extract",
-        normalize_extract(
-            {"facts": [{"key": "oil_content_pct", "value": 7, "quote": "Oil content 7"}]}
-        ),
-    )
     r = api.upload(cid, minimal_pdf("Oil content 7 percent"), "report.pdf", "application/pdf")
     assert r.status_code == 201, r.text
-    turn = r.json()["turn"]
-    # 성적서로 유분 7% → 상위 규칙(유분 5% 이상) 확정
-    assert turn["branch"] == "FINAL_REVIEW" and turn["verdict"]["waste_code"] == "SAMPLE-B"
+    assert r.json()["turn"]["branch"] == "ASK_FACT"  # 원문만 저장, 판정 불변
     with api.container().sessionmaker() as db:
         row = db.get(Document, r.json()["document"]["id"])
         assert "Oil content 7" in row.extracted_text
@@ -311,8 +282,8 @@ def test_reopen_only_from_confirmed_and_keeps_versions(api):
     assert detail["current_verdict"] is None and len(detail["verdicts"]) == 1
 
     # 새 성적서(유분 7%) → 다른 판정으로 다시 확정 → 버전 2, 버전 1은 보존
-    r = api.upload(cid, b"oil 7%", facts=json.dumps({"oil_content_pct": 7}))
-    assert r.json()["turn"]["verdict"]["waste_code"] == "SAMPLE-B"
+    t = api.submit_document(cid, {"oil_content_pct": 7}, b"oil 7%")["turn"]
+    assert t["verdict"]["waste_code"] == "SAMPLE-B"
     v2 = api.post(f"/cases/{cid}/confirm").json()["verdict"]
     assert v2["version"] == 2 and v2["code"] == "SAMPLE-B"
     detail = api.get(f"/cases/{cid}").json()

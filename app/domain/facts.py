@@ -7,6 +7,14 @@
 `status=UNKNOWN, retracted=True` 행을 append한다(이력은 지우지 않는다). 유효 사실을 고를 때는
 철회 행보다 늦지 않게 기록된 같은 키의 진술(CLAIMED)을 무시한다. EVIDENCED는 무시하지 않고,
 철회 뒤에 다시 진술하면 그 값이 유효하다. 철회 행이 없는 이력의 동작은 이전과 같다.
+
+서류 효력 해제(revoke, docs/api/server-engine-contract.md): 서류를 교체하거나 검수를 취소하면
+그 서류에서 온 키마다 `revoked=True` 표시 행(status UNKNOWN, source_type DOCUMENT,
+source_ref = 해제한 출처)을 append한다. 유효 사실을 고를 때는 표시 행보다 늦지 않게 기록된
+같은 키·같은 출처의 증빙(EVIDENCED, DOCUMENT)을 무시하고, 표시 행 자체도 고르지 않는다
+(서류가 없던 상태로 돌아간다). 출처가 `문서id`이면 그 문서의 모든 버전(`문서id@v2` 등),
+`문서id@vN`이면 그 버전만 해당한다. 해제 뒤에 다시 적용(apply)한 값은 유효하다.
+이력은 지우지 않는다.
 """
 
 from __future__ import annotations
@@ -57,6 +65,8 @@ class Fact(BaseModel):
     recorded_at: datetime = Field(default_factory=_now)
     # 사용자가 이 키의 앞선 진술을 철회함(status는 UNKNOWN). 앞선 CLAIMED를 평가에서 뺀다.
     retracted: bool = False
+    # 서류 효력 해제 표시 행(status UNKNOWN). 같은 키·출처의 앞선 EVIDENCED를 평가에서 뺀다.
+    revoked: bool = False
 
     @property
     def is_known(self) -> bool:
@@ -88,19 +98,74 @@ def _retracted_claim(f: Fact, cut: datetime | None) -> bool:
     return cut is not None and f.status == FactStatus.CLAIMED and f.recorded_at <= cut
 
 
-def active_facts(history: Iterable[Fact]) -> list[Fact]:
-    """철회된 진술(CLAIMED)을 뺀 이력. 키마다 마지막 철회 시각 이전의 진술을 뺀다.
+REVOKE_NOTE = "서류 효력 해제"
+DOC_VERSION_SEP = "@v"
 
-    입력 순서와 무관하다(기록 시각으로만 판단). 철회 행이 없으면 이력 그대로다.
+
+def document_source_ref(document_id: str, version: int | None = None) -> str:
+    """서류 출처 표기. 버전을 주면 `문서id@v버전`."""
+    return document_id if version is None else f"{document_id}{DOC_VERSION_SEP}{version}"
+
+
+def document_id_of(source_ref: str) -> str:
+    """`문서id@v버전` → 문서id(버전 없는 이전 표기는 그대로)."""
+    return source_ref.split(DOC_VERSION_SEP, 1)[0]
+
+
+def source_matches(source_ref: str, revoked_ref: str) -> bool:
+    """해제한 출처(revoked_ref)가 이 사실의 출처를 덮는가. `문서id`는 그 문서의 모든 버전."""
+    if source_ref == revoked_ref:
+        return True
+    return DOC_VERSION_SEP not in revoked_ref and source_ref.startswith(
+        revoked_ref + DOC_VERSION_SEP
+    )
+
+
+def revoke_fact(key: str, source_ref: str, *, note: str | None = None) -> Fact:
+    """그 키에서 source_ref 서류의 증빙을 빼는 표시 행."""
+    return Fact(
+        key=key,
+        value=None,
+        status=FactStatus.UNKNOWN,
+        source_type="DOCUMENT",
+        source_ref=source_ref,
+        note=note or REVOKE_NOTE,
+        revoked=True,
+    )
+
+
+def _revoked_evidence(f: Fact, marks: list[Fact]) -> bool:
+    if f.status != FactStatus.EVIDENCED or f.source_type != "DOCUMENT":
+        return False
+    return any(
+        f.recorded_at <= m.recorded_at and source_matches(f.source_ref, m.source_ref) for m in marks
+    )
+
+
+def active_facts(history: Iterable[Fact]) -> list[Fact]:
+    """평가에 쓸 이력. 철회된 진술(CLAIMED)과 효력이 해제된 서류 증빙을 뺀다.
+
+    - 철회: 키마다 마지막 철회 시각 이전의 진술을 뺀다(철회 행은 남는다 → '모르는 상태').
+    - 효력 해제: 표시 행 이전에 기록된 같은 키·같은 출처의 EVIDENCED를 빼고 표시 행도 뺀다.
+    입력 순서와 무관하다(기록 시각으로만 판단). 두 표시 행이 없으면 이력 그대로다.
     """
     items = list(history)
     cuts: dict[str, datetime] = {}
+    marks: dict[str, list[Fact]] = {}
     for f in items:
         if f.retracted and (f.key not in cuts or f.recorded_at > cuts[f.key]):
             cuts[f.key] = f.recorded_at
-    if not cuts:
+        if f.revoked:
+            marks.setdefault(f.key, []).append(f)
+    if not cuts and not marks:
         return items
-    return [f for f in items if not _retracted_claim(f, cuts.get(f.key))]
+    return [
+        f
+        for f in items
+        if not f.revoked
+        and not _retracted_claim(f, cuts.get(f.key))
+        and not _revoked_evidence(f, marks.get(f.key, []))
+    ]
 
 
 def effective_fact(history: Iterable[Fact]) -> Fact | None:
@@ -145,7 +210,12 @@ class FactStore:
         by_key: dict[str, list[Fact]] = {}
         for f in self._facts:
             by_key.setdefault(f.key, []).append(f)
-        return {k: effective_fact(v) for k, v in by_key.items()}  # type: ignore[misc]
+        out: dict[str, Fact] = {}
+        for k, v in by_key.items():
+            f = effective_fact(v)
+            if f is not None:  # 효력 해제 표시 행만 남은 키는 '사실 없음'
+                out[k] = f
+        return out
 
     def copy(self) -> FactStore:
         return FactStore(self._facts)
