@@ -73,6 +73,7 @@ def _commit(svc: CaseService) -> None:
 
 
 def _case_out(svc: CaseService, case: WasteCase) -> CaseOut:
+    rec = svc.repo.latest_for_case(case.id)
     return CaseOut.model_validate(
         {
             "id": case.id,
@@ -82,9 +83,12 @@ def _case_out(svc: CaseService, case: WasteCase) -> CaseOut:
             "unit": case.unit,
             "period": case.period,
             "status": case.status,
-            "session_id": svc.session_id_of(case),
+            "session_id": rec.id if rec else None,
             "created_at": case.created_at,
             "updated_at": case.updated_at,
+            "diagnosis_started_at": rec.started_at if rec else None,
+            "last_activity_at": rec.last_activity_at if rec else None,
+            "as_of": rec.as_of if rec else None,
         }
     )
 
@@ -161,6 +165,7 @@ def get_case(case_id: str, svc: ServiceDep) -> CaseDetail:
         verdicts=[VerdictOut.model_validate(v) for v in svc.repo.verdicts(case.id)],
         latest_turn=svc.latest_turn(case),
         documents=[DocumentOut.model_validate(d) for d in svc.documents(case)],
+        handoff=current.handoff if current else None,
     )
 
 
@@ -210,6 +215,7 @@ def confirm(case_id: str, svc: ServiceDep, body: ConfirmIn | None = None) -> Con
     return ConfirmOut(
         case=_case_out(svc, case),
         verdict=VerdictOut.model_validate(verdict),
+        handoff=verdict.handoff,
         frozen_trace_rows=frozen,
     )
 

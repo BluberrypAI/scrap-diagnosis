@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
 from sqlalchemy import func, select, update
@@ -90,11 +91,14 @@ class SessionRepository:
         kb_dir: str,
         kb_version: str,
         table_versions: dict[str, str],
+        started_at: datetime,
     ) -> LoadedSession:
         rec = DiagnosisSessionRecord(
             id=session.session_id,
             case_id=case.id,
             as_of=session.as_of,
+            started_at=started_at,
+            last_activity_at=started_at,
             kb_dir=kb_dir,
             kb_version=kb_version,
             table_versions=table_versions,
