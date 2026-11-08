@@ -202,6 +202,31 @@
         "title": "Body_upload_document_cases__case_id__documents_post",
         "type": "object"
       },
+      "Body_upload_document_internal_v1_cases__case_id__documents_post": {
+        "properties": {
+          "facts": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Facts"
+          },
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_document_internal_v1_cases__case_id__documents_post",
+        "type": "object"
+      },
       "CandidateView": {
         "properties": {
           "code": {
@@ -390,6 +415,26 @@
           "documents"
         ],
         "title": "CaseDetail",
+        "type": "object"
+      },
+      "CaseListPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CaseOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "pagingInfo": {
+            "$ref": "#/components/schemas/PagingInfo"
+          }
+        },
+        "required": [
+          "items",
+          "pagingInfo"
+        ],
+        "title": "CaseListPage",
         "type": "object"
       },
       "CaseOut": {
@@ -1293,19 +1338,29 @@
       "ErrorDetail": {
         "additionalProperties": true,
         "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "details": {
+            "additionalProperties": true,
+            "title": "Details",
+            "type": "object"
+          },
           "message": {
             "title": "Message",
             "type": "string"
           }
         },
         "required": [
+          "code",
           "message"
         ],
         "title": "ErrorDetail",
         "type": "object"
       },
       "ErrorResponse": {
-        "description": "우리 라우트가 내는 오류(401·404·409·413·415·422(문서 사실) 등).",
+        "description": "우리 라우트가 내는 모든 오류(401·404·409·413·415·422 등).",
         "properties": {
           "detail": {
             "$ref": "#/components/schemas/ErrorDetail"
@@ -1333,19 +1388,6 @@
           "label"
         ],
         "title": "FacilityOption",
-        "type": "object"
-      },
-      "HTTPValidationError": {
-        "properties": {
-          "detail": {
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            },
-            "title": "Detail",
-            "type": "array"
-          }
-        },
-        "title": "HTTPValidationError",
         "type": "object"
       },
       "MessageIn": {
@@ -1403,6 +1445,35 @@
           "label"
         ],
         "title": "OptionView",
+        "type": "object"
+      },
+      "PagingInfo": {
+        "description": "목록 페이징(명세서 형식). 쪽 번호는 1부터.",
+        "properties": {
+          "currentPageNumber": {
+            "title": "Currentpagenumber",
+            "type": "integer"
+          },
+          "pageSize": {
+            "title": "Pagesize",
+            "type": "integer"
+          },
+          "totalCount": {
+            "title": "Totalcount",
+            "type": "integer"
+          },
+          "totalPages": {
+            "title": "Totalpages",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "currentPageNumber",
+          "pageSize",
+          "totalCount",
+          "totalPages"
+        ],
+        "title": "PagingInfo",
         "type": "object"
       },
       "PendingItem": {
@@ -2138,46 +2209,6 @@
         "title": "UI",
         "type": "object"
       },
-      "ValidationError": {
-        "properties": {
-          "ctx": {
-            "title": "Context",
-            "type": "object"
-          },
-          "input": {
-            "title": "Input"
-          },
-          "loc": {
-            "items": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "integer"
-                }
-              ]
-            },
-            "title": "Location",
-            "type": "array"
-          },
-          "msg": {
-            "title": "Message",
-            "type": "string"
-          },
-          "type": {
-            "title": "Error Type",
-            "type": "string"
-          }
-        },
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
-        "title": "ValidationError",
-        "type": "object"
-      },
       "Verdict": {
         "properties": {
           "candidates": {
@@ -2488,6 +2519,7 @@
   "paths": {
     "/cases": {
       "get": {
+        "description": "참조 화면용: 기존처럼 배열을 돌려준다. page·size를 주면 그 쪽만 자른다\n(page만 주면 size=20). 전체 건수는 `X-Total-Count` 헤더.",
         "operationId": "list_cases_cases_get",
         "parameters": [
           {
@@ -2504,6 +2536,41 @@
                 }
               ],
               "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page"
+            }
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 100,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Size"
             }
           },
           {
@@ -2546,7 +2613,7 @@
                 }
               }
             },
-            "description": "X-Company-Id 헤더가 없거나 모르는 기업"
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
           },
           "404": {
             "content": {
@@ -2556,7 +2623,7 @@
                 }
               }
             },
-            "description": "건이 없거나 다른 기업의 건"
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
           },
           "409": {
             "content": {
@@ -2566,17 +2633,17 @@
                 }
               }
             },
-            "description": "상태 위반·확정 불가·동시 수정"
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
           },
           "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "VALIDATION_ERROR(details.errors)"
           }
         },
         "summary": "List Cases",
@@ -2633,7 +2700,7 @@
                 }
               }
             },
-            "description": "X-Company-Id 헤더가 없거나 모르는 기업"
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
           },
           "404": {
             "content": {
@@ -2643,7 +2710,7 @@
                 }
               }
             },
-            "description": "건이 없거나 다른 기업의 건"
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
           },
           "409": {
             "content": {
@@ -2653,17 +2720,17 @@
                 }
               }
             },
-            "description": "상태 위반·확정 불가·동시 수정"
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
           },
           "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "VALIDATION_ERROR(details.errors)"
           }
         },
         "summary": "Create Case",
@@ -2721,7 +2788,7 @@
                 }
               }
             },
-            "description": "X-Company-Id 헤더가 없거나 모르는 기업"
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
           },
           "404": {
             "content": {
@@ -2731,7 +2798,7 @@
                 }
               }
             },
-            "description": "건이 없거나 다른 기업의 건"
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
           },
           "409": {
             "content": {
@@ -2741,17 +2808,17 @@
                 }
               }
             },
-            "description": "상태 위반·확정 불가·동시 수정"
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
           },
           "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "VALIDATION_ERROR(details.errors)"
           }
         },
         "summary": "Get Case",
@@ -2826,7 +2893,7 @@
                 }
               }
             },
-            "description": "X-Company-Id 헤더가 없거나 모르는 기업"
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
           },
           "404": {
             "content": {
@@ -2836,7 +2903,7 @@
                 }
               }
             },
-            "description": "건이 없거나 다른 기업의 건"
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
           },
           "409": {
             "content": {
@@ -2846,17 +2913,17 @@
                 }
               }
             },
-            "description": "상태 위반·확정 불가·동시 수정"
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
           },
           "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "VALIDATION_ERROR(details.errors)"
           }
         },
         "summary": "Confirm",
@@ -2924,7 +2991,7 @@
                 }
               }
             },
-            "description": "X-Company-Id 헤더가 없거나 모르는 기업"
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
           },
           "404": {
             "content": {
@@ -2934,7 +3001,7 @@
                 }
               }
             },
-            "description": "건이 없거나 다른 기업의 건"
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
           },
           "409": {
             "content": {
@@ -2944,17 +3011,17 @@
                 }
               }
             },
-            "description": "상태 위반·확정 불가·동시 수정"
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
           },
           "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "VALIDATION_ERROR(details.errors)"
           }
         },
         "summary": "Post Message",
@@ -3022,7 +3089,7 @@
                 }
               }
             },
-            "description": "X-Company-Id 헤더가 없거나 모르는 기업"
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
           },
           "404": {
             "content": {
@@ -3032,7 +3099,7 @@
                 }
               }
             },
-            "description": "건이 없거나 다른 기업의 건"
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
           },
           "409": {
             "content": {
@@ -3042,7 +3109,7 @@
                 }
               }
             },
-            "description": "상태 위반·확정 불가·동시 수정"
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
           },
           "413": {
             "content": {
@@ -3140,7 +3207,7 @@
                 }
               }
             },
-            "description": "X-Company-Id 헤더가 없거나 모르는 기업"
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
           },
           "404": {
             "content": {
@@ -3150,7 +3217,7 @@
                 }
               }
             },
-            "description": "건이 없거나 다른 기업의 건"
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
           },
           "409": {
             "content": {
@@ -3160,17 +3227,17 @@
                 }
               }
             },
-            "description": "상태 위반·확정 불가·동시 수정"
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
           },
           "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "VALIDATION_ERROR(details.errors)"
           }
         },
         "summary": "Reopen",
@@ -3228,7 +3295,7 @@
                 }
               }
             },
-            "description": "X-Company-Id 헤더가 없거나 모르는 기업"
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
           },
           "404": {
             "content": {
@@ -3238,7 +3305,7 @@
                 }
               }
             },
-            "description": "건이 없거나 다른 기업의 건"
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
           },
           "409": {
             "content": {
@@ -3248,17 +3315,17 @@
                 }
               }
             },
-            "description": "상태 위반·확정 불가·동시 수정"
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
           },
           "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "VALIDATION_ERROR(details.errors)"
           }
         },
         "summary": "Get Trace",
@@ -3294,7 +3361,7 @@
                 }
               }
             },
-            "description": "X-Company-Id 헤더가 없거나 모르는 기업"
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
           },
           "404": {
             "content": {
@@ -3304,7 +3371,7 @@
                 }
               }
             },
-            "description": "건이 없거나 다른 기업의 건"
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
           },
           "409": {
             "content": {
@@ -3314,7 +3381,17 @@
                 }
               }
             },
-            "description": "상태 위반·확정 불가·동시 수정"
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
           }
         },
         "summary": "Get Catalog Facts",
@@ -3355,7 +3432,7 @@
                 }
               }
             },
-            "description": "X-Company-Id 헤더가 없거나 모르는 기업"
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
           },
           "404": {
             "content": {
@@ -3365,7 +3442,7 @@
                 }
               }
             },
-            "description": "건이 없거나 다른 기업의 건"
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
           },
           "409": {
             "content": {
@@ -3375,17 +3452,17 @@
                 }
               }
             },
-            "description": "상태 위반·확정 불가·동시 수정"
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
           },
           "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "VALIDATION_ERROR(details.errors)"
           }
         },
         "summary": "Create Company",
@@ -3434,7 +3511,7 @@
                 }
               }
             },
-            "description": "X-Company-Id 헤더가 없거나 모르는 기업"
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
           },
           "404": {
             "content": {
@@ -3444,7 +3521,7 @@
                 }
               }
             },
-            "description": "건이 없거나 다른 기업의 건"
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
           },
           "409": {
             "content": {
@@ -3454,17 +3531,17 @@
                 }
               }
             },
-            "description": "상태 위반·확정 불가·동시 수정"
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
           },
           "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "VALIDATION_ERROR(details.errors)"
           }
         },
         "summary": "Get My Company",
@@ -3523,7 +3600,7 @@
                 }
               }
             },
-            "description": "X-Company-Id 헤더가 없거나 모르는 기업"
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
           },
           "404": {
             "content": {
@@ -3533,7 +3610,7 @@
                 }
               }
             },
-            "description": "건이 없거나 다른 기업의 건"
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
           },
           "409": {
             "content": {
@@ -3543,17 +3620,17 @@
                 }
               }
             },
-            "description": "상태 위반·확정 불가·동시 수정"
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
           },
           "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "VALIDATION_ERROR(details.errors)"
           }
         },
         "summary": "Update Profile",
@@ -3585,7 +3662,7 @@
                 }
               }
             },
-            "description": "X-Company-Id 헤더가 없거나 모르는 기업"
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
           },
           "404": {
             "content": {
@@ -3595,7 +3672,7 @@
                 }
               }
             },
-            "description": "건이 없거나 다른 기업의 건"
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
           },
           "409": {
             "content": {
@@ -3605,7 +3682,17 @@
                 }
               }
             },
-            "description": "상태 위반·확정 불가·동시 수정"
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
           }
         },
         "summary": "Get Profile Options",
@@ -3634,6 +3721,1028 @@
         "summary": "Health",
         "tags": [
           "meta"
+        ]
+      }
+    },
+    "/internal/v1/cases": {
+      "get": {
+        "description": "서버용: `{items, pagingInfo}`. 최근 갱신순.",
+        "operationId": "list_cases_paged_internal_v1_cases_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/CaseStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Size",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseListPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "List Cases Paged",
+        "tags": [
+          "internal",
+          "cases"
+        ]
+      },
+      "post": {
+        "operationId": "create_case_internal_v1_cases_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaseCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseCreated"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Create Case",
+        "tags": [
+          "internal",
+          "cases"
+        ]
+      }
+    },
+    "/internal/v1/cases/{case_id}": {
+      "get": {
+        "operationId": "get_case_internal_v1_cases__case_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Get Case",
+        "tags": [
+          "internal",
+          "cases"
+        ]
+      }
+    },
+    "/internal/v1/cases/{case_id}/confirm": {
+      "post": {
+        "operationId": "confirm_internal_v1_cases__case_id__confirm_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ConfirmIn"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Confirm",
+        "tags": [
+          "internal",
+          "diagnosis"
+        ]
+      }
+    },
+    "/internal/v1/cases/{case_id}/diagnosis/messages": {
+      "post": {
+        "operationId": "post_message_internal_v1_cases__case_id__diagnosis_messages_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Post Message",
+        "tags": [
+          "internal",
+          "diagnosis"
+        ]
+      }
+    },
+    "/internal/v1/cases/{case_id}/documents": {
+      "post": {
+        "operationId": "upload_document_internal_v1_cases__case_id__documents_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_document_internal_v1_cases__case_id__documents_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentTurn"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "파일이 너무 큼"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "지원하지 않는 파일 형식"
+          },
+          "422": {
+            "description": "facts(JSON) 값 오류: detail.message + detail.problems"
+          }
+        },
+        "summary": "Upload Document",
+        "tags": [
+          "internal",
+          "diagnosis"
+        ]
+      }
+    },
+    "/internal/v1/cases/{case_id}/reopen": {
+      "post": {
+        "operationId": "reopen_internal_v1_cases__case_id__reopen_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ReopenIn"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReopenOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Reopen",
+        "tags": [
+          "internal",
+          "diagnosis"
+        ]
+      }
+    },
+    "/internal/v1/cases/{case_id}/trace": {
+      "get": {
+        "operationId": "get_trace_internal_v1_cases__case_id__trace_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-company-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Company-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TraceOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Get Trace",
+        "tags": [
+          "internal",
+          "diagnosis"
+        ]
+      }
+    },
+    "/internal/v1/catalog/facts": {
+      "get": {
+        "description": "보드 편집·라벨용 사실 카탈로그 요약(카탈로그 순서). 내부 사실은 뺀다. 인증 없이 부른다.",
+        "operationId": "get_catalog_facts_internal_v1_catalog_facts_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogFact"
+                  },
+                  "title": "Response Get Catalog Facts Internal V1 Catalog Facts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Get Catalog Facts",
+        "tags": [
+          "internal",
+          "catalog"
         ]
       }
     }

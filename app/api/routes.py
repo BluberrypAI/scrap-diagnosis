@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Query, Response, UploadFile
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import StaleDataError
 
@@ -16,6 +16,7 @@ from app.api.deps import (
     LLMsDep,
     SettingsDep,
     TodayDep,
+    require_dev_endpoint,
 )
 from app.api.documents import UnsupportedDocument
 from app.api.errors import ERROR_RESPONSES, ErrorResponse, api_error
@@ -24,6 +25,7 @@ from app.api.schemas import (
     CaseCreate,
     CaseCreated,
     CaseDetail,
+    CaseListPage,
     CaseOut,
     CatalogFact,
     CatalogValue,
@@ -35,6 +37,7 @@ from app.api.schemas import (
     DocumentOut,
     DocumentTurn,
     MessageIn,
+    PagingInfo,
     ReopenIn,
     ReopenOut,
     TraceOut,
@@ -47,7 +50,17 @@ from app.domain.case import CaseStatus
 from app.domain.verdict import TurnResponse
 from app.persistence.models import Company, WasteCase, new_id
 
-router = APIRouter(responses=ERROR_RESPONSES)
+# 라우터 구성
+# - dev_router: 개발용 기업 API. 루트 경로에만 둔다(prod에서는 404).
+# - case_router: 건·문진·카탈로그. 루트(참조 화면)와 `/internal/v1`(scrap-server) 양쪽에 올린다.
+# - root_list_router / internal_list_router: 목록만 응답 모양이 달라 따로 둔다.
+dev_router = APIRouter(responses=ERROR_RESPONSES)
+case_router = APIRouter(responses=ERROR_RESPONSES)
+root_list_router = APIRouter(responses=ERROR_RESPONSES)
+internal_list_router = APIRouter(responses=ERROR_RESPONSES)
+router = dev_router  # 하위 호환 이름
+DEFAULT_PAGE_SIZE = 20
+MAX_PAGE_SIZE = 100
 STALE_MESSAGE = "다른 요청이 같은 문진을 먼저 갱신했습니다. 다시 시도하세요"
 
 
@@ -73,7 +86,7 @@ def _commit(svc: CaseService) -> None:
     except (StaleDataError, IntegrityError) as exc:
         # 같은 세션에 동시 요청: revision(낙관적 잠금) 또는 (session_id, seq) 유일 제약 충돌
         svc.db.rollback()
-        raise api_error(409, STALE_MESSAGE) from exc
+        raise api_error(409, STALE_MESSAGE, "CONCURRENT_UPDATE") from exc
 
 
 def _case_out(svc: CaseService, case: WasteCase) -> CaseOut:
@@ -103,19 +116,25 @@ def _run(svc: CaseService, fn, *args, **kwargs):  # noqa: ANN001, ANN202
         return fn(*args, **kwargs)
     except ServiceError as exc:
         svc.db.rollback()
-        raise api_error(exc.status, exc.message, **exc.extra) from exc
+        raise api_error(exc.status, exc.message, exc.code, **exc.extra) from exc
     except UnsupportedDocument as exc:
         svc.db.rollback()
-        raise api_error(415, str(exc)) from exc
+        raise api_error(415, str(exc), "UNSUPPORTED_DOCUMENT") from exc
     except (StaleDataError, IntegrityError) as exc:
         svc.db.rollback()
-        raise api_error(409, STALE_MESSAGE) from exc
+        raise api_error(409, STALE_MESSAGE, "CONCURRENT_UPDATE") from exc
 
 
 # ---- 기업 (개발용 최소 API) --------------------------------------------------------------
 
 
-@router.post("/companies", response_model=CompanyOut, status_code=201, tags=["companies"])
+@dev_router.post(
+    "/companies",
+    response_model=CompanyOut,
+    status_code=201,
+    tags=["companies"],
+    dependencies=[Depends(require_dev_endpoint)],
+)
 def create_company(body: CompanyCreate, db: DbDep) -> Company:
     # TODO(auth): 가입·로그인 흐름에서 만든다. 지금은 개발용으로 열어 둔다.
     company = Company(id=new_id(), name=body.name, profile=body.profile.stored())
@@ -124,18 +143,23 @@ def create_company(body: CompanyCreate, db: DbDep) -> Company:
     return company
 
 
-@router.get("/companies/profile-options", response_model=ProfileOptions, tags=["companies"])
+@dev_router.get("/companies/profile-options", response_model=ProfileOptions, tags=["companies"])
 def get_profile_options() -> ProfileOptions:
     """기업 정보 화면의 선택지(배출시설 종류). 인증 없이 부른다."""
     return profile_options()
 
 
-@router.get("/companies/me", response_model=CompanyOut, tags=["companies"])
+@dev_router.get("/companies/me", response_model=CompanyOut, tags=["companies"])
 def get_my_company(company: CompanyDep) -> Company:
     return company
 
 
-@router.put("/companies/me/profile", response_model=CompanyOut, tags=["companies"])
+@dev_router.put(
+    "/companies/me/profile",
+    response_model=CompanyOut,
+    tags=["companies"],
+    dependencies=[Depends(require_dev_endpoint)],
+)
 def update_profile(body: CompanyProfileUpdate, company: CompanyDep, db: DbDep) -> Company:
     company.profile = body.profile.stored()  # 이후 새로 만드는 건부터 적용
     db.commit()
@@ -145,7 +169,7 @@ def update_profile(body: CompanyProfileUpdate, company: CompanyDep, db: DbDep) -
 # ---- 카탈로그 ----------------------------------------------------------------------------
 
 
-@router.get("/catalog/facts", response_model=list[CatalogFact], tags=["catalog"])
+@case_router.get("/catalog/facts", response_model=list[CatalogFact], tags=["catalog"])
 def get_catalog_facts(kb: KBDep) -> list[CatalogFact]:
     """보드 편집·라벨용 사실 카탈로그 요약(카탈로그 순서). 내부 사실은 뺀다. 인증 없이 부른다."""
     out = []
@@ -184,7 +208,7 @@ def get_catalog_facts(kb: KBDep) -> list[CatalogFact]:
 # ---- 건 ----------------------------------------------------------------------------------
 
 
-@router.post("/cases", response_model=CaseCreated, status_code=201, tags=["cases"])
+@case_router.post("/cases", response_model=CaseCreated, status_code=201, tags=["cases"])
 def create_case(body: CaseCreate, svc: ServiceDep) -> CaseCreated:
     case, turn = _run(
         svc,
@@ -198,14 +222,44 @@ def create_case(body: CaseCreate, svc: ServiceDep) -> CaseCreated:
     return CaseCreated(case=_case_out(svc, case), turn=turn)
 
 
-@router.get("/cases", response_model=list[CaseOut], tags=["cases"])
+@root_list_router.get("/cases", response_model=list[CaseOut], tags=["cases"])
 def list_cases(
-    svc: ServiceDep, status: Annotated[CaseStatus | None, Query()] = None
+    svc: ServiceDep,
+    response: Response,
+    status: Annotated[CaseStatus | None, Query()] = None,
+    page: Annotated[int | None, Query(ge=1)] = None,
+    size: Annotated[int | None, Query(ge=1, le=MAX_PAGE_SIZE)] = None,
 ) -> list[CaseOut]:
-    return [_case_out(svc, c) for c in svc.list_cases(status)]
+    """참조 화면용: 기존처럼 배열을 돌려준다. page·size를 주면 그 쪽만 자른다
+    (page만 주면 size=20). 전체 건수는 `X-Total-Count` 헤더."""
+    if page is not None or size is not None:
+        page, size = page or 1, size or DEFAULT_PAGE_SIZE
+    cases, total = svc.list_cases(status, page=page, size=size)
+    response.headers["X-Total-Count"] = str(total)
+    return [_case_out(svc, c) for c in cases]
 
 
-@router.get("/cases/{case_id}", response_model=CaseDetail, tags=["cases"])
+@internal_list_router.get("/cases", response_model=CaseListPage, tags=["cases"])
+def list_cases_paged(
+    svc: ServiceDep,
+    status: Annotated[CaseStatus | None, Query()] = None,
+    page: Annotated[int, Query(ge=1)] = 1,
+    size: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = DEFAULT_PAGE_SIZE,
+) -> CaseListPage:
+    """서버용: `{items, pagingInfo}`. 최근 갱신순."""
+    cases, total = svc.list_cases(status, page=page, size=size)
+    return CaseListPage(
+        items=[_case_out(svc, c) for c in cases],
+        pagingInfo=PagingInfo(
+            currentPageNumber=page,
+            pageSize=size,
+            totalCount=total,
+            totalPages=-(-total // size),
+        ),
+    )
+
+
+@case_router.get("/cases/{case_id}", response_model=CaseDetail, tags=["cases"])
 def get_case(case_id: str, svc: ServiceDep) -> CaseDetail:
     case = _run(svc, svc.get_case, case_id)
     current = svc.repo.current_verdict(case.id)
@@ -223,7 +277,9 @@ def get_case(case_id: str, svc: ServiceDep) -> CaseDetail:
 # ---- 문진 --------------------------------------------------------------------------------
 
 
-@router.post("/cases/{case_id}/diagnosis/messages", response_model=TurnResponse, tags=["diagnosis"])
+@case_router.post(
+    "/cases/{case_id}/diagnosis/messages", response_model=TurnResponse, tags=["diagnosis"]
+)
 def post_message(case_id: str, body: MessageIn, svc: ServiceDep) -> TurnResponse:
     case = _run(svc, svc.get_case, case_id)
     resp = _run(svc, svc.message, case, text=body.text, quick_reply=body.quick_reply)
@@ -231,7 +287,7 @@ def post_message(case_id: str, body: MessageIn, svc: ServiceDep) -> TurnResponse
     return resp
 
 
-@router.post(
+@case_router.post(
     "/cases/{case_id}/documents",
     response_model=DocumentTurn,
     status_code=201,
@@ -268,7 +324,7 @@ def upload_document(
     return DocumentTurn(document=DocumentOut.model_validate(doc), turn=turn)
 
 
-@router.post("/cases/{case_id}/confirm", response_model=ConfirmOut, tags=["diagnosis"])
+@case_router.post("/cases/{case_id}/confirm", response_model=ConfirmOut, tags=["diagnosis"])
 def confirm(case_id: str, svc: ServiceDep, body: ConfirmIn | None = None) -> ConfirmOut:
     case = _run(svc, svc.get_case, case_id)
     verdict, frozen = _run(svc, svc.confirm, case, body.expected_code if body else None)
@@ -281,7 +337,7 @@ def confirm(case_id: str, svc: ServiceDep, body: ConfirmIn | None = None) -> Con
     )
 
 
-@router.post("/cases/{case_id}/reopen", response_model=ReopenOut, tags=["diagnosis"])
+@case_router.post("/cases/{case_id}/reopen", response_model=ReopenOut, tags=["diagnosis"])
 def reopen(case_id: str, svc: ServiceDep, body: ReopenIn | None = None) -> ReopenOut:
     case = _run(svc, svc.get_case, case_id)
     old, turn = _run(svc, svc.reopen, case, body.reason if body else None)
@@ -293,7 +349,7 @@ def reopen(case_id: str, svc: ServiceDep, body: ReopenIn | None = None) -> Reope
     )
 
 
-@router.get("/cases/{case_id}/trace", response_model=TraceOut, tags=["diagnosis"])
+@case_router.get("/cases/{case_id}/trace", response_model=TraceOut, tags=["diagnosis"])
 def get_trace(case_id: str, svc: ServiceDep) -> TraceOut:
     case = _run(svc, svc.get_case, case_id)
     sessions = [

@@ -80,6 +80,8 @@ class Company(Base):
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
     name: Mapped[str] = mapped_column(String(200))
+    # scrap-server가 쓰는 기업 ID(/internal/v1의 X-Company-Id). 개발용으로 만든 기업은 None.
+    external_id: Mapped[str | None] = mapped_column(String(128), unique=True, index=False)
     # 기업 정보: 기본 정보·배출시설·주생산품. "facts"는 문진 시작 때 PROFILE 사실로 넣는다.
     profile: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)

@@ -74,11 +74,13 @@ def test_profile_explicit_facts_win_and_update(api):
     assert r.json()["profile"]["facts"] == {"emission_facility": False}
 
 
-def test_profile_validation_keeps_fastapi_422(api):
+def test_profile_validation_wrapped_422(api):
     r = api.client.post(
         "/companies", json={"name": "A", "profile": {"facilities": ["none", "air_emission"]}}
     )
-    assert r.status_code == 422 and isinstance(r.json()["detail"], list)
+    d = r.json()["detail"]
+    assert r.status_code == 422 and d["code"] == "VALIDATION_ERROR"
+    assert d["details"]["errors"][0]["loc"][:2] == ["body", "profile"]
     r = api.client.post("/companies", json={"name": "A", "profile": {"facilities": ["x"]}})
     assert r.status_code == 422
 
@@ -124,6 +126,12 @@ def test_error_format_is_detail_message(api):
         api.post("/cases/nope/confirm"),  # 404
     ]
     assert [r.status_code for r in rs] == [401, 401, 404, 404]
+    assert [r.json()["detail"]["code"] for r in rs] == [
+        "COMPANY_REQUIRED",
+        "COMPANY_REQUIRED",
+        "CASE_NOT_FOUND",
+        "CASE_NOT_FOUND",
+    ]
     cid = api.create_case()["case"]["id"]
     rs += [
         api.post(f"/cases/{cid}/confirm"),  # 409
@@ -133,6 +141,7 @@ def test_error_format_is_detail_message(api):
     for r in rs:
         d = r.json()["detail"]
         assert isinstance(d, dict) and isinstance(d["message"], str) and d["message"]
+        assert isinstance(d["code"], str) and isinstance(d["details"], dict)
 
 
 def test_upload_too_large_and_bad_facts_use_detail_message(api):

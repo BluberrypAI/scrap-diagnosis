@@ -252,3 +252,17 @@ class CatalogFact(BaseModel):
     unit: str | None = None
     values: list[CatalogValue] = []  # enum: 값 영역, bool: 예/아니오, number: 비움
     parent: str | None = None  # 상위 분류 사실 키(예: material → material_group)
+
+
+class PagingInfo(BaseModel):
+    """목록 페이징(명세서 형식). 쪽 번호는 1부터."""
+
+    currentPageNumber: int
+    pageSize: int
+    totalCount: int
+    totalPages: int
+
+
+class CaseListPage(BaseModel):
+    items: list[CaseOut]
+    pagingInfo: PagingInfo
