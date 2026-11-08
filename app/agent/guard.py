@@ -44,6 +44,7 @@ class ExtractionResult(BaseModel):
     rejected: list[dict] = []
     errors: list[str] = []
     attempts: int = 0
+    llm_blocked: str | None = None  # AI 전송을 막은 이유(가리기 실패·문서 차단). Trace에 남긴다
 
     @property
     def empty(self) -> bool:

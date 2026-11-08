@@ -33,6 +33,11 @@ class LLMCall(BaseModel):
     error: str | None = None
     latency_ms: int = 0
     usage: dict | None = None
+    # OPS-003: user에는 가린 프롬프트만 들어간다. 원문은 해시·길이로만 남긴다.
+    user_sha256: str | None = None
+    user_len: int | None = None
+    raw_sha256: str | None = None
+    raw_len: int | None = None
 
 
 class LLMClient(Protocol):

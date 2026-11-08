@@ -254,8 +254,10 @@ class DiagnosisSession:
             max_questions=self.max_questions,
             user_question=user_question,
         )
+        # 입력이 AI 전송 정책으로 막힌 턴은 응답도 템플릿으로 한다
+        blocked = extraction.llm_blocked if extraction else None
         out, rcalls = respond(
-            self.responder_llm,
+            None if blocked else self.responder_llm,
             self.kb,
             step,
             self.rule_index,
@@ -263,6 +265,8 @@ class DiagnosisSession:
             user_question=user_question,
         )
         calls += rcalls
+        if blocked and not out.llm_blocked:
+            out.llm_blocked = blocked
 
         d = step.decision
         if d.branch == Branch.ASK_FACT and d.question is not None:
@@ -323,7 +327,11 @@ class DiagnosisSession:
                 branch_reason=d.reason,
                 score_breakdown=[e.model_dump() for e in (q.score_breakdown if q else [])][:20],
                 llm_calls=calls,
-                responder={"used_template": out.used_template, "problems": out.problems},
+                responder={
+                    "used_template": out.used_template,
+                    "problems": out.problems,
+                    **({"llm_blocked": out.llm_blocked} if out.llm_blocked else {}),
+                },
                 response=resp.model_dump(mode="json"),
             )
         )
@@ -337,7 +345,7 @@ class DiagnosisSession:
         # 버튼 답 기록은 추출기 문맥에 넣지 않는다(M4까지와 같은 문맥)
         said = [m for m in self.messages if not m.get("quick_reply")]
         recent = [{"role": m["role"], "text": m["text"]} for m in said[-7:-1]]
-        return extract(
+        result, calls = extract(
             self.extractor_llm,
             self.kb,
             text,
@@ -347,6 +355,12 @@ class DiagnosisSession:
             message_id=turn_id,
             prompt_version=self.prompt_version,
         )
+        if result.llm_blocked:
+            # AI 전송 정책으로 막힘(가리기 실패 등): AI가 꺼진 것처럼 버튼 답만 받는다
+            blocked = result.llm_blocked
+            result = self._match_option(text, turn_id)
+            result.llm_blocked = blocked
+        return result, calls
 
     def _match_option(self, text: str, turn_id: str) -> ExtractionResult:
         """LLM이 없을 때: 직전 질문의 선택지 라벨과 정확히 같은 답만 받는다."""

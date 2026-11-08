@@ -6,10 +6,18 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Any, Literal
 
 from app.agent.guard import ExtractionResult, validate_extraction
 from app.agent.llm_client import LLMCall, LLMClient
+from app.agent.redact import (
+    RedactionError,
+    find_identifiers,
+    redact,
+    redact_obj,
+    scrub_call,
+)
+from app.config import Settings, get_settings
 from app.domain.facts import Fact
 from app.rules.model import FactDef, KnowledgeBase
 from app.rules.selector import QuestionChoice
@@ -206,13 +214,47 @@ def extract(
     message_id: str,
     prompt_version: str,
     max_retries: int = 1,
+    source: Literal["user", "document"] = "user",
+    settings: Settings | None = None,
 ) -> tuple[ExtractionResult, list[LLMCall]]:
-    """LLM 추출 → guard 검증. 거부가 있으면 오류를 붙여 1회 재시도한다."""
+    """LLM 추출 → guard 검증. 거부가 있으면 오류를 붙여 1회 재시도한다.
+
+    AI 전송 정책(CORP-008·OPS-010·OPS-003):
+    - source="document"(서류 원문)는 `allow_document_llm`이 켜져 있을 때만 보낸다.
+    - 보내기 전 식별 정보를 가린다. 실패하면(fail-closed) 부르지 않고 `llm_blocked`를 남긴다.
+    - guard의 quote 검사는 모델이 실제로 본 '가린 문장' 기준이다. 저장되는 quote도 가린 문장이다.
+    - 반환하는 LLMCall에는 가린 프롬프트와 원문 해시만 있다.
+    """
+    cfg = settings or get_settings()
+    if source == "document" and not cfg.allow_document_llm:
+        return ExtractionResult(llm_blocked="document_llm_not_allowed"), []
+    try:
+        masked_text = redact(text).text
+        masked_recent = redact_obj(recent)
+        masked_effective = {
+            k: f.model_copy(update={"note": redact(f.note).text if f.note else f.note})
+            for k, f in effective.items()
+        }
+    except RedactionError as exc:
+        return ExtractionResult(llm_blocked=f"redaction_failed: {exc}"), []
     calls: list[LLMCall] = []
     feedback: list[str] | None = None
     result = ExtractionResult()
     for attempt in range(max_retries + 1):
         user = build_user_prompt(
+            kb,
+            masked_text,
+            effective=masked_effective,
+            last_question=last_question,
+            recent=masked_recent,
+            feedback=feedback,
+        )
+        # 최종 프롬프트 전체를 한 번 더 검사한다(잔존 시 호출하지 않음)
+        left = find_identifiers(user)
+        if left:
+            result.llm_blocked = "redaction_failed: " + ", ".join(left)
+            return result, calls
+        original = build_user_prompt(
             kb,
             text,
             effective=effective,
@@ -227,13 +269,15 @@ def extract(
             schema=EXTRACTION_SCHEMA,
             prompt_version=prompt_version,
         )
-        calls.append(call)
-        if call.error or call.parsed is None:
-            result = ExtractionResult(errors=[call.error or "응답 없음"])
+        parsed = call.parsed
+        error = call.error
+        calls.append(scrub_call(call, original, store_prompts=cfg.trace_store_prompts))
+        if error or parsed is None:
+            result = ExtractionResult(errors=[error or "응답 없음"])
             feedback = None
             continue
         result = validate_extraction(
-            kb, call.parsed, text, last_question=last_question, message_id=message_id
+            kb, parsed, masked_text, last_question=last_question, message_id=message_id
         )
         result.attempts = attempt + 1
         if not result.rejected:

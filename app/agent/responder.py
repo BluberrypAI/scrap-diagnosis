@@ -16,7 +16,9 @@ from pydantic import BaseModel
 from app.agent import templates
 from app.agent.guard import validate_response
 from app.agent.llm_client import LLMCall, LLMClient
+from app.agent.redact import RedactionError, find_identifiers, redact_obj, scrub_call
 from app.agent.router import Branch, EngineStep
+from app.config import Settings, get_settings
 from app.rules.model import KnowledgeBase, Rule
 
 RESPONSE_SCHEMA = {
@@ -57,6 +59,7 @@ class ResponderOutput(BaseModel):
     used_template: bool = False
     problems: list[str] = []
     payload: dict = {}
+    llm_blocked: str | None = None  # AI 전송을 막은 이유(가리기 실패). 템플릿으로 답했다
 
 
 def _fact_label(kb: KnowledgeBase, key: str) -> str:
@@ -160,10 +163,24 @@ def respond(
     prompt_version: str,
     user_question: str | None = None,
     max_retries: int = 1,
+    settings: Settings | None = None,
 ) -> tuple[ResponderOutput, list[LLMCall]]:
     payload = build_payload(kb, step, rule_index, user_question=user_question)
     replies = suggested_replies(step)
-    payload_text = json.dumps(payload, ensure_ascii=False)
+    cfg = settings or get_settings()
+    blocked: str | None = None
+    send_payload = payload
+    if llm is not None:
+        try:  # 사용자 발화·값 등이 섞일 수 있으므로 보내기 전 가린다(fail-closed)
+            send_payload = redact_obj(payload)
+            left = find_identifiers(json.dumps(send_payload, ensure_ascii=False))
+            if left:
+                raise RedactionError("가린 뒤에도 식별 정보가 남음: " + ", ".join(left))
+        except RedactionError as exc:
+            blocked = f"redaction_failed: {exc}"
+            llm = None
+    original_text = json.dumps(payload, ensure_ascii=False)
+    payload_text = json.dumps(send_payload, ensure_ascii=False)
     basis_ids = {b["id"] for b in payload.get("basis", [])}
     calls: list[LLMCall] = []
     problems: list[str] = []
@@ -174,7 +191,7 @@ def respond(
                 payload_text
                 if not feedback
                 else json.dumps(
-                    {"payload": payload, "이전 응답의 문제(고쳐서 다시 써라)": feedback},
+                    {"payload": send_payload, "이전 응답의 문제(고쳐서 다시 써라)": feedback},
                     ensure_ascii=False,
                 )
             )
@@ -185,14 +202,14 @@ def respond(
                 schema=RESPONSE_SCHEMA,
                 prompt_version=prompt_version,
             )
-            calls.append(call)
+            calls.append(scrub_call(call, original_text, store_prompts=cfg.trace_store_prompts))
             if call.error or not call.parsed:
                 problems.append(call.error or "응답 없음")
                 feedback = None
                 continue
             msg = str(call.parsed.get("message", ""))
             cited = [str(x) for x in call.parsed.get("cited_basis_ids", [])]
-            found = validate_response(msg, cited, payload, payload_text, basis_ids)
+            found = validate_response(msg, cited, send_payload, payload_text, basis_ids)
             if not found:
                 return ResponderOutput(
                     message=msg,
@@ -212,4 +229,5 @@ def respond(
         used_template=True,
         problems=problems,
         payload=payload,
+        llm_blocked=blocked,
     ), calls

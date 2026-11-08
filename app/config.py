@@ -36,6 +36,10 @@ class Settings(BaseSettings):
     max_upload_bytes: int = 10 * 1024 * 1024
     document_text_limit: int = 20000  # 문서 추출 때 LLM에 넘기는 최대 글자 수
 
+    # AI 전송 정책(CORP-008·OPS-010·OPS-003)
+    allow_document_llm: bool = False  # 서류 원문을 AI로 보내도 되는지. 기본 차단
+    trace_store_prompts: bool = True  # False면 Trace에 가린 프롬프트도 남기지 않고 해시·길이만
+
     @property
     def llm_enabled(self) -> bool:
         return self.llm_provider == "azure" and all(
