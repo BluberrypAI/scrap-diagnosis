@@ -417,6 +417,23 @@
       },
       "CaseCreate": {
         "properties": {
+          "company_profile_version": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Profile Version"
+          },
+          "confirmed_facts": {
+            "additionalProperties": true,
+            "title": "Confirmed Facts",
+            "type": "object"
+          },
           "memo": {
             "anyOf": [
               {
@@ -1329,6 +1346,71 @@
         "title": "ConversationItem",
         "type": "object"
       },
+      "DeletionOut": {
+        "description": "기업 데이터 삭제 결과·이력(CORP-009).",
+        "properties": {
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "company_hash": {
+            "title": "Company Hash",
+            "type": "string"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Counts",
+            "type": "object"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DONE",
+              "FAILED"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "company_hash",
+          "status",
+          "counts",
+          "attempts",
+          "started_at"
+        ],
+        "title": "DeletionOut",
+        "type": "object"
+      },
       "DocumentNeeded": {
         "properties": {
           "evidence_type": {
@@ -1676,6 +1758,23 @@
       "MessageIn": {
         "description": "자유 진술(text) 또는 선택지 버튼(quick_reply) 중 하나.",
         "properties": {
+          "company_profile_version": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Profile Version"
+          },
+          "confirmed_facts": {
+            "additionalProperties": true,
+            "title": "Confirmed Facts",
+            "type": "object"
+          },
           "quick_reply": {
             "anyOf": [
               {
@@ -2660,6 +2759,17 @@
               }
             ],
             "title": "Code"
+          },
+          "company_profile_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Profile Version"
           },
           "confirmed_at": {
             "format": "date-time",
@@ -6021,6 +6131,186 @@
         "tags": [
           "internal",
           "catalog"
+        ]
+      }
+    },
+    "/internal/v1/companies/{external_id}/data": {
+      "delete": {
+        "description": "탈퇴한 기업의 데이터 삭제(멱등). 서버 기업 ID는 경로로 받는다(`X-Company-Id` 불필요).",
+        "operationId": "delete_company_internal_v1_companies__external_id__data_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "external_id",
+            "required": true,
+            "schema": {
+              "title": "External Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Delete Company",
+        "tags": [
+          "internal",
+          "companies"
+        ]
+      }
+    },
+    "/internal/v1/companies/{external_id}/data/deletion": {
+      "get": {
+        "description": "가장 최근 삭제 이력. 없으면 404 DELETION_NOT_FOUND.",
+        "operationId": "get_company_deletion_internal_v1_companies__external_id__data_deletion_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "external_id",
+            "required": true,
+            "schema": {
+              "title": "External Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Get Company Deletion",
+        "tags": [
+          "internal",
+          "companies"
         ]
       }
     }

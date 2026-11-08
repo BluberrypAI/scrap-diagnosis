@@ -137,6 +137,8 @@ class DiagnosisSessionRecord(Base):
     fact_count: Mapped[int] = mapped_column(Integer, default=0)
     trace_count: Mapped[int] = mapped_column(Integer, default=0)
     revision: Mapped[int] = mapped_column(Integer, default=0)  # 낙관적 잠금
+    # 서버가 마지막으로 보낸 기업 정보 버전(확인된 값을 받은 때). 없으면 None.
+    company_profile_version: Mapped[str | None] = mapped_column(String(64), nullable=True)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow, onupdate=utcnow)
 
@@ -244,6 +246,8 @@ class VerdictRecord(Base):
     trace_turn_id: Mapped[str | None] = mapped_column(String(32))  # 확정 근거가 된 마지막 턴
     # 경로추천 AI 인계 객체(diagnosis-handoff-v1). 0002 이전 판정은 비어 있다.
     handoff: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    # 확정 때 세션이 가진 기업 정보 버전(서버가 보낸 값). 서버가 안 보냈으면 None.
+    company_profile_version: Mapped[str | None] = mapped_column(String(64), nullable=True)
     confirmed_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)
     superseded_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
     reopened_at: Mapped[datetime | None] = mapped_column(UTCDateTime())  # 이 판정을 다시 연 시각
@@ -269,3 +273,22 @@ class TraceRecord(Base):
     payload: Mapped[dict[str, Any]] = mapped_column(JSON)
     immutable: Mapped[bool] = mapped_column(Boolean, default=False)
     recorded_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)
+
+
+class DeletionLog(Base):
+    """기업 데이터 삭제 이력(CORP-009). 기업 id는 SHA-256 해시로만 남긴다.
+
+    삭제한 기업의 행이 없어도 남아야 하므로 어떤 테이블도 참조하지 않는다.
+    status: DONE | FAILED. FAILED는 같은 행으로 재시도(attempts 증가)한다.
+    """
+
+    __tablename__ = "deletion_log"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    company_hash: Mapped[str] = mapped_column(String(64), index=True)
+    status: Mapped[str] = mapped_column(String(10))
+    counts: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    attempts: Mapped[int] = mapped_column(Integer, default=1)
+    error: Mapped[str | None] = mapped_column(Text)
+    started_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)
+    finished_at: Mapped[datetime | None] = mapped_column(UTCDateTime())

@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, Query, Response, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Query, Request, Response, UploadFile
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import StaleDataError
 
+from app.api.deletion import DeletionFailed, delete_company_data, latest_deletion
 from app.api.deps import (
     CompanyDep,
     DbDep,
@@ -16,6 +17,7 @@ from app.api.deps import (
     LLMsDep,
     SettingsDep,
     TodayDep,
+    is_internal,
     require_dev_endpoint,
 )
 from app.api.documents import UnsupportedDocument
@@ -35,6 +37,7 @@ from app.api.schemas import (
     CompanyProfileUpdate,
     ConfirmIn,
     ConfirmOut,
+    DeletionOut,
     DocumentOut,
     DocumentTurn,
     DocumentValueOut,
@@ -62,6 +65,7 @@ dev_router = APIRouter(responses=ERROR_RESPONSES)
 case_router = APIRouter(responses=ERROR_RESPONSES)
 root_list_router = APIRouter(responses=ERROR_RESPONSES)
 internal_list_router = APIRouter(responses=ERROR_RESPONSES)
+company_data_router = APIRouter(responses=ERROR_RESPONSES)  # /internal/v1 전용(루트에는 없음)
 router = dev_router  # 하위 호환 이름
 DEFAULT_PAGE_SIZE = 20
 MAX_PAGE_SIZE = 100
@@ -76,9 +80,15 @@ def get_service(
     settings: SettingsDep,
     today: TodayDep,
     company: CompanyDep,
+    request: Request,
 ) -> CaseService:
-    """요청 하나 = DB 트랜잭션 하나. 커밋하지 않고 끝나면 세션을 닫으면서 되돌린다."""
-    return CaseService(db, kb, kb_info, llms, settings, today, company)
+    """요청 하나 = DB 트랜잭션 하나. 커밋하지 않고 끝나면 세션을 닫으면서 되돌린다.
+
+    엔진 자체 기업 정보(PROFILE) 시딩은 개발·참조 화면(루트 경로, prod 아님)에서만 한다.
+    """
+    return CaseService(
+        db, kb, kb_info, llms, settings, today, company, seed_local_profile=not is_internal(request)
+    )
 
 
 ServiceDep = Annotated[CaseService, Depends(get_service)]
@@ -228,6 +238,8 @@ def create_case(body: CaseCreate, svc: ServiceDep) -> CaseCreated:
         quantity=body.quantity,
         unit=body.unit,
         period=body.period,
+        confirmed_facts=body.confirmed_facts,
+        company_profile_version=body.company_profile_version,
     )
     _commit(svc)
     return CaseCreated(case=_case_out(svc, case), turn=turn)
@@ -293,7 +305,15 @@ def get_case(case_id: str, svc: ServiceDep) -> CaseDetail:
 )
 def post_message(case_id: str, body: MessageIn, svc: ServiceDep) -> TurnResponse:
     case = _run(svc, svc.get_case, case_id)
-    resp = _run(svc, svc.message, case, text=body.text, quick_reply=body.quick_reply)
+    resp = _run(
+        svc,
+        svc.message,
+        case,
+        text=body.text,
+        quick_reply=body.quick_reply,
+        confirmed_facts=body.confirmed_facts,
+        company_profile_version=body.company_profile_version,
+    )
     _commit(svc)
     return resp
 
@@ -478,3 +498,34 @@ def get_trace(case_id: str, svc: ServiceDep) -> TraceOut:
         sessions=sessions,
         verdicts=[VerdictOut.model_validate(v) for v in svc.repo.verdicts(case.id)],
     )
+
+
+# ---- 기업 데이터 삭제 (CORP-009, /internal/v1 전용) -------------------------------------------
+
+
+@company_data_router.delete(
+    "/companies/{external_id}/data", response_model=DeletionOut, tags=["companies"]
+)
+def delete_company(external_id: str, db: DbDep) -> DeletionOut:
+    """탈퇴한 기업의 데이터 삭제(멱등). 서버 기업 ID는 경로로 받는다(`X-Company-Id` 불필요)."""
+    try:
+        log = delete_company_data(db, external_id)
+    except DeletionFailed as exc:
+        raise api_error(
+            500,
+            "기업 데이터 삭제에 실패했습니다. 다시 시도하세요",
+            "DELETION_FAILED",
+            attempts=exc.log.attempts,
+        ) from exc
+    return DeletionOut.model_validate(log, from_attributes=True)
+
+
+@company_data_router.get(
+    "/companies/{external_id}/data/deletion", response_model=DeletionOut, tags=["companies"]
+)
+def get_company_deletion(external_id: str, db: DbDep) -> DeletionOut:
+    """가장 최근 삭제 이력. 없으면 404 DELETION_NOT_FOUND."""
+    log = latest_deletion(db, external_id)
+    if log is None:
+        raise api_error(404, "삭제 이력이 없습니다", "DELETION_NOT_FOUND")
+    return DeletionOut.model_validate(log, from_attributes=True)

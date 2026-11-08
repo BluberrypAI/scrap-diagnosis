@@ -2,8 +2,6 @@
 
 scrap-server 담당자가 엔진(waste-diagnosis)을 부를 때 쓰는 규약이다. 필드 단위 정의는 `docs/api/openapi.json`(`/internal/v1` 경로 포함)이 기준이고, 이 문서는 경로·인증·오류 코드·페이징을 정한다. 요청·응답 본문의 의미와 흐름 예시는 `docs/api/api-spec.md`(5절)와 같다. 경로 앞에 `/internal/v1`만 붙는다.
 
-> 표시: 본문에 "예정"이라 적은 항목은 이후 단계에서 추가한다. 지금은 호출할 수 없다.
-
 ## 1. 기본 규칙
 
 - 기본 경로: `/internal/v1` (예: `POST /internal/v1/cases`). 엔진 포트는 8030.
@@ -37,10 +35,10 @@ scrap-server 담당자가 엔진(waste-diagnosis)을 부를 때 쓰는 규약이
 
 | 메서드·경로 | 설명 | 성공 | 주요 오류 |
 |---|---|---|---|
-| `POST /internal/v1/cases` | 건 만들기 + 문진 시작 `{memo?, quantity?, unit?, period?}` | 201 `{case, turn}` | 401, 400, 422 |
+| `POST /internal/v1/cases` | 건 만들기 + 문진 시작 `{memo?, quantity?, unit?, period?, confirmed_facts?, company_profile_version?}`(3.3절) | 201 `{case, turn}` | 401, 400, 422 |
 | `GET /internal/v1/cases?status=&page=&size=` | 내 기업의 건 목록(최근 갱신순, `summary` 포함) | 200 `{items, pagingInfo}` | 401, 400, 422 |
 | `GET /internal/v1/cases/{id}` | 건 상세(현재 판정·이력·마지막 턴·서류·인계 객체·대화 기록) | 200 `CaseDetail` | 401, 404 |
-| `POST /internal/v1/cases/{id}/diagnosis/messages` | 문진 답변 `{text}` 또는 `{quick_reply}` (둘 중 하나) | 200 `TurnResponse` | 404, 409 `CASE_NOT_DIAGNOSABLE`·`KB_CHANGED`·`CONCURRENT_UPDATE`, 422 |
+| `POST /internal/v1/cases/{id}/diagnosis/messages` | 문진 답변 `{text}` 또는 `{quick_reply}` (둘 중 하나) + 선택 `confirmed_facts`·`company_profile_version`(3.3절) | 200 `TurnResponse` | 404, 409 `CASE_NOT_DIAGNOSABLE`·`KB_CHANGED`·`CONCURRENT_UPDATE`, 422 |
 | `POST /internal/v1/cases/{id}/documents` | 서류 업로드(multipart: `file`, 선택 `facts` JSON 문자열). `facts`는 검수 대기 후보(UNVERIFIED)로만 저장하고 판정은 바뀌지 않는다 | 201 `{document, turn, values}` | 404, 409 `CASE_NOT_DIAGNOSABLE`·`KB_CHANGED`, 413, 415, 422 |
 | `POST /internal/v1/cases/{id}/documents/{doc}/versions` | 같은 서류의 파일 교체(새 버전, multipart는 업로드와 같음). 이전 버전에서 적용된 값·대기 후보는 자동으로 효력 해제(REVOKED) | 201 `{document, turn, values}` | 404 `DOCUMENT_NOT_FOUND`, 409, 413, 415, 422 |
 | `POST /internal/v1/cases/{id}/confirm` | 확정 `{expected_code?}`. 서버가 지금 사실로 다시 평가한다 | 200 `{case, verdict, handoff, frozen_trace_rows}` | 404, 409 `NOT_CONFIRMABLE`·`ALREADY_CONFIRMED`·`CODE_MISMATCH`·`KB_CHANGED` |
@@ -51,7 +49,8 @@ scrap-server 담당자가 엔진(waste-diagnosis)을 부를 때 쓰는 규약이
 | `POST /internal/v1/cases/{id}/documents/{doc}/revoke` | 서류 효력 해제 `{reason?, document_version?}`. 버전을 빼면 모든 버전 | 200 `TurnResponse` | 404, 409 `DOCUMENT_VERSION_MISMATCH`·`CASE_NOT_DIAGNOSABLE`·`KB_CHANGED` |
 | `POST /internal/v1/cases/{id}/rebase` | 저장된 규칙 버전이 바뀐 건을 지금 규칙으로 다시 평가(본문 없음). 확정 건은 409 | 200 `TurnResponse` | 404, 409 `CASE_NOT_DIAGNOSABLE` |
 | `POST /internal/v1/cases/{id}/documents/{doc}/extract` | 서류 자동 읽기(OCR·AI, `document-extraction-v1`) | 미구현 | 값은 사람이 입력한다 |
-| `DELETE /internal/v1/companies/{id}/data` | 기업 탈퇴 시 데이터 삭제(멱등) | (예정) | |
+| `DELETE /internal/v1/companies/{external_id}/data` | 기업 탈퇴 시 데이터 삭제(멱등, 3.3절). `X-Company-Id` 없이 경로의 서버 기업 ID를 쓴다 | 200 `DeletionOut` | 401, 500 `DELETION_FAILED` |
+| `GET /internal/v1/companies/{external_id}/data/deletion` | 가장 최근 삭제 이력 | 200 `DeletionOut` | 401, 404 `DELETION_NOT_FOUND` |
 
 호출 순서: 건 생성 → (메시지·서류 업로드 → 검수 → 적용 반복) → 확정 → 필요하면 reopen → 다시 메시지·확정. 건 상태 전이는 `api-spec.md` 7절. 모든 경로는 루트(참조 화면·개발용)에도 같은 모양으로 있다.
 
@@ -88,6 +87,19 @@ POST /internal/v1/cases/C1/documents/D1/values/apply
 - 읽기(`GET` 상세·목록·trace)는 그대로 되고 `case.kb_changed: true`가 붙는다.
 - `POST …/rebase`(본문 없음): 같은 사실을 지금 규칙으로 다시 평가하고 저장된 규칙 버전을 바꾼다. Trace에 `REBASE`(`from_kb_version`, `to_kb_version`, 테이블 버전 전후) 행이 남는다. 응답은 `TurnResponse`. 그 뒤 평소처럼 이어 간다.
 - 확정된 건(`CODE_CONFIRMED`)은 rebase할 수 없다(409 `CASE_NOT_DIAGNOSABLE`). 확정된 판정 버전은 만들 때의 `kb_version` 그대로 보존된다. 확정 건을 `reopen`하면 그 자리에서 지금 규칙으로 맞춘다(Trace `REOPEN` → `REBASE`).
+
+### 3.3 기업 정보(확인된 값)와 기업 데이터 삭제
+
+**확인된 기업 정보.** 건 생성·문진 답변 본문에 선택 필드를 더 보낼 수 있다.
+- `confirmed_facts`: `{사실 키: 값}`. **서버에서 사용자가 확인한 값만** 보낸다(확인 전 기본값은 보내지 않는다). 엔진은 `PROFILE_CONFIRMED`(상태 CLAIMED, 보드 표기 "기업 정보(확인됨)")로 사실 이력에 넣는다. 서류 값과 같은 형식 검사를 하고, 틀린 항목이 하나라도 있으면 `422 VALIDATION_ERROR`(`details.problems[{key, value, reason}]`)이며 아무것도 저장하지 않는다. 같은 키·값을 다시 보내면 건너뛴다(그 사이 사용자가 고친 답을 덮어쓰지 않는다). 값이 바뀌었으면 새 값이 들어간다.
+- `company_profile_version`: 문자열(최대 64자). 세션에 기록하고 판정 버전(`verdict.company_profile_version`)과 인계 객체 `handoff.inputs`(`{company_profile_version, confirmed_profile_keys}`)에 남긴다. 보내지 않으면 마지막으로 받은 값을 유지한다.
+- 엔진이 자기 기업 정보로 사이트 사실을 넣는 경로(PROFILE)는 개발·참조 화면 전용이다. `/internal/v1` 호출은 `APP_ENV`와 관계없이 이 경로를 쓰지 않는다.
+
+**기업 데이터 삭제**(CORP-009, 탈퇴 유예 기간 후 서버가 호출).
+- 그 기업의 건·세션·사실 이력·서류(+값)·판정·Trace(확정으로 불변이 된 행 포함)·사용자·기업 행을 모두 지운다. 다른 기업은 건드리지 않는다. 이 경로에서만 Trace 불변 보호를 우회하고 다른 곳은 그대로다.
+- 멱등: 이미 지운 기업에 다시 부르면 처음 성공 기록(건수 포함)을 그대로 돌려준다. 엔진이 모르는 ID도 `200`(건수 0)이다.
+- 응답 `DeletionOut`: `{company_hash(서버 기업 ID의 SHA-256 hex), status(DONE|FAILED), counts{테이블: 건수}, attempts, error, started_at, finished_at}`. 이력(`deletion_log`)에는 원래 ID가 아니라 해시만 남는다.
+- 실패하면 삭제를 모두 되돌리고 `FAILED`로 기록한 뒤 `500 DELETION_FAILED`(`details.attempts`). 같은 호출을 다시 하면 이어서 시도하고 같은 이력 행의 `attempts`가 늘어난다. 성공하면 `DONE`.
 
 ### 루트 경로와의 차이
 
@@ -135,6 +147,7 @@ POST /internal/v1/cases/C1/documents/D1/values/apply
 | 404 | `ENDPOINT_DISABLED` | prod에서 막힌 개발용 경로 | - |
 | 404 / 405 | `NOT_FOUND` | 없는 경로(프레임워크 기본) | - |
 | 409 | `CASE_NOT_DIAGNOSABLE` | 문진할 수 없는 상태(확정 건에 메시지·서류·적용·해제·rebase, 세션 없음). reopen 후 진행 | `case_status` |
+| 404 | `DELETION_NOT_FOUND` | 삭제 이력이 없는 기업(`GET …/data/deletion`) | - |
 | 409 | `ALREADY_CONFIRMED` | 이미 확정된 건을 다시 확정 | `case_status` |
 | 409 | `NOT_CONFIRMABLE` | 아직 확정 조건을 채우지 못함 | `branch`, `reason`, `failure_reason` |
 | 409 | `NOT_REOPENABLE` | 확정되지 않은 건을 reopen | `case_status` |
@@ -145,6 +158,7 @@ POST /internal/v1/cases/C1/documents/D1/values/apply
 | 413 | `FILE_TOO_LARGE` | 업로드가 `MAX_UPLOAD_BYTES`(기본 10MB) 초과 | - |
 | 415 | `UNSUPPORTED_DOCUMENT` | 지원하지 않는 파일 형식 | - |
 | 422 | `VALIDATION_ERROR` | 요청 형식 오류, 또는 서류 값 형식 오류(업로드 `facts`·적용 `values`) | 형식 오류: `errors[{loc,msg,type}]`. 서류 값: `problems[{key, value, reason, index?, value_id?}]` |
+| 500 | `DELETION_FAILED` | 기업 데이터 삭제 실패(되돌림, 이력 FAILED). 재시도 | `attempts` |
 | 5xx | `INTERNAL_ERROR` | 엔진 내부 오류 | - |
 
 서버는 모르는 `code`를 받으면 HTTP 상태만으로 처리하고 `message`를 그대로 기록한다.

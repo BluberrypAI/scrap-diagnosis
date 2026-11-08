@@ -47,7 +47,15 @@ STATUS_RANK: dict[FactStatus, int] = {
 
 KNOWN_STATUSES = frozenset({FactStatus.CLAIMED, FactStatus.EVIDENCED})
 
-SourceType = Literal["UTTERANCE", "DOCUMENT", "PROFILE", "SCREENING", "SIMULATION", "DERIVED"]
+SourceType = Literal[
+    "UTTERANCE",
+    "DOCUMENT",
+    "PROFILE",  # 엔진 자체 기업 정보(개발·참조 화면 전용)
+    "PROFILE_CONFIRMED",  # 서버가 사용자 확인을 거쳐 보낸 기업 정보
+    "SCREENING",
+    "SIMULATION",
+    "DERIVED",
+]
 
 
 def _now() -> datetime:
