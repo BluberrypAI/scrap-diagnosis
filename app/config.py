@@ -23,7 +23,7 @@ class Settings(BaseSettings):
 
     kb_dir: Path = ROOT / "data" / "real"
     max_questions: int = 12
-    prompt_version: str = "m3.1"
+    prompt_version: str = "m3.2"  # m3.2: 소재 분류(material_group) 추출·묶음 긍정 답 규칙
 
     # M4: API·영속화. 개발은 SQLite(저장소 기준 var/app.db), 운영은 PostgreSQL URL.
     database_url: str = f"sqlite:///{(ROOT / 'var' / 'app.db').as_posix()}"
