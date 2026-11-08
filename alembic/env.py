@@ -49,6 +49,22 @@ def run_migrations_online() -> None:
 
 
 def _run(connection) -> None:  # noqa: ANN001
+    # SQLite batch 변경은 테이블을 새로 만들고 옛 테이블을 지운다. 외래 키 검사가 켜져 있으면
+    # 참조하는 행이 있을 때 DROP이 실패하므로 마이그레이션 동안 끈다.
+    # (이 PRAGMA는 트랜잭션 밖에서만 바뀐다)
+    sqlite = connection.dialect.name == "sqlite" and not connection.in_transaction()
+    if sqlite:
+        connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
+        connection.commit()
+    try:
+        _migrate(connection)
+    finally:
+        if sqlite:
+            connection.exec_driver_sql("PRAGMA foreign_keys=ON")
+            connection.commit()
+
+
+def _migrate(connection) -> None:  # noqa: ANN001
     context.configure(
         connection=connection,
         target_metadata=target_metadata,

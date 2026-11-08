@@ -182,6 +182,20 @@ class CodeEntry:
     note: str | None = None
 
 
+# ---- 결론 → 경로추천 안내 (docs/handoff-contract.md) ---------------------------------------
+
+
+@dataclass(frozen=True)
+class RouteGuidance:
+    """결론 종류(result_type, outcome) 하나의 경로추천 AI 안내(outcome_guidance.yaml 한 항목)."""
+
+    result_type: str  # WASTE_CODE | NO_CODE
+    outcome: str | None  # WASTE_CODE면 None
+    action: str
+    summary: str
+    notes: tuple[str, ...] = ()
+
+
 # ---- 지식 베이스 ---------------------------------------------------------------------------
 
 
@@ -192,9 +206,18 @@ class KnowledgeBase:
     groups: tuple[QuestionGroup, ...] = ()
     codes: dict[str, CodeEntry] = field(default_factory=dict)
     warnings: tuple[str, ...] = ()
+    # (result_type, outcome) → 안내. load_kb는 outcome_guidance.yaml을 반드시 읽는다.
+    guidance: dict[tuple[str, str | None], RouteGuidance] = field(default_factory=dict)
 
     def tables_as_of(self, as_of: date) -> tuple[Table, ...]:
         return tuple(t for t in self.tables if t.is_effective(as_of))
 
     def group(self, group_id: str) -> QuestionGroup | None:
         return next((g for g in self.groups if g.group_id == group_id), None)
+
+    def guidance_for(self, result_type: str, outcome: str | None) -> RouteGuidance:
+        try:
+            return self.guidance[(result_type, outcome)]
+        except KeyError:
+            msg = f"outcome_guidance에 ({result_type}, {outcome}) 항목이 없습니다"
+            raise KeyError(msg) from None

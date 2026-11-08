@@ -13,7 +13,8 @@
         - quick_reply: {key: contamination_screen, kind: none_all}
         - evidence: {oil_content_pct: 2.0}     # 문서 업로드로 확인된 값
           expect: {branch: FINAL_REVIEW, code: SAMPLE-A}
-expect 키: branch, ask_fact, can_confirm, code, documents(증빙 종류 목록), failure_reason
+expect 키: branch, ask_fact, can_confirm, code, outcome(코드 없는 결론), documents(증빙 종류 목록),
+failure_reason
 """
 
 from __future__ import annotations
@@ -88,6 +89,7 @@ class CaseResult(BaseModel):
     final_branch: str
     final_code: str | None
     questions_asked: int
+    final_outcome: str | None = None
 
     @property
     def ok(self) -> bool:
@@ -100,6 +102,7 @@ def summarize(resp: TurnResponse) -> dict:
         "ask_fact": (resp.ui.question or {}).get("key"),
         "can_confirm": resp.ui.can_confirm,
         "code": resp.verdict.waste_code,
+        "outcome": resp.verdict.outcome,
         "documents": [d["evidence_type"] for d in resp.ui.requested_documents],
         "failure_reason": resp.verdict.failure_reason,
         "message": resp.message,
@@ -187,6 +190,7 @@ def run_case(
         turns=checks,
         final_branch=resp.branch,
         final_code=resp.verdict.waste_code,
+        final_outcome=resp.verdict.outcome,
         questions_asked=s.state.questions_asked,
     )
 

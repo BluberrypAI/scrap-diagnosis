@@ -31,7 +31,7 @@
   answers: {scope_screen: none, contamination_screen: expand, designated_residue: false, oil_presence: none,
             pcb_possible: false, toxic_chemical_discard: true, annex4_code: 09-01-00}
 - id: REAL-NOT-WASTE
-  description: "아직 원료로 쓰는 물질 → 폐기물 아님(판정 불가로 안내)"
+  description: "아직 원료로 쓰는 물질 → 폐기물 아님(코드 없는 결론 NOT_WASTE, 확정 가능)"
   as_of: 2026-11-08
   setup: {facts: {emission_facility: true, material: pp}}
   answers: {contamination_screen: none, physical_state: solid, scope_screen: expand, material_fate: still_used,
@@ -47,7 +47,7 @@
   setup: {facts: {emission_facility: true, material_group: solvent_paint}}
   answers: {material: solvent_other, scope_screen: none, contamination_screen: none}
 - id: REAL-MIXED-AUTO
-  description: "섞여 나누기 어려운 것 분류 → 소재가 하나뿐이라 자동으로 정함(혼합물은 번호를 정하지 않음)"
+  description: "섞여 나누기 어려운 것 분류 → 소재가 하나뿐이라 자동으로 정함(혼합물은 번호를 정하지 않음 → 코드 없는 결론 NO_MIXTURE_RULE)"
   as_of: 2026-11-08
   setup: {facts: {emission_facility: true}}
   answers: {material_group: special, scope_screen: none, contamination_screen: none}

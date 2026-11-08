@@ -27,8 +27,12 @@ md 11절 8개 + 개발용 기업 API(`POST /companies`, `GET /companies/me`, `PU
 
 ## 상태 전이
 - 문진 턴: 라우터 `next_status` 그대로. ASK_FACT·RESOLVE_CONFLICT·FINAL_REVIEW → `DIAGNOSING`, REQUEST_EVIDENCE·UNSUPPORTED → `NEEDS_INFO`. `NEEDS_INFO` 건도 메시지·문서를 받아 다시 `DIAGNOSING`이 될 수 있다.
-- confirm: 서버가 `peek()`로 다시 평가해 `can_confirm`이고 FINAL_REVIEW일 때만. 선택 `expected_code`가 서버 판정과 다르면 409. 판정 버전 +1, 그 세션의 Trace 행을 모두 immutable로(ORM 수정·삭제 시 `ImmutableTraceError`) → `CODE_CONFIRMED`. 확정 뒤 메시지·업로드는 409.
-- reopen: `CODE_CONFIRMED`에서만. 현재 판정에 superseded_at을 채우고(지우지 않음) REOPEN Trace를 남긴 뒤, 같은 사실로 한 턴을 돌려 응답한다 → `DIAGNOSING`.
+  - FINAL_REVIEW는 규칙 엔진이 결론을 낸 모든 경우다. 분류번호가 있는 결론(`result_type` WASTE_CODE)과 코드 없는 결론(NO_CODE: NOT_WASTE·CIRCULAR_RESOURCE·EXCLUDED·HOUSEHOLD·INTERPRETATION_NEEDED·NO_GENERAL_CODE·CODE_NEEDS_TEST·NO_MIXTURE_RULE). 코드 없는 결론은 `verdict.waste_code` null, `verdict.outcome`에 사유, `can_confirm` true, 버튼 `확정`/`다시 확인할게요`.
+  - UNSUPPORTED는 결론이 나지 않은 경우만이다(NO_TABLE·AMBIGUOUS_TABLE·RULE_TIE·QUESTION_LIMIT·UNDETERMINABLE·NO_PATH). 확정할 수 없다.
+- confirm: 서버가 `peek()`로 다시 평가해 `can_confirm`이고 FINAL_REVIEW일 때만(코드 없는 결론 포함). 선택 `expected_code`가 서버 판정과 다르면 409(`server_code`·`server_outcome`). 코드 없는 결론은 사유(`NOT_WASTE` 또는 `@NOT_WASTE`)로 비교한다. 판정 버전 +1(`result_type`·`outcome`·`handoff` 저장), 그 세션의 Trace 행을 모두 immutable로(ORM 수정·삭제 시 `ImmutableTraceError`) → `CODE_CONFIRMED`(두 종류 모두). 확정 뒤 메시지·업로드는 409.
+- 인계: confirm 때 `diagnosis-handoff-v1`(`docs/handoff-contract.md`)을 만들어 판정 버전에 저장하고, confirm 응답 `handoff`와 `GET /cases/{id}`의 `handoff`(현재 판정, reopen 뒤에는 null)로 낸다. `route_guidance`는 `data/<kb>/outcome_guidance.yaml`.
+- reopen: `CODE_CONFIRMED`에서만. 현재 판정에 superseded_at·reopened_at·reopen_reason을 채우고(지우지 않음) REOPEN Trace를 남긴 뒤, 같은 사실·같은 as_of로 한 턴을 돌려 응답한다 → `DIAGNOSING`.
+- 시각: 세션 `started_at`(대화 시작)·`last_activity_at`(턴·업로드·확정·reopen마다), 판정 `confirmed_at`·`reopened_at`. 저장은 UTC, 응답은 Asia/Seoul. `as_of` = `started_at`의 Asia/Seoul 날짜(reopen해도 그대로). 마이그레이션 `0002`가 열을 더하고 기존 행을 채운다(started_at←created_at, last_activity_at←updated_at, result_type←code 유무, reopened_at←superseded_at).
 - 문서: LLM이 있으면 extractor + guard → 값이 있는 CLAIMED만 EVIDENCED(source DOCUMENT, ref=문서 id, quote 유지)로. LLM이 없으면 폼 필드 `facts`(JSON) 사용. DOCUMENT Trace에 원본 LLM 호출·버린 사실을 남긴다.
 
 ## 테스트
@@ -38,8 +42,8 @@ md 11절 8개 + 개발용 기업 API(`POST /companies`, `GET /companies/me`, `PU
 
 ## TODO·결정 필요
 - 인증·권한: `X-Company-Id`는 임시다. 로그인 토큰·계정 역할로 바꿔야 한다. `/companies`는 지금 열려 있다.
-- `as_of`: 세션을 만든 날로 고정한다(재현성). 오래 이어지는 세션이나 reopen 때 오늘 날짜로 바꿀지 정해야 한다.
+- `as_of`: 대화를 시작한 Asia/Seoul 날짜로 고정한다(재현성). reopen해도 바꾸지 않는다(결정됨).
 - 문서 추출은 대화용 extractor 프롬프트를 그대로 쓴다. 성적서 전용 프롬프트·표 파싱·스캔 PDF OCR은 아직 없다. 원본 파일 바이트는 저장하지 않는다(해시·텍스트만).
 - `IN_TRANSIT`·`COMPLETED` 전이는 범위 밖이다(갱신 주체 미정).
-- 확정은 FINAL_REVIEW(코드가 있는 결론)일 때만 된다. 코드 없는 결론(폐기물 아님 등)을 '확정'할지 정해야 한다.
+- (결정됨) 코드 없는 결론(폐기물 아님 등)도 확정한다. 상태는 `CODE_CONFIRMED`, 경로추천 AI는 `handoff.result_type`·`route_guidance.action`으로 분기한다.
 - 메시지는 세션 state JSON에 쌓인다. 길어지면 별도 테이블로 뺀다.

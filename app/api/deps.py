@@ -69,13 +69,14 @@ class AppContainer:
         engine: Engine | None = None,
         today: Callable[[], date] | None = None,
     ):
+        # today: 법 기준일(as_of)을 고정할 때만(테스트). 주지 않으면 대화 시작 시각의 서울 날짜.
         self.settings = settings
         self._kb = kb
         self.kb_dir = Path(kb_dir) if kb_dir is not None else Path(settings.kb_dir)
         self._extractor_llm = extractor_llm
         self._responder_llm = responder_llm
         self._engine = engine
-        self.today = today or date.today
+        self.today = today
 
     @cached_property
     def kb(self) -> KnowledgeBase:
@@ -154,8 +155,9 @@ def get_llms(c: ContainerDep) -> LLMs:
     return LLMs(extractor=c.extractor_llm, responder=c.responder_llm)
 
 
-def get_today(c: ContainerDep) -> date:
-    return c.today()
+def get_today(c: ContainerDep) -> date | None:
+    """고정한 법 기준일(테스트용). None이면 서비스가 대화 시작 시각의 Asia/Seoul 날짜를 쓴다."""
+    return c.today() if c.today is not None else None
 
 
 def get_settings_dep(request: Request) -> Settings:
@@ -186,5 +188,5 @@ CompanyDep = Annotated[Company, Depends(current_company)]
 KBDep = Annotated[KnowledgeBase, Depends(get_kb)]
 KBInfoDep = Annotated[KBInfo, Depends(get_kb_info)]
 LLMsDep = Annotated[LLMs, Depends(get_llms)]
-TodayDep = Annotated[date, Depends(get_today)]
+TodayDep = Annotated[date | None, Depends(get_today)]
 SettingsDep = Annotated[Settings, Depends(get_settings_dep)]

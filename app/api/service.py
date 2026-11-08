@@ -5,6 +5,13 @@
   REQUEST_EVIDENCE/UNSUPPORTED → NEEDS_INFO). FINAL_REVIEW도 확정 전까지는 DIAGNOSING이다.
 - confirm: 서버가 다시 평가해 확정 가능할 때만 → CODE_CONFIRMED (판정 버전 고정, Trace 불변)
 - reopen: CODE_CONFIRMED에서만 → DIAGNOSING (이전 판정은 superseded로 보존)
+
+코드 없는 결론(폐기물 아님 등, result_type NO_CODE)도 규칙 엔진이 낸 결론이라 확정할 수 있고,
+건 상태는 분류번호가 있는 결론과 같은 CODE_CONFIRMED다(docs/handoff-contract.md).
+확정할 때 경로추천 AI 인계 객체(diagnosis-handoff-v1)를 만들어 판정 버전에 저장한다.
+
+시각: 모두 UTC로 저장한다. 법 기준일 as_of는 대화 시작 시각(started_at)의 Asia/Seoul 날짜이고
+reopen해도 바꾸지 않는다.
 """
 
 from __future__ import annotations
@@ -24,7 +31,9 @@ from app.api.deps import KBInfo, LLMs
 from app.api.documents import extract_text
 from app.config import Settings
 from app.domain.case import DIAGNOSABLE, CaseStatus, status_after_turn
+from app.domain.clock import seoul_date
 from app.domain.facts import FactStatus
+from app.domain.handoff import RESULT_NO_CODE, build_handoff, result_type_of
 from app.domain.verdict import TurnResponse, build_verdict
 from app.persistence.models import (
     Company,
@@ -58,7 +67,7 @@ class CaseService:
         kb_info: KBInfo,
         llms: LLMs,
         settings: Settings,
-        today: date,
+        today: date | None,
         company: Company,
     ):
         self.db = db
@@ -66,7 +75,7 @@ class CaseService:
         self.kb_info = kb_info
         self.llms = llms
         self.settings = settings
-        self.today = today
+        self.today = today  # 고정한 법 기준일(테스트). None이면 대화 시작 시각의 서울 날짜
         self.company = company
         self.repo = SessionRepository(
             db, kb, extractor_llm=llms.extractor, responder_llm=llms.responder
@@ -126,12 +135,13 @@ class CaseService:
         )
         self.db.add(case)
         self.db.flush()
+        started_at = utcnow()  # 대화 시작. as_of는 이 시각의 Asia/Seoul 날짜
         s = DiagnosisSession(
             self.kb,
             extractor_llm=self.llms.extractor,
             responder_llm=self.llms.responder,
             case_id=case.id,
-            as_of=self.today,
+            as_of=self.today or seoul_date(started_at),
             max_questions=self.settings.max_questions,
             prompt_version=self.settings.prompt_version,
         )
@@ -143,6 +153,7 @@ class CaseService:
             kb_dir=self.kb_info.kb_dir,
             kb_version=self.kb_info.version,
             table_versions=self.kb_info.table_versions,
+            started_at=started_at,
         )
         self._finish_turn(case, ls)
         return case, resp
@@ -168,8 +179,10 @@ class CaseService:
         return self.repo.load(self.session_record(case))
 
     def _finish_turn(self, case: WasteCase, ls: LoadedSession) -> None:
+        now = utcnow()
         case.status = status_after_turn(ls.session.case_status).value
-        case.updated_at = utcnow()
+        case.updated_at = now
+        ls.record.last_activity_at = now
         self.repo.save(ls)
 
     def message(
@@ -304,6 +317,12 @@ class CaseService:
     # ---- 확정·재개 -----------------------------------------------------------------------
 
     def confirm(self, case: WasteCase, expected_code: str | None) -> tuple[VerdictRecord, int]:
+        """서버가 다시 평가해 규칙 엔진이 결론을 낸 경우(FINAL_REVIEW)만 확정한다.
+
+        expected_code(선택): 클라이언트가 화면에서 본 결론. 분류번호가 있는 판정이면 그 번호,
+        코드 없는 결론이면 사유(outcome, 예: NOT_WASTE. '@NOT_WASTE'도 받음)와 같아야 한다.
+        다르면 409이며 server_code·server_outcome을 돌려준다. 보내지 않으면 비교하지 않는다.
+        """
         if case.status == CaseStatus.CODE_CONFIRMED.value:
             raise ServiceError(409, "이미 확정된 건입니다", case_status=case.status)
         ls = self._open_session(case)
@@ -319,16 +338,42 @@ class CaseService:
                 failure_reason=d.failure_reason,
             )
         decided = ev.decided
-        if expected_code is not None and expected_code != decided.code:
-            raise ServiceError(409, "화면의 코드와 서버 판정이 다릅니다", server_code=decided.code)
+        result_type = result_type_of(decided)
+        outcome = decided.outcome if result_type == RESULT_NO_CODE else None
+        seen = expected_code
+        if seen is not None and not _expected_matches(seen, decided.code, outcome):
+            raise ServiceError(
+                409,
+                "화면의 결론과 서버 판정이 다릅니다",
+                server_code=decided.code,
+                server_outcome=outcome,
+            )
         last = self.repo.latest_turn(ls.record.id)
+        now = utcnow()
+        version = self.repo.next_verdict_version(case.id)
+        handoff = build_handoff(
+            self.kb,
+            case_id=case.id,
+            verdict_version=version,
+            decided=decided,
+            rule=s.rule_index.get(decided.rule_ids[0]),
+            effective=step.effective,
+            table_id=ev.table_id,
+            table_version=ev.table_version,
+            kb_version=ls.record.kb_version,
+            diagnosis_started_at=ls.record.started_at,
+            confirmed_at=now,
+            as_of=s.as_of,
+        ).model_dump(mode="json")
         verdict = VerdictRecord(
             case_id=case.id,
             session_id=ls.record.id,
-            version=self.repo.next_verdict_version(case.id),
+            version=version,
+            result_type=result_type,
             code=decided.code,
-            name=decided.name,
+            name=decided.name if decided.code is not None else None,
             category=decided.category,
+            outcome=outcome,
             rule_ids=list(decided.rule_ids),
             table_id=ev.table_id,
             table_version=ev.table_version,
@@ -337,7 +382,8 @@ class CaseService:
             facts_snapshot={k: f.model_dump(mode="json") for k, f in step.effective.items()},
             verdict=build_verdict(self.kb, step, s.rule_index).model_dump(mode="json"),
             trace_turn_id=last.turn_id if last else None,
-            confirmed_at=utcnow(),
+            handoff=handoff,
+            confirmed_at=now,
         )
         self.db.add(verdict)
         self.repo.add_trace(
@@ -346,7 +392,9 @@ class CaseService:
             new_id()[:12],
             {
                 "verdict_version": verdict.version,
+                "result_type": result_type,
                 "code": verdict.code,
+                "outcome": outcome,
                 "rule_ids": verdict.rule_ids,
                 "table_id": verdict.table_id,
                 "table_version": verdict.table_version,
@@ -354,11 +402,13 @@ class CaseService:
                 "as_of": s.as_of.isoformat(),
                 "branch_reason": d.reason,
                 "facts_snapshot": verdict.facts_snapshot,
+                "route_action": handoff["route_guidance"]["action"],
             },
         )
         s.case_status = CaseStatus.CODE_CONFIRMED.value
         case.status = CaseStatus.CODE_CONFIRMED.value
-        case.updated_at = utcnow()
+        case.updated_at = now
+        ls.record.last_activity_at = now
         self.repo.save(ls)
         frozen = self.repo.freeze_traces(ls.record)
         return verdict, frozen
@@ -370,7 +420,10 @@ class CaseService:
             raise ServiceError(409, "확정된 건만 다시 열 수 있습니다", case_status=case.status)
         current = self.repo.current_verdict(case.id)
         if current is not None:
-            current.superseded_at = utcnow()
+            now = utcnow()
+            current.superseded_at = now
+            current.reopened_at = now
+            current.reopen_reason = reason
         rec = self.session_record(case)
         ls = self.repo.load(rec)
         self.repo.add_trace(
@@ -380,7 +433,8 @@ class CaseService:
             {"superseded_version": current.version if current else None, "reason": reason},
         )
         ls.session.case_status = CaseStatus.DIAGNOSING.value
-        resp = ls.session.handle()  # 같은 사실로 문진을 이어 간다
+        # 같은 사실·같은 법 기준일(as_of)로 문진을 이어 간다. as_of는 바꾸지 않는다.
+        resp = ls.session.handle()
         self._finish_turn(case, ls)
         return current, resp
 
@@ -399,3 +453,10 @@ class CaseService:
             select(FactRecord).where(FactRecord.session_id == session_id).order_by(FactRecord.seq)
         ).all()
         return [{"seq": r.seq, **row_to_fact(r).model_dump(mode="json")} for r in rows]
+
+
+def _expected_matches(expected: str, code: str | None, outcome: str | None) -> bool:
+    """클라이언트가 본 결론과 서버 판정이 같은가. 코드 없는 결론은 사유(또는 '@사유')로 비교한다."""
+    if code is not None:
+        return expected == code
+    return expected.removeprefix("@") == outcome

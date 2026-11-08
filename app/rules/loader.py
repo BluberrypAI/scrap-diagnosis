@@ -8,6 +8,8 @@
 - UNIQUE 테이블에서 정적으로 서로 배타임을 보일 수 없는 규칙 쌍은 경고한다.
 - 코드표(codes.yaml)가 있으면 규칙 결과 코드가 코드표에 있어야 한다.
 - 상위 분류(parent)가 있는 사실은 모든 값이 상위 분류 값 하나에 대응해야 한다.
+- 결론 → 경로추천 안내(outcome_guidance.yaml)는 인계 계약의 모든 행과 규칙에 쓰인 모든 outcome을
+  덮어야 한다. 빠진 항목이 있으면 로드가 실패한다(서버 시작 시 바로 드러남).
 """
 
 from __future__ import annotations
@@ -19,6 +21,7 @@ from typing import Any
 import yaml
 
 from app.domain.facts import FactStatus
+from app.domain.handoff import ACTIONS, OUTCOMES, REQUIRED_GUIDANCE, RESULT_NO_CODE, RESULT_TYPES
 from app.rules.model import (
     LIST_OPS,
     NUMERIC_OPS,
@@ -34,6 +37,7 @@ from app.rules.model import (
     Not,
     Outcome,
     QuestionGroup,
+    RouteGuidance,
     Rule,
     Table,
     iter_conds,
@@ -473,17 +477,86 @@ def parse_codes(raw: Any) -> dict[str, CodeEntry]:
     return out
 
 
+GUIDANCE_FILE = "outcome_guidance.yaml"
+_GUIDANCE_KEYS = frozenset({"result_type", "outcome", "action", "summary", "notes"})
+
+
+def parse_outcome_guidance(raw: Any) -> dict[tuple[str, str | None], RouteGuidance]:
+    """결론 종류 → 경로추천 안내 표(docs/handoff-contract.md). 형식·값을 검증한다."""
+    items = raw.get("guidance") if isinstance(raw, dict) else raw
+    if not isinstance(items, list) or not items:
+        raise RuleDataError(f"{GUIDANCE_FILE}: guidance 목록이 필요합니다")
+    out: dict[tuple[str, str | None], RouteGuidance] = {}
+    for i, g in enumerate(items):
+        where = f"{GUIDANCE_FILE}[{i}]"
+        if not isinstance(g, dict):
+            raise RuleDataError(f"{where}: 항목은 매핑이어야 합니다")
+        extra = set(g) - _GUIDANCE_KEYS
+        if extra:
+            raise RuleDataError(f"{where}: 모르는 키 {sorted(extra)}")
+        rt, outcome, action = g.get("result_type"), g.get("outcome"), g.get("action")
+        if rt not in RESULT_TYPES:
+            raise RuleDataError(f"{where}: result_type은 {RESULT_TYPES} 중 하나여야 합니다: {rt}")
+        if rt == RESULT_NO_CODE:
+            if outcome not in OUTCOMES:
+                raise RuleDataError(f"{where}: 계약에 없는 outcome {outcome!r}")
+        elif outcome is not None:
+            raise RuleDataError(f"{where}: {rt}의 outcome은 null이어야 합니다")
+        if action not in ACTIONS:
+            raise RuleDataError(f"{where}: 계약에 없는 action {action!r}")
+        summary = g.get("summary")
+        if not isinstance(summary, str) or not summary.strip():
+            raise RuleDataError(f"{where}: summary(한국어 한 줄)가 필요합니다")
+        notes = g.get("notes") or []
+        if not isinstance(notes, list) or not all(isinstance(n, str) and n for n in notes):
+            raise RuleDataError(f"{where}: notes는 문자열 목록이어야 합니다")
+        key = (rt, outcome)
+        if key in out:
+            raise RuleDataError(f"{where}: 중복 항목 {key}")
+        out[key] = RouteGuidance(
+            result_type=rt, outcome=outcome, action=action, summary=summary, notes=tuple(notes)
+        )
+    return out
+
+
+def validate_guidance(
+    guidance: dict[tuple[str, str | None], RouteGuidance], tables: list[Table]
+) -> None:
+    """계약 표의 모든 행과 규칙에 쓰인 모든 outcome에 안내가 있어야 한다."""
+    missing = [k for k in REQUIRED_GUIDANCE if k not in guidance]
+    for t in tables:
+        for r in t.rules:
+            if r.then.code is None:
+                key = (RESULT_NO_CODE, r.then.outcome)
+                if key not in guidance and key not in missing:
+                    missing.append(key)
+    if missing:
+        raise RuleDataError(f"{GUIDANCE_FILE}: 안내 항목이 없습니다: {missing}")
+
+
 def build_kb(
-    catalog: list[dict], tables: list[dict], groups: Any = None, codes: Any = None
+    catalog: list[dict],
+    tables: list[dict],
+    groups: Any = None,
+    codes: Any = None,
+    guidance: Any = None,
 ) -> KnowledgeBase:
-    """메모리의 dict로 지식 베이스를 만든다(테스트·변환 도구용)."""
+    """메모리의 dict로 지식 베이스를 만든다(테스트·변환 도구용). guidance를 주면 검증한다."""
     cat = parse_catalog(catalog)
     grp = parse_groups(groups) if groups else []
     cds = parse_codes(codes) if codes else {}
     tbls = [parse_table(t, f"<{t.get('table_id', 'table')}>") for t in tables]
     warnings = validate(cat, tbls, cds, grp)
+    gd = parse_outcome_guidance(guidance) if guidance is not None else {}
+    if guidance is not None:
+        validate_guidance(gd, tbls)
     return KnowledgeBase(
-        catalog=cat, tables=tuple(tbls), groups=tuple(grp), codes=cds, warnings=tuple(warnings)
+        catalog=cat,
+        tables=tuple(tbls),
+        groups=tuple(grp),
+        codes=cds,
+        warnings=tuple(warnings),
+        guidance=gd,
     )
 
 
@@ -499,10 +572,16 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
     if not tables:
         raise RuleDataError(f"{tdir}: 규칙 테이블이 없습니다")
     warnings = validate(catalog, tables, codes, groups)
+    guidance_path = data_dir / GUIDANCE_FILE
+    if not guidance_path.exists():
+        raise RuleDataError(f"{guidance_path}: 결론 → 경로추천 안내 파일이 없습니다")
+    guidance = parse_outcome_guidance(_read_yaml(guidance_path))
+    validate_guidance(guidance, tables)
     return KnowledgeBase(
         catalog=catalog,
         tables=tuple(tables),
         groups=tuple(groups),
         codes=codes,
         warnings=tuple(warnings),
+        guidance=guidance,
     )

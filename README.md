@@ -35,6 +35,16 @@ uv run alembic -x url=sqlite:///var/other.db upgrade head
 - 설정(`.env`/환경변수): `DATABASE_URL`(기본 `sqlite:///<저장소>/var/app.db`), `KB_DIR`(기본 `data/real`),
   `DB_CREATE_ALL`(기본 true), `LLM_PROVIDER`(off면 LLM 없이 선택지 버튼·라벨만 받음)
 - 기업 격리: 임시로 `X-Company-Id` 헤더(TODO: 실제 인증). 다른 기업의 건은 404.
+- 코드 없는 결론도 확정한다: 규칙 엔진이 분류번호 없이 결론을 낸 경우(폐기물 아님·순환자원·적용 제외·
+  생활폐기물·해석 필요·일반 번호 없음·시험 필요·혼합물)는 `FINAL_REVIEW`(`verdict.waste_code` null,
+  `verdict.outcome`)이고 확정하면 `CODE_CONFIRMED`다. 결론이 나지 않은 경우(질문 상한·증빙 거부·규칙 없음)는
+  그대로 `UNSUPPORTED`/`NEEDS_INFO`이고 확정할 수 없다(409).
+- 경로추천 AI 인계: 확정할 때 `diagnosis-handoff-v1` 객체(`docs/handoff-contract.md`)를 만들어 판정 버전에
+  저장하고 confirm 응답·`GET /cases/{id}`의 `handoff`로 낸다. `route_guidance`는 데이터 파일
+  `data/<kb>/outcome_guidance.yaml`에서 온다(항목이 빠지면 KB 로드·서버 시작 실패).
+- 시각: UTC로 저장하고 응답·인계 객체에는 Asia/Seoul(+09:00) ISO 8601로 낸다. 건에 `diagnosis_started_at`·
+  `last_activity_at`·`as_of`, 판정 버전에 `confirmed_at`·`reopened_at`. `as_of`(법 기준일)는 대화를 시작한
+  Asia/Seoul 날짜이고 reopen해도 바뀌지 않는다.
 
 | 메서드 | 경로 | 설명 |
 |---|---|---|
@@ -45,7 +55,7 @@ uv run alembic -x url=sqlite:///var/other.db upgrade head
 | GET | `/cases/{id}` | 건 상세 + 현재 판정·판정 버전·마지막 턴·문서 |
 | POST | `/cases/{id}/diagnosis/messages` | `{text}` 또는 `{quick_reply:{key,kind,value}}` → md 10절 응답 |
 | POST | `/cases/{id}/documents` | multipart `file`(.txt/.md/.pdf), 선택 `facts`(JSON) → EVIDENCED → 재평가 |
-| POST | `/cases/{id}/confirm` | 서버 재평가 후 판정 버전 고정 → `CODE_CONFIRMED` (불가 시 409) |
+| POST | `/cases/{id}/confirm` | 서버 재평가 후 판정 버전 고정 + 인계 객체(`handoff`) → `CODE_CONFIRMED` (불가 시 409) |
 | POST | `/cases/{id}/reopen` | `CODE_CONFIRMED`에서만. 이전 판정은 버전으로 보존 |
 | GET | `/cases/{id}/trace` | Decision Trace 전체(사실 이력·턴·확정 기록) |
 
@@ -56,6 +66,7 @@ uv run alembic -x url=sqlite:///var/other.db upgrade head
   - `conversion_report.md`: 우선순위 대역, 변환하지 않은 기능, 의도한 차이
   - `regression/`: 기존 판정표 4281행과의 비교 데이터·결과
   - 모든 규칙은 `review: UNVERIFIED`다. 법률 검토 전에는 판정을 참고용으로만 쓴다.
+- `data/<kb>/outcome_guidance.yaml` — 결론 종류 → 경로추천 AI 안내(사람이 관리, 변환기가 만들지 않음)
 - `tools/legacy_overrides.yaml` — 변환할 때 사람이 정하는 값(사전확률, 묶음 질문, 증빙 문서 이름)
 
 ## 구조

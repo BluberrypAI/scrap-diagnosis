@@ -3,9 +3,10 @@
 우선순위 순서대로 첫 번째로 해당하는 분기를 고른다.
 1. 사실 충돌 또는 후보 0개 → RESOLVE_CONFLICT (대화 계속)
 2. 지원 범위 밖 / 질문 상한 초과 / 남은 미확인이 모두 모름·증빙 거부 → UNSUPPORTED (NEEDS_INFO)
+   (결론이 나지 않은 경우만. 확정할 수 없다)
 3. 사유가 MISSING인 미확인 사실이 있음 → ASK_FACT (대화 계속)
 4. 사유가 NEEDS_EVIDENCE인 미확인 사실만 남음 → REQUEST_EVIDENCE (NEEDS_INFO)
-5. decided 있음 → FINAL_REVIEW (사용자 확정 시 CODE_CONFIRMED)
+5. decided 있음 → FINAL_REVIEW (사용자 확정 시 CODE_CONFIRMED). 코드 없는 결론(outcome)도 포함
 사용자가 질문을 던지면 ANSWER_USER_QUESTION 하위 분기를 붙인다(판정 상태는 바뀌지 않음).
 미확인 판단은 확정을 실제로 막는 blocking_facts 기준이다.
 """
@@ -149,10 +150,6 @@ def route(
         unsupported = ("AMBIGUOUS_TABLE", f"적용 테이블이 여럿: {ev.table_candidates}")
     elif ev.tie:
         unsupported = ("RULE_TIE", f"같은 우선순위 규칙이 서로 다른 코드: {ev.tie}")
-    elif decided and ev.decided.code is None:
-        # 코드 없는 결론(폐기물 아님·적용 제외·생활폐기물·해석 필요 등)은 판정 불가로 안내한다.
-        outcome = ev.decided.outcome or "NO_CODE"
-        unsupported = (outcome, f"코드 없는 결론: {outcome} (규칙 {ev.decided.rule_ids[0]})")
     elif not decided:
         missing = view.askable
         needs_ev = view.evidence
@@ -209,13 +206,16 @@ def route(
             next_status="NEEDS_INFO",
         )
 
-    # 5. 확정 검토
+    # 5. 확정 검토. 코드 없는 결론(폐기물 아님·적용 제외·해석 필요 등)도 규칙 엔진이 낸 결론이라
+    #    확정할 수 있다(result_type NO_CODE, docs/handoff-contract.md).
     if decided:
+        c = ev.decided
+        what = c.code if c.code is not None else f"코드 없는 결론 {c.outcome}"
         return RouteDecision(
             branch=Branch.FINAL_REVIEW,
             rank=5,
             sub_branch=sub,
-            reason=f"규칙 {ev.decided.rule_ids[0]}로 확정 가능",
+            reason=f"규칙 {c.rule_ids[0]}로 확정 가능({what})",
         )
 
     return RouteDecision(

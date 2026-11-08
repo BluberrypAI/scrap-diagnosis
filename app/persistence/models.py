@@ -1,7 +1,9 @@
 """SQLAlchemy 2.x 모델. 개발은 SQLite, 운영은 PostgreSQL(같은 모델, Alembic 마이그레이션).
 
 - 사실(FactRecord)과 Trace(TraceRecord)는 append-only 행이다. 세션을 다시 만들 때 seq 순서로 읽는다.
-- 확정 판정(VerdictRecord)은 버전으로 쌓는다. reopen하면 superseded_at만 채우고 지우지 않는다.
+- 확정 판정(VerdictRecord)은 버전으로 쌓는다. reopen하면 superseded_at·reopened_at만 채운다
+  (지우지 않음).
+- 시각은 모두 UTC로 저장한다. API·인계 객체로 내보낼 때 Asia/Seoul로 바꾼다(app/domain/clock.py).
 - 확정 시점의 Trace 행은 immutable=True가 되고, 이후 수정·삭제는 막는다(events.py).
 """
 
@@ -120,7 +122,10 @@ class DiagnosisSessionRecord(Base):
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
     case_id: Mapped[str] = mapped_column(ForeignKey("waste_cases.id"), index=True)
+    # 법 기준일 = started_at의 Asia/Seoul 날짜. reopen해도 바꾸지 않는다.
     as_of: Mapped[date] = mapped_column(Date)
+    started_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)  # 대화 시작
+    last_activity_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)  # 마지막 턴
     kb_dir: Mapped[str] = mapped_column(String(500))
     kb_version: Mapped[str] = mapped_column(String(64))  # 규칙 데이터 파일 해시
     table_versions: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
@@ -181,7 +186,9 @@ class VerdictRecord(Base):
     case_id: Mapped[str] = mapped_column(ForeignKey("waste_cases.id"), index=True)
     session_id: Mapped[str] = mapped_column(ForeignKey("diagnosis_sessions.id"))
     version: Mapped[int] = mapped_column(Integer)
+    result_type: Mapped[str] = mapped_column(String(20), default="WASTE_CODE")  # | NO_CODE
     code: Mapped[str | None] = mapped_column(String(50))
+    outcome: Mapped[str | None] = mapped_column(String(50))  # 코드 없는 결론의 사유
     name: Mapped[str | None] = mapped_column(String(300))
     category: Mapped[str | None] = mapped_column(String(50))
     rule_ids: Mapped[list[Any]] = mapped_column(JSON, default=list)
@@ -192,8 +199,12 @@ class VerdictRecord(Base):
     facts_snapshot: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)  # 유효 사실
     verdict: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)  # 응답 스키마 verdict
     trace_turn_id: Mapped[str | None] = mapped_column(String(32))  # 확정 근거가 된 마지막 턴
+    # 경로추천 AI 인계 객체(diagnosis-handoff-v1). 0002 이전 판정은 비어 있다.
+    handoff: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     confirmed_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)
     superseded_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    reopened_at: Mapped[datetime | None] = mapped_column(UTCDateTime())  # 이 판정을 다시 연 시각
+    reopen_reason: Mapped[str | None] = mapped_column(Text)
 
 
 class TraceRecord(Base):

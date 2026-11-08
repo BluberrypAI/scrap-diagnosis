@@ -88,9 +88,14 @@ def check_row(kb: KnowledgeBase, base: dict, row: dict) -> tuple[str, str, int]:
 
 
 def _compare(d, ev, exp) -> tuple[str, str]:
+    """기존 STOP 행(해석 필요·시험 필요·혼합물)은 새 엔진에서 코드 없는 결론(FINAL_REVIEW)이 된다.
+
+    코드 없는 결론은 확정할 수 있으므로(docs/handoff-contract.md) STOP의 사유는 decided.outcome과
+    비교한다. 결과 문자열에는 '@사유'로 적는다(예: FINAL_REVIEW @NO_GENERAL_CODE).
+    """
     got = f"{d.branch.value}"
     if d.branch == Branch.FINAL_REVIEW:
-        got += f" {ev.decided.code}"
+        got += f" {ev.decided.key}"
     elif d.branch == Branch.ASK_FACT:
         n = len([o for o in d.question.value_options if o.kind == "value"])
         got += f" {d.question.key}({n})"
@@ -107,7 +112,11 @@ def _compare(d, ev, exp) -> tuple[str, str]:
             if exp.get("multi_reason") and n < exp["n"]:
                 return "FEWER_CHOICES", f"기대 선택지 {exp['n']}개 / 결과 {n}개"
         return "DIFF", f"기대 번호 선택({exp['n']}) / 결과 {got}"
-    ok = d.branch == Branch.UNSUPPORTED and d.failure_reason == exp["reason"]
+    ok = (
+        d.branch == Branch.FINAL_REVIEW
+        and ev.decided.code is None
+        and ev.decided.outcome == exp["reason"]
+    )
     return ("MATCH" if ok else "DIFF"), f"기대 {exp['reason']} / 결과 {got}"
 
 

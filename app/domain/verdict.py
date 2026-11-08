@@ -51,6 +51,8 @@ class Verdict(BaseModel):
     waste_code: str | None = None
     waste_name: str | None = None
     category: str | None = None
+    # 코드 없는 결론의 사유(NOT_WASTE 등). FINAL_REVIEW에서 waste_code가 null일 때만 채운다.
+    outcome: str | None = None
     candidates: list[CandidateView] = []
     conditions: list[ConditionView] = []
     rationale: list[RationaleView] = []
@@ -143,7 +145,9 @@ def build_verdict(kb: KnowledgeBase, step: EngineStep, rule_index: dict[str, Rul
     if d.branch == Branch.FINAL_REVIEW and ev.decided is not None:
         v.waste_code, v.waste_name, v.category = (
             ev.decided.code,
-            ev.decided.name,
+            ev.decided.name if ev.decided.code is not None else None,
             ev.decided.category,
         )
+        if ev.decided.code is None:
+            v.outcome = ev.decided.outcome
     return v
