@@ -1,6 +1,7 @@
 """충돌 탐지 v1 (규칙 기반).
 
-(a) 같은 키에 CLAIMED와 EVIDENCED 값이 서로 다르면 충돌. 뒤에 같은 값을 다시 진술하면 해소.
+(a) 같은 키에 CLAIMED와 EVIDENCED 값이 서로 다르면 충돌. 뒤에 같은 값을 다시 진술하거나
+    진술을 철회하면(retract) 해소.
 (b) 후보가 0개면 규칙별로 어떤 사실 때문에 FALSE가 됐는지 모아 최소 설명을 만든다(탐욕적 덮개).
 """
 
@@ -10,7 +11,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel
 
-from app.domain.facts import Fact, FactStatus
+from app.domain.facts import Fact, FactStatus, active_facts
 from app.domain.ranges import NumRange, contains
 from app.rules.evaluator import TV, EvaluationResult, eval_cond
 from app.rules.model import KnowledgeBase, iter_conds
@@ -77,6 +78,7 @@ def claim_vs_evidence(
     history: list[Fact], kb: KnowledgeBase | None = None, ev: EvaluationResult | None = None
 ) -> list[Conflict]:
     out = []
+    history = active_facts(history)  # 철회된 진술은 충돌로 보지 않는다
     for key in sorted({f.key for f in history}):
         hist = [f for f in history if f.key == key and f.value is not None]
         claimed = _latest([f for f in hist if f.status == FactStatus.CLAIMED])

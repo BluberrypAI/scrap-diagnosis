@@ -26,6 +26,7 @@ from sqlalchemy import (
     Text,
     TypeDecorator,
     UniqueConstraint,
+    false,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -159,6 +160,8 @@ class FactRecord(Base):
     note: Mapped[str | None] = mapped_column(Text)
     quote: Mapped[str | None] = mapped_column(Text)
     recorded_at: Mapped[datetime] = mapped_column(UTCDateTime())
+    # 사용자 철회 행(status UNKNOWN). 앞선 같은 키의 CLAIMED를 평가에서 뺀다(app/domain/facts.py).
+    retracted: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
 
 
 class Document(Base):

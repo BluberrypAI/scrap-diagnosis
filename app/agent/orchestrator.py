@@ -22,24 +22,47 @@ from app.agent.guard import ExtractionResult, norm
 from app.agent.llm_client import LLMCall, LLMClient
 from app.agent.responder import respond
 from app.agent.router import Branch, EngineStep, SessionState, run_engine
-from app.domain.clock import seoul_today
-from app.domain.facts import Fact, FactStatus, FactStore
+from app.agent.templates import RETRACT_REPLY_LABEL
+from app.domain.clock import seoul_today, utcnow
+from app.domain.facts import Fact, FactStatus, FactStore, retract_fact
+from app.domain.ranges import NumRange
 from app.domain.trace import TraceTurn
-from app.domain.verdict import UI, TurnResponse, build_verdict
+from app.domain.verdict import TurnResponse, build_ui, build_verdict, fact_label, value_label
 from app.rules.answers import AnswerError, fact_answer, group_none_answer
 from app.rules.model import KnowledgeBase, Rule
-from app.rules.selector import QuestionChoice
+from app.rules.selector import UNKNOWN_LABEL, QuestionChoice
 
 EVIDENCE_REFUSE_REPLY = "서류가 없어요"
 EVIDENCE_UPLOAD_REPLY = "서류를 올릴게요"
 
 
 class QuickReply(BaseModel):
-    """선택지 버튼 응답. LLM을 거치지 않는다."""
+    """선택지 버튼 응답. LLM을 거치지 않는다.
+
+    kind: value(값) / unknown(모름) / none_all·expand(묶음 질문) /
+    retract(그 사실을 '모르는 상태'로 되돌림, docs/ui/ui-contract.md 4절)
+    """
 
     key: str  # fact key 또는 group_id
-    kind: Literal["value", "unknown", "none_all", "expand"] = "value"
+    kind: Literal["value", "unknown", "none_all", "expand", "retract"] = "value"
     value: Any = None
+
+
+def _now_iso() -> str:
+    """대화 기록 시각(UTC ISO 8601). 응답으로 낼 때 Asia/Seoul로 바꾼다."""
+    return utcnow().isoformat(timespec="seconds")
+
+
+def _same_value(a: Any, b: Any) -> bool:
+    def norm_v(v: Any) -> Any:
+        if isinstance(v, dict) and v:
+            try:
+                return NumRange(**v)
+            except (TypeError, ValueError):
+                return v
+        return v
+
+    return norm_v(a) == norm_v(b)
 
 
 class DiagnosisSession:
@@ -200,7 +223,21 @@ class DiagnosisSession:
         appended: list[Fact] = []
         user_question = None
         if text:
-            self.messages.append({"role": "user", "id": turn_id, "text": text, "memo": _is_memo})
+            self.messages.append(
+                {"role": "user", "id": turn_id, "text": text, "memo": _is_memo, "at": _now_iso()}
+            )
+        elif quick_reply is not None:
+            # 버튼 답도 대화 기록에 남긴다(고른 선택지 라벨 + 보낸 값). 화면을 다시 그릴 때 쓴다.
+            self.messages.append(
+                {
+                    "role": "user",
+                    "id": turn_id,
+                    "text": self.quick_reply_label(quick_reply),
+                    "memo": False,
+                    "quick_reply": quick_reply.model_dump(mode="json"),
+                    "at": _now_iso(),
+                }
+            )
 
         if quick_reply is not None:
             appended = self._apply_quick_reply(quick_reply, turn_id)
@@ -235,9 +272,18 @@ class DiagnosisSession:
             self.last_question = None
         self.last_step = step
         self.case_status = d.next_status
-        self.messages.append({"role": "assistant", "id": turn_id, "text": out.message})
-
         q = d.question
+        self.messages.append(
+            {
+                "role": "assistant",
+                "id": turn_id,
+                "text": out.message,
+                "branch": d.branch.value,
+                "question_key": q.key if q is not None else None,
+                "at": _now_iso(),
+            }
+        )
+
         resp = TurnResponse(
             case_id=self.case_id,
             session_id=self.session_id,
@@ -246,18 +292,13 @@ class DiagnosisSession:
             sub_branch=d.sub_branch,
             message=out.message,
             verdict=build_verdict(self.kb, step, self.rule_index),
-            ui=UI(
-                can_confirm=step.evaluation.can_confirm and d.branch == Branch.FINAL_REVIEW,
+            ui=build_ui(
+                self.kb,
+                step,
+                self.rule_index,
                 suggested_replies=out.suggested_replies,
-                requested_documents=[r.model_dump() for r in d.requested_documents],
-                question=None
-                if q is None
-                else {
-                    "key": q.key,
-                    "unit": q.unit,
-                    "facts": q.facts,
-                    "options": [o.model_dump() for o in q.value_options],
-                },
+                questions_asked=self.state.questions_asked,
+                max_questions=self.max_questions,
             ),
             case_status=self.case_status,
         )
@@ -293,7 +334,9 @@ class DiagnosisSession:
     def _extract(self, text: str, turn_id: str) -> tuple[ExtractionResult, list[LLMCall]]:
         if self.extractor_llm is None:
             return self._match_option(text, turn_id), []
-        recent = [{"role": m["role"], "text": m["text"]} for m in self.messages[-7:-1]]
+        # 버튼 답 기록은 추출기 문맥에 넣지 않는다(M4까지와 같은 문맥)
+        said = [m for m in self.messages if not m.get("quick_reply")]
+        recent = [{"role": m["role"], "text": m["text"]} for m in said[-7:-1]]
         return extract(
             self.extractor_llm,
             self.kb,
@@ -360,6 +403,27 @@ class DiagnosisSession:
         self.store.extend(facts)
         return facts
 
+    def quick_reply_label(self, qr: QuickReply) -> str:
+        """버튼 답을 대화 기록에 남길 문장. 직전 질문의 선택지면 그 라벨, 아니면 '항목: 값'."""
+        q = self.last_question
+        if q is not None and q.key == qr.key and qr.kind != "retract":
+            for o in q.value_options:
+                if o.kind != qr.kind:
+                    continue
+                if o.kind != "value" or _same_value(o.value, qr.value):
+                    return o.label
+        if qr.key == "__evidence__":
+            return EVIDENCE_REFUSE_REPLY if qr.value == "refused" else EVIDENCE_UPLOAD_REPLY
+        g = self.kb.group(qr.key)
+        if g is not None:
+            return {"none_all": g.none_label, "expand": g.expand_label}.get(qr.kind, g.title)
+        label = fact_label(self.kb, qr.key)
+        if qr.kind == "retract":
+            return RETRACT_REPLY_LABEL.format(label=label)
+        if qr.kind == "unknown":
+            return f"{label}: {UNKNOWN_LABEL}"
+        return f"{label}: {value_label(self.kb, qr.key, qr.value) or qr.value}"
+
     def _apply_quick_reply(self, qr: QuickReply, turn_id: str) -> list[Fact]:
         if qr.kind in ("none_all", "expand"):
             return self._apply_group(qr.key, qr.kind, turn_id)
@@ -367,6 +431,13 @@ class DiagnosisSession:
             if qr.value == "refused":
                 self.state.evidence_refused = True
             return []
+        if qr.kind == "retract":
+            # 앞선 진술을 지우지 않고 철회 행을 append한다(EVIDENCED는 그대로 유효)
+            if qr.key not in self.kb.catalog:
+                return []
+            f = retract_fact(qr.key, source_ref=turn_id)
+            self.store.append(f)
+            return [f]
         try:
             f = fact_answer(
                 self.kb, qr.key, qr.value, unknown=qr.kind == "unknown", source_ref=turn_id

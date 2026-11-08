@@ -25,6 +25,75 @@ OUTCOME_TEXT = {
     "소재별로 나눠 확인해야 합니다.",
 }
 NO_CODE_NEXT_STEP = "확정하시면 다음 단계에서 어떻게 처리하면 되는지 안내해 드립니다."
+WASTE_CODE_NEXT_STEP = "확정하면 경로 추천으로 넘어갑니다."
+
+# ---- 화면용 짧은 라벨 (docs/ui/ui-contract.md) ---------------------------------------------
+
+# 코드 없는 결론의 짧은 이름(건 목록 카드 result_label 등)
+OUTCOME_LABEL = {
+    "NOT_WASTE": "폐기물 아님",
+    "CIRCULAR_RESOURCE": "순환자원",
+    "EXCLUDED": "다른 법 적용(적용 제외)",
+    "HOUSEHOLD": "생활폐기물",
+    "INTERPRETATION_NEEDED": "관할 기관 해석 필요",
+    "NO_GENERAL_CODE": "일반폐기물 세부 번호 확인 필요",
+    "CODE_NEEDS_TEST": "시험 필요",
+    "NO_MIXTURE_RULE": "혼합물(소재별 확인 필요)",
+}
+
+CATEGORY_LABEL = {"DESIGNATED": "지정폐기물", "GENERAL": "사업장일반폐기물"}
+
+# 사실 출처 배지
+SOURCE_LABEL = {
+    "UTTERANCE": "말함",
+    "DOCUMENT": "서류",
+    "PROFILE": "기업 정보",
+    "SCREENING": "묶음 답",
+    "DERIVED": "자동",
+    "SIMULATION": "시험",
+}
+
+# 건 상태 배지
+STATUS_LABEL = {
+    "DIAGNOSING": "문진 중",
+    "NEEDS_INFO": "추가 정보 필요",
+    "CODE_CONFIRMED": "확정",
+    "IN_TRANSIT": "운반 중",
+    "COMPLETED": "완료",
+}
+
+# 건 목록 카드의 '다음 할 일'. 확정 전에는 마지막 턴의 분기, 확정 뒤에는 인계 행동으로 정한다.
+NEXT_ACTION_BY_BRANCH = {
+    "ASK_FACT": "질문에 답하기",
+    "RESOLVE_CONFLICT": "다른 값 확인하기",
+    "FINAL_REVIEW": "판정 확인 후 확정",
+    "REQUEST_EVIDENCE": "서류 올리기",
+    "UNSUPPORTED": "추가 정보 확인",
+}
+NEXT_ACTION_BY_ROUTE = {
+    "RECOMMEND_ROUTE": "경로 추천 대기",
+    "NO_ROUTE_NEEDED": "처리 경로 필요 없음",
+    "REFER_OTHER_LAW": "다른 법 담당 기관 안내",
+    "REFER_MUNICIPALITY": "지자체 배출 방법 안내",
+    "REFER_AUTHORITY": "관할 기관 질의 안내",
+    "NEEDS_TEST": "시험 후 문진 재개",
+    "MANUAL_CLASSIFICATION": "담당자 분류 확인",
+}
+NEXT_ACTION_BY_STATUS = {"IN_TRANSIT": "운반 중", "COMPLETED": "완료"}
+NEW_CASE_TITLE = "새 폐기물"
+
+# 판정 보드·충돌 카드 문구
+RETRACT_REPLY_LABEL = "{label}: 모름으로 되돌리기"
+CONFLICT_ACCEPT_DOCUMENT = "서류 값({value})이 맞아요"
+CONFLICT_UPLOAD_NEW = "서류가 잘못됐어요(새 서류 올리기)"
+CONFLICT_EDIT_FACT = "{label} 다시 답하기"
+DOCUMENT_MESSAGE = "서류를 올렸어요: {filename}"
+
+
+def code_conclusion(code: str, name: str | None) -> str:
+    """분류번호가 있는 결론 문장(결과 카드)."""
+    return f"분류번호 {code} {name or ''}".strip() + "로 판정됩니다"
+
 
 EVIDENCE_TEXT = {
     "TEST_REPORT": "시험성적서",

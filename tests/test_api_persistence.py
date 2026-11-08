@@ -34,8 +34,11 @@ SCRIPT: list[dict | str] = [
 
 
 def _comparable(t: dict) -> dict:
-    t = dict(t)
+    t = json.loads(json.dumps(t))
     t.pop("turn_id")
+    # 판정 보드의 기록 시각은 실행마다 다르다(나머지는 같아야 한다)
+    for f in (t["ui"].get("board") or {}).get("facts", []):
+        f.pop("recorded_at", None)
     return t
 
 

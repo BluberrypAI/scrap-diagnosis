@@ -42,6 +42,7 @@ def fact_to_row(session_id: str, seq: int, f: Fact) -> FactRecord:
         note=f.note,
         quote=f.quote,
         recorded_at=f.recorded_at,
+        retracted=f.retracted,
     )
 
 
@@ -56,6 +57,7 @@ def row_to_fact(r: FactRecord) -> Fact:
             "note": r.note,
             "quote": r.quote,
             "recorded_at": as_utc(r.recorded_at),
+            "retracted": bool(r.retracted),
         }
     )
 
