@@ -6,11 +6,12 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field, model_validator
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.agent.orchestrator import QuickReply
+from app.api.profile import CompanyProfile, profile_out
 from app.domain.case import CaseStatus
 from app.domain.clock import to_seoul
 from app.domain.verdict import TurnResponse
@@ -28,19 +29,26 @@ class _ORM(BaseModel):
 
 class CompanyCreate(BaseModel):
     name: str = Field(min_length=1, max_length=200)
-    # 기본 정보·배출시설·주생산품. "facts": {사실 키: 값}은 문진 시작 때 PROFILE 사실로 들어간다.
-    profile: dict[str, Any] = {}
+    # 기본 정보·배출시설·주생산품(docs/ui/ui-contract.md 5절). 서버가 facilities로 사이트 사실을
+    # 계산하고, 직접 보낸 facts가 우선한다. 사이트 사실은 문진 시작 때 PROFILE 사실로 들어간다.
+    profile: CompanyProfile = CompanyProfile()
 
 
 class CompanyProfileUpdate(BaseModel):
-    profile: dict[str, Any]
+    profile: CompanyProfile
 
 
 class CompanyOut(_ORM):
     id: str
     name: str
+    # 저장된 profile. facts는 계산된 사이트 사실(facilities 계산값 + 직접 지정값)이다.
     profile: dict[str, Any]
     created_at: SeoulDateTime
+
+    @field_validator("profile", mode="after")
+    @classmethod
+    def _computed_facts(cls, v: dict[str, Any]) -> dict[str, Any]:
+        return profile_out(v)
 
 
 # ---- 건 ----------------------------------------------------------------------------------
@@ -51,6 +59,17 @@ class CaseCreate(BaseModel):
     quantity: float | None = Field(default=None, ge=0)
     unit: str | None = Field(default=None, max_length=20)
     period: str | None = Field(default=None, max_length=50)
+
+
+class CaseSummary(BaseModel):
+    """건 목록 카드(docs/ui/ui-contract.md 3절)."""
+
+    title: str  # 소재 라벨 → 메모 첫 줄(30자) → "새 폐기물"
+    code: str | None = None  # 확정(또는 확정 검토 중) 분류번호
+    outcome: str | None = None  # 코드 없는 결론의 사유
+    result_label: str | None = None  # "51-03-01 폐합성수지류…" / "폐기물 아님". 없으면 null(미정)
+    status_label: str  # 문진 중 / 추가 정보 필요 / 확정 / 운반 중 / 완료
+    next_action: str | None = None  # 다음 할 일
 
 
 class CaseOut(_ORM):
@@ -68,6 +87,7 @@ class CaseOut(_ORM):
     diagnosis_started_at: SeoulDateTime | None = None
     last_activity_at: SeoulDateTime | None = None
     as_of: date | None = None
+    summary: CaseSummary | None = None  # 건 목록 카드(ui-v1)
 
 
 class VerdictOut(_ORM):
@@ -107,6 +127,26 @@ class CaseCreated(BaseModel):
     turn: TurnResponse
 
 
+class ConversationItem(BaseModel):
+    """대화 기록 한 줄(docs/ui/ui-contract.md 2절). 새로고침해도 대화를 다시 그린다.
+
+    - 사용자 말: role user, text = 말한 문장(건 메모 포함, memo true)
+    - 버튼 답: role user, text = 고른 선택지 라벨, quick_reply = 보낸 값
+    - 서류 업로드: role user, text = "서류를 올렸어요: 파일명", document_id
+    - AI 말: role assistant, branch, question_key
+    """
+
+    turn_id: str
+    role: Literal["user", "assistant"]
+    text: str
+    quick_reply: dict[str, Any] | None = None
+    memo: bool = False
+    document_id: str | None = None
+    branch: str | None = None
+    question_key: str | None = None
+    at: SeoulDateTime | None = None  # 이 기능 전에 쌓인 기록은 null
+
+
 class CaseDetail(BaseModel):
     case: CaseOut
     current_verdict: VerdictOut | None
@@ -115,6 +155,7 @@ class CaseDetail(BaseModel):
     documents: list[DocumentOut]
     # 현재(대체되지 않은) 확정 판정의 인계 객체. 확정 전·reopen 뒤에는 null
     handoff: dict[str, Any] | None = None
+    conversation: list[ConversationItem] = []  # 대화 기록(reopen 전후 포함, 시간순)
 
 
 # ---- 문진 --------------------------------------------------------------------------------
@@ -191,3 +232,23 @@ class TraceOut(BaseModel):
     case_id: str
     sessions: list[TraceSessionOut]
     verdicts: list[VerdictOut]
+
+
+# ---- 카탈로그 ----------------------------------------------------------------------------
+
+
+class CatalogValue(BaseModel):
+    value: Any  # enum 값(문자열) 또는 bool
+    label: str
+    parent_value: str | None = None  # parent가 있는 사실: 이 값이 속한 상위 분류 값
+
+
+class CatalogFact(BaseModel):
+    """보드 편집·라벨용 사실 요약. 내부 사실(internal)은 뺀다."""
+
+    key: str
+    label: str
+    type: Literal["enum", "bool", "number"]
+    unit: str | None = None
+    values: list[CatalogValue] = []  # enum: 값 영역, bool: 예/아니오, number: 비움
+    parent: str | None = None  # 상위 분류 사실 키(예: material → material_group)
