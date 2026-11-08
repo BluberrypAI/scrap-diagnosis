@@ -52,6 +52,7 @@ class SimulationResult(BaseModel):
     final_code: str | None
     questions_asked: int
     failure_reason: str | None = None
+    final_outcome: str | None = None  # 코드 없는 결론의 사유(FINAL_REVIEW, 코드 없음)
 
 
 def simulate(kb: KnowledgeBase, scenario: dict) -> SimulationResult:
@@ -141,4 +142,5 @@ def simulate(kb: KnowledgeBase, scenario: dict) -> SimulationResult:
         final_code=ev.decided.code if ev.decided else None,
         questions_asked=state.questions_asked,
         failure_reason=step.decision.failure_reason,
+        final_outcome=ev.decided.outcome if ev.decided and ev.decided.code is None else None,
     )

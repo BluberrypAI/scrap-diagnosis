@@ -1,9 +1,12 @@
 """기존 엔진 소재별 판정표 4281행과의 회귀 비교.
 
+기존 STOP 행(INTERPRETATION_NEEDED·CODE_NEEDS_TEST·NO_MIXTURE_RULE)은 새 엔진에서 코드 없는 결론
+(FINAL_REVIEW, outcome = 사유)으로 오며, 사유가 같으면 MATCH다.
+
 허용하는 차이(data/real/conversion_report.md '의도한 차이'):
 - FEWER_CHOICES: 지정 사유가 여럿일 때 사유별로 번호를 좁혀 선택지가 기존보다 적다.
 - 산·알칼리가 지정 기준 미만이면 기존은 일반 그룹·번호를 물었지만
-  새 엔진은 NO_GENERAL_CODE로 안내한다.
+  새 엔진은 코드 없는 결론 NO_GENERAL_CODE(FINAL_REVIEW @NO_GENERAL_CODE)로 안내한다.
 - 산·알칼리 + 유해화학물질: 법이 제9호를 제외하므로, 새 엔진은 제외를 먼저 적용해 산·알칼리 번호
   하나로 확정한다(기존은 제외 전 사유로 좁히기를 판단해 선택지 여러 개).
 """

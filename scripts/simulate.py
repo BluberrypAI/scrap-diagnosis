@@ -63,6 +63,7 @@ def main() -> int:
                     f"  결과: {res.final_branch} code={res.final_code} "
                     f"질문 {res.questions_asked}회"
                     + (f" 사유={res.failure_reason}" if res.failure_reason else "")
+                    + (f" 결론={res.final_outcome}" if res.final_outcome else "")
                 )
             exp = sc.get("expect") or {}
             problems = []

@@ -66,7 +66,8 @@ def main() -> int:
         results.append(res)
         mark = "PASS" if res.ok else "FAIL"
         print(
-            f"{mark} {res.case_id} ({kb_name}) 결과={res.final_branch} {res.final_code or ''} "
+            f"{mark} {res.case_id} ({kb_name}) 결과={res.final_branch} "
+            f"{res.final_code or (f'@{res.final_outcome}' if res.final_outcome else '')} "
             f"질문 {res.questions_asked}회"
         )
         for t in res.turns:
@@ -75,6 +76,7 @@ def main() -> int:
                 print(f"   {flag} {t.turn}. {t.input}")
                 print(
                     f"        → {t.got['branch']} ask={t.got['ask_fact']} code={t.got['code']} "
+                    f"outcome={t.got['outcome']} "
                     f"docs={t.got['documents']} fail={t.got['failure_reason']}"
                     f" 추출 {t.extracted}/거부 {t.rejected}{' [템플릿]' if t.template else ''}"
                 )

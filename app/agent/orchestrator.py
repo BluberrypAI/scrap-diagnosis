@@ -22,6 +22,7 @@ from app.agent.guard import ExtractionResult, norm
 from app.agent.llm_client import LLMCall, LLMClient
 from app.agent.responder import respond
 from app.agent.router import Branch, EngineStep, SessionState, run_engine
+from app.domain.clock import seoul_today
 from app.domain.facts import Fact, FactStatus, FactStore
 from app.domain.trace import TraceTurn
 from app.domain.verdict import UI, TurnResponse, build_verdict
@@ -52,14 +53,14 @@ class DiagnosisSession:
         session_id: str | None = None,
         as_of: date | None = None,
         max_questions: int = 12,
-        prompt_version: str = "m3.2",
+        prompt_version: str = "m3.3",
     ):
         self.kb = kb
         self.extractor_llm = extractor_llm
         self.responder_llm = responder_llm
         self.case_id = case_id
         self.session_id = session_id or uuid.uuid4().hex
-        self.as_of = as_of or date.today()
+        self.as_of = as_of or seoul_today()  # 법 기준일: 대화를 시작한 Asia/Seoul 날짜
         self.max_questions = max_questions
         self.prompt_version = prompt_version
         self.store = FactStore()

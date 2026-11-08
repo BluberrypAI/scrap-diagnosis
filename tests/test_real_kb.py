@@ -18,16 +18,17 @@ SCENARIOS = {
 }
 
 # 소재를 미리 모르면 소재 분류 → 소재 두 단계로 묻는다(소재 질문 1개 → 2개).
+# (최종 분기, 코드, 질문 수, 코드 없는 결론). 코드 없는 결론도 FINAL_REVIEW로 확정할 수 있다.
 EXPECT = {
-    "REAL-PP-CLEAN": ("FINAL_REVIEW", "51-03-01", 5),
-    "REAL-PP-PREFILL": ("FINAL_REVIEW", "51-03-01", 2),
-    "REAL-PP-EXPAND": ("FINAL_REVIEW", "51-03-01", 12),
-    "REAL-H2SO4": ("FINAL_REVIEW", "02-01-02", 3),
-    "REAL-PP-TOXIC": ("FINAL_REVIEW", "09-01-00", 6),
-    "REAL-NOT-WASTE": ("UNSUPPORTED", None, 4),
-    "REAL-SLUDGE-NO-REPORT": ("UNSUPPORTED", None, 4),
-    "REAL-SOLVENT-GROUP": ("FINAL_REVIEW", "04-02-00", 3),
-    "REAL-MIXED-AUTO": ("UNSUPPORTED", None, 3),
+    "REAL-PP-CLEAN": ("FINAL_REVIEW", "51-03-01", 5, None),
+    "REAL-PP-PREFILL": ("FINAL_REVIEW", "51-03-01", 2, None),
+    "REAL-PP-EXPAND": ("FINAL_REVIEW", "51-03-01", 12, None),
+    "REAL-H2SO4": ("FINAL_REVIEW", "02-01-02", 3, None),
+    "REAL-PP-TOXIC": ("FINAL_REVIEW", "09-01-00", 6, None),
+    "REAL-NOT-WASTE": ("FINAL_REVIEW", None, 4, "NOT_WASTE"),
+    "REAL-SLUDGE-NO-REPORT": ("UNSUPPORTED", None, 4, None),
+    "REAL-SOLVENT-GROUP": ("FINAL_REVIEW", "04-02-00", 3, None),
+    "REAL-MIXED-AUTO": ("FINAL_REVIEW", None, 3, "NO_MIXTURE_RULE"),
 }
 
 
@@ -66,7 +67,8 @@ def test_all_rules_carry_basis_and_review(real_kb):
 @pytest.mark.parametrize("sid", sorted(EXPECT))
 def test_real_scenarios(real_kb, sid):
     res = simulate(real_kb, SCENARIOS[sid])
-    assert (res.final_branch, res.final_code, res.questions_asked) == EXPECT[sid]
+    got = (res.final_branch, res.final_code, res.questions_asked, res.final_outcome)
+    assert got == EXPECT[sid]
 
 
 def test_screening_beats_one_by_one(real_kb):

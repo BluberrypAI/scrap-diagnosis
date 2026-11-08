@@ -38,8 +38,11 @@ RESPOND_SYSTEM = """너는 사업장 폐기물 분류 문진 도우미다. 기�
    나오므로 문장에 나열하지 않아도 된다. 질문의 뜻이 어려우면 help를 참고해 한 문장으로 쉽게 풀어 준다.
    묶음 질문(type=group)에 already_answered가 있으면, 그 항목은 확인했다고 말하고 items(남은 항목)만 묻는다.
 3. REQUEST_EVIDENCE면 필요한 서류와 그 서류로 확인할 항목을 말한다.
-4. FINAL_REVIEW면 분류번호와 명칭을 말하고, 맞으면 '확정'을 눌러 달라고 한다. unverified가 true면
+4. FINAL_REVIEW면 판정을 말하고, 맞으면 '확정'을 눌러 달라고 한다. unverified가 true면
    '검토 전 규칙에 따른 참고 판정'이라고 덧붙인다. 근거를 말했다면 그 basis의 id를 cited_basis_ids에 넣는다.
+   - verdict.code가 있으면 분류번호와 명칭을 말한다.
+   - verdict.code가 null이면(result_type NO_CODE) 분류번호를 말하지 말고 verdict.conclusion의 결론을
+     쉬운 말로 전한 뒤, next_step처럼 확정하면 다음 단계에서 처리 방법을 안내한다고 말한다.
 5. RESOLVE_CONFLICT면 어떤 값이 서로 다른지 말하고 어느 쪽이 맞는지 묻는다.
 6. UNSUPPORTED면 왜 정할 수 없는지(failure_text)와 확인할 항목을 안내한다. 판정을 대신 내리지 마라.
 7. user_question이 있으면 먼저 help 내용 안에서만 짧게 답하고, 이어서 원래 분기의 말을 한다.
@@ -106,7 +109,17 @@ def build_payload(
         basis = []
         for i, b in enumerate(rule.basis if rule else (), start=1):
             basis.append({"id": f"B{i}", "type": b.type, "ref": b.ref, "excerpt": b.excerpt})
-        p["verdict"] = {"code": c.code, "name": c.name, "category": c.category}
+        if c.code is not None:
+            p["verdict"] = {"code": c.code, "name": c.name, "category": c.category}
+        else:  # 코드 없는 결론: 결론 문장과 확정 후 다음 단계 안내
+            p["verdict"] = {
+                "code": None,
+                "result_type": "NO_CODE",
+                "outcome": c.outcome,
+                "category": c.category,
+                "conclusion": templates.OUTCOME_TEXT.get(c.outcome or "", ""),
+            }
+            p["next_step"] = templates.NO_CODE_NEXT_STEP
         p["basis"] = basis
         p["unverified"] = bool(rule and rule.review == "UNVERIFIED")
     elif d.branch == Branch.RESOLVE_CONFLICT:

@@ -2,22 +2,29 @@
 
 from __future__ import annotations
 
+# 결론이 나지 않은 경우(UNSUPPORTED). 확정할 수 없다.
 FAILURE_TEXT = {
     "NO_TABLE": "이 소재·폐기물은 아직 판정 규칙이 없어 분류번호를 정할 수 없습니다.",
     "AMBIGUOUS_TABLE": "입력하신 내용으로는 적용할 판정 기준이 둘 이상이라 정할 수 없습니다.",
     "RULE_TIE": "규칙끼리 결론이 엇갈려 자동으로 정할 수 없습니다. 담당자 검토가 필요합니다.",
     "QUESTION_LIMIT": "질문을 충분히 드렸지만 아직 정할 수 없습니다. 확인된 내용으로 검토를 요청해 주세요.",
     "UNDETERMINABLE": "지금 자료로는 분류번호를 정할 수 없습니다. 확인이 필요한 항목을 정리해 드립니다.",
-    "NOT_WASTE": "말씀하신 내용대로라면 아직 사업에 쓰는 물질이라 폐기물관리법상 폐기물이 아닙니다.",
-    "CIRCULAR_RESOURCE": "순환자원으로 인정받은 물질은 폐기물로 보지 않습니다.",
-    "EXCLUDED": "이 물질은 폐기물관리법이 아니라 다른 법의 적용을 받습니다.",
-    "HOUSEHOLD": "사업장폐기물에 해당하는 조건이 없어 생활폐기물로 보입니다. 이 서비스의 범위 밖입니다.",
-    "INTERPRETATION_NEEDED": "법령만으로 정하기 어려운 경우라 관할 기관의 해석이 필요합니다.",
-    "NO_GENERAL_CODE": "지정폐기물은 아니지만, 일반폐기물 분류번호를 정하는 기준이 아직 없습니다.",
-    "CODE_NEEDS_TEST": "분류번호를 정하려면 성분 분석이 더 필요합니다.",
-    "NO_MIXTURE_RULE": "여러 소재가 섞여 나누기 어려운 폐기물은 분류번호 기준을 확인하지 못했습니다.",
     "NO_PATH": "더 진행할 수 있는 질문이 없습니다. 담당자 검토가 필요합니다.",
 }
+
+# 규칙 엔진이 분류번호 없이 낸 결론(FINAL_REVIEW, result_type NO_CODE). 확정할 수 있다.
+OUTCOME_TEXT = {
+    "NOT_WASTE": "말씀하신 내용대로라면 아직 사업에 쓰는 물질이라 폐기물관리법상 폐기물이 아닙니다.",
+    "CIRCULAR_RESOURCE": "순환자원으로 인정받은 물질이라 폐기물로 보지 않습니다.",
+    "EXCLUDED": "이 물질은 폐기물관리법이 아니라 다른 법의 적용을 받습니다.",
+    "HOUSEHOLD": "사업장폐기물에 해당하는 조건이 없어 생활폐기물로 보입니다.",
+    "INTERPRETATION_NEEDED": "법령만으로 정하기 어려운 경우라 관할 기관의 해석이 필요합니다.",
+    "NO_GENERAL_CODE": "지정폐기물은 아니지만, 일반폐기물 세부 분류번호는 담당자 확인이 필요합니다.",
+    "CODE_NEEDS_TEST": "분류번호를 정하려면 성분 분석(시험)이 더 필요합니다.",
+    "NO_MIXTURE_RULE": "여러 소재가 섞여 나누기 어려운 폐기물이라 분류번호 기준이 없습니다. "
+    "소재별로 나눠 확인해야 합니다.",
+}
+NO_CODE_NEXT_STEP = "확정하시면 다음 단계에서 어떻게 처리하면 되는지 안내해 드립니다."
 
 EVIDENCE_TEXT = {
     "TEST_REPORT": "시험성적서",
@@ -61,14 +68,17 @@ def request_evidence(payload: dict) -> str:
 
 def final_review(payload: dict) -> str:
     v = payload["verdict"]
-    cat = {"DESIGNATED": "지정폐기물", "GENERAL": "사업장일반폐기물"}.get(v.get("category"), "")
-    head = f"분류번호는 {v['code']} {v.get('name') or ''}".strip()
-    tail = f" ({cat})" if cat else ""
     note = (
         " 이 판정은 검토 전 규칙(UNVERIFIED)에 따른 것이라 참고용입니다."
         if payload.get("unverified")
         else ""
     )
+    if v.get("code") is None:  # 코드 없는 결론
+        conclusion = v.get("conclusion") or OUTCOME_TEXT.get(v.get("outcome") or "", "")
+        return f"{conclusion} 내용이 맞으면 확정해 주세요. {payload.get('next_step', '')}{note}"
+    cat = {"DESIGNATED": "지정폐기물", "GENERAL": "사업장일반폐기물"}.get(v.get("category"), "")
+    head = f"분류번호는 {v['code']} {v.get('name') or ''}".strip()
+    tail = f" ({cat})" if cat else ""
     return f"{head}{tail}로 판정됩니다. 내용이 맞으면 확정해 주세요.{note}"
 
 
