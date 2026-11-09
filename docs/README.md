@@ -8,6 +8,7 @@
 |---|---|---|
 | [team/guide.md](team/guide.md) | 팀원용 연동 안내(용어 풀이, 처리 순서, 역할별 체크리스트, 정해야 할 것) | 모두 |
 | [team/integration-changes-20261109.md](team/integration-changes-20261109.md) | 통합 작업안(E·S·W·D) 반영 결과 전체 목록, 팀 기술스택과 다른 점 | 모두 |
+| [engine/algorithm.md](engine/algorithm.md) | 엔진 내부 알고리즘: 규칙 데이터, 3값 평가와 확정, 질문 고르기(PP 계산 예시), 분기, 한 턴의 처리 순서 | 모두(1절), 엔진 개발자 |
 | [api/engine-api-summary.md](api/engine-api-summary.md) | **API 요약(명세서 반영용)**: API 주소·Request·Response·설명 한 장 정리 | 서버 |
 | [api/server-engine-contract.md](api/server-engine-contract.md) | 서버 ↔ 엔진 내부 API 규약: 인증, 엔드포인트, 서류 검수·적용, 오류 코드 | 서버 |
 | [api/api-spec.md](api/api-spec.md) | API 전체 명세(상태 전이 포함) | 서버·웹 |

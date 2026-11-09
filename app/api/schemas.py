@@ -1,4 +1,6 @@
-"""API 요청·응답 모델. 문진 한 턴의 응답은 app/domain/verdict.py의 TurnResponse(md 10절)다.
+"""API 요청·응답 모델.
+
+문진 한 턴의 응답은 app/domain/verdict.py의 TurnResponse(docs/engine/algorithm.md 7절)다.
 
 시각은 UTC로 저장하고, 응답에서는 시간대를 붙인 ISO 8601(Asia/Seoul, +09:00)로 낸다.
 """

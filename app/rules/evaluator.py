@@ -1,12 +1,12 @@
 """3값(Kleene) 규칙 평가기. LLM 의존성 없음, 결정적.
 
-조건 평가 (md 6.1)
+조건 평가 (docs/engine/algorithm.md 4.1~4.2절)
 - 유효 사실이 없거나 상태가 UNKNOWN/DECLARED_UNKNOWN이면 → UNKNOWN
 - 값으로는 만족하지만 상태가 min_status보다 낮으면 → UNKNOWN, 사유 NEEDS_EVIDENCE
 - 값으로 거짓이면 → FALSE (상태 무관, 지운 근거를 기록)
 - 그 외 → TRUE
 
-확정 (md 6.4)
+확정 (docs/engine/algorithm.md 4.4절)
 - PRIORITY: TRUE인 최고 우선순위 규칙 r이 있고, r보다 우선순위가 높으면서(같으면 다른 코드일 때)
   r과 다른 코드를 내는 UNKNOWN 규칙이 없을 때 확정. 같은 코드를 내는 상위 UNKNOWN 규칙은 결과를
   바꾸지 못하므로 막지 않는다.

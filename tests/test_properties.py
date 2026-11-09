@@ -1,4 +1,4 @@
-"""속성 테스트: 순서 불변성·단조성 (md 6.5)."""
+"""속성 테스트: 순서 불변성·단조성 (docs/engine/algorithm.md 9절)."""
 
 from hypothesis import given, settings
 from hypothesis import strategies as st

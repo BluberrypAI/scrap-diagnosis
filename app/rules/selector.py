@@ -1,4 +1,4 @@
-"""정보가치 기반 질문 선택기 (md 7절 + 보강).
+"""정보가치 기반 질문 선택기 (docs/engine/algorithm.md 5절).
 
 1. 질문 풀 = blocking_facts 중 사유가 MISSING인 것 (확정을 실제로 막는 사실만)
 2. 값 영역: enum → values, bool → {true,false}, number → 규칙 임계값으로 나눈 구간

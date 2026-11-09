@@ -1,4 +1,7 @@
-"""문진 한 턴의 응답 스키마 (md 10절) + 화면용 보강 필드 (docs/ui/ui-contract.md, ui-v1)."""
+"""문진 한 턴의 응답 스키마(docs/engine/algorithm.md 7절).
+
+화면용 보강 필드는 docs/ui/ui-contract.md(ui-v1).
+"""
 
 from __future__ import annotations
 

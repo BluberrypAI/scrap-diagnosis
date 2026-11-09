@@ -1,4 +1,4 @@
-"""결정적 분기 라우터 (md 8절).
+"""결정적 분기 라우터 (docs/engine/algorithm.md 6절).
 
 우선순위 순서대로 첫 번째로 해당하는 분기를 고른다.
 1. 사실 충돌 또는 후보 0개 → RESOLVE_CONFLICT (대화 계속)
@@ -284,7 +284,10 @@ def run_engine(
     max_questions: int = DEFAULT_MAX_QUESTIONS,
     user_question: str | None = None,
 ) -> EngineStep:
-    """평가 → 자동 채움 → 충돌 검사 → 분기 결정. 한 턴의 LLM 없는 부분 (md 10절 3~5단계)."""
+    """평가 → 자동 채움 → 충돌 검사 → 분기 결정.
+
+    한 턴의 LLM 없는 부분(docs/engine/algorithm.md 7절 4단계).
+    """
     # 대리 질문의 추정(implies)도 유효 사실에 보인다(판정 보드·Trace). evaluate도 같은 추정을 쓴다.
     effective = apply_implications(kb, store.effective())
     ev = evaluate(kb, effective, as_of)

@@ -1,4 +1,4 @@
-"""LLM 사실 추출 (md 9.1). LLM은 사실을 '제안'만 한다. 검증은 guard.py가 한다.
+"""LLM 사실 추출 (docs/engine/algorithm.md 7절). LLM은 사실을 '제안'만 한다. 검증은 guard.py가 한다.
 
 출력은 JSON Schema(strict)로 강제한다. 판정(폐기물 여부·지정 여부·분류번호 결정)은 하지 않는다.
 """

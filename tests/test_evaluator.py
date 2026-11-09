@@ -1,4 +1,4 @@
-"""테이블 평가·확정 조건 (md 6.3, 6.4)과 blocking_facts 보강."""
+"""테이블 평가·확정 조건 (docs/engine/algorithm.md 4.3~4.5절)과 blocking_facts 보강."""
 
 from app.domain.facts import FactStatus, FactStore
 from app.rules.evaluator import TV, evaluate

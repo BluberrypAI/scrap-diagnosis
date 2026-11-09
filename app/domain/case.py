@@ -1,4 +1,4 @@
-"""폐기물 건 상태 (md 1절)."""
+"""폐기물 건 상태 (docs/engine/algorithm.md 8절)."""
 
 from __future__ import annotations
 

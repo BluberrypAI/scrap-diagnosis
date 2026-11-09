@@ -1,4 +1,4 @@
-"""HTTP 라우터 (md 11절). 비즈니스 로직은 service.py에 있다."""
+"""HTTP 라우터 (docs/api/api-spec.md). 비즈니스 로직은 service.py에 있다."""
 
 from __future__ import annotations
 
