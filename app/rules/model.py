@@ -46,6 +46,11 @@ class FactDef:
     # 상위 분류를 모르면 상위 분류를 먼저 묻고, 알면 이 사실의 선택지를 그 분류의 값으로 줄인다.
     parent: str | None = None
     value_parent: dict[str, str] = field(default_factory=dict)
+    # 대리 질문(질문 전략): 이 사실의 값 → 다른 사실의 추정값(algorithm.md 5절).
+    # 예: pcb_possible "false" → {pcb_mg_l: {hi: 2}}
+    #     ("PCB 관련 없음"이면 PCB 함량 기준 미만으로 본다).
+    # 추정값은 저장하지 않고 평가 때마다 적용한다(출처 DERIVED, 명시된 값이 우선).
+    implies: dict[str, dict[str, Any]] = field(default_factory=dict)
 
 
 # ---- 조건식 -------------------------------------------------------------------------------

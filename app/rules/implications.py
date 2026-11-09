@@ -1,0 +1,65 @@
+"""대리 질문의 추정(질문 전략과 판정 조건의 분리, docs/engine/algorithm.md 5절).
+
+법 규칙에는 법 문언의 조건만 둔다(예: PCB 함량 2mg/L 이상). 사용자에게 바로 묻기 어려운 사실은
+답하기 쉬운 **대리 질문**(예: "PCB를 쓴 기기·절연유와 관련이 있나요?")으로 묻고, 그 답이 대상 사실의
+값을 추정하게 한다. 카탈로그의 `implies`가 이 관계를 정한다.
+
+- 추정은 저장하지 않는다. 평가할 때마다 유효 사실에 더한다. 그래서 대리 질문 답을 고치거나
+  철회하면 추정도 함께 바뀐다.
+- 대상 사실에 이미 값이 있으면(말·서류) 그 값이 이긴다. 예: "PCB 관련 없음"이라 했어도 성적서에
+  PCB 3mg/L가 있으면 지정폐기물 규칙이 성립한다.
+- 출처는 DERIVED, 상태는 CLAIMED다. 기준 미만 추정은 규칙을 거짓으로만 만들므로 증빙이 필요 없다.
+"""
+
+from __future__ import annotations
+
+from app.domain.facts import Fact, FactStatus
+from app.rules.answers import coerce_value
+from app.rules.model import KnowledgeBase
+
+
+def _answer_key(v: object) -> str:
+    if isinstance(v, bool):
+        return "true" if v else "false"
+    return str(v)
+
+
+def screening_map(kb: KnowledgeBase) -> dict[str, list[str]]:
+    """대상 사실 → 그 값을 추정할 수 있는 대리 질문 사실들."""
+    out: dict[str, list[str]] = {}
+    for fd in kb.catalog.values():
+        for targets in fd.implies.values():
+            for t in targets:
+                if fd.key not in out.setdefault(t, []):
+                    out[t].append(fd.key)
+    return out
+
+
+def apply_implications(kb: KnowledgeBase, facts: dict[str, Fact]) -> dict[str, Fact]:
+    """유효 사실 + 대리 질문 답에서 추정한 사실(대상에 값이 없을 때만)."""
+    screens = [fd for fd in kb.catalog.values() if fd.implies]
+    if not screens:
+        return facts
+    out = dict(facts)
+    for fd in screens:
+        f = facts.get(fd.key)
+        if f is None or not f.is_known:
+            continue
+        targets = fd.implies.get(_answer_key(f.value))
+        if not targets:
+            continue
+        label = fd.label or fd.key
+        for tkey, tval in targets.items():
+            cur = out.get(tkey)
+            if cur is not None and cur.is_known:
+                continue  # 명시된 값이 우선
+            out[tkey] = Fact(
+                key=tkey,
+                value=coerce_value(kb.catalog[tkey], tval),
+                status=FactStatus.CLAIMED,
+                source_type="DERIVED",
+                source_ref=f"implies:{fd.key}",
+                note=f"'{label}' 답에서 추정",
+                recorded_at=f.recorded_at,
+            )
+    return out

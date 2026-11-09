@@ -125,6 +125,10 @@ def parse_catalog(raw: list[dict]) -> dict[str, FactDef]:
             },
             parent=item.get("parent"),
             value_parent={str(k): str(v) for k, v in (item.get("value_parent") or {}).items()},
+            implies={
+                str(k).lower() if isinstance(k, bool) else str(k): dict(v or {})
+                for k, v in (item.get("implies") or {}).items()
+            },
         )
         if out[key].domain not in (None, "referenced"):
             raise RuleDataError(f"facts_catalog[{key}]: domain은 referenced만 지원합니다")
@@ -132,7 +136,24 @@ def parse_catalog(raw: list[dict]) -> dict[str, FactDef]:
             raise RuleDataError(f"facts_catalog[{key}]: ask_cost는 0보다 커야 합니다")
     for fd in out.values():
         _check_parent(fd, out)
+        _check_implies(fd, out)
     return out
+
+
+def _check_implies(fd: FactDef, catalog: dict[str, FactDef]) -> None:
+    """대리 질문 추정(implies) 검증: 대상은 카탈로그의 다른 사실, 값은 대상 타입에 맞아야 한다."""
+    from app.rules.answers import AnswerError, coerce_value  # 순환 import 방지
+
+    where = f"facts_catalog[{fd.key}].implies"
+    for answer, targets in fd.implies.items():
+        for tkey, tval in targets.items():
+            tfd = catalog.get(tkey)
+            if tfd is None or tkey == fd.key:
+                raise RuleDataError(f"{where}[{answer}]: 카탈로그의 다른 사실이어야 합니다: {tkey}")
+            try:
+                coerce_value(tfd, tval)
+            except (AnswerError, TypeError, ValueError) as exc:
+                raise RuleDataError(f"{where}[{answer}].{tkey}: {exc}") from exc
 
 
 def _check_parent(fd: FactDef, catalog: dict[str, FactDef]) -> None:
