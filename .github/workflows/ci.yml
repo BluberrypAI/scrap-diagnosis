@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  engine:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: wd
+          POSTGRES_PASSWORD: wd
+          POSTGRES_DB: waste_diagnosis
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U wd -d waste_diagnosis"
+          --health-interval 5s
+          --health-retries 10
+
+    env:
+      LLM_PROVIDER: "off"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: OpenAPI is up to date
+        run: uv run python scripts/export_openapi.py --check
+
+      - name: Migrations on PostgreSQL (upgrade, downgrade, upgrade)
+        env:
+          DATABASE_URL: postgresql+psycopg://wd:wd@localhost:5432/waste_diagnosis
+        run: |
+          uv run alembic upgrade head
+          uv run alembic downgrade base
+          uv run alembic upgrade head
+
+      - name: Tests (SQLite)
+        run: uv run pytest -q
+
+      - name: Tests (PostgreSQL, a new database per test)
+        env:
+          TEST_DATABASE_URL: postgresql+psycopg://wd:wd@localhost:5432/postgres
+        run: uv run pytest -q
+
+      - name: Golden scenarios (mock extractor, no AI calls)
+        run: uv run python scripts/eval.py --mock-extractor
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
