@@ -2222,6 +2222,14 @@
       "ResultView": {
         "description": "결과 카드(1.4절). FINAL_REVIEW일 때만.",
         "properties": {
+          "assumptions": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
           "category": {
             "anyOf": [
               {

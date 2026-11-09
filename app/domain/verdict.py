@@ -223,6 +223,8 @@ class ResultView(BaseModel):
     conclusion: str
     next_step: str
     review: str
+    # 시험·서류가 아니라 사용자 답에서 추정한 사실의 안내(예: PCB 관련 없음 → 기준 미만 추정)
+    assumptions: list[str] = []
 
 
 class UI(BaseModel):
@@ -558,17 +560,22 @@ def build_conflicts(kb: KnowledgeBase, step: EngineStep) -> list[ConflictView]:
     return out
 
 
-def build_result(step: EngineStep, rule_index: dict[str, Rule]) -> ResultView | None:
+def build_result(
+    step: EngineStep, rule_index: dict[str, Rule], kb: KnowledgeBase | None = None
+) -> ResultView | None:
     d, ev = step.decision, step.evaluation
     if d.branch != Branch.FINAL_REVIEW or ev.decided is None:
         return None
     c = ev.decided
     rule = rule_index.get(c.rule_ids[0])
     review = (rule.review if rule else None) or "UNVERIFIED"
+    from app.rules.implications import assumption_notes  # 순환 import 방지
+
     common = dict(
         category=c.category,
         category_label=templates.CATEGORY_LABEL.get(c.category or ""),
         review=review,
+        assumptions=assumption_notes(kb, step.effective) if kb is not None else [],
     )
     if c.code is not None:
         return ResultView(
@@ -610,5 +617,5 @@ def build_ui(
         question=None if q is None else question_view(kb, q, step.effective),
         board=build_board(kb, step, questions_asked=questions_asked, max_questions=max_questions),
         conflicts=build_conflicts(kb, step) if d.branch == Branch.RESOLVE_CONFLICT else [],
-        result=build_result(step, rule_index),
+        result=build_result(step, rule_index, kb),
     )
