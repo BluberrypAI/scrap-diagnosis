@@ -2,7 +2,7 @@
 
 폐기물 분류 코드 판정 엔진과 문진 에이전트. 원칙은 **LLM은 제안하고, 규칙 엔진이 판정하고, 서버가 검증한다.**
 
-현재 진행: M1(엔진 코어), M2(질문 선택·라우터·시뮬레이터), M2R(기존 엔진 실제 규칙 변환), M3(LLM 추출·응답·guard), M4(API·영속화·문서·confirm/reopen·Trace) 완료. 결과: `docs/m3-report.md`, `docs/m4-report.md`.
+현재 진행: M1(엔진 코어), M2(질문 선택·라우터·시뮬레이터), M2R(기존 엔진 실제 규칙 변환), M3(LLM 추출·응답·guard), M4(API·영속화·문서·confirm/reopen·Trace) 완료. 통합 작업안(서버 내부 API·서류 검수·AI 전송 정책·기업 데이터 삭제) 반영. 문서 목차: [docs/README.md](docs/README.md), 팀원용 안내: [docs/team/guide.md](docs/team/guide.md).
 
 ## 실행
 ```bash
@@ -34,7 +34,7 @@ uv run alembic -x url=sqlite:///var/other.db upgrade head
 ```
 - 설정(`.env`/환경변수): `DATABASE_URL`(기본 `sqlite:///<저장소>/var/app.db`), `KB_DIR`(기본 `data/real`),
   `DB_CREATE_ALL`(기본 true), `LLM_PROVIDER`(off면 LLM 없이 선택지 버튼·라벨만 받음)
-- 기업 격리: 임시로 `X-Company-Id` 헤더(TODO: 실제 인증). 다른 기업의 건은 404.
+- 기업 격리: 서버용 경로 `/internal/v1`은 `Authorization: Bearer <ENGINE_SERVICE_TOKEN>` + `X-Company-Id`(서버 기업 ID). 루트 경로는 개발·참조 화면용으로 `X-Company-Id`만 쓴다. 다른 기업의 건은 404. 자세한 규약은 `docs/api/server-engine-contract.md`.
 - 코드 없는 결론도 확정한다: 규칙 엔진이 분류번호 없이 결론을 낸 경우(폐기물 아님·순환자원·적용 제외·
   생활폐기물·해석 필요·일반 번호 없음·시험 필요·혼합물)는 `FINAL_REVIEW`(`verdict.waste_code` null,
   `verdict.outcome`)이고 확정하면 `CODE_CONFIRMED`다. 결론이 나지 않은 경우(질문 상한·증빙 거부·규칙 없음)는
