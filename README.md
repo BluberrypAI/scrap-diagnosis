@@ -20,9 +20,10 @@ uv run python scripts/eval.py                    # 실제 Azure
 uv run python scripts/eval_extractor.py          # 기존 질의회신 60건 추출 평가
 ```
 
-기존 엔진 규칙을 다시 변환할 때(기존 저장소 위치: 환경변수 `LEGACY_ENGINE_DIR`, 없으면 이 저장소 옆의 `resource_engine`):
+규칙 원본(`knowledge/`)을 고친 뒤 엔진용 규칙(`data/real/`)을 다시 만들 때(`knowledge/README.md`):
 ```bash
-uv run python tools/convert_legacy.py --regression
+uv run python tools/build_kb.py            # 빌드
+uv run python tools/build_kb.py --check    # 생성물이 원본과 같은지(CI·테스트도 검사)
 uv run python tools/legacy_regression.py --write
 ```
 
@@ -77,7 +78,7 @@ uv run python scripts/turn_latency.py                     # 실제 Azure로 턴�
   - `regression/`: 기존 판정표 4281행과의 비교 데이터·결과
   - 모든 규칙은 `review: UNVERIFIED`다. 법률 검토 전에는 판정을 참고용으로만 쓴다.
 - `data/<kb>/outcome_guidance.yaml` — 결론 종류 → 경로추천 AI 안내(사람이 관리, 변환기가 만들지 않음)
-- `tools/legacy_overrides.yaml` — 변환할 때 사람이 정하는 값(사전확률, 묶음 질문, 증빙 문서 이름)
+- `knowledge/` — 규칙 원본(법 규칙·소재·번호 대응·근거·사실 설정). `data/real/`은 여기서 빌드한 생성물
 
 ## 구조
 - `app/domain/` — `Fact`(append-only, 유효 사실 선택), `NumRange`(구간 응답)
@@ -89,7 +90,7 @@ uv run python scripts/turn_latency.py                     # 실제 Azure로 턴�
 - `app/agent/simulation.py`, `scripts/simulate.py` — 스크립트 답변 시뮬레이터
 - `app/agent/{llm_client,extractor,guard,responder,templates,orchestrator}.py` — LLM 제안·검증, 한 턴 처리
 - `app/domain/{verdict,trace}.py` — 응답 스키마(md 10절), Decision Trace
-- `tools/convert_legacy.py`, `tools/legacy_regression.py` — 기존 규칙 변환과 회귀 비교
+- `tools/build_kb.py`, `tools/legacy_regression.py` — 규칙 빌드와 기존 엔진 판정표 회귀 비교
 - `app/main.py`, `app/api/` — FastAPI 앱 팩토리, 라우터, 서비스(상태 전이), 문서 텍스트 추출
 - `app/persistence/` — SQLAlchemy 모델·저장소(요청마다 DB 행에서 문진 세션 복원), `alembic/` 마이그레이션
 

@@ -246,6 +246,7 @@ def _parse_basis(raw: Any, where: str) -> tuple[Basis, ...]:
                 ref=b["ref"],
                 excerpt=b.get("excerpt"),
                 source_id=b.get("source_id"),
+                location=b.get("location"),
             )
         )
     return tuple(out)
@@ -278,6 +279,7 @@ def _parse_rule(raw: dict, origin: str, hit_policy: str) -> Rule:
         effective_from=_date(raw.get("effective_from")),
         effective_to=_date(raw.get("effective_to")),
         origin=origin,
+        source_rule=raw.get("source_rule"),
     )
 
 
