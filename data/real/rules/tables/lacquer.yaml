@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge 9da900d0). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge e751f4e8). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: lacquer
 title: 락카(래커)
-version: 2026.11.0+kb-9da900d0
+version: 2026.11.0+kb-e751f4e8
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -57,9 +57,6 @@ rules:
       not:
         any:
         - all:
-          - fact: pcb_possible
-            op: eq
-            value: true
           - fact: physical_state
             op: eq
             value: liquid
@@ -68,9 +65,6 @@ rules:
             value: 2
             min_status: EVIDENCED
         - all:
-          - fact: pcb_possible
-            op: eq
-            value: true
           - fact: physical_state
             op: in
             value: &id004
@@ -407,9 +401,6 @@ rules:
   priority: 500
   when:
     all:
-    - fact: pcb_possible
-      op: eq
-      value: true
     - fact: physical_state
       op: eq
       value: liquid
@@ -450,9 +441,6 @@ rules:
   priority: 500
   when:
     all:
-    - fact: pcb_possible
-      op: eq
-      value: true
     - fact: physical_state
       op: in
       value: *id004
@@ -501,9 +489,6 @@ rules:
       not:
         any:
         - all:
-          - fact: pcb_possible
-            op: eq
-            value: true
           - fact: physical_state
             op: eq
             value: liquid
@@ -512,9 +497,6 @@ rules:
             value: 2
             min_status: EVIDENCED
         - all:
-          - fact: pcb_possible
-            op: eq
-            value: true
           - fact: physical_state
             op: in
             value: *id004

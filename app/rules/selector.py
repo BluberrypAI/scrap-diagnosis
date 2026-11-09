@@ -101,6 +101,20 @@ def table_of(kb: KnowledgeBase, ev: EvaluationResult | None) -> Table | None:
     return next((t for t in kb.tables if t.table_id == ev.table_id), None)
 
 
+_FLIP = {"lt": "gt", "lte": "gte", "gt": "lt", "gte": "lte", "eq": "eq", "ne": "ne"}
+
+
+def _complement_partner(kb: KnowledgeBase, key: str) -> tuple[str, float] | None:
+    """보수 관계(FactDef.complement)의 상대 사실과 합계. 어느 쪽에 정의돼 있어도 찾는다."""
+    fd = kb.catalog.get(key)
+    if fd is not None and fd.complement:
+        return fd.complement
+    for other in kb.catalog.values():
+        if other.complement and other.complement[0] == key:
+            return other.key, other.complement[1]
+    return None
+
+
 def numeric_segments(
     kb: KnowledgeBase, key: str, base: EvaluationResult | None = None
 ) -> list[NumRange]:
@@ -110,14 +124,19 @@ def numeric_segments(
     """
     t = table_of(kb, base)
     tables = [t] if t is not None else list(kb.tables)
-    conds = [
-        c
-        for tb in tables
-        for r in tb.rules
-        for c in iter_conds(r.when)
-        if c.fact == key and c.op in NUMERIC_OPS | {"eq", "ne"}
-    ]
-    thresholds = sorted({float(c.value) for c in conds})
+    partner = _complement_partner(kb, key)
+    conds: list[tuple[str, float]] = []
+    for tb in tables:
+        for r in tb.rules:
+            for c in iter_conds(r.when):
+                if c.op not in NUMERIC_OPS | {"eq", "ne"}:
+                    continue
+                if c.fact == key:
+                    conds.append((c.op, float(c.value)))
+                elif partner and c.fact == partner[0]:
+                    # 보수 관계 상대의 조건을 이 사실의 조건으로 옮긴다(고형물 ≥ 5 → 수분 ≤ 95)
+                    conds.append((_FLIP[c.op], round(partner[1] - float(c.value), 9)))
+    thresholds = sorted({v for _, v in conds})
     if not thresholds:
         return []
     pieces: list[NumRange] = [NumRange(lo=None, hi=thresholds[0], hi_inc=False)]
@@ -127,7 +146,7 @@ def numeric_segments(
         pieces.append(NumRange(lo=t, lo_inc=False, hi=nxt, hi_inc=False))
 
     def signature(p: NumRange) -> tuple:
-        return tuple(range_satisfies(p, c.op, c.value) for c in conds)
+        return tuple(range_satisfies(p, op, v) for op, v in conds)
 
     merged: list[tuple[NumRange, tuple]] = []
     for p in pieces:

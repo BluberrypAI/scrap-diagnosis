@@ -129,6 +129,7 @@ def parse_catalog(raw: list[dict]) -> dict[str, FactDef]:
                 str(k).lower() if isinstance(k, bool) else str(k): dict(v or {})
                 for k, v in (item.get("implies") or {}).items()
             },
+            complement=_complement(key, item.get("complement")),
         )
         if out[key].domain not in (None, "referenced"):
             raise RuleDataError(f"facts_catalog[{key}]: domain은 referenced만 지원합니다")
@@ -137,7 +138,28 @@ def parse_catalog(raw: list[dict]) -> dict[str, FactDef]:
     for fd in out.values():
         _check_parent(fd, out)
         _check_implies(fd, out)
+        _check_complement(fd, out)
     return out
+
+
+def _complement(key: str, raw: Any) -> tuple[str, float] | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, dict) or not raw.get("fact") or raw.get("total") is None:
+        raise RuleDataError(f"facts_catalog[{key}].complement: {{fact, total}} 형식이어야 합니다")
+    return str(raw["fact"]), float(raw["total"])
+
+
+def _check_complement(fd: FactDef, catalog: dict[str, FactDef]) -> None:
+    """보수 관계(complement) 검증: 대상은 카탈로그의 다른 수치 사실이어야 한다."""
+    if fd.complement is None:
+        return
+    tkey = fd.complement[0]
+    tfd = catalog.get(tkey)
+    if tfd is None or tkey == fd.key or fd.type != "number" or tfd.type != "number":
+        raise RuleDataError(
+            f"facts_catalog[{fd.key}].complement: 카탈로그의 다른 수치 사실이어야 합니다: {tkey}"
+        )
 
 
 def _check_implies(fd: FactDef, catalog: dict[str, FactDef]) -> None:

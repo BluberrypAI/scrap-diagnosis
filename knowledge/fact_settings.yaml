@@ -33,10 +33,20 @@ facts:
     prior: {false: 0.97}
     none_value: false
     evidence_type: EQUIPMENT_NAMEPLATE
+    # 대리 질문(2026-11-09, D2): 'PCB 관련 없음' → PCB 함량·용출 농도가 지정 기준 미만으로 본다.
+    # 판정 조건은 법대로(상태 + 농도). 시험값이 있으면 그 값이 이긴다(knowledge/README.md 질문 전략).
+    implies:
+      false: {pcb_mg_l: {hi: 2}, pcb_leach_mg_l: {hi: 0.003}}
   toxic_chemical_discard:
     prior: {false: 0.97}
     none_value: false
     evidence_type: MSDS
+  sludge_water_pct:
+    # 보수 관계(2026-11-09, D2): 수분함량 + 고형물함량 = 100(폐기물공정시험기준 수분 및 고형물
+    # 중량법은 같은 시료의 건조 감량과 잔류량으로 두 값을 낸다). 한쪽 값으로 다른 쪽을 계산하고,
+    # 둘 다 모르면 수분함량(함수율)을 먼저 묻는다. 성적서에 두 값이 따로 있으면 그 값이 이긴다.
+    # 판정 조건은 법 문언대로(공통 정의 SLUDGE_STATE: 수분 < 95 또는 고형물 ≥ 5).
+    complement: {fact: sludge_solids_pct, total: 100}
 
 # 소재 2단계 질문의 1단계(큰 분류). 값·라벨·예시는 기존 materials.yaml의 groups에서 온다.
 # 여기서는 질문 문구, 라벨 보정, 큰 분류만 말할 때 쓰는 표현(별칭)을 정한다.

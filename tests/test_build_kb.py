@@ -105,10 +105,13 @@ def _table(out: Path, mid: str) -> dict[str, dict]:
 
 
 def test_definition_ref_builds_or_condition_and_review_unit(knowledge, tmp_path):
-    (knowledge / "definitions.yaml").write_text(
+    defs_path = knowledge / "definitions.yaml"
+    defs = yaml.safe_load(defs_path.read_text(encoding="utf-8"))["definitions"] or {}
+    defs_path.write_text(
         yaml.safe_dump(
             {
                 "definitions": {
+                    **defs,  # 기존 정의(예: SLUDGE_STATE)는 그대로 둔다
                     "OIL_STATE": {
                         "title": "기름 함유 상태",
                         "when": {
@@ -119,7 +122,7 @@ def test_definition_ref_builds_or_condition_and_review_unit(knowledge, tmp_path)
                         },
                         "source": "DEC-A1",
                         "location": "별표 1 제6호",
-                    }
+                    },
                 }
             },
             allow_unicode=True,

@@ -9,13 +9,19 @@
 - 대상 사실에 이미 값이 있으면(말·서류) 그 값이 이긴다. 예: "PCB 관련 없음"이라 했어도 성적서에
   PCB 3mg/L가 있으면 지정폐기물 규칙이 성립한다.
 - 출처는 DERIVED, 상태는 CLAIMED다. 기준 미만 추정은 규칙을 거짓으로만 만들므로 증빙이 필요 없다.
+
+보수 관계(`complement`)는 같은 시험이 함께 내는 두 수치의 합이 일정할 때 한쪽 값으로 다른 쪽을
+계산한다(예: 수분함량 + 고형물함량 = 100, 폐기물공정시험기준 중량법). 양방향이고, 계산값은 원래 값의
+상태(성적서면 EVIDENCED)를 이어받는다. 이 관계를 둔 사실은 대상 사실의 대리 질문이기도 하다
+(둘 다 모르면 이 사실을 먼저 묻는다).
 """
 
 from __future__ import annotations
 
 from app.domain.facts import Fact, FactStatus
+from app.domain.ranges import NumRange
 from app.rules.answers import coerce_value
-from app.rules.model import KnowledgeBase
+from app.rules.model import FactDef, KnowledgeBase
 
 
 def _answer_key(v: object) -> str:
@@ -28,20 +34,55 @@ def screening_map(kb: KnowledgeBase) -> dict[str, list[str]]:
     """대상 사실 → 그 값을 추정할 수 있는 대리 질문 사실들."""
     out: dict[str, list[str]] = {}
     for fd in kb.catalog.values():
-        for targets in fd.implies.values():
-            for t in targets:
-                if fd.key not in out.setdefault(t, []):
-                    out[t].append(fd.key)
+        targets = [t for ts in fd.implies.values() for t in ts]
+        if fd.complement:
+            targets.append(fd.complement[0])
+        for t in targets:
+            if fd.key not in out.setdefault(t, []):
+                out[t].append(fd.key)
     return out
+
+
+def _complement_value(v: object, total: float) -> object:
+    if isinstance(v, NumRange):
+        return NumRange(
+            lo=None if v.hi is None else round(total - v.hi, 9),
+            lo_inc=v.hi_inc if v.hi is not None else True,
+            hi=None if v.lo is None else round(total - v.lo, 9),
+            hi_inc=v.lo_inc if v.lo is not None else False,
+        )
+    return round(total - float(v), 9)
+
+
+def _apply_complement(kb: KnowledgeBase, fd: FactDef, out: dict[str, Fact]) -> None:
+    tkey, total = fd.complement
+    pairs = ((fd.key, tkey), (tkey, fd.key))
+    for src, dst in pairs:
+        f, cur = out.get(src), out.get(dst)
+        if f is None or not f.is_known or (cur is not None and cur.is_known):
+            continue
+        label = kb.catalog[src].label or src
+        out[dst] = Fact(
+            key=dst,
+            value=_complement_value(f.value, total),
+            status=f.status,  # 같은 시험의 값이므로 원래 값의 상태를 잇는다
+            source_type="DERIVED",
+            source_ref=f"complement:{src}",
+            note=f"'{label}' 값에서 계산(합계 {total:g})",
+            recorded_at=f.recorded_at,
+        )
+        return
 
 
 def apply_implications(kb: KnowledgeBase, facts: dict[str, Fact]) -> dict[str, Fact]:
     """유효 사실 + 대리 질문 답에서 추정한 사실(대상에 값이 없을 때만)."""
-    screens = [fd for fd in kb.catalog.values() if fd.implies]
+    screens = [fd for fd in kb.catalog.values() if fd.implies or fd.complement]
     if not screens:
         return facts
     out = dict(facts)
     for fd in screens:
+        if fd.complement:
+            _apply_complement(kb, fd, out)
         f = facts.get(fd.key)
         if f is None or not f.is_known:
             continue
