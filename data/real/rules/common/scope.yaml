@@ -1,4 +1,4 @@
-# 자동 생성: tools/build_kb.py (knowledge 332b6fcb). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge 9da900d0). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 rules:
 - rule_id: S0-CIRCULAR
   source_rule: S0-CIRCULAR
@@ -7,11 +7,12 @@ rules:
     fact: circular_resource_recognized
     op: eq
     value: true
+    min_status: EVIDENCED
   then:
     code: null
     category: OUT_OF_SCOPE
     outcome: CIRCULAR_RESOURCE
-    name: 정부에서 순환자원으로 인정받은 물질은 법에서 폐기물로 보지 않습니다.
+    name: 정부에서 순환자원으로 인정받은 물질은 법에서 폐기물로 보지 않습니다. 유효한 인정서(대상 물질·기간)를 서류로 확인합니다.
   basis:
   - type: LAW
     ref: 순환경제사회 전환 촉진법 제21조제5항
@@ -35,8 +36,8 @@ rules:
   then:
     code: null
     category: OUT_OF_SCOPE
-    outcome: NOT_WASTE
-    name: 법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다. 아직 제품이나 원료로 쓰는 물질은 폐기물이 아닙니다.
+    outcome: INTERPRETATION_NEEDED
+    name: 법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다. 아직 제품이나 원료로 쓴다는 답만으로는 폐기물이 아니라고 확정하지 않고, 관할 기관 확인을 안내합니다.
   basis:
   - type: LAW
     ref: 폐기물관리법 제2조제1호
@@ -206,9 +207,13 @@ rules:
   source_rule: S1-EX-LIVESTOCK-DISEASE
   priority: 1000
   when:
-    fact: law_exclusion
-    op: eq
-    value: livestock_disease
+    all:
+    - fact: law_exclusion
+      op: eq
+      value: livestock_disease
+    - fact: disease_measure_applies
+      op: eq
+      value: true
   then:
     code: null
     category: OUT_OF_SCOPE
@@ -227,9 +232,13 @@ rules:
   source_rule: S1-EX-AQUATIC-DISEASE
   priority: 1000
   when:
-    fact: law_exclusion
-    op: eq
-    value: aquatic_disease
+    all:
+    - fact: law_exclusion
+      op: eq
+      value: aquatic_disease
+    - fact: disease_measure_applies
+      op: eq
+      value: true
   then:
     code: null
     category: OUT_OF_SCOPE
@@ -290,9 +299,13 @@ rules:
   source_rule: S1-EX-FISHERIES
   priority: 1000
   when:
-    fact: law_exclusion
-    op: eq
-    value: fisheries_byproduct_unmixed
+    all:
+    - fact: law_exclusion
+      op: eq
+      value: fisheries_byproduct_unmixed
+    - fact: fisheries_activity
+      op: eq
+      value: recycle_chain
   then:
     code: null
     category: OUT_OF_SCOPE
