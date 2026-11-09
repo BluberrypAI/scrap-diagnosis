@@ -196,10 +196,37 @@ def test_cards_render_conditions_in_words_and_html(tmp_path):
     cards = {c["unit"]: c for c in review_kit.all_cards(k)}
     oil = dict(cards["S3-6-OIL-5PCT"]["rows"])
     conds = " ".join(oil["조건(모두 만족)"])
-    assert "기름성분 함량 ≥ 5% (시험성적서로 확인)" in conds
+    assert "기름성분 함량 ≥ 5% (시험성적서 필요)" in conds
     assert "oil_content_pct" not in conds  # 개발용 키는 보이지 않는다
     assert any("별표 1 제6호" in x for x in oil["근거"])
     assert cards["S3-6-OIL-5PCT"]["tables"] == 87
     review_kit.write_html(list(cards.values()), tmp_path / "c.html", "test")
     page = (tmp_path / "c.html").read_text(encoding="utf-8")
     assert "<title>규칙 검토 카드</title>" in page and page.count("<article class='card'") == 249
+    assert "카드 읽는 법" in page and "data-engine='UNUSED'" in page
+
+
+def test_cards_match_engine_behavior():
+    """카드가 엔진 동작과 같게 보이는지: 확인 방식, 엔진 결론, 제외 규칙, 미사용, 근거 표기."""
+    k = review_kit.Knowledge()
+    cards = {c["unit"]: dict(c["rows"]) for c in review_kit.all_cards(k)}
+    engine = {c["unit"]: c["engine"] for c in review_kit.all_cards(k)}
+    pcb = cards["S3-8GA-PCB-LIQUID"]
+    # 서류 항목은 말로도 받는다(엔진은 시험 수치만 성적서를 요구)
+    assert any("(말로 답해도 됨" in x for x in pcb["조건(모두 만족)"])
+    assert any("PCB 함량(액체) ≥ 2mg/L (시험성적서 필요)" in x for x in pcb["조건(모두 만족)"])
+    # 근거 표기에 "별표 1 … 별표 1"이 겹치지 않는다
+    assert all(x.count("별표 1") <= 1 for x in pcb["근거"][:1])
+    # 질의회신 근거 규칙: 원본 결론은 지정폐기물이지만 엔진은 해석 필요
+    paint = cards["S3-RESIDUE-PAINT"]
+    assert paint["원본 결론"][0] == "지정폐기물"
+    assert paint["엔진 결론"][0] == "해석 필요(관할 기관 확인)"
+    # 번호 대응표의 제외 규칙이 법 규칙 카드에 보인다
+    assert any("S3-8*" in x for x in cards["S3-6-OIL-5PCT"]["제외"])
+    assert any("S3-2" in x for x in cards["S3-9-TOXIC"]["제외"])
+    # 엔진이 쓰지 않는 규칙(그 종류의 소재 없음)
+    assert engine["S3-10-MEDICAL"] == "UNUSED"
+    assert "소재가 없음" in cards["S3-10-MEDICAL"]["엔진 결론"][0]
+    assert engine["S2-EMISSION-FACILITY"] == "CONDITION"
+    # 소재 카드: 프리셋(고체) 때문에 나오지 않는 지정 번호 후보를 따로 보여 준다
+    assert any(x.startswith("01-01-08") for x in cards["material:eps"]["쓰이지 않는 후보"])
