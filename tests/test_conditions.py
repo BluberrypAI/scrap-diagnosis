@@ -1,4 +1,4 @@
-"""연산자 × 사실 상태 조합 (md 6.1)."""
+"""연산자 × 사실 상태 조합 (docs/engine/algorithm.md 4.1절)."""
 
 import pytest
 

@@ -1,4 +1,4 @@
-"""Decision Trace (md 12절). 턴마다 판정을 재현할 수 있는 정보를 남긴다."""
+"""Decision Trace (docs/engine/algorithm.md 8절). 턴마다 판정을 재현할 수 있는 정보를 남긴다."""
 
 from __future__ import annotations
 

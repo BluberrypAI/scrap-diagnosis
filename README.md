@@ -4,6 +4,8 @@
 
 현재 진행: M1(엔진 코어), M2(질문 선택·라우터·시뮬레이터), M2R(기존 엔진 실제 규칙 변환), M3(LLM 추출·응답·guard), M4(API·영속화·문서·confirm/reopen·Trace) 완료. 통합 작업안(서버 내부 API·서류 검수·AI 전송 정책·기업 데이터 삭제) 반영. 문서 목차: [docs/README.md](docs/README.md), 팀원용 안내: [docs/team/guide.md](docs/team/guide.md).
 
+엔진이 질문을 고르고 판정하는 방법: [docs/engine/algorithm.md](docs/engine/algorithm.md)
+
 ## 실행
 ```bash
 uv sync
@@ -63,7 +65,7 @@ uv run python scripts/turn_latency.py                     # 실제 Azure로 턴�
 | POST | `/cases` | 건 생성(memo·quantity·unit·period) → 첫 턴 응답 |
 | GET | `/cases?status=` | 상태별 목록 |
 | GET | `/cases/{id}` | 건 상세 + 현재 판정·판정 버전·마지막 턴·문서 |
-| POST | `/cases/{id}/diagnosis/messages` | `{text}` 또는 `{quick_reply:{key,kind,value}}` → md 10절 응답 |
+| POST | `/cases/{id}/diagnosis/messages` | `{text}` 또는 `{quick_reply:{key,kind,value}}` → 한 턴 응답(`docs/engine/algorithm.md` 7절) |
 | POST | `/cases/{id}/documents` | multipart `file`(.txt/.md/.pdf), 선택 `facts`(JSON) → EVIDENCED → 재평가 |
 | POST | `/cases/{id}/confirm` | 서버 재평가 후 판정 버전 고정 + 인계 객체(`handoff`) → `CODE_CONFIRMED` (불가 시 409) |
 | POST | `/cases/{id}/reopen` | `CODE_CONFIRMED`에서만. 이전 판정은 버전으로 보존 |
@@ -82,13 +84,13 @@ uv run python scripts/turn_latency.py                     # 실제 Azure로 턴�
 ## 구조
 - `app/domain/` — `Fact`(append-only, 유효 사실 선택), `NumRange`(구간 응답)
 - `app/rules/loader.py` — YAML 로드·정적 검증(`includes`, `applies_when`, 시행일 필터)
-- `app/rules/evaluator.py` — 3값 평가기. md 6절 + `blocking_facts`(확정을 실제로 막는 미확인 사실)
+- `app/rules/evaluator.py` — 3값 평가기(`docs/engine/algorithm.md` 4절) + `blocking_facts`(확정을 실제로 막는 미확인 사실)
 - `app/rules/selector.py` — 정보가치 질문 선택. 묶음 질문, prior, gain 0 질문 제외, 번호 선택은 마지막
 - `app/rules/conflicts.py` — 진술과 문서의 충돌, 후보 0개 설명
 - `app/agent/router.py` — 결정적 분기 라우터. `run_engine`은 한 턴의 LLM 없는 부분(자동 채움 포함)
 - `app/agent/simulation.py`, `scripts/simulate.py` — 스크립트 답변 시뮬레이터
 - `app/agent/{llm_client,extractor,guard,responder,templates,orchestrator}.py` — LLM 제안·검증, 한 턴 처리
-- `app/domain/{verdict,trace}.py` — 응답 스키마(md 10절), Decision Trace
+- `app/domain/{verdict,trace}.py` — 응답 스키마(`docs/engine/algorithm.md` 7절), Decision Trace
 - `tools/convert_legacy.py`, `tools/legacy_regression.py` — 기존 규칙 변환과 회귀 비교
 - `app/main.py`, `app/api/` — FastAPI 앱 팩토리, 라우터, 서비스(상태 전이), 문서 텍스트 추출
 - `app/persistence/` — SQLAlchemy 모델·저장소(요청마다 DB 행에서 문진 세션 복원), `alembic/` 마이그레이션

@@ -1,4 +1,6 @@
-"""문진 세션 한 턴 처리 (md 10절). 영속화는 `export_state`/`from_state`로 한다(M4).
+"""문진 세션 한 턴 처리 (docs/engine/algorithm.md 7절).
+
+영속화는 `export_state`/`from_state`로 한다(M4).
 
 1. 메시지 저장
 2. (자유 진술) extractor → guard → 사실 append / (버튼) quick_reply → 결정적 append

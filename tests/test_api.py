@@ -1,4 +1,6 @@
-"""M4 API: 응답 스키마 계약(md 10절), 상태 전이, 문서 증빙, confirm/reopen, Trace, 기업 격리."""
+"""M4 API: 응답 스키마 계약(docs/engine/algorithm.md 7절), 상태 전이, 문서 증빙,
+confirm/reopen, Trace, 기업 격리.
+"""
 
 from __future__ import annotations
 

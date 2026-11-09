@@ -221,5 +221,6 @@ X-Company-Id: <서버의 기업 ID>                 ← 로그인한 사용자�
 | 서버 | [perf/turn-latency.md](../perf/turn-latency.md) — 한 턴이 걸리는 시간(타임아웃 근거) |
 | 웹 | [ui/ui-design.md](../ui/ui-design.md), [ui/ui-contract.md](../ui/ui-contract.md), [ui/handover.md](../ui/handover.md) |
 | AI | [handoff-contract.md](../handoff-contract.md) — 인계 객체 전체 |
+| 모두 | [engine/algorithm.md](../engine/algorithm.md) — 엔진이 질문을 고르고 판정하는 방법(1절은 쉬운 설명) |
 | 서류 자동 읽기 담당 | [document-extraction-contract.md](../document-extraction-contract.md) — 나중에 OCR을 붙일 때의 입출력 형식 |
 | 모두 | [integration-changes-20261109.md](integration-changes-20261109.md) — 이번에 바뀐 것 전체 목록(E·S·W·D 항목별) |
