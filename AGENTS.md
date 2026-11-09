@@ -15,6 +15,7 @@ Re:Source AI 조직의 **폐기물 진단 엔진(waste-diagnosis)**. 모든 AI �
 | [docs/api/server-engine-contract.md](docs/api/server-engine-contract.md) | 서버가 부르는 API(`/internal/v1`), 오류 코드를 바꿀 때 |
 | [docs/handoff-contract.md](docs/handoff-contract.md) | 확정·인계 객체(`diagnosis-handoff-v1`)를 바꿀 때 |
 | [knowledge/README.md](knowledge/README.md) | 규칙 원본(법 규칙·소재·번호 대응·근거)을 고치거나 빌드할 때 |
+| [docs/rule-changes/](docs/rule-changes/) | 규칙 내용(판정)을 바꿀 때: 주제별 차이 보고서를 여기에 남김 |
 | [docs/ui/ui-contract.md](docs/ui/ui-contract.md), [docs/ui/ui-design.md](docs/ui/ui-design.md) | 화면용 응답 필드, 참조 화면(`web/`)을 고칠 때 |
 | [docs/llm-data-policy.md](docs/llm-data-policy.md) | AI 호출·프롬프트·Trace 기록을 바꿀 때 |
 | [docs/agent-changelog.md](docs/agent-changelog.md) | 에이전트 문서를 고칠 때 |
@@ -59,6 +60,7 @@ uv run python tools/build_kb.py                 # 규칙 원본(knowledge/) → 
 uv run python tools/build_kb.py --check         # 생성물이 원본과 같은지
 uv run python tools/legacy_regression.py        # 기존 엔진 판정표와 비교
 uv run python scripts/eval.py --mock-extractor  # 골든 시나리오(AI 없이)
+uv run python tools/review_kit.py export        # 전문가 검토 카드(build/review/)
 docker compose up -d db                         # PostgreSQL(호스트 포트 55432)
 TEST_DATABASE_URL=postgresql+psycopg://wd:wd@localhost:55432/postgres uv run pytest
 cd web && npm test && npm run build             # 참조 화면

@@ -9,6 +9,17 @@
 2. 엔진이 결과를 확정하면 **인계 객체(handoff)** 라는 JSON을 만듭니다. 경로추천 AI(scrap-ai)는 이것만 보고 다음 단계를 정하면 됩니다.
 3. 각 팀이 할 일은 4절에 역할별 체크리스트로 있습니다. 같이 정해야 할 것은 6절에 있습니다.
 
+### 지금 개발 상황 (2026-11-09)
+
+| 항목 | 상태 |
+|---|---|
+| 문진·판정·확정·인계 API(`/internal/v1`) | 완료. 요약은 [api/engine-api-summary.md](../api/engine-api-summary.md) |
+| PostgreSQL 연동 | 완료(docker compose, 테스트도 PostgreSQL로 실행) |
+| 규칙 원본(`knowledge/`)과 전문가 검토 카드 | 완료. 아직 전문가 검토 전이라 결과에 "검토 전 규칙 · 참고용" 표시 |
+| 규칙 내용 수정(AI 사전 검토 반영) | D1(비폐기물·적용 제외), D2(오니·PCB), D4(문구) 반영. D3(분류번호 선택 정확도)는 전문가 의견 후 진행 |
+| 질문 용어 설명 | 완료. 질문 응답 `question.terms`에 전문용어 쉬운 설명(사람이 쓴 고정 문장) |
+| 서류 자동 읽기(OCR) | 미구현. 값은 서버 검수 화면에서 사람이 입력 |
+
 ## 1. 엔진이 하는 일
 
 ### 전체 그림
@@ -218,10 +229,12 @@ X-Company-Id: <서버의 기업 ID>                 ← 로그인한 사용자�
 
 | 누가 | 문서 |
 |---|---|
+| 서버 | [api/engine-api-summary.md](../api/engine-api-summary.md) — **API 주소·Request·Response 한 장 요약(명세서 반영용)** |
 | 서버 | [api/server-engine-contract.md](../api/server-engine-contract.md) — 호출 순서·인증·오류 코드 전체·예시 |
 | 서버 | [api/openapi.json](../api/openapi.json) — 요청·응답 스키마(Swagger로 열 수 있음) |
 | 서버 | [perf/turn-latency.md](../perf/turn-latency.md) — 한 턴이 걸리는 시간(타임아웃 근거) |
 | 웹 | [ui/ui-design.md](../ui/ui-design.md), [ui/ui-contract.md](../ui/ui-contract.md), [ui/handover.md](../ui/handover.md) |
 | AI | [handoff-contract.md](../handoff-contract.md) — 인계 객체 전체 |
+| 도메인 전문가 | [knowledge/README.md](../../knowledge/README.md) 검토하는 방법, [rule-changes/](../rule-changes/) 규칙 수정 기록 |
 | 서류 자동 읽기 담당 | [document-extraction-contract.md](../document-extraction-contract.md) — 나중에 OCR을 붙일 때의 입출력 형식 |
 | 모두 | [integration-changes-20261109.md](integration-changes-20261109.md) — 이번에 바뀐 것 전체 목록(E·S·W·D 항목별) |
