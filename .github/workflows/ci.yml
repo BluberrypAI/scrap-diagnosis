@@ -50,6 +50,9 @@ jobs:
       - name: OpenAPI is up to date
         run: uv run python scripts/export_openapi.py --check
 
+      - name: Rule data is built from knowledge/
+        run: uv run python tools/build_kb.py --check
+
       - name: Migrations on PostgreSQL (upgrade, downgrade, upgrade)
         env:
           DATABASE_URL: postgresql+psycopg://wd:wd@localhost:5432/waste_diagnosis

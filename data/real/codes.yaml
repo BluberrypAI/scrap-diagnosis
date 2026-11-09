@@ -1,4 +1,4 @@
-# 자동 생성: tools/convert_legacy.py (resource_engine 2f1355a). 직접 고치지 말고 변환기를 다시 실행.
+# 자동 생성: tools/build_kb.py (knowledge 832f4326). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 codes:
 - code: 01-01-01
   name: 폐폴리에틸렌

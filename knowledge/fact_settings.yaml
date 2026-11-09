@@ -1,6 +1,6 @@
-# 기존 엔진(resource_engine) 규칙을 변환할 때 사람이 정하는 보정값.
+# 빌드할 때 사람이 정하는 사실 설정값(원래 tools/legacy_overrides.yaml).
 # 기존 facts.yaml에는 없는 값(사전확률·법적 중요도·묶음 질문 기본값·증빙 문서 이름)을 여기서 둔다.
-# 변환기(tools/convert_legacy.py)가 이 파일을 읽어 data/real/facts_catalog.yaml에 합친다.
+# 빌드(tools/build_kb.py)가 이 파일을 읽어 data/real/facts_catalog.yaml에 합친다.
 
 facts:
   material_fate:

@@ -1,25 +1,30 @@
-"""기존 엔진(resource_engine) 규칙 → 새 사실 카탈로그 + 소재별 PRIORITY 테이블.
+"""규칙 원본(knowledge/) → 엔진용 규칙 데이터(data/real/) 빌드.
 
-    uv run python tools/convert_legacy.py --legacy ../resource_engine
-    uv run python tools/convert_legacy.py --legacy ... --regression   # 회귀 데이터도 생성
+    uv run python tools/build_kb.py          # knowledge/로 data/real/을 다시 만든다
+    uv run python tools/build_kb.py --check  # data/real/이 knowledge/ 빌드 결과와 같은지(CI)
+    uv run python tools/build_kb.py --legacy-regression ../resource_engine
+                                             # 기존 엔진 판정표로 회귀 기준을 다시 가져온다
 
-기존 엔진의 S0→S5 단계 흐름을 우선순위 대역으로 펴서 소재마다 테이블 하나로 만든다.
+원본은 기존 엔진(resource_engine `2f1355a`)의 rules/에서 옮겨 왔다(knowledge/README.md).
+원본의 법 규칙 단계 흐름(S0→S3)을 우선순위 대역으로 펴서 소재마다 테이블 하나로 만든다.
   SCOPE_S0 1100 / SCOPE_S1 1000 : 순환자원·폐기물 아님·법 적용 제외 (코드 없는 결론)
   DESIGNATED 500                : 법령 근거 지정폐기물 규칙 → 별표 4 지정 코드
   HOUSEHOLD 400                 : 사업장 조건이 모두 거짓 → 생활폐기물 (코드 없는 결론)
   INTERPRET 300                 : 해석 필요 규칙과 법령이 아닌 근거(질의회신·해설)의 규칙
   GENERAL 100                   : 지정폐기물이 아닐 때의 일반 코드
-상위 대역이 미확인이면 하위 대역은 확정되지 않으므로 기존 단계 순서가 그대로 재현된다.
-기존 YAML은 읽기만 한다.
+상위 대역이 미확인이면 하위 대역은 확정되지 않으므로 원본 단계 순서가 그대로 재현된다.
+원본은 읽기만 한다. data/real/의 생성물은 손으로 고치지 않는다.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
-import os
 import re
+import shutil
 import sys
+import tempfile
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
@@ -27,11 +32,35 @@ from typing import Any
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-# 기존 엔진 저장소 위치: 환경변수 LEGACY_ENGINE_DIR, 없으면 이 저장소 옆의 resource_engine
-DEFAULT_LEGACY = Path(
-    os.environ.get("LEGACY_ENGINE_DIR") or Path(__file__).resolve().parents[2] / "resource_engine"
-)
+KNOWLEDGE = ROOT / "knowledge"
 OUT = ROOT / "data" / "real"
+LEGACY_REV = "2f1355a"  # 원본을 옮겨 온 기존 엔진 커밋(이력 기록용)
+
+# 원본 파일(knowledge/ 기준 경로). 이 파일들의 내용으로 규칙 버전을 만든다.
+SOURCE_FILES = (
+    "facts.yaml",
+    "fact_settings.yaml",
+    "law_rules/scope_and_business.yaml",
+    "law_rules/designated.yaml",
+    "materials.yaml",
+    "annex4_codes.yaml",
+    "code_map.yaml",
+    "sources.yaml",
+    "outcome_guidance.yaml",
+)
+# 빌드가 쓰는 파일(data/real/ 기준). --check는 이것만 비교한다.
+# regression/(기존 엔진 판정표 기준)과 scenarios/(시뮬레이터 시나리오)는 빌드하지 않는다.
+GENERATED_FILES = (
+    "facts_catalog.yaml",
+    "question_groups.yaml",
+    "codes.yaml",
+    "sources.yaml",
+    "outcome_guidance.yaml",
+    "conversion_report.md",
+    "rules/common/scope.yaml",
+    "rules/common/business.yaml",
+)
+GENERATED_DIRS = ("rules/tables",)
 
 P_S0, P_S1, P_DESIGNATED, P_HOUSEHOLD, P_INTERPRET, P_GENERAL = 1100, 1000, 500, 400, 300, 100
 
@@ -56,7 +85,7 @@ def read(path: Path) -> Any:
 def dump(path: Path, data: Any, header: str = "") -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     text = yaml.safe_dump(data, allow_unicode=True, sort_keys=False, width=110)
-    path.write_text(header + text, encoding="utf-8")
+    path.write_text(header + text, encoding="utf-8", newline="\n")
 
 
 # ---- 조건식 도우미 ----------------------------------------------------------------------
@@ -95,23 +124,32 @@ def fold(conds: list[dict], preset: dict[str, Any]) -> list[dict] | None:
     return out
 
 
+def knowledge_rev(src: Path = KNOWLEDGE) -> str:
+    """원본 파일 내용의 sha256 앞 8자리. 테이블 버전·생성물 머리말에 쓴다."""
+    h = hashlib.sha256()
+    for name in SOURCE_FILES:
+        h.update(name.encode())
+        h.update(b"\0")
+        h.update((src / name).read_bytes())
+    return h.hexdigest()[:8]
+
+
 class Converter:
-    def __init__(self, legacy: Path, overrides: Path):
-        r = legacy / "rules"
-        self.legacy = legacy
-        self.facts: dict[str, dict] = read(r / "facts.yaml")
-        rules = read(r / "rules.yaml")
+    def __init__(self, src: Path = KNOWLEDGE):
+        self.src = src
+        self.facts: dict[str, dict] = read(src / "facts.yaml")
+        rules = read(src / "law_rules" / "scope_and_business.yaml")
         self.base_rules: list[dict] = rules["rules"]
-        self.s3: list[dict] = read(r / "rules_s3.yaml")["rules"]
-        m = read(r / "materials.yaml")
+        self.s3: list[dict] = read(src / "law_rules" / "designated.yaml")["rules"]
+        m = read(src / "materials.yaml")
         self.materials: dict[str, dict] = m["materials"]
         self.groups_meta = m.get("groups") or {}
-        a4 = read(r / "annex4_codes.yaml")
+        a4 = read(src / "annex4_codes.yaml")
         self.codes: list[dict] = a4["codes"]
         self.code_index = {c["id"]: c for c in self.codes}
-        self.s4 = read(r / "s4_map.yaml")
-        self.sources: dict[str, dict] = read(r / "sources.yaml")
-        self.ov = read(overrides) or {}
+        self.s4 = read(src / "code_map.yaml")
+        self.sources: dict[str, dict] = read(src / "sources.yaml")
+        self.ov = read(src / "fact_settings.yaml") or {}
         self.excluded = set(self.s4.get("excluded_codes", []))
         self.used_facts: set[str] = set()
         self.fact_band: dict[str, int] = {}
@@ -138,6 +176,8 @@ class Converter:
                 "ref": ref or it["source"],
                 "source_id": it["source"],
             }
+            if it.get("location"):
+                b["location"] = it["location"]
             if it.get("quote"):
                 b["excerpt"] = it["quote"]
             out.append(b)
@@ -151,6 +191,7 @@ class Converter:
             "ref": f"{title} {code}",
             "excerpt": f"{code} {c['name']}",
             "source_id": "RULE-A4",
+            "location": code,
         }
 
     def leaf(self, c: dict, band: int) -> dict:
@@ -184,6 +225,7 @@ class Converter:
             rules.append(
                 {
                     "rule_id": r["id"],
+                    "source_rule": r["id"],
                     "priority": prio,
                     "when": self.expr(r["when"], 2),
                     "then": {
@@ -213,6 +255,7 @@ class Converter:
             "rules": [
                 {
                     "rule_id": "S2-HOUSEHOLD",
+                    "source_rule": "S2-HOUSEHOLD",
                     "priority": P_HOUSEHOLD,
                     "when": {"not": {"any": alts}},
                     "then": {
@@ -339,6 +382,7 @@ class Converter:
                 rules.append(
                     {
                         "rule_id": rid,
+                        "source_rule": r["id"],
                         "priority": P_DESIGNATED,
                         "when": when,
                         "then": {
@@ -357,6 +401,7 @@ class Converter:
             rules.append(
                 {
                     "rule_id": f"{mid}:{r['id']}",
+                    "source_rule": r["id"],
                     "priority": P_INTERPRET,
                     "when": self.expr(folded, 3, mid),
                     "then": {
@@ -372,10 +417,13 @@ class Converter:
 
         gcodes, goutcome = self.general_codes(mat)
         gbasis = self.basis(complement) if complement else []
+        # 일반 코드의 원본: "지정폐기물 외의 것"을 정의한 보완 규칙(없으면 소재 항목만)
+        gsource = {"source_rule": complement["id"]} if complement else {}
         if goutcome:
             rules.append(
                 {
                     "rule_id": f"{mid}:GENERAL",
+                    **gsource,
                     "priority": P_GENERAL,
                     "when": {"fact": "material", "op": "eq", "value": mid},
                     "then": {"code": None, "category": "GENERAL", "outcome": goutcome},
@@ -396,6 +444,7 @@ class Converter:
                 rules.append(
                     {
                         "rule_id": rid,
+                        **gsource,
                         "priority": P_GENERAL,
                         "when": when,
                         "then": {
@@ -416,7 +465,7 @@ class Converter:
         return {
             "table_id": mid,
             "title": mat["label"],
-            "version": f"2026.11.0+re-{self.legacy_rev()}",
+            "version": f"2026.11.0+kb-{self.rev()}",
             "effective_from": EFFECTIVE_FROM,
             "hit_policy": "PRIORITY",
             "applies_when": {"fact": "material", "op": "eq", "value": mid},
@@ -426,19 +475,9 @@ class Converter:
 
     _rev: str | None = None
 
-    def legacy_rev(self) -> str:
+    def rev(self) -> str:
         if self._rev is None:
-            import subprocess
-
-            try:
-                self._rev = subprocess.run(
-                    ["git", "-C", str(self.legacy), "rev-parse", "--short", "HEAD"],
-                    capture_output=True,
-                    text=True,
-                    check=True,
-                ).stdout.strip()
-            except Exception:  # noqa: BLE001
-                self._rev = "unknown"
+            self._rev = knowledge_rev(self.src)
         return self._rev
 
     # ---- 카탈로그 --------------------------------------------------------------------------
@@ -575,8 +614,8 @@ class Converter:
             for p in tables_dir.glob("*.yaml"):
                 p.unlink()
         hdr = (
-            f"# 자동 생성: tools/convert_legacy.py (resource_engine {self.legacy_rev()}). "
-            "직접 고치지 말고 변환기를 다시 실행.\n"
+            f"# 자동 생성: tools/build_kb.py (knowledge {self.rev()}). "
+            "직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.\n"
         )
         dump(out / "rules" / "common" / "scope.yaml", self.scope_fragment(), hdr)
         dump(out / "rules" / "common" / "business.yaml", self.business_fragment(), hdr)
@@ -591,14 +630,17 @@ class Converter:
         dump(out / "question_groups.yaml", {"groups": self.ov.get("groups") or []}, hdr)
         dump(out / "codes.yaml", self.codes_file(), hdr)
         dump(out / "sources.yaml", self.sources, hdr)
+        # 경로추천 안내는 사람이 쓴 표 그대로 옮긴다(변환 없음)
+        shutil.copyfile(self.src / "outcome_guidance.yaml", out / "outcome_guidance.yaml")
         self.write_report(out, n)
         print(f"테이블 {n}개, 사실 {len(self.used_facts)}개 → {out}")
 
     def write_report(self, out: Path, n: int) -> None:
         lines = [
-            "# 기존 엔진 규칙 변환 보고서",
+            "# 규칙 빌드 보고서",
             "",
-            f"- 원본: resource_engine `{self.legacy_rev()}` (rules/*.yaml)",
+            f"- 원본: `knowledge/` ({self.rev()}). 기존 엔진 resource_engine `{LEGACY_REV}`의 "
+            "rules/에서 옮겨 왔다.",
             f"- 소재 테이블: {n}개, 시행일 {EFFECTIVE_FROM}",
             "- 모든 규칙은 기존과 같이 `review: UNVERIFIED`다.",
             "",
@@ -647,7 +689,7 @@ class Converter:
             bullets = [f"- {x}" for x in items] or ["- 없음"]
             lines += [f"## {title} ({len(items)})", *bullets, ""]
         lines += ["## 소재별 규칙 수", *[f"- {x}" for x in self.report["tables"]], ""]
-        (out / "conversion_report.md").write_text("\n".join(lines), encoding="utf-8")
+        (out / "conversion_report.md").write_text("\n".join(lines), encoding="utf-8", newline="\n")
 
 
 # ---- 회귀 데이터 ---------------------------------------------------------------------------
@@ -707,19 +749,58 @@ def regression(legacy: Path, out: Path) -> None:
     print(f"회귀 행 {len(rows)}개 {dict(stats)} → {path}")
 
 
+def generated_paths(out: Path) -> set[str]:
+    """out 안에서 빌드가 만드는 파일들의 상대 경로(있는 것만)."""
+    found = {p for p in GENERATED_FILES if (out / p).is_file()}
+    for d in GENERATED_DIRS:
+        found |= {f"{d}/{p.name}" for p in (out / d).glob("*.yaml")}
+    return found
+
+
+def check(src: Path, out: Path) -> list[str]:
+    """out이 src로 빌드한 결과와 같은지. 다른 파일 목록(같으면 빈 목록)."""
+    with tempfile.TemporaryDirectory() as tmp:
+        fresh = Path(tmp)
+        Converter(src).run(fresh)
+        want, have = generated_paths(fresh), generated_paths(out)
+        problems = [f"없음: {p}" for p in sorted(want - have)]
+        problems += [f"원본에 없는 생성 파일: {p}" for p in sorted(have - want)]
+        problems += [
+            f"다름: {p}"
+            for p in sorted(want & have)
+            if (fresh / p).read_bytes() != (out / p).read_bytes()
+        ]
+    return problems
+
+
 def main() -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--legacy", default=str(DEFAULT_LEGACY))
-    ap.add_argument("--out", default=str(OUT))
-    ap.add_argument("--overrides", default=str(ROOT / "tools" / "legacy_overrides.yaml"))
-    ap.add_argument("--regression", action="store_true", help="회귀 데이터도 생성")
+    ap = argparse.ArgumentParser(description="knowledge/ → data/real/ 규칙 빌드")
+    ap.add_argument("--src", default=str(KNOWLEDGE), help="원본 폴더(기본 knowledge/)")
+    ap.add_argument("--out", default=str(OUT), help="생성 폴더(기본 data/real/)")
+    ap.add_argument("--check", action="store_true", help="생성물이 원본과 같은지만 확인")
+    ap.add_argument(
+        "--legacy-regression",
+        metavar="LEGACY_DIR",
+        help="기존 엔진 저장소의 판정표(tests/data/material_tables.json)로 회귀 기준을 다시 만든다",
+    )
     args = ap.parse_args()
-    legacy, out = Path(args.legacy), Path(args.out)
-    Converter(legacy, Path(args.overrides)).run(out)
-    if args.regression:
-        regression(legacy, out / "regression")
+    src, out = Path(args.src), Path(args.out)
+    if args.check:
+        problems = check(src, out)
+        if problems:
+            print(
+                "data/real/이 knowledge/로 빌드한 결과와 다릅니다. "
+                "`uv run python tools/build_kb.py`로 다시 빌드하세요."
+            )
+            print("\n".join(f"  - {p}" for p in problems))
+            return 1
+        print("data/real/ 최신(knowledge/와 같음)")
+        return 0
+    Converter(src).run(out)
+    if args.legacy_regression:
+        regression(Path(args.legacy_regression), out / "regression")
     return 0
 
 

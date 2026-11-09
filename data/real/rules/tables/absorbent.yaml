@@ -1,7 +1,7 @@
-# 자동 생성: tools/convert_legacy.py (resource_engine 2f1355a). 직접 고치지 말고 변환기를 다시 실행.
+# 자동 생성: tools/build_kb.py (knowledge 832f4326). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: absorbent
 title: 폐흡수제(기름 흡착포 등)
-version: 2026.11.0+re-2f1355a
+version: 2026.11.0+kb-832f4326
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -13,6 +13,7 @@ includes:
 - ../common/business.yaml
 rules:
 - rule_id: absorbent:S3-3A-ADSORBENT-LEACH_PB:03-08-02
+  source_rule: S3-3A-ADSORBENT-LEACH_PB
   priority: 500
   when:
     all:
@@ -31,25 +32,31 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
     source_id: DEC-A1
+    location: 별표 1 제3호아목
     excerpt: 폐흡착제 및 폐흡수제
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
     source_id: DEC-A1
+    location: 별표 1 제3호
     excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
     source_id: RULE-A1
+    location: 별표 1 제1호
     excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호가목
     source_id: RULE-A1
+    location: 별표 1 제1호가목
     excerpt: 용출액 1리터당 3밀리그램 이상의 납을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 03-08-02
     excerpt: 03-08-02 폐흡수제
     source_id: RULE-A4
+    location: 03-08-02
   review: UNVERIFIED
 - rule_id: absorbent:S3-3A-ADSORBENT-LEACH_CU:03-08-02
+  source_rule: S3-3A-ADSORBENT-LEACH_CU
   priority: 500
   when:
     all:
@@ -68,25 +75,31 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
     source_id: DEC-A1
+    location: 별표 1 제3호아목
     excerpt: 폐흡착제 및 폐흡수제
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
     source_id: DEC-A1
+    location: 별표 1 제3호
     excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
     source_id: RULE-A1
+    location: 별표 1 제1호
     excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호나목
     source_id: RULE-A1
+    location: 별표 1 제1호나목
     excerpt: 용출액 1리터당 3밀리그램 이상의 구리를 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 03-08-02
     excerpt: 03-08-02 폐흡수제
     source_id: RULE-A4
+    location: 03-08-02
   review: UNVERIFIED
 - rule_id: absorbent:S3-3A-ADSORBENT-LEACH_AS:03-08-02
+  source_rule: S3-3A-ADSORBENT-LEACH_AS
   priority: 500
   when:
     all:
@@ -105,25 +118,31 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
     source_id: DEC-A1
+    location: 별표 1 제3호아목
     excerpt: 폐흡착제 및 폐흡수제
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
     source_id: DEC-A1
+    location: 별표 1 제3호
     excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
     source_id: RULE-A1
+    location: 별표 1 제1호
     excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호다목
     source_id: RULE-A1
+    location: 별표 1 제1호다목
     excerpt: 용출액 1리터당 1.5밀리그램 이상의 비소를 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 03-08-02
     excerpt: 03-08-02 폐흡수제
     source_id: RULE-A4
+    location: 03-08-02
   review: UNVERIFIED
 - rule_id: absorbent:S3-3A-ADSORBENT-LEACH_HG:03-08-02
+  source_rule: S3-3A-ADSORBENT-LEACH_HG
   priority: 500
   when:
     all:
@@ -142,25 +161,31 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
     source_id: DEC-A1
+    location: 별표 1 제3호아목
     excerpt: 폐흡착제 및 폐흡수제
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
     source_id: DEC-A1
+    location: 별표 1 제3호
     excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
     source_id: RULE-A1
+    location: 별표 1 제1호
     excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호라목
     source_id: RULE-A1
+    location: 별표 1 제1호라목
     excerpt: 용출액 1리터당 0.005밀리그램 이상의 수은을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 03-08-02
     excerpt: 03-08-02 폐흡수제
     source_id: RULE-A4
+    location: 03-08-02
   review: UNVERIFIED
 - rule_id: absorbent:S3-3A-ADSORBENT-LEACH_CD:03-08-02
+  source_rule: S3-3A-ADSORBENT-LEACH_CD
   priority: 500
   when:
     all:
@@ -179,25 +204,31 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
     source_id: DEC-A1
+    location: 별표 1 제3호아목
     excerpt: 폐흡착제 및 폐흡수제
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
     source_id: DEC-A1
+    location: 별표 1 제3호
     excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
     source_id: RULE-A1
+    location: 별표 1 제1호
     excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호마목
     source_id: RULE-A1
+    location: 별표 1 제1호마목
     excerpt: 용출액 1리터당 0.3밀리그램 이상의 카드뮴을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 03-08-02
     excerpt: 03-08-02 폐흡수제
     source_id: RULE-A4
+    location: 03-08-02
   review: UNVERIFIED
 - rule_id: absorbent:S3-3A-ADSORBENT-LEACH_CR6:03-08-02
+  source_rule: S3-3A-ADSORBENT-LEACH_CR6
   priority: 500
   when:
     all:
@@ -216,25 +247,31 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
     source_id: DEC-A1
+    location: 별표 1 제3호아목
     excerpt: 폐흡착제 및 폐흡수제
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
     source_id: DEC-A1
+    location: 별표 1 제3호
     excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
     source_id: RULE-A1
+    location: 별표 1 제1호
     excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호바목
     source_id: RULE-A1
+    location: 별표 1 제1호바목
     excerpt: 용출액 1리터당 1.5밀리그램 이상의 6가크롬을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 03-08-02
     excerpt: 03-08-02 폐흡수제
     source_id: RULE-A4
+    location: 03-08-02
   review: UNVERIFIED
 - rule_id: absorbent:S3-3A-ADSORBENT-LEACH_CN:03-08-02
+  source_rule: S3-3A-ADSORBENT-LEACH_CN
   priority: 500
   when:
     all:
@@ -253,25 +290,31 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
     source_id: DEC-A1
+    location: 별표 1 제3호아목
     excerpt: 폐흡착제 및 폐흡수제
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
     source_id: DEC-A1
+    location: 별표 1 제3호
     excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
     source_id: RULE-A1
+    location: 별표 1 제1호
     excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호사목
     source_id: RULE-A1
+    location: 별표 1 제1호사목
     excerpt: 용출액 1리터당 1밀리그램 이상의 시안화합물을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 03-08-02
     excerpt: 03-08-02 폐흡수제
     source_id: RULE-A4
+    location: 03-08-02
   review: UNVERIFIED
 - rule_id: absorbent:S3-3A-ADSORBENT-LEACH_OP:03-08-02
+  source_rule: S3-3A-ADSORBENT-LEACH_OP
   priority: 500
   when:
     all:
@@ -290,25 +333,31 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
     source_id: DEC-A1
+    location: 별표 1 제3호아목
     excerpt: 폐흡착제 및 폐흡수제
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
     source_id: DEC-A1
+    location: 별표 1 제3호
     excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
     source_id: RULE-A1
+    location: 별표 1 제1호
     excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호아목
     source_id: RULE-A1
+    location: 별표 1 제1호아목
     excerpt: 용출액 1리터당 1밀리그램 이상의 유기인화합물을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 03-08-02
     excerpt: 03-08-02 폐흡수제
     source_id: RULE-A4
+    location: 03-08-02
   review: UNVERIFIED
 - rule_id: absorbent:S3-3A-ADSORBENT-LEACH_PCE:03-08-02
+  source_rule: S3-3A-ADSORBENT-LEACH_PCE
   priority: 500
   when:
     all:
@@ -327,25 +376,31 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
     source_id: DEC-A1
+    location: 별표 1 제3호아목
     excerpt: 폐흡착제 및 폐흡수제
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
     source_id: DEC-A1
+    location: 별표 1 제3호
     excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
     source_id: RULE-A1
+    location: 별표 1 제1호
     excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호자목
     source_id: RULE-A1
+    location: 별표 1 제1호자목
     excerpt: 용출액 1리터당 0.1밀리그램 이상의 테트라클로로에틸렌을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 03-08-02
     excerpt: 03-08-02 폐흡수제
     source_id: RULE-A4
+    location: 03-08-02
   review: UNVERIFIED
 - rule_id: absorbent:S3-3A-ADSORBENT-LEACH_TCE:03-08-02
+  source_rule: S3-3A-ADSORBENT-LEACH_TCE
   priority: 500
   when:
     all:
@@ -364,25 +419,31 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
     source_id: DEC-A1
+    location: 별표 1 제3호아목
     excerpt: 폐흡착제 및 폐흡수제
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
     source_id: DEC-A1
+    location: 별표 1 제3호
     excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
     source_id: RULE-A1
+    location: 별표 1 제1호
     excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호차목
     source_id: RULE-A1
+    location: 별표 1 제1호차목
     excerpt: 용출액 1리터당 0.3밀리그램 이상의 트리클로로에틸렌을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 03-08-02
     excerpt: 03-08-02 폐흡수제
     source_id: RULE-A4
+    location: 03-08-02
   review: UNVERIFIED
 - rule_id: absorbent:S3-3A-ADSORBENT-OIL_CONTENT_PCT:03-08-02
+  source_rule: S3-3A-ADSORBENT-OIL_CONTENT_PCT
   priority: 500
   when:
     all:
@@ -401,25 +462,31 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
     source_id: DEC-A1
+    location: 별표 1 제3호아목
     excerpt: 폐흡착제 및 폐흡수제
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
     source_id: DEC-A1
+    location: 별표 1 제3호
     excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
     source_id: RULE-A1
+    location: 별표 1 제1호
     excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호카목
     source_id: RULE-A1
+    location: 별표 1 제1호카목
     excerpt: 기름성분(중량비를 기준으로 하여 유해물질을 5퍼센트 이상 함유한 경우만 해당한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 03-08-02
     excerpt: 03-08-02 폐흡수제
     source_id: RULE-A4
+    location: 03-08-02
   review: UNVERIFIED
 - rule_id: absorbent:S3-8GA-PCB-LIQUID:08-03-00
+  source_rule: S3-8GA-PCB-LIQUID
   priority: 500
   when:
     all:
@@ -444,17 +511,21 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호가목
     source_id: DEC-A1
+    location: 별표 1 제8호가목
     excerpt: 액체상태의 것(1리터당 2밀리그램 이상 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호
     source_id: DEC-A1
+    location: 별표 1 제8호
     excerpt: 폴리클로리네이티드비페닐 함유 폐기물
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 08-03-00
     excerpt: 08-03-00 그 밖의 폴리클로리네이티드비페닐을 함유한 액상의 것
     source_id: RULE-A4
+    location: 08-03-00
   review: UNVERIFIED
 - rule_id: absorbent:S3-8NA-PCB-NONLIQUID:08-04-00
+  source_rule: S3-8NA-PCB-NONLIQUID
   priority: 500
   when:
     all:
@@ -481,17 +552,21 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호나목
     source_id: DEC-A1
+    location: 별표 1 제8호나목
     excerpt: 액체상태 외의 것(용출액 1리터당 0.003밀리그램 이상 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호
     source_id: DEC-A1
+    location: 별표 1 제8호
     excerpt: 폴리클로리네이티드비페닐 함유 폐기물
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 08-04-00
     excerpt: 08-04-00 그 밖의 폴리클로리네이티드비페닐을 함유한 액상이 아닌 것
     source_id: RULE-A4
+    location: 08-04-00
   review: UNVERIFIED
 - rule_id: absorbent:S3-9-TOXIC:09-01-00
+  source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
@@ -535,13 +610,16 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
     source_id: DEC-A1
+    location: 별표 1 제9호
     excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-01-00
     excerpt: 09-01-00 「화학물질관리법」 제2조제5호에 따른 금지물질
     source_id: RULE-A4
+    location: 09-01-00
   review: UNVERIFIED
 - rule_id: absorbent:S3-9-TOXIC:09-02-00
+  source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
@@ -558,13 +636,16 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
     source_id: DEC-A1
+    location: 별표 1 제9호
     excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-02-00
     excerpt: 09-02-00 연구·검사용 폐시약
     source_id: RULE-A4
+    location: 09-02-00
   review: UNVERIFIED
 - rule_id: absorbent:S3-9-TOXIC:09-03-00
+  source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
@@ -581,13 +662,16 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
     source_id: DEC-A1
+    location: 별표 1 제9호
     excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-03-00
     excerpt: 09-03-00 「화학물질관리법」 제2조제7호에 따른 유해화학물질
     source_id: RULE-A4
+    location: 09-03-00
   review: UNVERIFIED
 - rule_id: absorbent:S3-9-TOXIC:09-04-00
+  source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
@@ -604,13 +688,16 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
     source_id: DEC-A1
+    location: 별표 1 제9호
     excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-04-00
     excerpt: 09-04-00 「화학물질관리법」 제2조제3호 및 제4호에 따른 허가물질 및 제한물질
     source_id: RULE-A4
+    location: 09-04-00
   review: UNVERIFIED
 - rule_id: absorbent:GENERAL
+  source_rule: S3-NOT-DESIGNATED
   priority: 100
   when:
     fact: material
@@ -624,9 +711,11 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1(지정폐기물의 종류)
     source_id: DEC-A1
+    location: 별표 1(지정폐기물의 종류)
     excerpt: 지정폐기물의 종류(제3조 관련)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-11-02
     excerpt: 51-11-02 폐흡수제
     source_id: RULE-A4
+    location: 51-11-02
   review: UNVERIFIED

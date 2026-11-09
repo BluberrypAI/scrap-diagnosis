@@ -96,6 +96,7 @@ class Basis:
     ref: str
     excerpt: str | None = None
     source_id: str | None = None
+    location: str | None = None  # 조문 위치(예: 별표 1 제6호). source_id와 함께 조문 키가 된다
 
 
 @dataclass(frozen=True)
@@ -123,6 +124,7 @@ class Rule:
     effective_from: date | None = None
     effective_to: date | None = None
     origin: str = ""  # 정의된 파일
+    source_rule: str | None = None  # knowledge/의 원본 규칙 ID(빌드가 넣음, 예: S3-6-OIL-5PCT)
 
     def facts(self) -> set[str]:
         return {c.fact for c in iter_conds(self.when)}

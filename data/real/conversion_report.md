@@ -1,6 +1,6 @@
-# 기존 엔진 규칙 변환 보고서
+# 규칙 빌드 보고서
 
-- 원본: resource_engine `2f1355a` (rules/*.yaml)
+- 원본: `knowledge/` (832f4326). 기존 엔진 resource_engine `2f1355a`의 rules/에서 옮겨 왔다.
 - 소재 테이블: 97개, 시행일 2026-10-02
 - 모든 규칙은 기존과 같이 `review: UNVERIFIED`다.
 
