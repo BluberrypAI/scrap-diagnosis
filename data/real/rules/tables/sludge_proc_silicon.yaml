@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge 9da900d0). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge e751f4e8). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: sludge_proc_silicon
 title: 실리콘 (제조)공정 오니
-version: 2026.11.0+kb-9da900d0
+version: 2026.11.0+kb-e751f4e8
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -20,10 +20,15 @@ rules:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_pb
       op: gte
       value: 3
@@ -58,6 +63,7 @@ rules:
     location: 01-02-04
   review_units:
   - S3-1NA-SLUDGE_PROCESS-LEACH_PB
+  - def:SLUDGE_STATE
   - code_map
   - material:sludge_proc_silicon
   review: UNVERIFIED
@@ -69,10 +75,15 @@ rules:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_cu
       op: gte
       value: 3
@@ -107,6 +118,7 @@ rules:
     location: 01-02-04
   review_units:
   - S3-1NA-SLUDGE_PROCESS-LEACH_CU
+  - def:SLUDGE_STATE
   - code_map
   - material:sludge_proc_silicon
   review: UNVERIFIED
@@ -118,10 +130,15 @@ rules:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_as
       op: gte
       value: 1.5
@@ -156,6 +173,7 @@ rules:
     location: 01-02-04
   review_units:
   - S3-1NA-SLUDGE_PROCESS-LEACH_AS
+  - def:SLUDGE_STATE
   - code_map
   - material:sludge_proc_silicon
   review: UNVERIFIED
@@ -167,10 +185,15 @@ rules:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_hg
       op: gte
       value: 0.005
@@ -205,6 +228,7 @@ rules:
     location: 01-02-04
   review_units:
   - S3-1NA-SLUDGE_PROCESS-LEACH_HG
+  - def:SLUDGE_STATE
   - code_map
   - material:sludge_proc_silicon
   review: UNVERIFIED
@@ -216,10 +240,15 @@ rules:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_cd
       op: gte
       value: 0.3
@@ -254,6 +283,7 @@ rules:
     location: 01-02-04
   review_units:
   - S3-1NA-SLUDGE_PROCESS-LEACH_CD
+  - def:SLUDGE_STATE
   - code_map
   - material:sludge_proc_silicon
   review: UNVERIFIED
@@ -265,10 +295,15 @@ rules:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_cr6
       op: gte
       value: 1.5
@@ -303,6 +338,7 @@ rules:
     location: 01-02-04
   review_units:
   - S3-1NA-SLUDGE_PROCESS-LEACH_CR6
+  - def:SLUDGE_STATE
   - code_map
   - material:sludge_proc_silicon
   review: UNVERIFIED
@@ -314,10 +350,15 @@ rules:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_cn
       op: gte
       value: 1
@@ -352,6 +393,7 @@ rules:
     location: 01-02-04
   review_units:
   - S3-1NA-SLUDGE_PROCESS-LEACH_CN
+  - def:SLUDGE_STATE
   - code_map
   - material:sludge_proc_silicon
   review: UNVERIFIED
@@ -363,10 +405,15 @@ rules:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_op
       op: gte
       value: 1
@@ -401,6 +448,7 @@ rules:
     location: 01-02-04
   review_units:
   - S3-1NA-SLUDGE_PROCESS-LEACH_OP
+  - def:SLUDGE_STATE
   - code_map
   - material:sludge_proc_silicon
   review: UNVERIFIED
@@ -412,10 +460,15 @@ rules:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_pce
       op: gte
       value: 0.1
@@ -450,6 +503,7 @@ rules:
     location: 01-02-04
   review_units:
   - S3-1NA-SLUDGE_PROCESS-LEACH_PCE
+  - def:SLUDGE_STATE
   - code_map
   - material:sludge_proc_silicon
   review: UNVERIFIED
@@ -461,10 +515,15 @@ rules:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_tce
       op: gte
       value: 0.3
@@ -499,6 +558,7 @@ rules:
     location: 01-02-04
   review_units:
   - S3-1NA-SLUDGE_PROCESS-LEACH_TCE
+  - def:SLUDGE_STATE
   - code_map
   - material:sludge_proc_silicon
   review: UNVERIFIED
@@ -510,10 +570,15 @@ rules:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: oil_content_pct
       op: gte
       value: 5
@@ -548,6 +613,7 @@ rules:
     location: 01-02-04
   review_units:
   - S3-1NA-SLUDGE_PROCESS-OIL_CONTENT_PCT
+  - def:SLUDGE_STATE
   - code_map
   - material:sludge_proc_silicon
   review: UNVERIFIED
@@ -569,9 +635,6 @@ rules:
       not:
         any:
         - all:
-          - fact: pcb_possible
-            op: eq
-            value: true
           - fact: physical_state
             op: eq
             value: liquid
@@ -580,9 +643,6 @@ rules:
             value: 2
             min_status: EVIDENCED
         - all:
-          - fact: pcb_possible
-            op: eq
-            value: true
           - fact: physical_state
             op: in
             value: &id004
@@ -919,9 +979,6 @@ rules:
   priority: 500
   when:
     all:
-    - fact: pcb_possible
-      op: eq
-      value: true
     - fact: physical_state
       op: eq
       value: liquid
@@ -962,9 +1019,6 @@ rules:
   priority: 500
   when:
     all:
-    - fact: pcb_possible
-      op: eq
-      value: true
     - fact: physical_state
       op: in
       value: *id004
@@ -1013,9 +1067,6 @@ rules:
       not:
         any:
         - all:
-          - fact: pcb_possible
-            op: eq
-            value: true
           - fact: physical_state
             op: eq
             value: liquid
@@ -1024,9 +1075,6 @@ rules:
             value: 2
             min_status: EVIDENCED
         - all:
-          - fact: pcb_possible
-            op: eq
-            value: true
           - fact: physical_state
             op: in
             value: *id004

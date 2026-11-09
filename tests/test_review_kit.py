@@ -70,7 +70,7 @@ def test_units_cover_law_rules_materials_and_code_map():
     kinds = {}
     for u in units.values():
         kinds[u.kind] = kinds.get(u.kind, 0) + 1
-    assert kinds == {"LAW_RULE": 150, "MATERIAL": 98, "CODE_MAP": 1}
+    assert kinds == {"LAW_RULE": 150, "MATERIAL": 98, "CODE_MAP": 1, "DEFINITION": 1}
 
 
 def test_committed_data_has_no_verified_rules_yet():
@@ -202,7 +202,7 @@ def test_cards_render_conditions_in_words_and_html(tmp_path):
     assert cards["S3-6-OIL-5PCT"]["tables"] == 87
     review_kit.write_html(list(cards.values()), tmp_path / "c.html", "test")
     page = (tmp_path / "c.html").read_text(encoding="utf-8")
-    assert "<title>규칙 검토 카드</title>" in page and page.count("<article class='card'") == 249
+    assert "<title>규칙 검토 카드</title>" in page and page.count("<article class='card'") == 250
     assert "카드 읽는 법" in page and "data-engine='UNUSED'" in page
 
 
@@ -213,7 +213,6 @@ def test_cards_match_engine_behavior():
     engine = {c["unit"]: c["engine"] for c in review_kit.all_cards(k)}
     pcb = cards["S3-8GA-PCB-LIQUID"]
     # 서류 항목은 말로도 받는다(엔진은 시험 수치만 성적서를 요구)
-    assert any("(말로 답해도 됨" in x for x in pcb["조건(모두 만족)"])
     assert any("PCB 함량(액체) ≥ 2mg/L (시험성적서 필요)" in x for x in pcb["조건(모두 만족)"])
     # 근거 표기에 "별표 1 … 별표 1"이 겹치지 않는다
     assert all(x.count("별표 1") <= 1 for x in pcb["근거"][:1])
@@ -254,4 +253,4 @@ def test_definition_card_and_nested_conditions(knowledge):
     rows = dict(d["rows"])
     assert rows["조건"][0] == "다음 중 하나 이상:"
     assert rows["조건"][1].startswith("  · 수분함량 < 95%")
-    assert rows["쓰는 법 규칙"] == ["(없음)"]
+    assert len(rows["쓰는 법 규칙"]) == 22  # 오니 지정 규칙 22개(D2)

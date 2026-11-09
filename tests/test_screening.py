@@ -135,3 +135,24 @@ def test_invalid_implies_is_rejected(tmp_path):
     src = _sample_with_screening(tmp_path, implies={False: {"no_such_fact": 1}})
     with pytest.raises(RuleDataError, match="implies"):
         load_kb(src)
+
+
+def test_complement_must_target_another_number_fact(tmp_path):
+    src = _sample_with_screening(tmp_path)
+    cat_path = src / "facts_catalog.yaml"
+    cat = yaml.safe_load(cat_path.read_text(encoding="utf-8"))
+    for f in cat:
+        if f["key"] == "oil_content_pct":
+            f["complement"] = {"fact": "material", "total": 100}  # enum 사실은 안 됨
+    cat_path.write_text(yaml.safe_dump(cat, allow_unicode=True), encoding="utf-8")
+    with pytest.raises(RuleDataError, match="complement"):
+        load_kb(src)
+
+
+def test_complement_value_of_range():
+    from app.rules.implications import _complement_value
+
+    # 수분 95% 미만 ⇔ 고형물 5% 초과
+    assert _complement_value(NumRange(hi=95), 100) == NumRange(lo=5, lo_inc=False)
+    assert _complement_value(NumRange(lo=95), 100) == NumRange(hi=5, hi_inc=True)
+    assert _complement_value(96.9, 100) == pytest.approx(3.1)

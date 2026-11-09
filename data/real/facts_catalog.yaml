@@ -1,4 +1,4 @@
-# 자동 생성: tools/build_kb.py (knowledge 9da900d0). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge e751f4e8). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 - key: material_group
   label: 소재 분류
   type: enum
@@ -556,7 +556,23 @@
 
     성적서에서 확인할 값: 수분함량(%)과 고형물함량(%)
 
-    법은 "수분함량 95% 미만이거나 고형물함량 5% 이상"을 요구합니다. 계산기는 수분함량으로 받습니다(고형물 = 100 − 수분으로 보는 해석).'
+    법은 "수분함량 95% 미만이거나 고형물함량 5% 이상"을 요구합니다. 2026-11-09부터 수분함량과 고형물함량을 따로 받아 둘 중 하나라도 맞으면 됩니다(공통 정의 SLUDGE_STATE).
+    이전에는 고형물 = 100 − 수분으로 보고 수분만 받았습니다.'
+  complement:
+    fact: sludge_solids_pct
+    total: 100
+- key: sludge_solids_pct
+  label: 고형물함량
+  type: number
+  unit: '%'
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 이 오니의 고형물함량은 몇 %인가요?
+  help: '시험: 수분 및 고형물 — 폐기물공정시험기준(국립환경과학원고시 제2025-21호) 수분·고형물 시험
+
+    성적서에서 확인할 값: 고형물함량(%)'
 - key: sludge_facility_notified
   label: 고시된 오니 발생시설
   type: bool
@@ -612,12 +628,18 @@
   type: bool
   ask_cost: 2
   evidence_type: EQUIPMENT_NAMEPLATE
-  legal_priority: 3
+  legal_priority: 1
   question_hint: 이 폐기물이 PCB(폴리클로리네이티드비페닐)를 쓴 변압기·콘덴서·절연유 등과 관련이 있나요?
   help: 변압기·콘덴서 명판의 절연유 종류와 제조연도, 기존 PCB 분석 기록을 확인하세요.
   prior:
     false: 0.97
   none_value: false
+  implies:
+    false:
+      pcb_mg_l:
+        hi: 2
+      pcb_leach_mg_l:
+        hi: 0.003
 - key: pcb_mg_l
   label: PCB 함량(액체)
   type: number
