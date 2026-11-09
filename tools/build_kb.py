@@ -1,37 +1,71 @@
-"""기존 엔진(resource_engine) 규칙 → 새 사실 카탈로그 + 소재별 PRIORITY 테이블.
+"""규칙 원본(knowledge/) → 엔진용 규칙 데이터(data/real/) 빌드.
 
-    uv run python tools/convert_legacy.py --legacy ../resource_engine
-    uv run python tools/convert_legacy.py --legacy ... --regression   # 회귀 데이터도 생성
+    uv run python tools/build_kb.py          # knowledge/로 data/real/을 다시 만든다
+    uv run python tools/build_kb.py --check  # data/real/이 knowledge/ 빌드 결과와 같은지(CI)
+    uv run python tools/build_kb.py --legacy-regression ../resource_engine
+                                             # 기존 엔진 판정표로 회귀 기준을 다시 가져온다
 
-기존 엔진의 S0→S5 단계 흐름을 우선순위 대역으로 펴서 소재마다 테이블 하나로 만든다.
+원본은 기존 엔진(resource_engine `2f1355a`)의 rules/에서 옮겨 왔다(knowledge/README.md).
+원본의 법 규칙 단계 흐름(S0→S3)을 우선순위 대역으로 펴서 소재마다 테이블 하나로 만든다.
   SCOPE_S0 1100 / SCOPE_S1 1000 : 순환자원·폐기물 아님·법 적용 제외 (코드 없는 결론)
   DESIGNATED 500                : 법령 근거 지정폐기물 규칙 → 별표 4 지정 코드
   HOUSEHOLD 400                 : 사업장 조건이 모두 거짓 → 생활폐기물 (코드 없는 결론)
   INTERPRET 300                 : 해석 필요 규칙과 법령이 아닌 근거(질의회신·해설)의 규칙
   GENERAL 100                   : 지정폐기물이 아닐 때의 일반 코드
-상위 대역이 미확인이면 하위 대역은 확정되지 않으므로 기존 단계 순서가 그대로 재현된다.
-기존 YAML은 읽기만 한다.
+상위 대역이 미확인이면 하위 대역은 확정되지 않으므로 원본 단계 순서가 그대로 재현된다.
+원본은 읽기만 한다. data/real/의 생성물은 손으로 고치지 않는다.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
-import os
 import re
+import shutil
 import sys
+import tempfile
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
 import yaml
+from kb_review import CODE_MAP_UNIT, DEF_PREFIX, MATERIAL_PREFIX, ReviewIndex
 
 ROOT = Path(__file__).resolve().parents[1]
-# 기존 엔진 저장소 위치: 환경변수 LEGACY_ENGINE_DIR, 없으면 이 저장소 옆의 resource_engine
-DEFAULT_LEGACY = Path(
-    os.environ.get("LEGACY_ENGINE_DIR") or Path(__file__).resolve().parents[2] / "resource_engine"
-)
+KNOWLEDGE = ROOT / "knowledge"
 OUT = ROOT / "data" / "real"
+LEGACY_REV = "2f1355a"  # 원본을 옮겨 온 기존 엔진 커밋(이력 기록용)
+
+# 원본 파일(knowledge/ 기준 경로). 이 파일들의 내용으로 규칙 버전을 만든다.
+SOURCE_FILES = (
+    "facts.yaml",
+    "fact_settings.yaml",
+    "law_rules/scope_and_business.yaml",
+    "law_rules/designated.yaml",
+    "materials.yaml",
+    "annex4_codes.yaml",
+    "code_map.yaml",
+    "sources.yaml",
+    "outcome_guidance.yaml",
+    "reviews.yaml",
+    "definitions.yaml",
+    "glossary.yaml",
+)
+# 빌드가 쓰는 파일(data/real/ 기준). --check는 이것만 비교한다.
+# regression/(기존 엔진 판정표 기준)과 scenarios/(시뮬레이터 시나리오)는 빌드하지 않는다.
+GENERATED_FILES = (
+    "facts_catalog.yaml",
+    "question_groups.yaml",
+    "codes.yaml",
+    "sources.yaml",
+    "outcome_guidance.yaml",
+    "glossary.yaml",
+    "conversion_report.md",
+    "rules/common/scope.yaml",
+    "rules/common/business.yaml",
+)
+GENERATED_DIRS = ("rules/tables",)
 
 P_S0, P_S1, P_DESIGNATED, P_HOUSEHOLD, P_INTERPRET, P_GENERAL = 1100, 1000, 500, 400, 300, 100
 
@@ -56,7 +90,7 @@ def read(path: Path) -> Any:
 def dump(path: Path, data: Any, header: str = "") -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     text = yaml.safe_dump(data, allow_unicode=True, sort_keys=False, width=110)
-    path.write_text(header + text, encoding="utf-8")
+    path.write_text(header + text, encoding="utf-8", newline="\n")
 
 
 # ---- 조건식 도우미 ----------------------------------------------------------------------
@@ -83,35 +117,110 @@ def leaf_true(c: dict, v: Any) -> bool:
     raise ValueError(op)
 
 
-def fold(conds: list[dict], preset: dict[str, Any]) -> list[dict] | None:
-    """프리셋 값으로 AND 조건을 부분 평가. 거짓이면 None, 아니면 남은 조건."""
-    out = []
-    for c in conds:
-        if c["fact"] in preset:
-            if not leaf_true(c, preset[c["fact"]]):
-                return None
-            continue
-        out.append(c)
-    return out
+MIN_STATUSES = ("CLAIMED", "EVIDENCED")
+
+
+def iter_leaves(e: Any, defs: dict[str, dict] | None = None):
+    """원본 조건식의 단순 조건들(정의 참조는 펼친다)."""
+    if isinstance(e, list):
+        for x in e:
+            yield from iter_leaves(x, defs)
+    elif "all" in e or "any" in e:
+        for x in e.get("all") or e.get("any"):
+            yield from iter_leaves(x, defs)
+    elif "not" in e:
+        yield from iter_leaves(e["not"], defs)
+    elif "ref" in e:
+        if defs is not None and e["ref"] in defs:
+            yield from iter_leaves(defs[e["ref"]]["when"], defs)
+    else:
+        yield e
+
+
+def fold_expr(e: Any, preset: dict[str, Any], defs: dict[str, dict], refs: set[str]) -> Any:
+    """원본 조건식을 프리셋 값으로 부분 평가한다. True | False | 남은 식.
+
+    - 목록은 AND(기존 형식). `{all|any: [...]}`, `{not: 식}`, `{ref: 정의 이름}`, 단순 조건.
+    - 프리셋에 있는 사실의 조건은 참·거짓으로 접고, 참은 빼고 거짓은 식 전체를 접는다(Kleene).
+    - 평탄한 AND 목록의 결과는 이전 `fold`와 같다(조건 순서 유지).
+    """
+    if isinstance(e, list):
+        e = {"all": e}
+    if "ref" in e:
+        name = e["ref"]
+        if name not in defs:
+            raise SystemExit(f"정의되지 않은 조건 이름: {name} (knowledge/definitions.yaml)")
+        refs.add(name)
+        return fold_expr(defs[name]["when"], preset, defs, refs)
+    if "all" in e or "any" in e:
+        is_all = "all" in e
+        stop, skip = (False, True) if is_all else (True, False)
+        items = []
+        for x in e["all"] if is_all else e["any"]:
+            v = fold_expr(x, preset, defs, refs)
+            if v is stop:
+                return stop
+            if v is skip:
+                continue
+            items.append(v)
+        if not items:
+            return skip
+        if len(items) == 1:
+            return items[0]
+        return {"all" if is_all else "any": items}
+    if "not" in e:
+        v = fold_expr(e["not"], preset, defs, refs)
+        return (not v) if isinstance(v, bool) else {"not": v}
+    if e.get("min_status") not in (None, *MIN_STATUSES):
+        raise SystemExit(f"min_status는 {MIN_STATUSES} 중 하나여야 합니다: {e}")
+    if e["fact"] in preset:
+        return leaf_true(e, preset[e["fact"]])
+    return e
+
+
+def top_parts(reduced: Any) -> list[Any]:
+    """접은 식의 최상위 AND 항목들(참이면 없음)."""
+    if reduced is True:
+        return []
+    if isinstance(reduced, dict) and "all" in reduced:
+        return list(reduced["all"])
+    return [reduced]
+
+
+def knowledge_rev(src: Path = KNOWLEDGE) -> str:
+    """원본 파일 내용의 sha256 앞 8자리. 테이블 버전·생성물 머리말에 쓴다."""
+    h = hashlib.sha256()
+    for name in SOURCE_FILES:
+        h.update(name.encode())
+        h.update(b"\0")
+        h.update((src / name).read_bytes())
+    return h.hexdigest()[:8]
 
 
 class Converter:
-    def __init__(self, legacy: Path, overrides: Path):
-        r = legacy / "rules"
-        self.legacy = legacy
-        self.facts: dict[str, dict] = read(r / "facts.yaml")
-        rules = read(r / "rules.yaml")
+    def __init__(self, src: Path = KNOWLEDGE):
+        self.src = src
+        self.facts: dict[str, dict] = read(src / "facts.yaml")
+        rules = read(src / "law_rules" / "scope_and_business.yaml")
         self.base_rules: list[dict] = rules["rules"]
-        self.s3: list[dict] = read(r / "rules_s3.yaml")["rules"]
-        m = read(r / "materials.yaml")
+        self.s3: list[dict] = read(src / "law_rules" / "designated.yaml")["rules"]
+        m = read(src / "materials.yaml")
         self.materials: dict[str, dict] = m["materials"]
         self.groups_meta = m.get("groups") or {}
-        a4 = read(r / "annex4_codes.yaml")
+        a4 = read(src / "annex4_codes.yaml")
         self.codes: list[dict] = a4["codes"]
         self.code_index = {c["id"]: c for c in self.codes}
-        self.s4 = read(r / "s4_map.yaml")
-        self.sources: dict[str, dict] = read(r / "sources.yaml")
-        self.ov = read(overrides) or {}
+        self.s4 = read(src / "code_map.yaml")
+        self.sources: dict[str, dict] = read(src / "sources.yaml")
+        self.ov = read(src / "fact_settings.yaml") or {}
+        self.defs: dict[str, dict] = (read(src / "definitions.yaml") or {}).get("definitions") or {}
+        if self.s4.get("designated_exclusions"):
+            raise SystemExit(
+                "code_map.yaml의 designated_exclusions는 쓰지 않는다. "
+                "법 규칙의 exceptions로 옮기세요(knowledge/README.md 원본 형식)"
+            )
+        self.reviews = ReviewIndex(src)
+        self.verified_rules = 0
         self.excluded = set(self.s4.get("excluded_codes", []))
         self.used_facts: set[str] = set()
         self.fact_band: dict[str, int] = {}
@@ -119,11 +228,35 @@ class Converter:
 
     # ---- 공통 --------------------------------------------------------------------------
 
+    def rv(self, deps: list[str]) -> dict:
+        """생성 규칙이 기대는 검토 단위와 그 결과(review). knowledge/reviews.yaml 기준."""
+        deps = list(dict.fromkeys(deps))
+        review = self.reviews.review_of(deps)
+        if review == "VERIFIED":
+            self.verified_rules += 1
+        return {"review_units": deps, "review": review}
+
     def evidence(self, source_id: str) -> str:
         return (self.sources.get(source_id) or {}).get("evidence", "LAW")
 
     def is_law(self, rule: dict) -> bool:
         return self.evidence(rule["source"]) == "LAW"
+
+    def concludes_itself(self, rule: dict) -> bool:
+        """원본 결론을 그대로 낼지(아니면 해석 필요로 끝낸다).
+
+        `conclusion: interpret`이면 해석 필요, 없으면 근거가 법령일 때만 그대로 낸다(기본값).
+        """
+        mode = rule.get("conclusion")
+        if mode not in (None, "auto", "interpret"):
+            raise SystemExit(f"{rule['id']}: conclusion은 auto | interpret: {mode}")
+        return mode != "interpret" and self.is_law(rule)
+
+    def fold(self, rule: dict, preset: dict[str, Any] | None = None) -> tuple[Any, list[str]]:
+        """규칙 조건을 프리셋으로 접는다. (접은 식, 쓴 정의의 검토 단위 목록)."""
+        refs: set[str] = set()
+        reduced = fold_expr(rule["when"], preset or {}, self.defs, refs)
+        return reduced, [f"{DEF_PREFIX}{n}" for n in sorted(refs)]
 
     def basis(self, rule: dict) -> list[dict]:
         out = []
@@ -138,6 +271,8 @@ class Converter:
                 "ref": ref or it["source"],
                 "source_id": it["source"],
             }
+            if it.get("location"):
+                b["location"] = it["location"]
             if it.get("quote"):
                 b["excerpt"] = it["quote"]
             out.append(b)
@@ -151,6 +286,7 @@ class Converter:
             "ref": f"{title} {code}",
             "excerpt": f"{code} {c['name']}",
             "source_id": "RULE-A4",
+            "location": code,
         }
 
     def leaf(self, c: dict, band: int) -> dict:
@@ -158,16 +294,25 @@ class Converter:
         self.used_facts.add(fid)
         self.fact_band[fid] = max(self.fact_band.get(fid, 0), band)
         out = {"fact": fid, "op": c["op"], "value": c.get("value")}
-        if self.facts.get(fid, {}).get("cost") == "TEST":
+        # 증빙 수준: 원본에 적었으면 그대로, 아니면 시험 수치만 성적서(EVIDENCED) 필요
+        if c.get("min_status"):
+            if c["min_status"] != "CLAIMED":
+                out["min_status"] = c["min_status"]
+        elif self.facts.get(fid, {}).get("cost") == "TEST":
             out["min_status"] = "EVIDENCED"
         return out
 
-    def expr(self, conds: list[dict], band: int, mid: str | None = None) -> Any:
-        leaves = [self.leaf(c, band) for c in conds]
-        if not leaves:
+    def emit(self, reduced: Any, band: int, mid: str | None = None) -> Any:
+        """접은 식 → 엔진 규칙 형식."""
+        if reduced is True:
             # 조건이 모두 접혀 사라짐 → 이 테이블에서는 항상 참
             return {"fact": "material", "op": "eq", "value": mid}
-        return leaves[0] if len(leaves) == 1 else {"all": leaves}
+        if "all" in reduced or "any" in reduced:
+            key = "all" if "all" in reduced else "any"
+            return {key: [self.emit(x, band, mid) for x in reduced[key]]}
+        if "not" in reduced:
+            return {"not": self.emit(reduced["not"], band, mid)}
+        return self.leaf(reduced, band)
 
     # ---- 공통 조각: 범위·사업장 -----------------------------------------------------------
 
@@ -176,16 +321,19 @@ class Converter:
         for r in self.base_rules:
             if r["stage"] == "S0" and r["concludes"] in ("NOT_WASTE", "CIRCULAR_RESOURCE"):
                 prio = P_S0
-                outcome = r["concludes"] if self.is_law(r) else "INTERPRETATION_NEEDED"
+                outcome = r["concludes"] if self.concludes_itself(r) else "INTERPRETATION_NEEDED"
             elif r["stage"] == "S1" and r["concludes"] == "EXCLUDED":
-                prio, outcome = P_S1, "EXCLUDED"
+                prio = P_S1
+                outcome = "EXCLUDED" if self.concludes_itself(r) else "INTERPRETATION_NEEDED"
             else:
                 continue
+            reduced, def_units = self.fold(r)
             rules.append(
                 {
                     "rule_id": r["id"],
+                    "source_rule": r["id"],
                     "priority": prio,
-                    "when": self.expr(r["when"], 2),
+                    "when": self.emit(reduced, 2),
                     "then": {
                         "code": None,
                         "category": "OUT_OF_SCOPE",
@@ -193,7 +341,7 @@ class Converter:
                         "name": r.get("plain"),
                     },
                     "basis": self.basis(r),
-                    "review": r.get("review", "UNVERIFIED"),
+                    **self.rv([r["id"], *def_units]),
                 }
             )
         return {"rules": rules}
@@ -201,18 +349,22 @@ class Converter:
     def business_fragment(self) -> dict:
         alts = []
         basis = []
+        alt_ids = []
         for r in self.base_rules:
             if r["stage"] != "S2" or r["concludes"] != "BUSINESS":
                 continue
-            if any(c["fact"] == "this_waste_designated" for c in r["when"]):
+            if any(c["fact"] == "this_waste_designated" for c in iter_leaves(r["when"], self.defs)):
                 continue  # 지정폐기물 대역이 위에 있으므로 따로 둘 필요 없음
-            alts.append(self.expr(r["when"], 2))
+            reduced, def_units = self.fold(r)
+            alts.append(self.emit(reduced, 2))
+            alt_ids += [r["id"], *def_units]
         hh = next(r for r in self.base_rules if r["id"] == "S2-HOUSEHOLD")
         basis = self.basis(hh)
         return {
             "rules": [
                 {
                     "rule_id": "S2-HOUSEHOLD",
+                    "source_rule": "S2-HOUSEHOLD",
                     "priority": P_HOUSEHOLD,
                     "when": {"not": {"any": alts}},
                     "then": {
@@ -222,7 +374,8 @@ class Converter:
                         "name": "생활폐기물(사업장폐기물이 아님)",
                     },
                     "basis": basis,
-                    "review": hh.get("review", "UNVERIFIED"),
+                    # 생활폐기물 = 사업장폐기물 규칙이 모두 거짓 → 그 규칙들에도 기댄다
+                    **self.rv(["S2-HOUSEHOLD", *alt_ids]),
                 }
             ]
         }
@@ -286,17 +439,18 @@ class Converter:
 
     def material_table(self, mid: str, mat: dict) -> dict:
         preset = {"waste_kind": mat.get("waste_kind"), **(mat.get("presets") or {})}
-        designated: list[tuple[dict, list[dict]]] = []
-        interpret: list[tuple[dict, list[dict]]] = []
+        designated: list[tuple[dict, Any]] = []
+        interpret: list[tuple[dict, Any]] = []
+        uses: dict[str, list[str]] = {}  # 규칙 → 쓴 정의의 검토 단위
         complement = None
         for r in self.s3:
             if r.get("complement_of"):
                 complement = r
                 continue
-            folded = fold(r["when"], preset)
-            if folded is None:
+            folded, uses[r["id"]] = self.fold(r, preset)
+            if folded is False:
                 continue
-            if r["concludes"] == "DESIGNATED" and self.is_law(r):
+            if r["concludes"] == "DESIGNATED" and self.concludes_itself(r):
                 designated.append((r, folded))
             else:
                 interpret.append((r, folded))
@@ -316,15 +470,17 @@ class Converter:
             if not cs:
                 continue
             extra: list[Any] = []
-            for ex in self.s4.get("designated_exclusions", []):
-                if not r["id"].startswith(ex["drop"]):
-                    continue
+            ex_ids: list[str] = []
+            # 법 규칙의 예외: 그 규칙들이 성립하면 이 규칙은 적용하지 않는다(이 소재에 있는 것만)
+            for ex in r.get("exceptions") or []:
                 excluders = [
-                    rid for rid in by_id if any(rid.startswith(p) for p in ex["if_any_fired"])
+                    rid for rid in by_id if any(rid.startswith(p) for p in ex["unless_any"])
                 ]
+                for x in excluders:
+                    ex_ids += [x, *uses[x]]
                 if excluders:
-                    extra.append({"not": {"any": [self.expr(by_id[x], 3, mid) for x in excluders]}})
-            base_leaves = [self.leaf(c, 3) for c in folded]
+                    extra.append({"not": {"any": [self.emit(by_id[x], 3, mid) for x in excluders]}})
+            base_leaves = [self.emit(p, 3, mid) for p in top_parts(folded)]
             for code in cs:
                 parts = base_leaves + extra
                 rid = f"{mid}:{r['id']}"
@@ -339,6 +495,7 @@ class Converter:
                 rules.append(
                     {
                         "rule_id": rid,
+                        "source_rule": r["id"],
                         "priority": P_DESIGNATED,
                         "when": when,
                         "then": {
@@ -347,7 +504,15 @@ class Converter:
                             "name": self.code_index[code]["name"],
                         },
                         "basis": self.basis(r) + [self.code_basis(code)],
-                        "review": r.get("review", "UNVERIFIED"),
+                        **self.rv(
+                            [
+                                r["id"],
+                                *uses[r["id"]],
+                                *ex_ids,
+                                CODE_MAP_UNIT,
+                                f"{MATERIAL_PREFIX}{mid}",
+                            ]
+                        ),
                     }
                 )
                 if not need_choice:
@@ -357,8 +522,9 @@ class Converter:
             rules.append(
                 {
                     "rule_id": f"{mid}:{r['id']}",
+                    "source_rule": r["id"],
                     "priority": P_INTERPRET,
-                    "when": self.expr(folded, 3, mid),
+                    "when": self.emit(folded, 3, mid),
                     "then": {
                         "code": None,
                         "category": "NEEDS_INTERPRETATION",
@@ -366,21 +532,26 @@ class Converter:
                         "name": r.get("item"),
                     },
                     "basis": self.basis(r),
-                    "review": r.get("review", "UNVERIFIED"),
+                    **self.rv([r["id"], *uses[r["id"]], f"{MATERIAL_PREFIX}{mid}"]),
                 }
             )
 
         gcodes, goutcome = self.general_codes(mat)
         gbasis = self.basis(complement) if complement else []
+        # 일반 코드의 원본: "지정폐기물 외의 것"을 정의한 보완 규칙(없으면 소재 항목만)
+        gsource = {"source_rule": complement["id"]} if complement else {}
+        gdeps = [complement["id"]] if complement else []
+        gdeps += [f"{MATERIAL_PREFIX}{mid}", CODE_MAP_UNIT]
         if goutcome:
             rules.append(
                 {
                     "rule_id": f"{mid}:GENERAL",
+                    **gsource,
                     "priority": P_GENERAL,
                     "when": {"fact": "material", "op": "eq", "value": mid},
                     "then": {"code": None, "category": "GENERAL", "outcome": goutcome},
                     "basis": gbasis,
-                    "review": "UNVERIFIED",
+                    **self.rv(gdeps),
                 }
             )
             self.report["general_outcome"].append(f"{mid}: {goutcome}")
@@ -396,6 +567,7 @@ class Converter:
                 rules.append(
                     {
                         "rule_id": rid,
+                        **gsource,
                         "priority": P_GENERAL,
                         "when": when,
                         "then": {
@@ -404,7 +576,7 @@ class Converter:
                             "name": self.code_index[code]["name"],
                         },
                         "basis": gbasis + [self.code_basis(code)],
-                        "review": "UNVERIFIED",
+                        **self.rv(gdeps),
                     }
                 )
         if need_choice:
@@ -416,7 +588,7 @@ class Converter:
         return {
             "table_id": mid,
             "title": mat["label"],
-            "version": f"2026.11.0+re-{self.legacy_rev()}",
+            "version": f"2026.11.0+kb-{self.rev()}",
             "effective_from": EFFECTIVE_FROM,
             "hit_policy": "PRIORITY",
             "applies_when": {"fact": "material", "op": "eq", "value": mid},
@@ -426,19 +598,9 @@ class Converter:
 
     _rev: str | None = None
 
-    def legacy_rev(self) -> str:
+    def rev(self) -> str:
         if self._rev is None:
-            import subprocess
-
-            try:
-                self._rev = subprocess.run(
-                    ["git", "-C", str(self.legacy), "rev-parse", "--short", "HEAD"],
-                    capture_output=True,
-                    text=True,
-                    check=True,
-                ).stdout.strip()
-            except Exception:  # noqa: BLE001
-                self._rev = "unknown"
+            self._rev = knowledge_rev(self.src)
         return self._rev
 
     # ---- 카탈로그 --------------------------------------------------------------------------
@@ -501,8 +663,13 @@ class Converter:
                 "value_parent": {k: v["group"] for k, v in mats.items()},
             }
         )
+        # 대리 질문 사실(fact_settings의 implies)은 규칙이 직접 쓰지 않아도
+        # 카탈로그에 둔다(질문 전략)
+        screening = {fid for fid, o in ov.items() if (o or {}).get("implies")}
         for fid, f in self.facts.items():
-            if fid in SKIP_FACTS or fid.startswith("reporting_") or fid not in self.used_facts:
+            if fid in SKIP_FACTS or fid.startswith("reporting_"):
+                continue
+            if fid not in self.used_facts and fid not in screening:
                 continue
             if f.get("kind") == "interpretive_choice" or f.get("derived_from"):
                 continue
@@ -575,8 +742,8 @@ class Converter:
             for p in tables_dir.glob("*.yaml"):
                 p.unlink()
         hdr = (
-            f"# 자동 생성: tools/convert_legacy.py (resource_engine {self.legacy_rev()}). "
-            "직접 고치지 말고 변환기를 다시 실행.\n"
+            f"# 자동 생성: tools/build_kb.py (knowledge {self.rev()}). "
+            "직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.\n"
         )
         dump(out / "rules" / "common" / "scope.yaml", self.scope_fragment(), hdr)
         dump(out / "rules" / "common" / "business.yaml", self.business_fragment(), hdr)
@@ -591,16 +758,22 @@ class Converter:
         dump(out / "question_groups.yaml", {"groups": self.ov.get("groups") or []}, hdr)
         dump(out / "codes.yaml", self.codes_file(), hdr)
         dump(out / "sources.yaml", self.sources, hdr)
+        # 경로추천 안내는 사람이 쓴 표 그대로 옮긴다(변환 없음)
+        shutil.copyfile(self.src / "outcome_guidance.yaml", out / "outcome_guidance.yaml")
+        # 용어집도 사람이 쓴 그대로 옮긴다(판정 무관, 질문 카드 terms)
+        shutil.copyfile(self.src / "glossary.yaml", out / "glossary.yaml")
         self.write_report(out, n)
         print(f"테이블 {n}개, 사실 {len(self.used_facts)}개 → {out}")
 
     def write_report(self, out: Path, n: int) -> None:
         lines = [
-            "# 기존 엔진 규칙 변환 보고서",
+            "# 규칙 빌드 보고서",
             "",
-            f"- 원본: resource_engine `{self.legacy_rev()}` (rules/*.yaml)",
+            f"- 원본: `knowledge/` ({self.rev()}). 기존 엔진 resource_engine `{LEGACY_REV}`의 "
+            "rules/에서 옮겨 왔다.",
             f"- 소재 테이블: {n}개, 시행일 {EFFECTIVE_FROM}",
-            "- 모든 규칙은 기존과 같이 `review: UNVERIFIED`다.",
+            "- 전문가 검토(`knowledge/reviews.yaml`): "
+            f"생성 규칙 {self.verified_rules}개가 `VERIFIED`, 나머지는 `UNVERIFIED`다.",
             "",
             "## 우선순위 대역",
             "| 대역 | priority | 내용 |",
@@ -647,7 +820,7 @@ class Converter:
             bullets = [f"- {x}" for x in items] or ["- 없음"]
             lines += [f"## {title} ({len(items)})", *bullets, ""]
         lines += ["## 소재별 규칙 수", *[f"- {x}" for x in self.report["tables"]], ""]
-        (out / "conversion_report.md").write_text("\n".join(lines), encoding="utf-8")
+        (out / "conversion_report.md").write_text("\n".join(lines), encoding="utf-8", newline="\n")
 
 
 # ---- 회귀 데이터 ---------------------------------------------------------------------------
@@ -707,19 +880,58 @@ def regression(legacy: Path, out: Path) -> None:
     print(f"회귀 행 {len(rows)}개 {dict(stats)} → {path}")
 
 
+def generated_paths(out: Path) -> set[str]:
+    """out 안에서 빌드가 만드는 파일들의 상대 경로(있는 것만)."""
+    found = {p for p in GENERATED_FILES if (out / p).is_file()}
+    for d in GENERATED_DIRS:
+        found |= {f"{d}/{p.name}" for p in (out / d).glob("*.yaml")}
+    return found
+
+
+def check(src: Path, out: Path) -> list[str]:
+    """out이 src로 빌드한 결과와 같은지. 다른 파일 목록(같으면 빈 목록)."""
+    with tempfile.TemporaryDirectory() as tmp:
+        fresh = Path(tmp)
+        Converter(src).run(fresh)
+        want, have = generated_paths(fresh), generated_paths(out)
+        problems = [f"없음: {p}" for p in sorted(want - have)]
+        problems += [f"원본에 없는 생성 파일: {p}" for p in sorted(have - want)]
+        problems += [
+            f"다름: {p}"
+            for p in sorted(want & have)
+            if (fresh / p).read_bytes() != (out / p).read_bytes()
+        ]
+    return problems
+
+
 def main() -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--legacy", default=str(DEFAULT_LEGACY))
-    ap.add_argument("--out", default=str(OUT))
-    ap.add_argument("--overrides", default=str(ROOT / "tools" / "legacy_overrides.yaml"))
-    ap.add_argument("--regression", action="store_true", help="회귀 데이터도 생성")
+    ap = argparse.ArgumentParser(description="knowledge/ → data/real/ 규칙 빌드")
+    ap.add_argument("--src", default=str(KNOWLEDGE), help="원본 폴더(기본 knowledge/)")
+    ap.add_argument("--out", default=str(OUT), help="생성 폴더(기본 data/real/)")
+    ap.add_argument("--check", action="store_true", help="생성물이 원본과 같은지만 확인")
+    ap.add_argument(
+        "--legacy-regression",
+        metavar="LEGACY_DIR",
+        help="기존 엔진 저장소의 판정표(tests/data/material_tables.json)로 회귀 기준을 다시 만든다",
+    )
     args = ap.parse_args()
-    legacy, out = Path(args.legacy), Path(args.out)
-    Converter(legacy, Path(args.overrides)).run(out)
-    if args.regression:
-        regression(legacy, out / "regression")
+    src, out = Path(args.src), Path(args.out)
+    if args.check:
+        problems = check(src, out)
+        if problems:
+            print(
+                "data/real/이 knowledge/로 빌드한 결과와 다릅니다. "
+                "`uv run python tools/build_kb.py`로 다시 빌드하세요."
+            )
+            print("\n".join(f"  - {p}" for p in problems))
+            return 1
+        print("data/real/ 최신(knowledge/와 같음)")
+        return 0
+    Converter(src).run(out)
+    if args.legacy_regression:
+        regression(Path(args.legacy_regression), out / "regression")
     return 0
 
 

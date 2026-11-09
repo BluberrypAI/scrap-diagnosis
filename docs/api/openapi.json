@@ -2060,6 +2060,14 @@
             "title": "Options",
             "type": "array"
           },
+          "terms": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/TermView"
+            },
+            "title": "Terms",
+            "type": "array"
+          },
           "text": {
             "anyOf": [
               {
@@ -2214,6 +2222,14 @@
       "ResultView": {
         "description": "결과 카드(1.4절). FINAL_REVIEW일 때만.",
         "properties": {
+          "assumptions": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
           "category": {
             "anyOf": [
               {
@@ -2332,6 +2348,36 @@
           }
         },
         "title": "RevokeIn",
+        "type": "object"
+      },
+      "TermView": {
+        "description": "질문 글에 나온 전문용어의 쉬운 설명(knowledge/glossary.yaml, 사람이 쓴 고정 설명).",
+        "properties": {
+          "example": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Example"
+          },
+          "plain": {
+            "title": "Plain",
+            "type": "string"
+          },
+          "term": {
+            "title": "Term",
+            "type": "string"
+          }
+        },
+        "required": [
+          "term",
+          "plain"
+        ],
+        "title": "TermView",
         "type": "object"
       },
       "TopCandidate": {

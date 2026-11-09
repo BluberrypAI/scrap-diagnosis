@@ -377,3 +377,13 @@ p {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* 결과 카드: 시험이 아니라 답변으로 추정한 내용 */
+.wd-note {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--wd-warn);
+  background: color-mix(in srgb, var(--wd-warn) 10%, transparent);
+  border-radius: 4px;
+  font-size: 0.92em;
+}

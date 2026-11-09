@@ -105,7 +105,7 @@
 
 - id: GR-005
   kb: real
-  description: "아직 공정에서 쓰는 물질은 폐기물이 아님 → 코드 없는 결론(NOT_WASTE)으로 확정 가능"
+  description: "아직 공정에서 쓴다는 답만으로는 비폐기물로 확정하지 않음 → 해석 필요(코드 없는 결론)로 확정 가능"
   setup: {facts: {emission_facility: true}}
   turns:
     - user: "PP 원료 펠릿인데 아직 공정에서 계속 쓰는 물건이에요. 순환자원 인정은 안 받았어요."
@@ -114,7 +114,7 @@
           - {key: material, value: pp, quote: "PP"}
           - {key: material_fate, value: still_used, quote: "아직 공정에서 계속 쓰는 물건이에요"}
           - {key: circular_resource_recognized, value: false, quote: "순환자원 인정은 안 받았어요"}
-      expect: {branch: FINAL_REVIEW, can_confirm: true, code: null, outcome: NOT_WASTE}
+      expect: {branch: FINAL_REVIEW, can_confirm: true, code: null, outcome: INTERPRETATION_NEEDED}
 
 - id: GR-006
   kb: real

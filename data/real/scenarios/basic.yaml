@@ -31,7 +31,7 @@
   answers: {scope_screen: none, contamination_screen: expand, designated_residue: false, oil_presence: none,
             pcb_possible: false, toxic_chemical_discard: true, annex4_code: 09-01-00}
 - id: REAL-NOT-WASTE
-  description: "아직 원료로 쓰는 물질 → 폐기물 아님(코드 없는 결론 NOT_WASTE, 확정 가능)"
+  description: "아직 원료로 쓴다는 답 → 진술만으로 비폐기물 확정하지 않고 해석 필요(코드 없는 결론, 확정 가능)"
   as_of: 2026-11-08
   setup: {facts: {emission_facility: true, material: pp}}
   answers: {contamination_screen: none, physical_state: solid, scope_screen: expand, material_fate: still_used,

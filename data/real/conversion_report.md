@@ -1,8 +1,8 @@
-# 기존 엔진 규칙 변환 보고서
+# 규칙 빌드 보고서
 
-- 원본: resource_engine `2f1355a` (rules/*.yaml)
+- 원본: `knowledge/` (58812f75). 기존 엔진 resource_engine `2f1355a`의 rules/에서 옮겨 왔다.
 - 소재 테이블: 97개, 시행일 2026-10-02
-- 모든 규칙은 기존과 같이 `review: UNVERIFIED`다.
+- 전문가 검토(`knowledge/reviews.yaml`): 생성 규칙 0개가 `VERIFIED`, 나머지는 `UNVERIFIED`다.
 
 ## 우선순위 대역
 | 대역 | priority | 내용 |

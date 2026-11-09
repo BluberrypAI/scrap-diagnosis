@@ -1,0 +1,73 @@
+# S4: 앞 단계 결과 → 별표 4 번호 범위(접두어) 대응표.
+# 이 표는 법령 문언이 아니라 "시행령 별표 1 항목 ↔ 시행규칙 별표 4 그룹" 대응을 사람이 옮긴 것이다 → review 필요.
+review: UNVERIFIED
+
+# 지정폐기물: S3에서 성립한 규칙 id 접두어 → 별표 4 번호 접두어 (가장 긴 접두어 우선)
+designated:
+  S3-1GA-SYNTHETIC_RESIN: ["01-01"]
+  S3-1GA-SYNTHETIC_RUBBER: ["01-01-07"]
+  S3-1NA-: ["01-02"]
+  S3-1DA-: ["01-03"]
+  S3-2GA-: ["02-01"]
+  S3-2NA-ALKALI-LIQUID: ["02-02"]
+  S3-2NA-ALKALI-NAOH-KOH: ["02-02-03", "02-02-04"]
+  S3-3-SLAG-: ["03-01"]
+  S3-3-DUST-: ["03-02-00"]
+  S3-3-FOUNDRY_SAND-: ["03-03"]
+  S3-3-REFRACTORY-: ["03-04"]
+  S3-3-INCINERATION_ASH-: ["03-05"]
+  S3-3-STABILIZED-: ["03-06"]
+  S3-3-CATALYST-: ["03-07"]
+  S3-3A-ADSORBENT-: ["03-08"]
+  S3-4-: ["04"]
+  S3-5: ["05"]
+  S3-6-: ["06"]
+  S3-7GA-: ["07-01"]
+  S3-7NA-: ["07-02-00"]
+  S3-7DA-: ["07-03-00"]
+  S3-8: ["08"]
+  S3-9-: ["09"]
+  S3-10-MEDICAL: ["10"]
+  S3-10-2-NORM: ["12-00-00"]
+  S3-11GA-: ["11-01"]
+  S3-11NA-: ["11-02-00"]
+  S3-11DA-: ["11-03-00"]
+  S3-RESIDUE-WASTE_OIL: ["06"]
+  S3-RESIDUE-ORGANIC_SOLVENT: ["04"]
+  S3-RESIDUE-ACID: ["02-01"]
+  S3-RESIDUE-ALKALI: ["02-02"]
+  S3-RESIDUE-PAINT: ["05"]
+  S3-RESIDUE-TOXIC_CHEMICAL: ["09"]
+
+# 같은 폐기물에 여러 지정 사유가 성립할 때 법이 한쪽을 제외하는 경우는 법 규칙의 exceptions에 둔다
+# (knowledge/law_rules/designated.yaml, 2026-11-09 옮김).
+
+# 같은 지정 그룹 안에서 별표 4 명칭만으로 번호가 정해지는 경우. 폐기물 종류(waste_kind)가 정해져 있을 때만 적용한다.
+# 종류가 by_waste_kind에 있으면 그 번호, 아니면 성립한 S3 규칙(by_fired)의 번호.
+designated_split:
+  - when_prefixes: ["08"]
+    by_waste_kind: {waste_oil: "08-01-00", organic_solvent: "08-02-00"}
+    by_fired: {"S3-8GA-": "08-03-00", "S3-8NA-": "08-04-00"}
+    basis: "시행규칙 별표 4 08-01~04 명칭: 08-01 PCB 함유 폐유 / 08-02 PCB 함유 폐유기용제 / 08-03 그 밖의 액상 / 08-04 그 밖의 액상이 아닌 것"
+
+# 사업장일반폐기물: S3 waste_kind → 별표 4 번호 접두어. 없으면 general_group을 묻는다.
+general_by_kind:
+  # 별표 4의 폐합성고무류는 51-03-02로 명시되어 있다. 종류가 정해진 뒤 같은 대분류 전체를 다시 묻지 않는다.
+  synthetic_resin: ["51-03-01", "51-03-03", "51-03-04", "51-03-05", "51-03-06", "51-03-07", "51-03-08", "51-03-99"]
+  synthetic_rubber: ["51-03-02"]
+  sludge_wastewater: ["51-01", "51-02"]
+  sludge_process: ["51-01", "51-02"]
+  slag: ["51-04"]
+  dust: ["51-05"]
+  foundry_sand: ["51-06"]
+  refractory: ["51-07"]
+  incineration_ash: ["51-08"]
+  stabilized: ["51-09"]
+  catalyst: ["51-10"]
+  adsorbent: ["51-11"]
+  edible_oil: ["51-16"]
+  mercury_residue: ["51-30-05"]
+  battery: ["51-41"]
+
+# 선택지에서 빼는 번호 (고시가 있어야만 쓰는 번호)
+excluded_codes: ["30-00-00", "11-01-99"]

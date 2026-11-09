@@ -1,7 +1,7 @@
-# 자동 생성: tools/convert_legacy.py (resource_engine 2f1355a). 직접 고치지 말고 변환기를 다시 실행.
+# 자동 생성: tools/build_kb.py (knowledge 58812f75). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: sludge_ww_inorganic
 title: 그 밖의 폐수처리 오니(무기성)
-version: 2026.11.0+re-2f1355a
+version: 2026.11.0+kb-58812f75
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -13,16 +13,22 @@ includes:
 - ../common/business.yaml
 rules:
 - rule_id: sludge_ww_inorganic:S3-1NA-SLUDGE_WASTEWATER-LEACH_PB:01-02-01
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_PB
   priority: 500
   when:
     all:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_pb
       op: gte
       value: 3
@@ -38,31 +44,46 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목1)
     source_id: DEC-A1
+    location: 별표 1 제1호나목1)
     excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목
     source_id: DEC-A1
+    location: 별표 1 제1호나목
     excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호가목
     source_id: RULE-A1
+    location: 별표 1 제1호가목
     excerpt: 용출액 1리터당 3밀리그램 이상의 납을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 01-02-01
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
+    location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_PB
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CU:01-02-01
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CU
   priority: 500
   when:
     all:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_cu
       op: gte
       value: 3
@@ -78,31 +99,46 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목1)
     source_id: DEC-A1
+    location: 별표 1 제1호나목1)
     excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목
     source_id: DEC-A1
+    location: 별표 1 제1호나목
     excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호나목
     source_id: RULE-A1
+    location: 별표 1 제1호나목
     excerpt: 용출액 1리터당 3밀리그램 이상의 구리를 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 01-02-01
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
+    location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_CU
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-1NA-SLUDGE_WASTEWATER-LEACH_AS:01-02-01
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_AS
   priority: 500
   when:
     all:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_as
       op: gte
       value: 1.5
@@ -118,31 +154,46 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목1)
     source_id: DEC-A1
+    location: 별표 1 제1호나목1)
     excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목
     source_id: DEC-A1
+    location: 별표 1 제1호나목
     excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호다목
     source_id: RULE-A1
+    location: 별표 1 제1호다목
     excerpt: 용출액 1리터당 1.5밀리그램 이상의 비소를 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 01-02-01
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
+    location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_AS
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-1NA-SLUDGE_WASTEWATER-LEACH_HG:01-02-01
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_HG
   priority: 500
   when:
     all:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_hg
       op: gte
       value: 0.005
@@ -158,31 +209,46 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목1)
     source_id: DEC-A1
+    location: 별표 1 제1호나목1)
     excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목
     source_id: DEC-A1
+    location: 별표 1 제1호나목
     excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호라목
     source_id: RULE-A1
+    location: 별표 1 제1호라목
     excerpt: 용출액 1리터당 0.005밀리그램 이상의 수은을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 01-02-01
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
+    location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_HG
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CD:01-02-01
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CD
   priority: 500
   when:
     all:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_cd
       op: gte
       value: 0.3
@@ -198,31 +264,46 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목1)
     source_id: DEC-A1
+    location: 별표 1 제1호나목1)
     excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목
     source_id: DEC-A1
+    location: 별표 1 제1호나목
     excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호마목
     source_id: RULE-A1
+    location: 별표 1 제1호마목
     excerpt: 용출액 1리터당 0.3밀리그램 이상의 카드뮴을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 01-02-01
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
+    location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_CD
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CR6:01-02-01
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CR6
   priority: 500
   when:
     all:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_cr6
       op: gte
       value: 1.5
@@ -238,31 +319,46 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목1)
     source_id: DEC-A1
+    location: 별표 1 제1호나목1)
     excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목
     source_id: DEC-A1
+    location: 별표 1 제1호나목
     excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호바목
     source_id: RULE-A1
+    location: 별표 1 제1호바목
     excerpt: 용출액 1리터당 1.5밀리그램 이상의 6가크롬을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 01-02-01
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
+    location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_CR6
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CN:01-02-01
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CN
   priority: 500
   when:
     all:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_cn
       op: gte
       value: 1
@@ -278,31 +374,46 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목1)
     source_id: DEC-A1
+    location: 별표 1 제1호나목1)
     excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목
     source_id: DEC-A1
+    location: 별표 1 제1호나목
     excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호사목
     source_id: RULE-A1
+    location: 별표 1 제1호사목
     excerpt: 용출액 1리터당 1밀리그램 이상의 시안화합물을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 01-02-01
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
+    location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_CN
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-1NA-SLUDGE_WASTEWATER-LEACH_OP:01-02-01
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_OP
   priority: 500
   when:
     all:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_op
       op: gte
       value: 1
@@ -318,31 +429,46 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목1)
     source_id: DEC-A1
+    location: 별표 1 제1호나목1)
     excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목
     source_id: DEC-A1
+    location: 별표 1 제1호나목
     excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호아목
     source_id: RULE-A1
+    location: 별표 1 제1호아목
     excerpt: 용출액 1리터당 1밀리그램 이상의 유기인화합물을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 01-02-01
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
+    location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_OP
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-1NA-SLUDGE_WASTEWATER-LEACH_PCE:01-02-01
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_PCE
   priority: 500
   when:
     all:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_pce
       op: gte
       value: 0.1
@@ -358,31 +484,46 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목1)
     source_id: DEC-A1
+    location: 별표 1 제1호나목1)
     excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목
     source_id: DEC-A1
+    location: 별표 1 제1호나목
     excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호자목
     source_id: RULE-A1
+    location: 별표 1 제1호자목
     excerpt: 용출액 1리터당 0.1밀리그램 이상의 테트라클로로에틸렌을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 01-02-01
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
+    location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_PCE
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-1NA-SLUDGE_WASTEWATER-LEACH_TCE:01-02-01
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_TCE
   priority: 500
   when:
     all:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: leach_tce
       op: gte
       value: 0.3
@@ -398,31 +539,46 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목1)
     source_id: DEC-A1
+    location: 별표 1 제1호나목1)
     excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목
     source_id: DEC-A1
+    location: 별표 1 제1호나목
     excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호차목
     source_id: RULE-A1
+    location: 별표 1 제1호차목
     excerpt: 용출액 1리터당 0.3밀리그램 이상의 트리클로로에틸렌을 함유한 경우만 해당한다
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 01-02-01
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
+    location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_TCE
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-1NA-SLUDGE_WASTEWATER-OIL_CONTENT_PCT:01-02-01
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-OIL_CONTENT_PCT
   priority: 500
   when:
     all:
     - fact: sludge_facility_notified
       op: eq
       value: true
-    - fact: sludge_water_pct
-      op: lt
-      value: 95
-      min_status: EVIDENCED
+    - any:
+      - fact: sludge_water_pct
+        op: lt
+        value: 95
+        min_status: EVIDENCED
+      - fact: sludge_solids_pct
+        op: gte
+        value: 5
+        min_status: EVIDENCED
     - fact: oil_content_pct
       op: gte
       value: 5
@@ -438,21 +594,31 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목1)
     source_id: DEC-A1
+    location: 별표 1 제1호나목1)
     excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제1호나목
     source_id: DEC-A1
+    location: 별표 1 제1호나목
     excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호카목
     source_id: RULE-A1
+    location: 별표 1 제1호카목
     excerpt: 기름성분(중량비를 기준으로 하여 유해물질을 5퍼센트 이상 함유한 경우만 해당한다)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 01-02-01
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
+    location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-OIL_CONTENT_PCT
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-6-OIL-5PCT:06-01-01
+  source_rule: S3-6-OIL-5PCT
   priority: 500
   when:
     all:
@@ -469,9 +635,6 @@ rules:
       not:
         any:
         - all:
-          - fact: pcb_possible
-            op: eq
-            value: true
           - fact: physical_state
             op: eq
             value: liquid
@@ -480,9 +643,6 @@ rules:
             value: 2
             min_status: EVIDENCED
         - all:
-          - fact: pcb_possible
-            op: eq
-            value: true
           - fact: physical_state
             op: in
             value: &id004
@@ -503,13 +663,22 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
     source_id: DEC-A1
+    location: 별표 1 제6호
     excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-01
     excerpt: 06-01-01 폐윤활유(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조에 따른 재활용의무 대상 제품·포장재인 기어유 및 내연 기관용 윤활유를 말한다)
     source_id: RULE-A4
+    location: 06-01-01
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-6-OIL-5PCT:06-01-02
+  source_rule: S3-6-OIL-5PCT
   priority: 500
   when:
     all:
@@ -527,13 +696,22 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
     source_id: DEC-A1
+    location: 별표 1 제6호
     excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-02
     excerpt: 06-01-02 폐연마유·비수용성폐절삭유·폐열처리유(금속가공과정에서 발 생된 것을 말한다)
     source_id: RULE-A4
+    location: 06-01-02
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-6-OIL-5PCT:06-01-03
+  source_rule: S3-6-OIL-5PCT
   priority: 500
   when:
     all:
@@ -551,13 +729,22 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
     source_id: DEC-A1
+    location: 별표 1 제6호
     excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-03
     excerpt: 06-01-03 폐기계유·폐작동유(공업용 기계유·냉동기유·터어빈유·베어링윤 활유·압축기유·유압작동유·열매체유 및 프로세스유 등을 말한 다)
     source_id: RULE-A4
+    location: 06-01-03
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-6-OIL-5PCT:06-01-04
+  source_rule: S3-6-OIL-5PCT
   priority: 500
   when:
     all:
@@ -575,13 +762,22 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
     source_id: DEC-A1
+    location: 별표 1 제6호
     excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-04
     excerpt: 06-01-04 폐연료유
     source_id: RULE-A4
+    location: 06-01-04
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-6-OIL-5PCT:06-01-05
+  source_rule: S3-6-OIL-5PCT
   priority: 500
   when:
     all:
@@ -599,13 +795,22 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
     source_id: DEC-A1
+    location: 별표 1 제6호
     excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-05
     excerpt: 06-01-05 폐오일필터
     source_id: RULE-A4
+    location: 06-01-05
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-6-OIL-5PCT:06-01-06
+  source_rule: S3-6-OIL-5PCT
   priority: 500
   when:
     all:
@@ -623,13 +828,22 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
     source_id: DEC-A1
+    location: 별표 1 제6호
     excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-06
     excerpt: 06-01-06 기름함유 폐전선·폐케이블
     source_id: RULE-A4
+    location: 06-01-06
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-6-OIL-5PCT:06-01-07
+  source_rule: S3-6-OIL-5PCT
   priority: 500
   when:
     all:
@@ -647,13 +861,22 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
     source_id: DEC-A1
+    location: 별표 1 제6호
     excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-07
     excerpt: 06-01-07 폐절연유(폴리클로리네이티드비페닐 함유 폐기물을 제외한다)
     source_id: RULE-A4
+    location: 06-01-07
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-6-OIL-5PCT:06-01-99
+  source_rule: S3-6-OIL-5PCT
   priority: 500
   when:
     all:
@@ -671,13 +894,22 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
     source_id: DEC-A1
+    location: 별표 1 제6호
     excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-99
     excerpt: 06-01-99 그 밖의 폐광물유[아스팔트유·그리스(grease)·방청유 및 수용 성절삭유, 20퍼센트 이상의 이물질이 함유된 폐유, 고체상태의 폐유 등을 말한다]
     source_id: RULE-A4
+    location: 06-01-99
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-6-OIL-5PCT:06-02-00
+  source_rule: S3-6-OIL-5PCT
   priority: 500
   when:
     all:
@@ -695,13 +927,22 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
     source_id: DEC-A1
+    location: 별표 1 제6호
     excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-02-00
     excerpt: 06-02-00 폐동식물유
     source_id: RULE-A4
+    location: 06-02-00
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-6-OIL-5PCT:06-03-00
+  source_rule: S3-6-OIL-5PCT
   priority: 500
   when:
     all:
@@ -719,19 +960,25 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
     source_id: DEC-A1
+    location: 별표 1 제6호
     excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-03-00
     excerpt: 06-03-00 그 밖의 폐유
     source_id: RULE-A4
+    location: 06-03-00
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-8GA-PCB-LIQUID:08-03-00
+  source_rule: S3-8GA-PCB-LIQUID
   priority: 500
   when:
     all:
-    - fact: pcb_possible
-      op: eq
-      value: true
     - fact: physical_state
       op: eq
       value: liquid
@@ -750,23 +997,28 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호가목
     source_id: DEC-A1
+    location: 별표 1 제8호가목
     excerpt: 액체상태의 것(1리터당 2밀리그램 이상 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호
     source_id: DEC-A1
+    location: 별표 1 제8호
     excerpt: 폴리클로리네이티드비페닐 함유 폐기물
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 08-03-00
     excerpt: 08-03-00 그 밖의 폴리클로리네이티드비페닐을 함유한 액상의 것
     source_id: RULE-A4
+    location: 08-03-00
+  review_units:
+  - S3-8GA-PCB-LIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-8NA-PCB-NONLIQUID:08-04-00
+  source_rule: S3-8NA-PCB-NONLIQUID
   priority: 500
   when:
     all:
-    - fact: pcb_possible
-      op: eq
-      value: true
     - fact: physical_state
       op: in
       value: *id004
@@ -785,17 +1037,25 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호나목
     source_id: DEC-A1
+    location: 별표 1 제8호나목
     excerpt: 액체상태 외의 것(용출액 1리터당 0.003밀리그램 이상 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호
     source_id: DEC-A1
+    location: 별표 1 제8호
     excerpt: 폴리클로리네이티드비페닐 함유 폐기물
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 08-04-00
     excerpt: 08-04-00 그 밖의 폴리클로리네이티드비페닐을 함유한 액상이 아닌 것
     source_id: RULE-A4
+    location: 08-04-00
+  review_units:
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-9-TOXIC:09-01-00
+  source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
@@ -807,9 +1067,6 @@ rules:
       not:
         any:
         - all:
-          - fact: pcb_possible
-            op: eq
-            value: true
           - fact: physical_state
             op: eq
             value: liquid
@@ -818,9 +1075,6 @@ rules:
             value: 2
             min_status: EVIDENCED
         - all:
-          - fact: pcb_possible
-            op: eq
-            value: true
           - fact: physical_state
             op: in
             value: *id004
@@ -839,13 +1093,22 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
     source_id: DEC-A1
+    location: 별표 1 제9호
     excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-01-00
     excerpt: 09-01-00 「화학물질관리법」 제2조제5호에 따른 금지물질
     source_id: RULE-A4
+    location: 09-01-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-9-TOXIC:09-02-00
+  source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
@@ -862,13 +1125,22 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
     source_id: DEC-A1
+    location: 별표 1 제9호
     excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-02-00
     excerpt: 09-02-00 연구·검사용 폐시약
     source_id: RULE-A4
+    location: 09-02-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-9-TOXIC:09-03-00
+  source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
@@ -885,13 +1157,22 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
     source_id: DEC-A1
+    location: 별표 1 제9호
     excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-03-00
     excerpt: 09-03-00 「화학물질관리법」 제2조제7호에 따른 유해화학물질
     source_id: RULE-A4
+    location: 09-03-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:S3-9-TOXIC:09-04-00
+  source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
@@ -908,13 +1189,22 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
     source_id: DEC-A1
+    location: 별표 1 제9호
     excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-04-00
     excerpt: 09-04-00 「화학물질관리법」 제2조제3호 및 제4호에 따른 허가물질 및 제한물질
     source_id: RULE-A4
+    location: 09-04-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_inorganic
   review: UNVERIFIED
 - rule_id: sludge_ww_inorganic:GENERAL
+  source_rule: S3-NOT-DESIGNATED
   priority: 100
   when:
     fact: material
@@ -928,9 +1218,15 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1(지정폐기물의 종류)
     source_id: DEC-A1
+    location: 별표 1(지정폐기물의 종류)
     excerpt: 지정폐기물의 종류(제3조 관련)
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-01
     excerpt: 51-02-01 폐수처리오니
     source_id: RULE-A4
+    location: 51-02-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:sludge_ww_inorganic
+  - code_map
   review: UNVERIFIED

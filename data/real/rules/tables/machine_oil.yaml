@@ -1,7 +1,7 @@
-# 자동 생성: tools/convert_legacy.py (resource_engine 2f1355a). 직접 고치지 말고 변환기를 다시 실행.
+# 자동 생성: tools/build_kb.py (knowledge 58812f75). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: machine_oil
 title: 기계유·작동유(유압유 등)
-version: 2026.11.0+re-2f1355a
+version: 2026.11.0+kb-58812f75
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -13,19 +13,16 @@ includes:
 - ../common/business.yaml
 rules:
 - rule_id: machine_oil:S3-6-WASTE-OIL:06-01-03
+  source_rule: S3-6-WASTE-OIL
   priority: 500
   when:
     all:
     - not:
         any:
-        - all:
-          - fact: pcb_possible
-            op: eq
-            value: true
-          - fact: pcb_mg_l
-            op: gte
-            value: 2
-            min_status: EVIDENCED
+        - fact: pcb_mg_l
+          op: gte
+          value: 2
+          min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 06-01-03
@@ -37,19 +34,24 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
     source_id: DEC-A1
+    location: 별표 1 제6호
     excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-03
     excerpt: 06-01-03 폐기계유·폐작동유(공업용 기계유·냉동기유·터어빈유·베어링윤 활유·압축기유·유압작동유·열매체유 및 프로세스유 등을 말한 다)
     source_id: RULE-A4
+    location: 06-01-03
+  review_units:
+  - S3-6-WASTE-OIL
+  - S3-8GA-PCB-LIQUID
+  - code_map
+  - material:machine_oil
   review: UNVERIFIED
 - rule_id: machine_oil:S3-8GA-PCB-LIQUID:08-01-00
+  source_rule: S3-8GA-PCB-LIQUID
   priority: 500
   when:
     all:
-    - fact: pcb_possible
-      op: eq
-      value: true
     - fact: pcb_mg_l
       op: gte
       value: 2
@@ -65,17 +67,25 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호가목
     source_id: DEC-A1
+    location: 별표 1 제8호가목
     excerpt: 액체상태의 것(1리터당 2밀리그램 이상 함유한 것으로 한정한다)
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호
     source_id: DEC-A1
+    location: 별표 1 제8호
     excerpt: 폴리클로리네이티드비페닐 함유 폐기물
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 08-01-00
     excerpt: 08-01-00 폴리클로리네이티드비페닐 함유 폐유
     source_id: RULE-A4
+    location: 08-01-00
+  review_units:
+  - S3-8GA-PCB-LIQUID
+  - code_map
+  - material:machine_oil
   review: UNVERIFIED
 - rule_id: machine_oil:S3-9-TOXIC:09-01-00
+  source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
@@ -86,14 +96,10 @@ rules:
     - &id002
       not:
         any:
-        - all:
-          - fact: pcb_possible
-            op: eq
-            value: true
-          - fact: pcb_mg_l
-            op: gte
-            value: 2
-            min_status: EVIDENCED
+        - fact: pcb_mg_l
+          op: gte
+          value: 2
+          min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 09-01-00
@@ -105,13 +111,21 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
     source_id: DEC-A1
+    location: 별표 1 제9호
     excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-01-00
     excerpt: 09-01-00 「화학물질관리법」 제2조제5호에 따른 금지물질
     source_id: RULE-A4
+    location: 09-01-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - code_map
+  - material:machine_oil
   review: UNVERIFIED
 - rule_id: machine_oil:S3-9-TOXIC:09-02-00
+  source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
@@ -128,13 +142,21 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
     source_id: DEC-A1
+    location: 별표 1 제9호
     excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-02-00
     excerpt: 09-02-00 연구·검사용 폐시약
     source_id: RULE-A4
+    location: 09-02-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - code_map
+  - material:machine_oil
   review: UNVERIFIED
 - rule_id: machine_oil:S3-9-TOXIC:09-03-00
+  source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
@@ -151,13 +173,21 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
     source_id: DEC-A1
+    location: 별표 1 제9호
     excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-03-00
     excerpt: 09-03-00 「화학물질관리법」 제2조제7호에 따른 유해화학물질
     source_id: RULE-A4
+    location: 09-03-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - code_map
+  - material:machine_oil
   review: UNVERIFIED
 - rule_id: machine_oil:S3-9-TOXIC:09-04-00
+  source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
@@ -174,13 +204,21 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
     source_id: DEC-A1
+    location: 별표 1 제9호
     excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   - type: LAW
     ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-04-00
     excerpt: 09-04-00 「화학물질관리법」 제2조제3호 및 제4호에 따른 허가물질 및 제한물질
     source_id: RULE-A4
+    location: 09-04-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - code_map
+  - material:machine_oil
   review: UNVERIFIED
 - rule_id: machine_oil:GENERAL
+  source_rule: S3-NOT-DESIGNATED
   priority: 100
   when:
     fact: material
@@ -194,5 +232,10 @@ rules:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1(지정폐기물의 종류)
     source_id: DEC-A1
+    location: 별표 1(지정폐기물의 종류)
     excerpt: 지정폐기물의 종류(제3조 관련)
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:machine_oil
+  - code_map
   review: UNVERIFIED
