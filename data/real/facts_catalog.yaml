@@ -1,0 +1,1079 @@
+# 자동 생성: tools/convert_legacy.py (resource_engine 2f1355a). 직접 고치지 말고 변환기를 다시 실행.
+- key: material_group
+  label: 소재 분류
+  type: enum
+  values:
+    plastic: 플라스틱·고무
+    metal: 금속
+    slag: 광재(슬래그)
+    dust_ash: 분진·소각재
+    sand: 주물사·폐사·내화물
+    sludge: 오니(슬러지)
+    oil: 기름
+    acid_alkali: 산·알칼리
+    solvent_paint: 용제·페인트
+    wood_paper_fiber: 목재·종이·섬유·유리
+    catalyst_adsorbent: 촉매·흡착제
+    product: 제품·복합물
+    special: 여러 소재가 섞여 나누기 어려운 것
+  value_aliases:
+    plastic:
+    - 폐합성수지
+    - 폐플라스틱
+    - 플라스틱
+    - 합성수지
+    - 폐합성고무
+    metal:
+    - 폐금속
+    - 금속 스크랩
+    - 금속류
+    slag:
+    - 광재
+    - 슬래그
+    - 폐광재
+    dust_ash:
+    - 분진
+    - 집진 분진
+    - 소각재
+    sand:
+    - 폐주물사
+    - 주물사
+    - 폐사
+    sludge:
+    - 오니
+    - 슬러지
+    oil:
+    - 폐유
+    - 폐오일
+    acid_alkali:
+    - 폐산
+    - 폐알칼리
+    - 폐산·알칼리
+    solvent_paint:
+    - 폐유기용제
+    - 유기용제
+    - 폐페인트
+    - 폐도료
+    wood_paper_fiber:
+    - 폐목재
+    - 폐섬유
+    catalyst_adsorbent:
+    - 폐촉매
+    - 폐흡착·흡수제
+    product:
+    - 폐전기전자제품
+    - 폐전지
+    - 폐축전지
+    - 폐배터리
+    special:
+    - 혼합폐기물
+  ask_cost: 1
+  legal_priority: 1
+  question_hint: 어떤 종류의 폐기물인가요? 가장 가까운 분류를 골라 주세요.
+  help: '플라스틱·고무: PP, PE, PVC, PET, PS, ABS, 우레탄, 스티로폼, 고무
+
+    금속: 고철, 비철, 금속캔·용기
+
+    광재(슬래그): 고로·제강 슬래그, 비철 제련 광재
+
+    분진·소각재: 집진기 분진, 소각 비산재·바닥재
+
+    주물사·폐사·내화물: 폐주물사, 샌드블라스트 폐사, 폐내화물
+
+    오니(슬러지): 폐수처리·공정 오니
+
+    기름: 윤활유, 절삭유, 작동유, 절연유, 연료유
+
+    산·알칼리: 염산, 황산, 질산, 불산, 가성소다
+
+    용제·페인트: 유기용제, 유성·수성 페인트, 락카
+
+    목재·종이·섬유·유리: 목재 포장재, 폐지, 섬유, 폐유리
+
+    촉매·흡착제: 폐촉매, 폐활성탄, 이온교환수지
+
+    제품·복합물: 피복전선, 전기전자제품, 폐타이어, 태양광 패널, 전지
+
+    여러 소재가 섞여 나누기 어려운 것: 여러 재질이 섞여 분리하기 어려운 폐기물'
+- key: material
+  label: 소재
+  type: enum
+  values:
+    pp: PP(폴리프로필렌)
+    pe: PE(폴리에틸렌)
+    pet: PET
+    ps: PS(폴리스티렌, 발포 아님)
+    abs: ABS 수지
+    phenol_resin: 페놀수지
+    other_resin: 그 밖의 합성수지(PC, 나일론 등)
+    pvc: PVC(염화비닐)
+    pu_foam: 폴리우레탄폼
+    eps: 발포합성수지(스티로폼)
+    plastic_packaging: 플라스틱 포장재
+    fishing_net: 폐어망
+    aqua_buoy: 양식용 부자
+    rubber: 합성고무
+    ferrous_scrap: 고철(철 스크랩)
+    nonferrous_scrap: 비철금속(구리·알루미늄 등)
+    metal_can: 폐금속캔
+    metal_container: 폐금속용기(드럼 등)
+    bf_slag: 고로슬래그(철광석 고로)
+    steel_slag: 제강슬래그
+    slag_aluminum: 알루미늄 제조공정 광재
+    slag_lead: 납 열처리·야금공정 광재
+    slag_zinc: 아연 열처리공정 광재
+    slag_nonferrous_other: 그 밖의 비철금속 제련 광재
+    dust_steel: 제철공정 분진
+    dust_cement: 시멘트 제조공정 분진
+    dust_power: 발전시설 분진
+    silica_fume: 실리카 퓸(규소철 제조 분진)
+    dust_other: 그 밖의 분진(집진기 분진 등)
+    fly_ash_business: 사업장폐기물 소각시설 비산재
+    bottom_ash_business: 사업장폐기물 소각시설 바닥재
+    mixed_ash_business: 사업장폐기물 소각시설 소각재(바닥재+비산재)
+    foundry_clay: 점토점결 폐주물사
+    foundry_chemical: 화학점결 폐주물사
+    sandblast: 샌드블라스트 폐사
+    filter_sand: 폐여과사
+    refractory: 폐내화물
+    sludge_ww_pulp_paper: 펄프·제지 폐수처리 오니
+    sludge_ww_stone: 석재·골재 생산 폐수처리 오니
+    sludge_ww_organic: 그 밖의 폐수처리 오니(유기성)
+    sludge_ww_inorganic: 그 밖의 폐수처리 오니(무기성)
+    sludge_ww_unknown: 폐수처리 오니(유기성·무기성 모름)
+    sludge_proc_pulp_paper: 펄프·제지 공정 오니
+    sludge_proc_glass_etching: 유리식각 공정 오니
+    sludge_proc_silicon: 실리콘 (제조)공정 오니
+    sludge_proc_organic: 그 밖의 공정 오니(유기성)
+    sludge_proc_inorganic: 그 밖의 공정 오니(무기성)
+    sludge_proc_unknown: 공정 오니(유기성·무기성 모름)
+    lube_oil: 폐윤활유
+    cutting_oil_insoluble: 비수용성 절삭유·연마유·열처리유
+    machine_oil: 기계유·작동유(유압유 등)
+    fuel_oil: 폐연료유
+    oil_filter: 폐오일필터
+    insulating_oil: 폐절연유(변압기유)
+    cutting_oil_soluble: 수용성 절삭유·그리스·방청유 등
+    hcl: 폐염산
+    h2so4: 폐황산
+    hno3: 폐질산
+    hf: 폐불산
+    acid_lcd_semi: LCD·반도체 공정 폐산
+    acid_other: 그 밖의 폐산
+    caustic_solution: 폐가성소다수(수산화나트륨 수용액)
+    ammonia_solution: 폐암모니아수
+    naoh_solid: 고체 수산화나트륨
+    koh_solid: 고체 수산화칼륨
+    alkali_other: 그 밖의 폐알칼리(액체)
+    solvent_halogen: 할로겐족 유기용제(TCE, 염화메틸렌 등)
+    solvent_other: 그 밖의 유기용제(시너, 아세톤, IPA 등)
+    paint_oil: 유성 페인트
+    paint_water: 수성 페인트
+    lacquer: 락카(래커)
+    wood_clean: 깨끗한 폐목재(목재 포장재·팔레트·전선드럼 등)
+    wood_treated: 접착제·페인트·기름 등이 사용된 폐목재
+    wood_preservative: 방부제·할로겐족 처리 폐목재
+    wood_byproduct: 원목 가공 부산물(톱밥·대패밥·껍질)
+    paper: 폐지(종이류)
+    fiber_natural: 폐천연섬유
+    fiber_synthetic: 폐합성섬유
+    glass: 폐유리
+    glass_fiber: 폐유리섬유
+    catalyst_metal: 금속성 폐촉매
+    catalyst_nonmetal: 비금속성 폐촉매
+    ion_exchange_resin: 폐이온교환수지
+    activated_carbon: 폐활성탄
+    adsorbent: 폐흡착제
+    absorbent: 폐흡수제(기름 흡착포 등)
+    coated_wire: 합성수지 피복 폐전선
+    eee_industrial: 산업용 폐전기전자제품
+    tire_auto: 자동차 폐타이어
+    solar_panel: 태양광 폐패널
+    battery_primary: 폐일차전지
+    battery_ev: 전기자동차 폐이차전지
+    battery_drive: 구동용 폐이차전지(전기차 외)
+    battery_cathode: 폐양극활물질(양극재·전구체 공정 포함)
+    battery_fuel_cell: 폐연료전지
+    battery_secondary_other: 그 밖의 폐이차전지
+    mixed_inseparable: 여러 소재가 섞여 나누기 어려움
+  value_aliases:
+    pp:
+    - 폴리프로필렌
+    - polypropylene
+    pe:
+    - 폴리에틸렌
+    - HDPE
+    - LDPE
+    - 비닐
+    pet:
+    - 페트
+    - 폴리에틸렌테레프탈레이트
+    ps:
+    - 폴리스티렌
+    abs:
+    - ABS
+    phenol_resin:
+    - 베이클라이트
+    other_resin:
+    - PC
+    - 나일론
+    - 아크릴
+    pvc:
+    - 염화비닐
+    - 폴리염화비닐
+    pu_foam:
+    - 우레탄폼
+    - 스펀지
+    eps:
+    - 스티로폼
+    - EPS
+    plastic_packaging:
+    - 포장 비닐
+    - 랩
+    rubber:
+    - 고무
+    ferrous_scrap:
+    - 철 스크랩
+    - 철칩
+    - 철판 자투리
+    nonferrous_scrap:
+    - 구리
+    - 알루미늄
+    - 동
+    - 신주
+    metal_can:
+    - 캔
+    metal_container:
+    - 드럼
+    - 철제 용기
+    bf_slag:
+    - 고로 슬래그
+    steel_slag:
+    - 전기로 슬래그
+    slag_aluminum:
+    - 알루미늄 드로스
+    lube_oil:
+    - 엔진오일
+    cutting_oil_insoluble:
+    - 절삭유
+    machine_oil:
+    - 유압유
+    - 작동유
+    insulating_oil:
+    - 변압기유
+    caustic_solution:
+    - 가성소다
+    solvent_other:
+    - 시너
+    - 아세톤
+    - IPA
+    wood_clean:
+    - 팔레트
+    - 파레트
+    wood_treated:
+    - 합판
+    - MDF
+    wood_byproduct:
+    - 톱밥
+    paper:
+    - 종이
+    - 박스
+    - 골판지
+    coated_wire:
+    - 전선
+    - 케이블
+    battery_primary:
+    - 건전지
+    battery_ev:
+    - 전기차 배터리
+    battery_secondary_other:
+    - 리튬이온 배터리
+  ask_cost: 1
+  legal_priority: 1
+  question_hint: 어떤 소재(물질)인가요?
+  help: '원래 무엇이었는지(제품·원료·부품)와 재질 표시(PP, PE, PVC 등), 발생 공정으로 고르세요. 여러 소재가 섞였으면 나눌 수 있는지 먼저 보세요.
+
+    소재는 분류번호 후보를 정할 뿐이고, 지정폐기물 여부 같은 법적 판단은 뒤의 질문으로 확인합니다.'
+  parent: material_group
+  value_parent:
+    pp: plastic
+    pe: plastic
+    pet: plastic
+    ps: plastic
+    abs: plastic
+    phenol_resin: plastic
+    other_resin: plastic
+    pvc: plastic
+    pu_foam: plastic
+    eps: plastic
+    plastic_packaging: plastic
+    fishing_net: plastic
+    aqua_buoy: plastic
+    rubber: plastic
+    ferrous_scrap: metal
+    nonferrous_scrap: metal
+    metal_can: metal
+    metal_container: metal
+    bf_slag: slag
+    steel_slag: slag
+    slag_aluminum: slag
+    slag_lead: slag
+    slag_zinc: slag
+    slag_nonferrous_other: slag
+    dust_steel: dust_ash
+    dust_cement: dust_ash
+    dust_power: dust_ash
+    silica_fume: dust_ash
+    dust_other: dust_ash
+    fly_ash_business: dust_ash
+    bottom_ash_business: dust_ash
+    mixed_ash_business: dust_ash
+    foundry_clay: sand
+    foundry_chemical: sand
+    sandblast: sand
+    filter_sand: sand
+    refractory: sand
+    sludge_ww_pulp_paper: sludge
+    sludge_ww_stone: sludge
+    sludge_ww_organic: sludge
+    sludge_ww_inorganic: sludge
+    sludge_ww_unknown: sludge
+    sludge_proc_pulp_paper: sludge
+    sludge_proc_glass_etching: sludge
+    sludge_proc_silicon: sludge
+    sludge_proc_organic: sludge
+    sludge_proc_inorganic: sludge
+    sludge_proc_unknown: sludge
+    lube_oil: oil
+    cutting_oil_insoluble: oil
+    machine_oil: oil
+    fuel_oil: oil
+    oil_filter: oil
+    insulating_oil: oil
+    cutting_oil_soluble: oil
+    hcl: acid_alkali
+    h2so4: acid_alkali
+    hno3: acid_alkali
+    hf: acid_alkali
+    acid_lcd_semi: acid_alkali
+    acid_other: acid_alkali
+    caustic_solution: acid_alkali
+    ammonia_solution: acid_alkali
+    naoh_solid: acid_alkali
+    koh_solid: acid_alkali
+    alkali_other: acid_alkali
+    solvent_halogen: solvent_paint
+    solvent_other: solvent_paint
+    paint_oil: solvent_paint
+    paint_water: solvent_paint
+    lacquer: solvent_paint
+    wood_clean: wood_paper_fiber
+    wood_treated: wood_paper_fiber
+    wood_preservative: wood_paper_fiber
+    wood_byproduct: wood_paper_fiber
+    paper: wood_paper_fiber
+    fiber_natural: wood_paper_fiber
+    fiber_synthetic: wood_paper_fiber
+    glass: wood_paper_fiber
+    glass_fiber: wood_paper_fiber
+    catalyst_metal: catalyst_adsorbent
+    catalyst_nonmetal: catalyst_adsorbent
+    ion_exchange_resin: catalyst_adsorbent
+    activated_carbon: catalyst_adsorbent
+    adsorbent: catalyst_adsorbent
+    absorbent: catalyst_adsorbent
+    coated_wire: product
+    eee_industrial: product
+    tire_auto: product
+    solar_panel: product
+    battery_primary: product
+    battery_ev: product
+    battery_drive: product
+    battery_cathode: product
+    battery_fuel_cell: product
+    battery_secondary_other: product
+    mixed_inseparable: special
+- key: material_fate
+  label: 이 물질을 어떻게 하는지
+  type: enum
+  values:
+    still_used: 제품이나 원료로 계속 쓴다 (아직 필요함)
+    same_process_reinput: 따로 처리하지 않고 같은 공정에 바로 다시 넣는다
+    continuous_feedstock: 따로 처리하지 않고 발생한 시설에서 연속공정으로 다른 제품의 원료로 바로 넣는다
+    released: 내보낸다 (버림·위탁 처리·판매·재활용업체에 넘김 등)
+  ask_cost: 1
+  legal_priority: 2
+  question_hint: 이 물질을 어떻게 하나요?
+  help: '공정도에서 이 물질이 어디로 가는지 확인하세요. 세척·파쇄·보관 등을 거쳐 다른 곳으로 가면 ''내보낸다''입니다.
+
+    팔거나 재활용업체에 넘겨도 사업에 필요 없게 된 물질이면 폐기물입니다. 재활용이 가능하다는 이유만으로 폐기물에서 빠지지 않습니다.'
+  prior:
+    released: 0.9
+  none_value: released
+- key: circular_resource_recognized
+  label: 순환자원 인정서
+  type: bool
+  ask_cost: 2
+  evidence_type: CIRCULAR_RESOURCE_CERTIFICATE
+  legal_priority: 2
+  question_hint: 이 물질에 대해 순환자원 인정서를 받았나요?
+  help: 기후에너지환경부(유역·지방환경청)가 발급한 순환자원 인정서가 있는지, 유효기간 안인지 확인하세요.
+  prior:
+    false: 0.97
+  none_value: false
+- key: law_exclusion
+  label: 다른 법 적용 대상
+  type: enum
+  values:
+    none: 해당 없음
+    radioactive: 원자력안전법에 따른 방사성 물질 또는 그로 오염된 물질
+    uncontained_gas: 용기에 들어 있지 않은 기체
+    wastewater: 수질오염방지시설로 들어가거나 공공수역으로 배출되는 폐수
+    livestock_manure: 가축분뇨
+    sewage_nightsoil: 하수도법에 따른 하수·분뇨
+    livestock_disease: 가축전염병예방법이 적용되는 가축 사체·오염 물건 등
+    aquatic_disease: 수산생물질병 관리법이 적용되는 수산동물 사체 등
+    military_ammo: 군수품관리법에 따라 폐기되는 탄약
+    pet_funeral: 허가받은 동물장묘시설에서 처리되는 동물 사체
+    fisheries_byproduct_unmixed: 다른 폐기물과 섞이지 않은 수산부산물
+  ask_cost: 1
+  legal_priority: 2
+  question_hint: 이 물질이 아래 중 하나에 해당하나요?
+  help: 액체라면 수질오염방지시설로 보내는지(폐수), 위탁업체에 폐기물로 넘기는지 확인하세요.
+  prior:
+    none: 0.95
+  none_value: none
+- key: emission_facility
+  label: 배출시설 허가·신고
+  type: bool
+  ask_cost: 2
+  evidence_type: EMISSION_FACILITY_PERMIT
+  legal_priority: 2
+  question_hint: 이 사업장에 대기·수질·소음진동 배출시설 설치허가를 받았거나 신고를 했나요?
+  help: '배출시설 설치허가증 또는 설치신고증명서를 확인하세요.
+
+    서류를 찾을 수 없으면 관할 시·군·구 환경 담당 부서에 배출시설 허가·신고 여부를 문의하세요.'
+- key: public_facility
+  label: 공공처리시설 운영
+  type: enum
+  values:
+    none: 해당 없음
+    public_wastewater: 물환경보전법에 따른 공공폐수처리시설
+    public_sewage: 하수도법에 따른 공공하수처리시설
+    nightsoil: 하수도법에 따른 분뇨처리시설
+    livestock_public: 가축분뇨법에 따른 공공처리시설
+  ask_cost: 1
+  legal_priority: 2
+  question_hint: 이 사업장이 아래 공공처리시설을 설치·운영하는 곳인가요?
+- key: waste_facility
+  label: 폐기물처리시설 운영
+  type: bool
+  ask_cost: 1
+  legal_priority: 2
+  question_hint: 이 사업장이 폐기물처리시설을 설치·운영하는 곳인가요? (폐기물처리업 허가 시설 포함)
+  help: 폐기물처리시설 설치 승인·신고서류 또는 폐기물처리업 허가증을 확인하세요.
+- key: designated_waste_emitted
+  label: 사업장의 지정폐기물 배출
+  type: bool
+  ask_cost: 2
+  evidence_type: WASTE_DISCHARGE_REPORT
+  legal_priority: 2
+  question_hint: 이 사업장에서 지정폐기물을 배출하나요?
+  help: '지정폐기물 처리계획 확인서, 올바로시스템의 지정폐기물 인계 기록을 확인하세요.
+
+    유해물질 함유량에 따라 지정폐기물이 될 수 있는 폐기물은 폐기물분석전문기관의 분석결과서로 확인합니다.
+
+    이 폐기물 자체의 지정 여부는 별도 질문으로 확인합니다. 다른 폐기물의 배출 여부는 기존 처리계획 확인서나 인계 기록을 확인하세요.'
+- key: daily_avg_kg
+  label: 하루 평균 배출량
+  type: number
+  unit: kg/일
+  ask_cost: 2
+  evidence_type: WASTE_DISCHARGE_REPORT
+  legal_priority: 2
+  question_hint: 이 사업장의 폐기물 배출량은 하루 평균 몇 kg인가요?
+  help: '올바로시스템 인계 기록이나 위탁 계량표로 일정 기간의 배출량 합계를 구한 뒤 조업일수로 나누세요.
+
+    하루 평균 300kg을 산정하는 기간·포함 범위를 직접 정한 근거는 아직 확보하지 못했습니다(실무 안내).'
+- key: work_type
+  label: 공사·작업 여부
+  type: enum
+  values:
+    none: 아니요 (평상시 사업장 운영)
+    construction: 건설산업기본법에 따른 건설공사
+    series: '그 밖의 일련의 공사 또는 작업 (예: 저장탱크 정기 청소)'
+  ask_cost: 1
+  legal_priority: 2
+  question_hint: 이 폐기물이 공사나 일회성 작업에서 나온 것인가요?
+- key: work_total_ton
+  label: 공사·작업 전체 배출량
+  type: number
+  unit: 톤
+  ask_cost: 2
+  evidence_type: CONSTRUCTION_CONTRACT
+  legal_priority: 2
+  question_hint: 그 공사·작업을 시작할 때부터 마칠 때까지 나오는(나온) 폐기물은 모두 몇 톤인가요?
+  help: 공사·작업 계획서의 폐기물 발생 예정량 또는 위탁 계량표 합계를 확인하세요.
+- key: physical_state
+  label: 배출 시 상태
+  type: enum
+  values:
+    solid: 고체
+    liquid: 액체(흐름)
+    semisolid: 반고체·점성·슬러지 상태
+  ask_cost: 1
+  legal_priority: 3
+  question_hint: 배출할 때 이 폐기물의 상태는?
+  help: 배출 시점의 실제 상태로 고르세요. 경계가 애매하면 '모름'으로 답하세요.
+- key: sludge_water_pct
+  label: 수분함량
+  type: number
+  unit: '%'
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 이 오니의 수분함량은 몇 %인가요?
+  help: '시험: 수분 및 고형물 — 폐기물공정시험기준(국립환경과학원고시 제2025-21호) 수분·고형물 시험
+
+    성적서에서 확인할 값: 수분함량(%)과 고형물함량(%)
+
+    법은 "수분함량 95% 미만이거나 고형물함량 5% 이상"을 요구합니다. 계산기는 수분함량으로 받습니다(고형물 = 100 − 수분으로 보는 해석).'
+- key: sludge_facility_notified
+  label: 고시된 오니 발생시설
+  type: bool
+  ask_cost: 2
+  evidence_type: FACILITY_NOTIFICATION
+  legal_priority: 3
+  question_hint: 이 오니가 나온 시설이 기후에너지환경부장관이 고시한 오니 발생시설에 해당하나요?
+  help: 오니 발생시설을 정한 기후에너지환경부 고시(2025-10-01 시행)의 시설 목록과 사업장 배출시설을 대조하세요.
+- key: ph
+  label: pH
+  type: number
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 이 폐액의 pH(수소이온 농도지수)는 얼마인가요?
+  help: '시험: 수소이온농도(pH) — 폐기물공정시험기준 ES 06304.1 수소이온농도-유리전극법
+
+    성적서에서 확인할 값: pH 값(0.01 단위), 측정 온도, 시료 채취일'
+- key: dust_from_apc
+  label: 대기오염 방지시설 포집 분진
+  type: bool
+  ask_cost: 1
+  legal_priority: 3
+  question_hint: 이 분진이 대기오염 방지시설(집진기 등)에서 포집된 것인가요?
+- key: oil_presence
+  label: 기름 묻음·섞임
+  type: enum
+  values:
+    none: 기름이 묻거나 섞이지 않음
+    present: 기름이 묻어 있거나 섞여 있음
+  ask_cost: 1
+  legal_priority: 3
+  question_hint: 이 폐기물에 기름(윤활유·절삭유·작동유 등)이 묻어 있거나 섞여 있나요?
+  help: 사용한 공정에서 절삭유·윤활유를 쓰는지, 겉에 기름막이나 기름 냄새가 있는지 확인하세요. 확실하지 않으면 '모름'으로 답하세요.
+  prior:
+    none: 0.8
+  none_value: none
+- key: oil_content_pct
+  label: 기름성분 함량
+  type: number
+  unit: '%'
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 기름성분 함량은 몇 %(중량)인가요?
+  help: '시험: 기름성분 — 폐기물공정시험기준 ES 06302.1b 기름성분-중량법
+
+    성적서에서 확인할 값: 기름성분(%), 시료 채취일, 분석기관'
+- key: pcb_possible
+  label: PCB 사용 기기·절연유 관련
+  type: bool
+  ask_cost: 2
+  evidence_type: EQUIPMENT_NAMEPLATE
+  legal_priority: 3
+  question_hint: 이 폐기물이 PCB(폴리클로리네이티드비페닐)를 쓴 변압기·콘덴서·절연유 등과 관련이 있나요?
+  help: 변압기·콘덴서 명판의 절연유 종류와 제조연도, 기존 PCB 분석 기록을 확인하세요.
+  prior:
+    false: 0.97
+  none_value: false
+- key: pcb_mg_l
+  label: PCB 함량(액체)
+  type: number
+  unit: mg/L
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: (액체) PCB 함량은 1리터당 몇 mg인가요?
+  help: '시험: 폴리클로리네이티드비페닐(PCBs) — 폐기물공정시험기준 PCBs 시험
+
+    성적서에서 확인할 값: mg/L'
+- key: pcb_leach_mg_l
+  label: PCB 용출 농도
+  type: number
+  unit: mg/L
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: (액체 외) PCB 용출액 농도는 1리터당 몇 mg인가요?
+  help: '시험: 폴리클로리네이티드비페닐(PCBs) 용출 — 폐기물공정시험기준 용출시험 + PCBs 시험
+
+    성적서에서 확인할 값: 용출액 mg/L'
+- key: toxic_chemical_discard
+  label: 유해화학물질 폐기
+  type: bool
+  ask_cost: 2
+  evidence_type: MSDS
+  legal_priority: 3
+  question_hint: 버리는 약품이 MSDS나 화학물질정보시스템에서 유해화학물질로 표시되어 있나요?
+  help: 폐기하려는 화학물질의 물질안전보건자료(MSDS)와 화학물질정보시스템에서 해당 물질 지정 여부를 확인하세요.
+  prior:
+    false: 0.97
+  none_value: false
+- key: leach_pb
+  label: 납 용출 농도
+  type: number
+  unit: mg/L
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 용출시험 결과 납 농도는 용출액 1리터당 몇 mg인가요?
+  help: '시험: 납 용출 — 폐기물공정시험기준 용출시험
+
+    성적서에서 확인할 값: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)'
+- key: leach_cu
+  label: 구리 용출 농도
+  type: number
+  unit: mg/L
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 용출시험 결과 구리 농도는 용출액 1리터당 몇 mg인가요?
+  help: '시험: 구리 용출 — 폐기물공정시험기준 용출시험
+
+    성적서에서 확인할 값: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)'
+- key: leach_as
+  label: 비소 용출 농도
+  type: number
+  unit: mg/L
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 용출시험 결과 비소 농도는 용출액 1리터당 몇 mg인가요?
+  help: '시험: 비소 용출 — 폐기물공정시험기준 용출시험
+
+    성적서에서 확인할 값: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)'
+- key: leach_hg
+  label: 수은 용출 농도
+  type: number
+  unit: mg/L
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 용출시험 결과 수은 농도는 용출액 1리터당 몇 mg인가요?
+  help: '시험: 수은 용출 — 폐기물공정시험기준 용출시험
+
+    성적서에서 확인할 값: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)'
+- key: leach_cd
+  label: 카드뮴 용출 농도
+  type: number
+  unit: mg/L
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 용출시험 결과 카드뮴 농도는 용출액 1리터당 몇 mg인가요?
+  help: '시험: 카드뮴 용출 — 폐기물공정시험기준 용출시험
+
+    성적서에서 확인할 값: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)'
+- key: leach_cr6
+  label: 6가크롬 용출 농도
+  type: number
+  unit: mg/L
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 용출시험 결과 6가크롬 농도는 용출액 1리터당 몇 mg인가요?
+  help: '시험: 6가크롬 용출 — 폐기물공정시험기준 용출시험
+
+    성적서에서 확인할 값: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)'
+- key: leach_cn
+  label: 시안화합물 용출 농도
+  type: number
+  unit: mg/L
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 용출시험 결과 시안화합물 농도는 용출액 1리터당 몇 mg인가요?
+  help: '시험: 시안화합물 용출 — 폐기물공정시험기준 용출시험
+
+    성적서에서 확인할 값: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)'
+- key: leach_op
+  label: 유기인화합물 용출 농도
+  type: number
+  unit: mg/L
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 용출시험 결과 유기인화합물 농도는 용출액 1리터당 몇 mg인가요?
+  help: '시험: 유기인화합물 용출 — 폐기물공정시험기준 용출시험
+
+    성적서에서 확인할 값: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)'
+- key: leach_pce
+  label: 테트라클로로에틸렌 용출 농도
+  type: number
+  unit: mg/L
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 용출시험 결과 테트라클로로에틸렌 농도는 용출액 1리터당 몇 mg인가요?
+  help: '시험: 테트라클로로에틸렌 용출 — 폐기물공정시험기준 용출시험
+
+    성적서에서 확인할 값: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)'
+- key: leach_tce
+  label: 트리클로로에틸렌 용출 농도
+  type: number
+  unit: mg/L
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 용출시험 결과 트리클로로에틸렌 농도는 용출액 1리터당 몇 mg인가요?
+  help: '시험: 트리클로로에틸렌 용출 — 폐기물공정시험기준 용출시험
+
+    성적서에서 확인할 값: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)'
+- key: battery_damaged
+  label: 전지 손상·훼손
+  type: bool
+  ask_cost: 1
+  legal_priority: 3
+  question_hint: 이 폐이차전지에 침수·화재·변형·파손이 있거나, 셀이 훼손되어 유해물질 유출·화재·폭발 위험이 있나요?
+- key: designated_residue
+  label: 지정폐기물 잔류물
+  type: bool
+  ask_cost: 1
+  legal_priority: 3
+  question_hint: 이 용기·포장재·물건에 원래 담았던 기름·용제·산·알칼리·페인트·유해화학물질이 남아 있거나 묻어 있나요?
+  help: 용기 안과 겉에 원래 내용물이 남아 있는지 보세요. 세척했다면 세척 기록을 확인하세요.
+  prior:
+    false: 0.9
+  none_value: false
+- key: residue_kind
+  label: 남아 있는 내용물
+  type: enum
+  values:
+    waste_oil: 기름(윤활유·절삭유·작동유 등)
+    organic_solvent: 유기용제(시너·세척제 등)
+    acid: 산(pH 2.0 이하로 알려진 것)
+    alkali: 알칼리(pH 12.5 이상으로 알려진 것)
+    paint: 페인트·래커
+    toxic_chemical: 유해화학물질(MSDS상 유독물질 등)
+  ask_cost: 1
+  legal_priority: 3
+  question_hint: 남아 있거나 묻어 있는 내용물은 무엇인가요?
+  help: 용기 라벨과 물질안전보건자료(MSDS)로 원래 내용물을 확인하세요.
+- key: annex4_code
+  label: 별표 4 분류번호
+  type: enum
+  values:
+    01-01-01: 01-01-01 폐폴리에틸렌
+    01-01-02: 01-01-02 폐폴리프로필렌
+    01-01-03: 01-01-03 폐폴리염화비닐수지
+    01-01-04: 01-01-04 폐폴리에틸렌테레프탈레이트
+    01-01-05: 01-01-05 폐페놀수지
+    01-01-06: 01-01-06 폐폴리우레탄
+    01-01-07: 01-01-07 폐합성고무
+    01-01-08: 01-01-08 폐폴리스티렌
+    01-01-09: 01-01-09 폐아크리로니트릴브타디엔스티렌(ABS수지)
+    01-01-99: 01-01-99 그 밖의 폐합성고분자화합물
+    01-02-01: 01-02-01 폐수처리오니
+    01-02-02: 01-02-02 유리식각공정오니
+    01-02-03: 01-02-03 제지공정오니
+    01-02-04: 01-02-04 실리콘제조공정오니
+    01-02-05: 01-02-05 보크사이트잔재물
+    01-02-99: 01-02-99 그 밖의 공정오니
+    01-03-01: 01-03-01 유기인계폐농약
+    01-03-02: 01-03-02 유기염소계폐농약
+    01-03-03: 01-03-03 카바메이트계(Carbamate)폐농약
+    01-03-99: 01-03-99 그 밖의 폐농약
+    02-01-01: 02-01-01 폐염산
+    02-01-02: 02-01-02 폐황산(폐황산이 포함된 2차폐축전지는 제외한다)
+    02-01-03: 02-01-03 폐질산
+    02-01-04: 02-01-04 폐불산
+    02-01-05: 02-01-05 LCD·반도체 공정의 폐산
+    02-01-99: 02-01-99 그 밖의 폐산
+    02-02-01: 02-02-01 폐가성소다수
+    02-02-02: 02-02-02 폐암모니아수
+    02-02-03: 02-02-03 폐수산화나트륨(고상)
+    02-02-04: 02-02-04 폐수산화칼륨(고상)
+    02-02-99: 02-02-99 그 밖의 폐알칼리
+    03-01-01: 03-01-01 알루미늄제조공정광재
+    03-01-02: 03-01-02 납 열처리·야금(冶金)공정광재
+    03-01-03: 03-01-03 아연열처리공정광재
+    03-01-04: 03-01-04 철제조공정광재(철광원석의 사용으로 인한 고로슬래그는 제 외한다)
+    03-01-99: 03-01-99 그 밖의 광재
+    03-02-00: 03-02-00 분진
+    03-03-01: 03-03-01 점토점결폐주물사
+    03-03-02: 03-03-02 화학점결폐주물사
+    03-03-03: 03-03-03 샌드블라스트폐사
+    03-03-99: 03-03-99 그 밖의 폐주물사 및 폐사
+    03-04-01: 03-04-01 폐내화물
+    03-04-02: 03-04-02 폐도자기조각
+    03-05-01: 03-05-01 생활폐기물 소각시설 비산재
+    03-05-02: 03-05-02 사업장폐기물 소각시설 비산재
+    03-05-03: 03-05-03 생활폐기물 소각시설 바닥재
+    03-05-04: 03-05-04 사업장폐기물 소각시설 바닥재
+    03-05-05: 03-05-05 생활폐기물 소각시설 소각재(바닥재와 비산재가 혼합된 경우 를 말한다)
+    03-05-06: 03-05-06 사업장폐기물 소각시설 소각재(바닥재와 비산재가 혼합된 경 우를 말한다)
+    03-05-07: 03-05-07 천연방사성제품폐기물 소각재
+    03-06-01: 03-06-01 안정화처리물
+    03-06-02: 03-06-02 시멘트고형화처리물
+    03-06-03: 03-06-03 고화처리물
+    03-06-04: 03-06-04 킬레이트(Chelate)처리물
+    03-06-05: 03-06-05 폐석면고형화처리물(석면을 1퍼센트 이상 함유한 경우로 한정 한다)
+    03-06-99: 03-06-99 그 밖의 고형화·고화처리물
+    03-07-01: 03-07-01 금속성폐촉매
+    03-07-02: 03-07-02 비금속성폐촉매
+    03-08-01: 03-08-01 폐흡착제
+    03-08-02: 03-08-02 폐흡수제
+    03-10-01: 03-10-01 황산이 포함된 폐이차전지
+    03-10-02: 03-10-02 알칼리가 포함된 폐이차전지
+    03-10-03: 03-10-03 리튬계 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험이 있 는 것으로 한정한다)
+    03-10-04: 03-10-04 이차전지 스크랩
+    03-10-99: 03-10-99 그 밖의 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것 과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험이 있는 것으로 한정한다)
+    04-01-00: 04-01-00 할로겐족 폐유기용제
+    04-02-00: 04-02-00 그 밖의 폐유기용제
+    05-01-00: 05-01-00 폐유성페인트
+    05-02-00: 05-02-00 폐수성페인트
+    05-03-00: 05-03-00 폐락카
+    06-01-01: 06-01-01 폐윤활유(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조에 따른 재활용의무 대상 제품·포장재인 기어유 및 내연 기관용 윤활유를 말한다)
+    06-01-02: 06-01-02 폐연마유·비수용성폐절삭유·폐열처리유(금속가공과정에서 발 생된 것을 말한다)
+    06-01-03: 06-01-03 폐기계유·폐작동유(공업용 기계유·냉동기유·터어빈유·베어링윤 활유·압축기유·유압작동유·열매체유 및 프로세스유 등을 말한 다)
+    06-01-04: 06-01-04 폐연료유
+    06-01-05: 06-01-05 폐오일필터
+    06-01-06: 06-01-06 기름함유 폐전선·폐케이블
+    06-01-07: 06-01-07 폐절연유(폴리클로리네이티드비페닐 함유 폐기물을 제외한다)
+    06-01-99: 06-01-99 그 밖의 폐광물유[아스팔트유·그리스(grease)·방청유 및 수용 성절삭유, 20퍼센트 이상의 이물질이 함유된 폐유, 고체상태의 폐유 등을 말한다]
+    06-02-00: 06-02-00 폐동식물유
+    06-03-00: 06-03-00 그 밖의 폐유
+    07-01-01: 07-01-01 흩날릴 우려가 없는 폐석면
+    07-01-02: 07-01-02 흩날릴 우려가 있는 폐석면
+    07-02-00: 07-02-00 석면제품 등의 연마·절단·가공 공정에서 발생된 부스러기 및 연 마·절단·가공 시설의 집진기에서 모아진 분진
+    07-03-00: 07-03-00 석면의 제거작업에 사용된 모든 비닐시트·방진마스크·작업복·집 진필터 등
+    08-01-00: 08-01-00 폴리클로리네이티드비페닐 함유 폐유
+    08-02-00: 08-02-00 폴리클로리네이티드비페닐 함유 폐유기용제
+    08-03-00: 08-03-00 그 밖의 폴리클로리네이티드비페닐을 함유한 액상의 것
+    08-04-00: 08-04-00 그 밖의 폴리클로리네이티드비페닐을 함유한 액상이 아닌 것
+    09-01-00: 09-01-00 「화학물질관리법」 제2조제5호에 따른 금지물질
+    09-02-00: 09-02-00 연구·검사용 폐시약
+    09-03-00: 09-03-00 「화학물질관리법」 제2조제7호에 따른 유해화학물질
+    09-04-00: 09-04-00 「화학물질관리법」 제2조제3호 및 제4호에 따른 허가물질 및 제한물질
+    10-11-00: 10-11-00 격리의료폐기물
+    10-12-01: 10-12-01 조직물류폐기물(태반을 재활용하는 경우는 제외한다)
+    10-12-02: 10-12-02 병리계폐기물
+    10-12-03: 10-12-03 손상성폐기물
+    10-12-04: 10-12-04 생물·화학폐기물
+    10-12-05: 10-12-05 혈액오염폐기물
+    10-12-06: 10-12-06 인체조직물 중 태반(재활용하는 경우에만 해당한다)
+    10-13-00: 10-13-00 일반의료폐기물
+    11-01-01: 11-01-01 수은함유 폐램프
+    11-01-02: 11-01-02 수은함유 폐계측기기
+    11-01-03: 11-01-03 수은함유 폐전지
+    11-02-00: 11-02-00 수은구성폐기물
+    11-03-00: 11-03-00 수은함유폐기물 처리잔재물
+    12-00-00: 12-00-00 천연방사성제품폐기물
+    51-01-01: 51-01-01 정수처리오니
+    51-01-02: 51-01-02 하수처리오니
+    51-01-03: 51-01-03 분뇨처리오니
+    51-01-04: 51-01-04 가축분뇨처리오니
+    51-01-05: 51-01-05 펄프·제지공정오니
+    51-01-06: 51-01-06 그 밖의 공정오니
+    51-01-07: 51-01-07 펄프·제지폐수처리오니
+    51-01-08: 51-01-08 그 밖의 폐수처리오니
+    51-01-99: 51-01-99 그 밖의 유기성오니
+    51-02-01: 51-02-01 폐수처리오니
+    51-02-02: 51-02-02 정수처리오니
+    51-02-03: 51-02-03 하수처리오니
+    51-02-04: 51-02-04 하수준설토
+    51-02-05: 51-02-05 건설오니
+    51-02-06: 51-02-06 석재·골재폐수처리오니(석재·골재 생산 시 발생한 폐수를 처리하 는 과정에서 발생한 오니로 한정한다)
+    51-02-07: 51-02-07 유리식각공정오니
+    51-02-08: 51-02-08 실리콘공정오니
+    51-02-09: 51-02-09 보크사이트잔재물
+    51-02-10: 51-02-10 영농폐기물(농업활동 과정에서 배출된 농업용 폐플라스틱 필름 ㆍ시트류에 한정한다) 폐수처리오니
+    51-02-11: 51-02-11 영농폐기물(농업활동 과정에서 배출된 농업용 폐플라스틱 필름 ㆍ시트류에 한정한다) 공정오니
+    51-02-19: 51-02-19 그 밖의 공정오니
+    51-02-99: 51-02-99 그 밖의 무기성오니
+    51-03-01: 51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)
+    51-03-02: 51-03-02 폐합성고무류
+    51-03-03: 51-03-03 폐폴리염화비닐수지류
+    51-03-04: 51-03-04 폐폴리우레탄폼류
+    51-03-05: 51-03-05 양식용폐부자
+    51-03-06: 51-03-06 폐발포합성수지
+    51-03-07: 51-03-07 플라스틱폐포장재
+    51-03-08: 51-03-08 폐어망
+    51-03-99: 51-03-99 그 밖의 폐합성고분자화합물(합성수지류로 피복된 폐전선을 포 함한다)
+    51-04-01: 51-04-01 고로슬래그
+    51-04-02: 51-04-02 제강슬래그
+    51-04-03: 51-04-03 비철금속제련공정광재
+    51-04-04: 51-04-04 선광공정광재(기후에너지환경부장관이 정하는 방법에 따라 관리 되는 것은 제외한다)
+    51-04-99: 51-04-99 그 밖의 광재류
+    51-05-01: 51-05-01 제철공정분진
+    51-05-02: 51-05-02 시멘트제조공정분진
+    51-05-03: 51-05-03 발전시설분진
+    51-05-04: 51-05-04 폐실리카 퓸(규소철 제조과정에서 발생된 분진을 말한다)
+    51-05-99: 51-05-99 그 밖의 분진
+    51-06-01: 51-06-01 점토점결폐주물사
+    51-06-02: 51-06-02 화학점결폐주물사
+    51-06-03: 51-06-03 샌드블라스트폐사
+    51-06-04: 51-06-04 폐여과사
+    51-06-99: 51-06-99 그 밖의 폐사
+    51-07-01: 51-07-01 폐내화물
+    51-07-02: 51-07-02 폐도자기조각
+    51-08-01: 51-08-01 생활폐기물 소각시설 비산재
+    51-08-02: 51-08-02 사업장폐기물 소각시설 비산재
+    51-08-03: 51-08-03 생활폐기물 소각시설 바닥재
+    51-08-04: 51-08-04 사업장폐기물 소각시설 바닥재
+    51-08-05: 51-08-05 생활폐기물 소각시설 소각재(바닥재와 비산재가 혼합된 경우를 말한다)
+    51-08-06: 51-08-06 사업장폐기물 소각시설 소각재(바닥재와 비산재가 혼합된 경우 를 말한다)
+    51-09-01: 51-09-01 안정화 처리물
+    51-09-02: 51-09-02 시멘트고형화 처리물
+    51-09-03: 51-09-03 고화 처리물
+    51-09-04: 51-09-04 킬레이트(Chelate) 처리물
+    51-09-99: 51-09-99 그 밖의 고형화·고화 처리물
+    51-10-01: 51-10-01 금속성폐촉매
+    51-10-02: 51-10-02 폐이온교환수지
+    51-10-03: 51-10-03 폐멤브레인수지
+    51-10-99: 51-10-99 그 밖의 폐촉매
+    51-11-01: 51-11-01 폐흡착제
+    51-11-02: 51-11-02 폐흡수제
+    51-11-03: 51-11-03 폐활성탄
+    51-12-01: 51-12-01 폐석고
+    51-12-02: 51-12-02 폐석회
+    51-13-01: 51-13-01 연탄재
+    51-13-02: 51-13-02 액체연료연소재
+    51-13-03: 51-13-03 석탄재
+    51-13-99: 51-13-99 그 밖의 연소잔재물
+    51-14-01: 51-14-01 폐석분토사(석재·골재생산 과정에서 발생한 응집 미립분을 포함 한다)
+    51-14-02: 51-14-02 폐석재
+    51-15-01: 51-15-01 자동차 폐타이어
+    51-15-02: 51-15-02 그 밖의 폐타이어
+    51-16-00: 51-16-00 폐식용유(식용을 목적으로 식품 재료와 원료를 제조·조리·가공하거 나 식용유를 유통·사용 또는 음식물류 폐기물을 처리하는 과정에서 발생하는 기름을 말한다)
+    51-17-01: 51-17-01 동물사체
+    51-17-02: 51-17-02 축산물가공잔재물(동물성 유지류는 제외한다)
+    51-17-03: 51-17-03 수산물가공잔재물
+    51-17-04: 51-17-04 폐패각
+    51-17-05: 51-17-05 폐모피류
+    51-17-06: 51-17-06 피혁 및 피혁가공잔재물
+    51-17-07: 51-17-07 동물털
+    51-17-08: 51-17-08 동물성유지류
+    51-17-19: 51-17-19 그 밖의 동물성잔재물
+    51-17-21: 51-17-21 주정박
+    51-17-22: 51-17-22 맥주박
+    51-17-23: 51-17-23 유박유잔재물
+    51-17-24: 51-17-24 초본류
+    51-17-25: 51-17-25 커피찌꺼기
+    51-17-26: 51-17-26 버섯폐배지
+    51-17-27: 51-17-27 과채류(「사료관리법」 제2조제2호에 따른 단미사료에 해당하 는 것으로 한정한다)
+    51-17-29: 51-17-29 그 밖의 식물성잔재물
+    51-17-30: 51-17-30 식재료 및 조리부산물(제18조제1항제1호에 따른 배출자 중 식 품제조ㆍ가공업체 및 같은 항 제3호에 따른 배출자 중 집단급 식소에서 발생한 것으로 한정한다)
+    51-17-99: 51-17-99 그 밖의 동·식물성잔재물
+    51-18-01: 51-18-01 가정용폐전기전자제품
+    51-18-02: 51-18-02 산업용폐전기전자제품
+    51-18-03: 51-18-03 프린트토너 및 카트리지폐부속품
+    51-18-99: 51-18-99 그 밖의 폐전기전자제품류
+    51-19-00: 51-19-00 왕겨 및 쌀겨(「사료관리법」에 따른 사료로 사용하는 경우는 제외한다)
+    51-20-21: 51-20-21 임목폐목재(건설공사ㆍ산지개간 등의 과정에서 발생된 나무뿌리 ㆍ가지ㆍ줄기 등을 말한다)
+    51-20-22: 51-20-22 제재부산물(원목 가공과정에서 발생되는 나무 껍질ㆍ톱밥ㆍ대패 밥 등을 말한다), 목재가공공장 부산물(원목상태의 깨끗한 목재부 산물 및 분진을 말한다)
+    51-20-23: 51-20-23 폐도장목ㆍ폐목재포장재ㆍ폐전선드럼ㆍ건설현장 폐목재(원목상 태의 깨끗한 목재를 말한다)
+    51-20-24: 51-20-24 접착제ㆍ페인트ㆍ기름ㆍ콘크리트 등의 물질이 사용된 폐목재(목 재부산물 및 분진을 포함한다)
+    51-20-25: 51-20-25 할로겐족 유기화합물 또는 방부제가 사용된 폐목재(목재부산물 및 분진을 포함한다) 및 건설현장의 실외목재구조물에서 발생되는 폐목재, 폐선박 및 차량에서 나오는 목재,
+      건축물 화재현장에서 발 생한 폐목재, 냉각탑, 산업용 바닥재 등에 사용된 폐목재
+    51-20-26: 51-20-26 폐철도목재받침목
+    51-20-27: 51-20-27 폐가구류
+    51-20-99: 51-20-99 그 밖의 폐목재류
+    51-21-01: 51-21-01 폐토사
+    51-21-02: 51-21-02 건설폐토석
+    51-21-03: 51-21-03 오염하천·오염해양 준설토
+    51-22-01: 51-22-01 폐콘크리트
+    51-22-02: 51-22-02 폐철도콘크리트받침목
+    51-23-00: 51-23-00 폐아스팔트콘크리트
+    51-24-00: 51-24-00 폐벽돌
+    51-25-00: 51-25-00 폐블록
+    51-26-00: 51-26-00 폐기와
+    51-27-01: 51-27-01 폐천연섬유
+    51-27-02: 51-27-02 폐합성섬유
+    51-27-03: 51-27-03 폐의류
+    51-27-04: 51-27-04 의료기관 일회용기저귀(별표 3에 따른 의료기관 및 시험ㆍ검사 기관 등에서 발생한 것을 말하며, 같은 표 제14호에 따른 노인요 양시설에서 발생한 것과 영 별표
+      2에 따른 의료폐기물에 해당하 는 것은 제외한다)
+    51-27-99: 51-27-99 그 밖의 폐섬유
+    51-28-01: 51-28-01 폐종이팩(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제 18조제1호에 해당하는 것을 말한다)
+    51-28-02: 51-28-02 폐종이류
+    51-28-03: 51-28-03 폐벽지
+    51-29-01: 51-29-01 고철
+    51-29-02: 51-29-02 비철금속
+    51-29-03: 51-29-03 폐금속캔류(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조제1호에 해당하는 것을 말한다)
+    51-29-04: 51-29-04 폐금속용기류(폐금속캔류는 제외한다)
+    51-29-99: 51-29-99 그 밖의 폐금속류
+    51-30-01: 51-30-01 폐유리
+    51-30-02: 51-30-02 폐유리병류(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조제1호에 해당하는 것을 말한다)
+    51-30-03: 51-30-03 폐스마트유리
+    51-30-04: 51-30-04 폐유리섬유
+    51-30-05: 51-30-05 수은함유폐기물 처리잔재물[수은함유폐기물을 처리하는 과정에 서 발생되는 것과 폐형광등을 재활용하는 과정에서 발생되는 것 을 포함하되, 폐기물공정시험기준에 따른 용출시험
+      결과 용출액 1 리터당 0.005밀리그램 미만의 수은 및 그 화합물이 함유된 것으 로 한정한다(이하 "수은폐기물이 아닌 수은함유폐기물 처리잔재 물"이라 한다)]
+    51-30-99: 51-30-99 그 밖의 폐유리
+    51-31-00: 51-31-00 폐타일
+    51-32-00: 51-32-00 폐보드류
+    51-33-00: 51-33-00 폐판넬
+    51-35-00: 51-35-00 폐전주(폐애자, 폐근가 및 폐합성수지제 덮개류 등을 포함한다)
+    51-36-01: 51-36-01 이산화탄소스트림
+    51-36-02: 51-36-02 이산화탄소전환탄산화물
+    51-37-01: 51-37-01 가전제품회수폐냉매물질
+    51-37-02: 51-37-02 자동차회수폐냉매물질
+    51-37-03: 51-37-03 공조기회수폐냉매물질
+    51-37-99: 51-37-99 그 밖의 폐냉매물질
+    51-38-01: 51-38-01 음식물류폐기물
+    51-38-02: 51-38-02 중간가공음식물류폐기물
+    51-38-03: 51-38-03 음식물류폐기물처리잔재물(액상의 경우만 해당한다)
+    51-38-99: 51-38-99 그 밖의 음식물류폐기물처리잔재물
+    51-39-00: 51-39-00 폐사료
+    51-40-01: 51-40-01 폐분말소화기
+    51-40-99: 51-40-99 그 밖의 폐소화기
+    51-41-01: 51-41-01 폐일차전지
+    51-41-04: 51-41-04 폐태양전지ㆍ전자기기페이스트ㆍ태양광 폐패널
+    51-41-05: 51-41-05 전기자동차 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험 이 있는 것은 제외한다)
+    51-41-06: 51-41-06 구동용 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험이 있 는 것은 제외한다)
+    51-41-07: 51-41-07 폐양극활물질(양극재 또는 전구체 제조공정에서 발생하는 것을 포함한다)
+    51-41-08: 51-41-08 폐연료전지
+    51-41-99: 51-41-99 그 밖의 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험이 있 는 것은 제외한다)
+    51-42-00: 51-42-00 폐의약품류
+    51-43-00: 51-43-00 폐흑연가루
+    51-44-00: 51-44-00 나노폐기물(나노물질을 제조·가공하는 과정에서 발생된 분진을 말 한다)
+    51-45-01: 51-45-01 폐차파쇄잔재물
+    51-45-02: 51-45-02 폐차부품류
+    51-45-99: 51-45-99 그 밖의 폐차발생폐기물
+    51-46-00: 51-46-00 의료폐기물 멸균분쇄잔재물
+    51-47-01: 51-47-01 폐형광등
+    51-47-02: 51-47-02 폐발광다이오드조명
+    51-99-00: 51-99-00 그 밖의 폐기물
+  domain: referenced
+  ask_last: true
+  auto_single: true
+  internal: true
+  ask_cost: 1
+  legal_priority: 1
+  question_hint: 시행규칙 별표 4의 세부분류 중 이 폐기물에 해당하는 번호
+  help: 기존 배출자신고서나 처리 계약서의 분류번호와 명칭을 대조하세요. '그 밖의' 번호는 같은 분류의 다른 번호에 해당하지 않을 때만 고릅니다.

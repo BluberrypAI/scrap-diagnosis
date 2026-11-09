@@ -1,42 +1,10 @@
-# Python
 __pycache__/
 *.py[cod]
-*.egg-info/
 .pytest_cache/
+.ruff_cache/
+.hypothesis/
 .venv/
-build/
-dist/
-
-# 1MB가 넘는 원본은 저장소에 넣지 않는다 (URL·SHA-256은 data/*.csv, collect/collected.csv에 기록됨)
-# 판정 규칙·테스트에 쓰는 법령 원문(1MB 미만)은 저장소에 포함한다.
-sources/raw/add-guide-waste-report-hwpx.hwpx
-sources/raw/tc-moe-qa-casebook-2025-07.pdf
-sources/raw/wonju-environment-qa-posted-2026-08-11.pdf
-sources/raw/classification-guide-2023.pdf
-sources/raw/wonju-qa-2026.pdf
-sources/raw/nier-test-2025.zip
-sources/raw/wonju-recycling-qa-posted-2026-08-11.pdf
-
-# OS
-Thumbs.db
-desktop.ini
-.DS_Store
-
-# 비밀값
 .env
-.wastecalc/
-
-# ---- 엔진 기능만 저장소에 둔다(로컬에만 유지)
-# 로컬 시험 화면(팀 디자인 사본·시험용 화면)
-src/wastecalc/web/static/
-src/wastecalc/web/scrap/
-# 법령 원문(용량 큼 — rules/sources.yaml에 경로·해시 기록, 원문 대조 테스트는 원문이 있을 때만)
-sources/raw/
-# 자료 수집·검수 과정의 중간 산출물(Codex 작업 결과)
-collect/
-audit/
-inventory/
-data/*
-!data/code_interpretations.csv
-!data/allowed_recycling.csv
-tmp/
+*.sqlite3
+*.db
+var/

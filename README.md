@@ -1,174 +1,104 @@
-# resource_engine — 산업폐기물 법적 지위 계산기 (규칙 엔진 + MCP)
+# waste-diagnosis
 
-중소 제조업 담당자가 폐기물에 대한 사실을 답하면, **폐기물관리법령으로** 다음을 판정한다.
+폐기물 분류 코드 판정 엔진과 문진 에이전트. 원칙은 **LLM은 제안하고, 규칙 엔진이 판정하고, 서버가 검증한다.**
 
-> 폐기물인가 → 폐기물관리법이 적용되는가 → 사업장폐기물(산업폐기물)인가 → 지정폐기물인가 → 분류번호(시행규칙 별표 4) → 재활용 가능 유형(별표 4의3)
+현재 진행: M1(엔진 코어), M2(질문 선택·라우터·시뮬레이터), M2R(기존 엔진 실제 규칙 변환), M3(LLM 추출·응답·guard), M4(API·영속화·문서·confirm/reopen·Trace) 완료. 통합 작업안(서버 내부 API·서류 검수·AI 전송 정책·기업 데이터 삭제) 반영. 문서 목차: [docs/README.md](docs/README.md), 팀원용 안내: [docs/team/guide.md](docs/team/guide.md).
 
-**원칙**
-
-- **판단은 법이 한다.** 판정은 조문 원문을 인용한 규칙 표로만 한다. 엔진은 LLM을 쓰지 않는다. 자연어 설명에서 사실을 제안하는 일은 에이전트(scrap-ai 등)가 맡고, 엔진의 사실 목록(`GET /api/classification/facts`, MCP `list_facts`)에 있는 값만 제안해 사용자 확인을 받은 뒤 넣는다.
-- **모르면 추측하지 않고, 구분하는 기준을 안내한다.** 무엇을 확인하면 갈리는지, 어떤 서류·시험이 필요한지 알려 준다.
-- **법 조문으로 정할 수 없으면 결론 대신 문의처를 안내한다.** 근거가 해설·질의회신뿐인 지점은 관할 기관과 질의서 초안을 준다.
-- **모든 결과에 근거 조문 원문, 법령 판, 판정 기준일**을 붙인다. 같은 입력·같은 기준일이면 항상 같은 결과.
-
-> ⚠️ 시험용 시제품이다. 모든 규칙은 `review: UNVERIFIED`(사람 검토 전)이며, 결과는 법적 판단이나 유권해석이 아니다.
-
----
-
-## 빠른 시작
-
-Python 3.11 이상.
-
+## 실행
 ```bash
-pip install -e ".[test]"
-python -m pytest -q                  # 테스트
-python -m wastecalc.web              # 웹 화면 (아래 주소)
-python -m wastecalc.server           # MCP 서버(stdio)
+uv sync
+uv run pytest
+uv run ruff check . && uv run ruff format --check .
+uv run python scripts/simulate.py data/sample/scenarios/
+uv run python scripts/simulate.py --data data/real data/real/scenarios/
 ```
 
-`pip install -e .` 없이 쓰려면 환경변수 `PYTHONPATH=src`를 준다.
-
-저장소에는 **엔진 기능만** 둔다. 실행하면 HTTP API만 열린다(`python -m wastecalc.web`, 문서는 http://127.0.0.1:8000/docs).
-로컬 시험 화면(`src/wastecalc/web/static/`, `src/wastecalc/web/scrap/` — 팀 디자인 사본)은 저장소에서 뺐고, 파일이 있는 로컬에서만 `/`·`/test`가 열린다.
-
-팀 웹(scrap-web, React)용 API는 `/api/classification/*`(화면이 읽는 모양으로 응답, `src/wastecalc/scrap_view.py`). 운영에서는 서버(scrap-server)가 상태 없는 `evaluate`·`apply`·`record`를 부르고 상태는 서버 DB에 둔다 → `docs/scrap-web-integration.md`(응답 형식·UI 수정·합의 사항), `docs/db-server-integration.md`(DB 이전·서버 통합).
-
-### MCP 클라이언트에 연결
-
-```json
-{
-  "mcpServers": {
-    "wastecalc": { "command": "wastecalc-mcp" }
-  }
-}
+골든 평가(LLM 설정은 `.env`, 이름은 `.env.example`):
+```bash
+uv run python scripts/eval.py --mock-extractor   # LLM 없이
+uv run python scripts/eval.py                    # 실제 Azure
+uv run python scripts/eval_extractor.py          # 기존 질의회신 60건 추출 평가
 ```
 
-설치 없이 쓰면 `command`를 Python 경로로, `args`를 `["-m", "wastecalc.server"]`로, `env`에 `PYTHONPATH`(이 저장소의 `src` 절대 경로)를 준다. 시험 시나리오와 에이전트 지시문은 [docs/mcp-test-scenarios.md](docs/mcp-test-scenarios.md).
+기존 엔진 규칙을 다시 변환할 때(기존 저장소 위치: 환경변수 `LEGACY_ENGINE_DIR`, 없으면 이 저장소 옆의 `resource_engine`):
+```bash
+uv run python tools/convert_legacy.py --regression
+uv run python tools/legacy_regression.py --write
+```
 
+## API 서버 (M4)
+```bash
+uv run uvicorn app.main:app --port 8030      # 문서: http://localhost:8030/docs
+uv run alembic upgrade head                  # 운영 스키마(DATABASE_URL). 개발은 시작 시 create_all
+uv run alembic -x url=sqlite:///var/other.db upgrade head
+```
 
----
+PostgreSQL(운영과 같은 DB로 개발·테스트):
+```bash
+docker compose up -d db                                   # 호스트 포트 55432
+uv run alembic -x url=postgresql+psycopg://wd:wd@localhost:55432/waste_diagnosis upgrade head
+TEST_DATABASE_URL=postgresql+psycopg://wd:wd@localhost:55432/postgres uv run pytest   # 테스트마다 새 DB
+docker compose --profile app up -d --build                # DB + 엔진 컨테이너(포트 8030)
+uv run python scripts/turn_latency.py                     # 실제 Azure로 턴당 지연 측정
+```
+- 설정(`.env`/환경변수): `DATABASE_URL`(기본 `sqlite:///<저장소>/var/app.db`), `KB_DIR`(기본 `data/real`),
+  `DB_CREATE_ALL`(기본 true), `LLM_PROVIDER`(off면 LLM 없이 선택지 버튼·라벨만 받음),
+  `DB_POOL_SIZE`·`DB_MAX_OVERFLOW`(PostgreSQL 연결 풀), `THREAD_LIMIT`(동시 처리 턴 수, 기본 40)
+- 기업 격리: 서버용 경로 `/internal/v1`은 `Authorization: Bearer <ENGINE_SERVICE_TOKEN>` + `X-Company-Id`(서버 기업 ID). 루트 경로는 개발·참조 화면용으로 `X-Company-Id`만 쓴다. 다른 기업의 건은 404. 자세한 규약은 `docs/api/server-engine-contract.md`.
+- 코드 없는 결론도 확정한다: 규칙 엔진이 분류번호 없이 결론을 낸 경우(폐기물 아님·순환자원·적용 제외·
+  생활폐기물·해석 필요·일반 번호 없음·시험 필요·혼합물)는 `FINAL_REVIEW`(`verdict.waste_code` null,
+  `verdict.outcome`)이고 확정하면 `CODE_CONFIRMED`다. 결론이 나지 않은 경우(질문 상한·증빙 거부·규칙 없음)는
+  그대로 `UNSUPPORTED`/`NEEDS_INFO`이고 확정할 수 없다(409).
+- 경로추천 AI 인계: 확정할 때 `diagnosis-handoff-v1` 객체(`docs/handoff-contract.md`)를 만들어 판정 버전에
+  저장하고 confirm 응답·`GET /cases/{id}`의 `handoff`로 낸다. `route_guidance`는 데이터 파일
+  `data/<kb>/outcome_guidance.yaml`에서 온다(항목이 빠지면 KB 로드·서버 시작 실패).
+- 시각: UTC로 저장하고 응답·인계 객체에는 Asia/Seoul(+09:00) ISO 8601로 낸다. 건에 `diagnosis_started_at`·
+  `last_activity_at`·`as_of`, 판정 버전에 `confirmed_at`·`reopened_at`. `as_of`(법 기준일)는 대화를 시작한
+  Asia/Seoul 날짜이고 reopen해도 바뀌지 않는다.
 
-## 판정 단계
-
-| 단계 | 결론 | 근거 |
+| 메서드 | 경로 | 설명 |
 |---|---|---|
-| S0 | 폐기물 / 폐기물 아님 / 순환자원 | 폐기물관리법 제2조제1호, 순환경제사회 전환 촉진법 제21조제5항 (질문: 이 물질을 어떻게 하나요? — 계속 사용 / 같은 공정 재투입 / 연속공정 원료 / 내보냄) |
-| S1 | 폐기물관리법 적용 / 적용 제외(다른 법) | 폐기물관리법 제3조 (제외 사유 10가지) |
-| S2 | 사업장폐기물 / 생활폐기물(범위 밖) | 법 제2조제2·3호, 시행령 제2조, 배출자신고 지침 Ⅴ. S3 결과를 참조(작은 사업장도 지정폐기물을 내면 사업장폐기물) |
-| S3 | 지정폐기물 / 아님 / 해석 필요 | 시행령 별표 1 전 항목, 시행규칙 별표 1 용출 기준. 지정 세부 품목 36가지 |
-| S4 | 분류번호(산업폐기물 279개 중 272개 도달 가능) | 시행규칙 별표 4. 앞 단계로 번호 범위를 좁히고, 범위 안에서 법령 명칭으로 고른다 |
-| S5 | 재활용 금지 / 제한 / 허용 R코드 / 유형 미지정 | 법 제13조의2②, 시행규칙 제14조의3②, 시행령 별표 4의3, 시행규칙 별표 4의2·4의3 |
+| POST | `/companies` | (개발용) 기업 생성. `profile.facts`는 문진 시작 때 PROFILE 사실 |
+| GET / PUT | `/companies/me`, `/companies/me/profile` | 내 기업 조회·프로필 수정 |
+| POST | `/cases` | 건 생성(memo·quantity·unit·period) → 첫 턴 응답 |
+| GET | `/cases?status=` | 상태별 목록 |
+| GET | `/cases/{id}` | 건 상세 + 현재 판정·판정 버전·마지막 턴·문서 |
+| POST | `/cases/{id}/diagnosis/messages` | `{text}` 또는 `{quick_reply:{key,kind,value}}` → md 10절 응답 |
+| POST | `/cases/{id}/documents` | multipart `file`(.txt/.md/.pdf), 선택 `facts`(JSON) → EVIDENCED → 재평가 |
+| POST | `/cases/{id}/confirm` | 서버 재평가 후 판정 버전 고정 + 인계 객체(`handoff`) → `CODE_CONFIRMED` (불가 시 409) |
+| POST | `/cases/{id}/reopen` | `CODE_CONFIRMED`에서만. 이전 판정은 버전으로 보존 |
+| GET | `/cases/{id}/trace` | Decision Trace 전체(사실 이력·턴·확정 기록) |
 
-결과 상태: `DETERMINED`(완료) · `NEED_INFO`(정보 필요) · `NEED_TEST`(시험 필요, 시험 항목·방법 안내) · `NEED_EXPERT`(전문가·기관 확인, 문의처·질의서 초안) · `OUT_OF_SCOPE`(범위 밖 또는 그 날짜의 규칙 없음).
+## 데이터
+- `data/sample/` — 엔진 검증용 SAMPLE 규칙. `SAMPLE-` 코드와 `(샘플)` 조문만 있다.
+- `data/real/` — 기존 엔진에서 변환한 실제 규칙(자동 생성, 직접 고치지 않음)
+  - 소재별 PRIORITY 테이블 97개, 사실 카탈로그, 묶음 질문, 별표 4 코드표, 출처
+  - `conversion_report.md`: 우선순위 대역, 변환하지 않은 기능, 의도한 차이
+  - `regression/`: 기존 판정표 4281행과의 비교 데이터·결과
+  - 모든 규칙은 `review: UNVERIFIED`다. 법률 검토 전에는 판정을 참고용으로만 쓴다.
+- `data/<kb>/outcome_guidance.yaml` — 결론 종류 → 경로추천 AI 안내(사람이 관리, 변환기가 만들지 않음)
+- `tools/legacy_overrides.yaml` — 변환할 때 사람이 정하는 값(사전확률, 묶음 질문, 증빙 문서 이름)
 
-`strict=true`(기본)이면 사람이 검토하지 않은 규칙으로 나온 결론은 잠정(`provisional`)으로 표시한다.
+## 구조
+- `app/domain/` — `Fact`(append-only, 유효 사실 선택), `NumRange`(구간 응답)
+- `app/rules/loader.py` — YAML 로드·정적 검증(`includes`, `applies_when`, 시행일 필터)
+- `app/rules/evaluator.py` — 3값 평가기. md 6절 + `blocking_facts`(확정을 실제로 막는 미확인 사실)
+- `app/rules/selector.py` — 정보가치 질문 선택. 묶음 질문, prior, gain 0 질문 제외, 번호 선택은 마지막
+- `app/rules/conflicts.py` — 진술과 문서의 충돌, 후보 0개 설명
+- `app/agent/router.py` — 결정적 분기 라우터. `run_engine`은 한 턴의 LLM 없는 부분(자동 채움 포함)
+- `app/agent/simulation.py`, `scripts/simulate.py` — 스크립트 답변 시뮬레이터
+- `app/agent/{llm_client,extractor,guard,responder,templates,orchestrator}.py` — LLM 제안·검증, 한 턴 처리
+- `app/domain/{verdict,trace}.py` — 응답 스키마(md 10절), Decision Trace
+- `tools/convert_legacy.py`, `tools/legacy_regression.py` — 기존 규칙 변환과 회귀 비교
+- `app/main.py`, `app/api/` — FastAPI 앱 팩토리, 라우터, 서비스(상태 전이), 문서 텍스트 추출
+- `app/persistence/` — SQLAlchemy 모델·저장소(요청마다 DB 행에서 문진 세션 복원), `alembic/` 마이그레이션
 
----
+## 기존 엔진 대비 질문을 줄이는 장치
+1. 질문 풀은 확정을 실제로 막는 사실(`blocking_facts`)로만 만든다.
+2. 결과를 바꿀 수 없는 질문(정보가치 0)은 고르지 않는다.
+3. 묶음 질문 '모두 해당 없음'을 한 번 누르면 위험 사실 여러 개를 한꺼번에 CLAIMED=false로 넣는다.
+4. 문진 전에 알고 있는 사실(기업 프로필, 건 메모, 자유 진술)은 다시 묻지 않는다.
+5. 시험 항목 하나를 '모름'이라 하면 같은 성적서의 다른 항목은 묻지 않고 성적서를 한 번에 요청한다.
+6. 별표 4 번호는 다른 사실이 모두 풀린 뒤에만 묻고, 후보가 하나면 자동으로 정한다.
 
-## 저장소 구조
-
-```
-rules/            판정 규칙과 표(엔진은 이것만 읽는다)
-  facts.yaml        받는 사실: 질문, 형식, 허용 값, 확인 방법
-  rules.yaml        단계 정의, S0~S2 규칙(조건 + 조문 원문 + 쉬운 설명 + 검토 상태)
-  rules_s3.yaml     S3 규칙 122개 (tools/build_s3_rules.py가 생성 — 직접 고치지 않음)
-  annex4_codes.yaml 별표 4 번호 313개 (tools/build_annex4.py가 원문에서 추출)
-  annex43.yaml      별표 4의3 재활용 가능 유형 (tools/build_annex43.py가 괘선 좌표로 추출)
-  r_codes.yaml      별표 4의2 R코드 정의 52개
-  s4_map.yaml       S3 결과 → 별표 4 번호 범위 대응표
-  s5_rules.yaml     재활용 금지·제한
-  consult.yaml      문의처(지침 Ⅳ 기관별 관할)
-  glossary.yaml     용어 풀이
-  sources.yaml      인용 원문 파일, 법령 판, 유효 기간
-src/wastecalc/
-  engine.py         판정 엔진(3값 논리, 후보 지우기, 이유·확인 방법·문의 안내 조립)
-  kb.py             규칙 불러오기, 기준일별 보기(as_of), 형식 검사
-  annex4.py         S4 분류번호
-  recycling.py      S5 재활용
-  compact.py        대화용 간략 응답
-  render.py         사람이 읽는 안내문
-  server.py         MCP 서버(도구 8개)
-  scrap_view.py     팀 웹 문진 화면용 응답 변환
-  record.py         판정 기록(이후 단계용 고정 형식, schemas/)
-  web/app.py        HTTP API(FastAPI)
-data/             엔진이 읽는 보조 표 2개만(code_interpretations.csv, allowed_recycling.csv)
-schemas/          판정 기록 JSON 스키마
-testdata/         질의회신·판례 정답셋 178건, 평가 결과, 블라인드 시험
-tools/            표 생성기, 평가 스크립트
-tests/            테스트(원문 대조 테스트는 법령 원문이 있는 로컬에서만 실행)
-docs/             작업 지시서, 시험 시나리오
-```
-
-엔진을 읽는 순서: `src/wastecalc/engine.py`의 `evaluate` → `eval_stage` → `eval_rule` / `eval_condition` → `_resolution` → `_consult`.
-
-### MCP 도구
-
-| 도구 | 하는 일 |
-|---|---|
-| `list_facts` | 받는 사실과 허용 값 |
-| `start_assessment` / `answer_question` | 세션 판정(여러 답을 `answers`로 한 번에). 기본은 간략 응답 |
-| `evaluate_facts` | 세션 없이 한 번에 판정 |
-| `explain` | 근거 원문·경우의 수 전체·용어 풀이 |
-| `get_rule` | 규칙 한 행(조건·원문·판) 재조회 |
-| `allowed_recycling_types` / `r_code_definition` | 분류번호별 재활용 유형, R코드 정의 |
-
----
-
-## 결과 설명
-
-안내문은 **한 줄 결론 → 단계별 결론과 '왜' → 아직 확인할 것 → 근거 원문 → 용어 풀이** 순서다.
-
-- `plain`: 규칙마다 쉬운 설명(법적 효력 없음, 원문이 우선). 숫자는 규칙의 기준값·원문에 있는 것만(테스트로 검사).
-- `because`: 입력값과 기준을 나란히 — 예: "하루 평균 배출량: 450kg/일 → 기준 '300kg/일 이상' 충족". '아님' 결론은 경로마다 왜 해당하지 않았는지.
-- `consult`: 근거가 해설·질의회신뿐이면 결론 대신 문의처(유역(지방)환경청·시도·시군구·국민신문고)와 질의서 초안. 사례상 결론은 `reference_conclusion`으로만 보여 주고, 다른 단계 판정의 근거로도 쓰지 않는다.
-
----
-
-## 법령 판과 기준일(as_of)
-
-모든 판정은 **기준일**(`as_of`, 기본 오늘)에 시행 중인 법령의 규칙으로만 한다.
-
-- 규칙의 유효 기간 = 근거 원문(`sources.yaml`)의 `effective_on` ~ `effective_to`. `effective_to`는 **인용한 문언이 바뀌기 전날**로 적는다.
-- 별표 표는 판별로 파일을 따로 두고(`annex4_codes*.yaml` 등) 파일의 `source`로 기간을 정한다.
-- 어떤 단계 규칙 중 하나라도 기준일에 유효한 판이 없으면 그 단계는 판정하지 않는다(`NO_RULES_FOR_DATE`). 판 기간이 겹치면 불러올 때 오류.
-
-**법령이 개정되면:** 새 원문을 받아 `sources.yaml`에 추가(구판은 `effective_to`) → 생성기로 새 판 표 생성 → 바뀐 조문의 규칙은 같은 id로 새 판 행 추가(없어졌으면 `abolished: true`) → `pytest`(판 전환·원문 대조) → `tools/evaluate_cases.py`(정답셋 재채점).
-
-지켜볼 개정: 시행규칙 일부개정령안 제2026-615호(별표 4·4의2·4의3 정비, 2026-11 현재 공포 전), 폐기물공정시험기준 개정 행정예고 제2026-449호.
-
----
-
-## 검증
-
-| 검증 | 내용 |
-|---|---|
-| 원문 대조 | 규칙·설명·문의처의 모든 인용문을 원문 PDF와 자동 대조(텍스트 층이 깨진 자료는 쪽 이미지 육안 대조 기록) |
-| 표 추출 | 별표 4 번호 313개 원문 대조, 별표 4의3은 Codex의 이미지 대조 자료 19개 번호와 전부 일치 |
-| 조합 검사 | S2 전수(5,832 조합), S3 무작위 15,000 조합 — 규칙 겹침·구멍 0 |
-| 경계값 | pH 2.0/12.5, 300kg, 5톤, 기름 5%, 페인트 6mm, PCB, 오니 수분 95% 등 |
-| 정답셋 | `python tools/evaluate_cases.py` — 질의회신·판례 178건 단계별 채점(틀림·멈춤·과신 구분, 시기별 집계) |
-| 실제 사례 + 가정 | `python tools/run_supplemented.py` |
-| 블라인드 | `python tools/run_blind.py testdata/blind/batch1.yaml` — 가정을 실행 전에 고정. 1회차 기본 입력 11건 중 맞음 10, 멈춤 1, 틀림 0. 이후 변경은 `testdata/blind/CHANGELOG.md` |
-
-정답셋에서 규칙 보완의 근거로 쓴 사례는 평가용(EVAL)에서 개발용(DEV)으로 옮긴다.
-
----
-
-## 알려진 한계
-
-- 모든 규칙이 사람 검토 전(`UNVERIFIED`).
-- 시행령 별표 1 제12호 등 "그 밖에 장관이 고시하는 물질" 고시 존재 여부를 확인하지 못함 → '지정폐기물 아님' 결론에 한계로 표시.
-- 손상된 폐이차전지(별표 4의 03-10)는 시행령 근거 항목을 찾지 못해 '해석 필요'로 멈춤.
-- 세부 분류번호는 계산기가 범위를 좁히고 사용자가 법령 명칭을 보고 고른다(엔진은 앞 단계와의 일치만 검사).
-- 사용자가 보기를 잘못 고르면 결과가 달라진다(블라인드 변형 시험). 결론을 뒤집는 답 재확인, 앞 답을 고치면 뒤 답 재확인, 겹치는 질문 정리(S2 사업장 조건, S3 묻은 것·섞인 것)가 다음 과제.
-- 하루 평균 300kg 산정 방법을 정한 근거 미확보(실무 안내로 표시).
-
-## 저장소에 넣지 않은 것
-
-| 항목 | 이유 | 다시 얻는 법 |
-|---|---|---|
-| `sources/raw/` 법령·지침·판례 원문(약 17MB) | 용량. 엔진 실행에는 필요 없음(인용문은 `rules/`에 있음) | `rules/sources.yaml`의 출처·판·해시로 국가법령정보센터 등에서 같은 판을 받는다. 원문이 있으면 원문 대조 테스트가 돈다 |
-| `collect/`, `audit/`, `inventory/`, `data/`의 수집 자료 | 자료 수집·검수 과정의 중간 산출물 | Git 이력(커밋 `e7f445f` 이전)에 남아 있음 |
-| 로컬 시험 화면(`web/static/`, `web/scrap/`) | 화면은 팀 웹(scrap-web)이 담당 | Git 이력에 남아 있음 |
-
-규칙을 원문에서 다시 만드는 도구(`tools/build_*.py`)는 원문이 있어야 실행된다.
+실제 규칙 기준 PP 고체·오염 없음: 기존 10문항 → 4문항(소재·상태를 미리 알면 2문항).

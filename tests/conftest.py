@@ -1,30 +1,53 @@
-"""웹 세션 검사는 실제 문진 저장소를 건드리지 않는다.
+from __future__ import annotations
 
-법령 원문(sources/raw)은 용량 때문에 저장소에 넣지 않는다. 원문이 없으면 원문 대조 테스트는 건너뛴다
-(원문을 받아 둔 로컬에서만 돈다 — rules/sources.yaml의 경로·해시로 같은 파일인지 확인).
-"""
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import pytest
 
-try:
-    import fitz
+from app.domain.facts import Fact, FactStatus
+from app.rules.loader import load_kb
 
-    _fitz_open = fitz.open
-
-    def _open_or_skip(path=None, *args, **kwargs):
-        if isinstance(path, (str, Path)) and not Path(path).exists():
-            pytest.skip(f"법령 원문 파일이 없음(저장소에 넣지 않음): {Path(path).name}")
-        return _fitz_open(path, *args, **kwargs)
-
-    fitz.open = _open_or_skip
-except ImportError:  # pragma: no cover
-    pass
+DATA = Path(__file__).resolve().parents[1] / "data" / "sample"
+REAL = Path(__file__).resolve().parents[1] / "data" / "real"
+AS_OF = date(2026, 11, 8)
+_T0 = datetime(2026, 11, 8, tzinfo=UTC)
 
 
-@pytest.fixture(autouse=True)
-def isolated_web_state(monkeypatch, tmp_path):
-    import wastecalc.web.app as web
+def F(key, value, status=FactStatus.CLAIMED, t: int = 0, ref: str = "") -> Fact:  # noqa: N802
+    return Fact(
+        key=key, value=value, status=status, source_ref=ref, recorded_at=_T0 + timedelta(seconds=t)
+    )
 
-    monkeypatch.setattr(web, "SESSION_DB", tmp_path / "sessions.sqlite3", raising=False)
-    monkeypatch.setattr(web, "SESSIONS", {})
+
+def facts(**kv) -> dict[str, Fact]:
+    """facts(material="PP", oil_content_pct=(3, "EVIDENCED"))"""
+    out = {}
+    for k, v in kv.items():
+        if isinstance(v, tuple):
+            out[k] = F(k, v[0], FactStatus(v[1]))
+        else:
+            out[k] = F(k, v)
+    return out
+
+
+CLEAN = dict(pcb_related=False, hazardous_residue=False, toxic_chemical=False)
+
+
+@pytest.fixture(scope="session")
+def kb():
+    return load_kb(DATA)
+
+
+@pytest.fixture(scope="session")
+def real_kb():
+    return load_kb(REAL)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _drop_test_databases():
+    """TEST_DATABASE_URL(PostgreSQL)로 돌릴 때 만든 테스트 DB를 끝나고 지운다."""
+    from tests.dbutil import drop_all
+
+    yield
+    drop_all()

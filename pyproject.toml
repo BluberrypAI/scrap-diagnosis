@@ -1,26 +1,52 @@
 [project]
-name = "wastecalc"
+name = "waste-diagnosis"
 version = "0.1.0"
-description = "사업장폐기물 법적 지위 계산기 (규칙 엔진 + MCP 서버)"
-requires-python = ">=3.11"
-dependencies = ["pyyaml>=6", "mcp>=1.10"]
+description = "폐기물 코드 판정 엔진과 문진 에이전트"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.20.1",
+    "fastapi>=0.162.2",
+    "httpx>=0.28.1",
+    "openai>=2",
+    "psycopg[binary]>=3.2",
+    "pydantic>=2.7",
+    "pydantic-settings>=2",
+    "pypdf>=7.0.0",
+    "python-dotenv>=1",
+    "python-multipart>=0.0.33",
+    "pyyaml>=6.0",
+    "sqlalchemy>=2",
+    "uvicorn>=0.54.0",
+]
 
-[project.optional-dependencies]
-test = ["pytest>=8", "pymupdf>=1.23"]
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "hypothesis>=6.100",
+    "ruff>=0.6",
+]
 
-[project.scripts]
-wastecalc-mcp = "wastecalc.server:main"
+[tool.uv]
+package = false
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["."]
 testpaths = ["tests"]
 
-[build-system]
-requires = ["setuptools>=68"]
-build-backend = "setuptools.build_meta"
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+# 서브에이전트 작업 공간(.claude/worktrees)은 검사하지 않는다
+extend-exclude = [".claude"]
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
 
-[tool.setuptools.package-data]
-wastecalc = ["web/static/*", "web/scrap/*"]
+[tool.ruff.lint.isort]
+known-third-party = ["alembic"]  # 저장소의 alembic/ 폴더를 패키지로 착각하지 않게
+
+[tool.ruff.lint.per-file-ignores]
+# LLM 프롬프트·안내 문구는 문장 단위로 둔다
+"app/agent/extractor.py" = ["E501"]
+"app/agent/responder.py" = ["E501"]
+"app/agent/templates.py" = ["E501"]

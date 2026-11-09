@@ -1,2 +1,0 @@
-﻿pair_id,case_id_a,case_id_b,differing_fact,note
-PAIR-001,GUIDE23-118-SPONGE-A,GUIDE23-118-SPONGE-B,direct_reinput,동일한 스펀지 사례에서 바로 재투입하는 경우와 별도 처리 후 재투입하는 경우를 비교했다.
