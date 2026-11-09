@@ -9,6 +9,17 @@
 2. 엔진이 결과를 확정하면 **인계 객체(handoff)** 라는 JSON을 만듭니다. 경로추천 AI(scrap-ai)는 이것만 보고 다음 단계를 정하면 됩니다.
 3. 각 팀이 할 일은 4절에 역할별 체크리스트로 있습니다. 같이 정해야 할 것은 6절에 있습니다.
 
+### 지금 개발 상황 (2026-11-09)
+
+| 항목 | 상태 |
+|---|---|
+| 문진·판정·확정·인계 API(`/internal/v1`) | 완료. 요약은 [api/engine-api-summary.md](../api/engine-api-summary.md) |
+| PostgreSQL 연동 | 완료(docker compose, 테스트도 PostgreSQL로 실행) |
+| 규칙 원본(`knowledge/`)과 전문가 검토 카드 | 완료. 아직 전문가 검토 전이라 결과에 "검토 전 규칙 · 참고용" 표시 |
+| 규칙 내용 수정(AI 사전 검토 반영) | D1(비폐기물·적용 제외), D2(오니·PCB), D4(문구) 반영. D3(분류번호 선택 정확도)는 전문가 의견 후 진행 |
+| 질문 용어 설명 | 완료. 질문 응답 `question.terms`에 전문용어 쉬운 설명(사람이 쓴 고정 문장) |
+| 서류 자동 읽기(OCR) | 미구현. 값은 서버 검수 화면에서 사람이 입력 |
+
 ## 1. 엔진이 하는 일
 
 ### 전체 그림
@@ -121,6 +132,8 @@ X-Company-Id: <서버의 기업 ID>                 ← 로그인한 사용자�
 | `FINAL_REVIEW` | 결과 카드 + 확정 버튼 |
 | `UNSUPPORTED` | "지금은 판정할 수 없어요" 카드 |
 
+- [ ] **결과 카드에 추정 안내 보여 주기.** 결과 응답의 `result.assumptions`에 시험이 아니라 답변으로 추정한 내용이 오면 결론 아래에 눈에 띄게 보여 주세요(참조 화면은 노란 안내 상자).
+- [ ] **질문 카드에 용어 설명 보여 주기.** 질문 응답의 `question.terms`에 그 질문에 나온 전문용어(용출, 고형물함량 등)의 쉬운 설명 `[{term, plain, example}]`이 옵니다. AI가 만든 글이 아니라 사람이 쓴 고정 설명입니다. 참조 화면은 "용어 설명" 접기로 보여 줍니다.
 - [ ] **서류 검수 화면 만들기 (W3).** 엔진은 서류 원문과 값을 비교하지 않습니다(6절 1번). 그래서 **사람이 원문을 보며 값을 확인하는 화면**이 실제 안전장치입니다. 원문 위치, 값, 단위, 검수 상태를 보여 주고, 값을 고치면 다시 검수하게 해 주세요.
 - [ ] **"확정"과 "처리 업체 찾기"를 구분하기 (W4).** 분류 확정은 처리 업체가 받아 준다는 뜻이 아닙니다. 결과 카드에 있는 "검토 전 규칙 · 참고용" 표시는 지우지 말아 주세요(모든 규칙이 아직 전문가 검토 전입니다).
 - [ ] **계정을 바꾸면 이전 화면 상태 지우기 (W5).** 다른 기업 계정으로 로그인했을 때 이전 기업의 초안이 보이면 안 됩니다.
@@ -139,6 +152,7 @@ X-Company-Id: <서버의 기업 ID>                 ← 로그인한 사용자�
 
 - [ ] **"검토 전 규칙" 표시 유지하기.** 인계 객체의 `review`가 `UNVERIFIED`이면 사용자 안내에도 그 사실을 보여 주세요.
 - [ ] **재활용 유형(R코드)은 엔진이 주지 않습니다 (D).** 엔진은 분류번호까지만 정합니다. 기존 서버의 첫 공정 조회는 R코드와 투입 형태(스크랩·필름·병 등)를 요구하므로, 분류 뒤에 이를 확인하는 단계가 따로 필요합니다. 기본 R코드를 임의로 채우지 말아 주세요.
+- [ ] **`assumptions`가 있으면 함께 안내하기.** 시험·서류가 아니라 사용자 답에서 추정한 내용(예: "PCB 관련 없음" → PCB 기준 미만으로 추정)이 문장 목록으로 옵니다. 처리 업체 안내 때 "시험으로 확인하지 않은 항목"으로 알려 주세요.
 - [ ] 사실마다 출처(`source_type`)가 붙어 있습니다. `DOCUMENT`는 서류로 확인한 값, `UTTERANCE`는 사용자가 말한 값, `PROFILE_CONFIRMED`는 사용자가 확인한 기업 정보입니다.
 
 ## 5. 인계 객체 예시 (줄인 버전)
@@ -209,6 +223,8 @@ X-Company-Id: <서버의 기업 ID>                 ← 로그인한 사용자�
 | A2 | 서류 업로드의 `facts` **동작** | 올리면 바로 증빙(EVIDENCED)으로 판정에 쓰임 | 검수 대기 후보(UNVERIFIED)로만 저장. `values/apply`로 검수 결과를 보내야 판정에 쓰임 | 검수 전 값이 판정에 쓰이지 않게(DOC-002). 응답에 `values`가 추가됨 |
 | A3 | 오류 응답에 `code`·`details` **추가** | `{"detail": {"message", …}}` | 같은 객체에 `code`·`details` 추가(기존 키 유지) | 추가라 합의 대상은 아니지만 서버가 쓸 필드라 알림 |
 | A4 | 서버용 경로 `/internal/v1/...`와 서비스 토큰 **추가** | 없음 | 서버는 이 경로만 부름 | 기업 간 데이터 분리(CORP-007). 루트 경로는 개발·참조 화면용 |
+| A6 | 질문 카드 `question.terms`, 결과 카드 `result.assumptions`, 인계 객체 `assumptions` **추가** | 없음 | 용어 설명, 답변 기반 추정 안내 | 추가라 합의 대상은 아니지만 화면·경로추천이 쓸 필드라 알림 |
+| A5 | 판정·인계 객체 `review`에 **값 추가** | 항상 `UNVERIFIED` | `UNVERIFIED` 또는 `VERIFIED`(전문가 검토 완료) | 도메인 전문가 규칙 검토 결과를 반영(`knowledge/README.md`). 새 값을 모르는 쪽은 `UNVERIFIED`가 아니면 검토 완료로 보면 된다 |
 
 서버 ↔ 엔진 형식 변경은 서버 담당자 리뷰 승인 후 반영하는 규칙(1장)이 있으므로, A1·A2는 서버 담당자가 [api/server-engine-contract.md](../api/server-engine-contract.md)를 보고 확인해 주세요.
 
@@ -216,11 +232,13 @@ X-Company-Id: <서버의 기업 ID>                 ← 로그인한 사용자�
 
 | 누가 | 문서 |
 |---|---|
+| 서버 | [api/engine-api-summary.md](../api/engine-api-summary.md) — **API 주소·Request·Response 한 장 요약(명세서 반영용)** |
 | 서버 | [api/server-engine-contract.md](../api/server-engine-contract.md) — 호출 순서·인증·오류 코드 전체·예시 |
 | 서버 | [api/openapi.json](../api/openapi.json) — 요청·응답 스키마(Swagger로 열 수 있음) |
 | 서버 | [perf/turn-latency.md](../perf/turn-latency.md) — 한 턴이 걸리는 시간(타임아웃 근거) |
 | 웹 | [ui/ui-design.md](../ui/ui-design.md), [ui/ui-contract.md](../ui/ui-contract.md), [ui/handover.md](../ui/handover.md) |
 | AI | [handoff-contract.md](../handoff-contract.md) — 인계 객체 전체 |
 | 모두 | [engine/algorithm.md](../engine/algorithm.md) — 엔진이 질문을 고르고 판정하는 방법(1절은 쉬운 설명) |
+| 도메인 전문가 | [knowledge/README.md](../../knowledge/README.md) 검토하는 방법, [rule-changes/](../rule-changes/) 규칙 수정 기록 |
 | 서류 자동 읽기 담당 | [document-extraction-contract.md](../document-extraction-contract.md) — 나중에 OCR을 붙일 때의 입출력 형식 |
 | 모두 | [integration-changes-20261109.md](integration-changes-20261109.md) — 이번에 바뀐 것 전체 목록(E·S·W·D 항목별) |

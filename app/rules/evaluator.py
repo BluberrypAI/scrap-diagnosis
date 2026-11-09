@@ -445,6 +445,11 @@ def evaluate(kb: KnowledgeBase, facts: dict[str, Fact], as_of: date) -> Evaluati
     - 아직 정할 수 없으면 PENDING: 선택 조건의 미확인 사실을 질문 대상으로 내고,
       후보는 아직 가능한 테이블들의 후보를 합친다.
     """
+    # 대리 질문의 추정(implies)을 먼저 적용한다.
+    # 선택기의 가정 평가도 여기를 지나므로 정보가치가 맞다.
+    from app.rules.implications import apply_implications  # 순환 import 방지
+
+    facts = apply_implications(kb, facts)
     tables = kb.tables_as_of(as_of)
     statuses: list[tuple[Table, TV, list[CondResult]]] = []
     for t in tables:

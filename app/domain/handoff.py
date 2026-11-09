@@ -15,6 +15,7 @@ from pydantic import BaseModel
 from app.domain.clock import seoul_iso
 from app.domain.facts import Fact, document_id_of
 from app.rules.evaluator import Candidate
+from app.rules.implications import assumption_notes
 from app.rules.model import KnowledgeBase, Rule
 
 CONTRACT = "diagnosis-handoff-v1"
@@ -116,6 +117,8 @@ class Handoff(BaseModel):
     timestamps: HandoffTimestamps
     kb: HandoffKB
     inputs: HandoffInputs = HandoffInputs()
+    # 시험·서류가 아니라 사용자 답에서 추정한 사실의 안내(추가 필드, 없으면 [])
+    assumptions: list[str] = []
 
 
 def build_handoff(
@@ -160,6 +163,7 @@ def build_handoff(
         category=decided.category,
         outcome=outcome,
         route_guidance=RouteGuidanceOut(action=g.action, summary=g.summary, notes=list(g.notes)),
+        assumptions=assumption_notes(kb, effective),
         facts=facts,
         evidence=evidence,
         basis=basis,

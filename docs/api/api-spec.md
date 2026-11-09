@@ -147,6 +147,11 @@ POST /cases/C1/diagnosis/messages {"quick_reply": {"key": "material", "kind": "r
 
 철회한 사실은 보드에서 빠지고 이후 다시 진술하면 그 값이 유효하다. 서류로 확인된 값(EVIDENCED)은 철회로 무시되지 않는다. 확정된 건은 reopen 전에는 둘 다 409다.
 
+### 5.5 용어 설명과 추정 안내 (2026-11-09 추가)
+
+- `ui.question.terms`: 질문 글에 나온 전문용어의 쉬운 설명 `[{term, plain, example}]`(`knowledge/glossary.yaml`, 사람이 쓴 고정 설명).
+- `ui.result.assumptions`, `handoff.assumptions`: 시험·서류가 아니라 사용자 답(대리 질문)에서 추정한 사실의 안내 문장 목록. 비었으면 `[]`.
+
 ## 6. 질문 카드 `ui.question.input` 규칙
 
 | `input` | 언제 | 화면이 하는 일 | 보내는 값 |

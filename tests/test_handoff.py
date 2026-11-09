@@ -58,8 +58,10 @@ HANDOFF_KEYS = {
     "timestamps",
     "kb",
     "inputs",  # 기업 정보 입력 요약(추가 필드)
+    "assumptions",  # 답변에서 추정한 사실 안내(추가 필드)
 }
-# 실제 KB: 아직 공정에서 쓰는 PP → 폐기물 아님(코드 없는 결론)
+# 실제 KB: 아직 공정에서 쓴다는 PP → 진술만으로 비폐기물 확정하지 않음, 해석 필요(코드 없는 결론)
+OUT = "INTERPRETATION_NEEDED"  # 이 사실들의 결론(D1 뒤: 진술만으로 비폐기물 확정 안 함)
 NOT_WASTE_FACTS = {
     "emission_facility": True,
     "material": "pp",
@@ -174,16 +176,16 @@ def test_code_less_conclusion_is_final_review(real_kb):
     assert r.branch == "FINAL_REVIEW" and r.case_status == "DIAGNOSING"
     v = r.verdict
     assert v.status == "CONFIRMABLE" and v.waste_code is None and v.waste_name is None
-    assert v.outcome == "NOT_WASTE" and v.failure_reason is None and v.rationale
+    assert v.outcome == OUT and v.failure_reason is None and v.rationale
     assert r.ui.can_confirm and r.ui.suggested_replies == ["확정", "다시 확인할게요"]
     # 템플릿 문구: 결론 + 확정 후 다음 단계 안내 + 참고 판정
-    assert OUTCOME_TEXT["NOT_WASTE"] in r.message
+    assert OUTCOME_TEXT[OUT] in r.message
     assert "다음 단계" in r.message and "UNVERIFIED" in r.message
 
     step = s.last_step
     payload = build_payload(real_kb, step, s.rule_index)
-    assert payload["verdict"]["code"] is None and payload["verdict"]["outcome"] == "NOT_WASTE"
-    assert payload["verdict"]["conclusion"] == OUTCOME_TEXT["NOT_WASTE"] and payload["next_step"]
+    assert payload["verdict"]["code"] is None and payload["verdict"]["outcome"] == OUT
+    assert payload["verdict"]["conclusion"] == OUTCOME_TEXT[OUT] and payload["next_step"]
     text_ = json.dumps(payload, ensure_ascii=False)
     basis_ids = {b["id"] for b in payload["basis"]}
     assert validate_response(r.message, ["B1"], payload, text_, basis_ids) == []
@@ -249,30 +251,30 @@ def test_code_less_confirm_via_api(real_api, real_kb):
     cid, turn = body["case"]["id"], body["turn"]
     assert_turn_contract(turn, cid)
     assert turn["branch"] == "FINAL_REVIEW" and turn["ui"]["can_confirm"]
-    assert turn["verdict"]["waste_code"] is None and turn["verdict"]["outcome"] == "NOT_WASTE"
+    assert turn["verdict"]["waste_code"] is None and turn["verdict"]["outcome"] == OUT
     assert turn["case_status"] == "DIAGNOSING"
 
     # 코드 없는 결론에 분류번호를 기대하면 409, 사유로는 통과
     bad = real_api.post(f"/cases/{cid}/confirm", json={"expected_code": "51-03-01"})
     assert bad.status_code == 409
     assert bad.json()["detail"]["server_code"] is None
-    assert bad.json()["detail"]["server_outcome"] == "NOT_WASTE"
-    r = real_api.post(f"/cases/{cid}/confirm", json={"expected_code": "NOT_WASTE"})
+    assert bad.json()["detail"]["server_outcome"] == OUT
+    r = real_api.post(f"/cases/{cid}/confirm", json={"expected_code": OUT})
     assert r.status_code == 200, r.text
     out = r.json()
     assert out["case"]["status"] == "CODE_CONFIRMED"
     v = out["verdict"]
     assert v["result_type"] == "NO_CODE" and v["code"] is None and v["name"] is None
-    assert v["outcome"] == "NOT_WASTE" and v["verdict"]["outcome"] == "NOT_WASTE"
+    assert v["outcome"] == OUT and v["verdict"]["outcome"] == OUT
 
     h = out["handoff"]
     assert_handoff_contract(h)
     assert h == v["handoff"]
     assert h["case_id"] == cid and h["verdict_version"] == 1
-    assert (h["result_type"], h["waste_code"], h["outcome"]) == ("NO_CODE", None, "NOT_WASTE")
-    g = real_kb.guidance_for("NO_CODE", "NOT_WASTE")  # 데이터 파일 값 그대로
+    assert (h["result_type"], h["waste_code"], h["outcome"]) == ("NO_CODE", None, OUT)
+    g = real_kb.guidance_for("NO_CODE", OUT)  # 데이터 파일 값 그대로
     assert h["route_guidance"] == {"action": g.action, "summary": g.summary, "notes": list(g.notes)}
-    assert h["route_guidance"]["action"] == "NO_ROUTE_NEEDED"
+    assert h["route_guidance"]["action"] == "REFER_AUTHORITY"
     assert h["facts"]["material_fate"] == {
         "value": "still_used",
         "status": "CLAIMED",
@@ -285,8 +287,8 @@ def test_code_less_confirm_via_api(real_api, real_kb):
     assert detail["handoff"] == h and detail["current_verdict"]["result_type"] == "NO_CODE"
     trace = real_api.get(f"/cases/{cid}/trace").json()["sessions"][0]["turns"]
     confirm = trace[-1]["payload"]
-    assert confirm["result_type"] == "NO_CODE" and confirm["outcome"] == "NOT_WASTE"
-    assert confirm["route_action"] == "NO_ROUTE_NEEDED"
+    assert confirm["result_type"] == "NO_CODE" and confirm["outcome"] == OUT
+    assert confirm["route_action"] == "REFER_AUTHORITY"
 
 
 def test_waste_code_handoff_has_document_evidence(api):

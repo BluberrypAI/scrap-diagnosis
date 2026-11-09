@@ -46,6 +46,14 @@ class FactDef:
     # 상위 분류를 모르면 상위 분류를 먼저 묻고, 알면 이 사실의 선택지를 그 분류의 값으로 줄인다.
     parent: str | None = None
     value_parent: dict[str, str] = field(default_factory=dict)
+    # 대리 질문(질문 전략): 이 사실의 값 → 다른 사실의 추정값(algorithm.md 5절).
+    # 예: pcb_possible "false" → {pcb_mg_l: {hi: 2}}
+    #     ("PCB 관련 없음"이면 PCB 함량 기준 미만으로 본다).
+    # 추정값은 저장하지 않고 평가 때마다 적용한다(출처 DERIVED, 명시된 값이 우선).
+    implies: dict[str, dict[str, Any]] = field(default_factory=dict)
+    # 보수 관계(질문 전략): (대상 사실, 합계). 같은 시험이 함께 내는 두 수치의 합이 일정할 때
+    # 한쪽 값으로 다른 쪽을 계산한다(예: 수분함량 + 고형물함량 = 100). 양방향, 명시된 값이 우선.
+    complement: tuple[str, float] | None = None
 
 
 # ---- 조건식 -------------------------------------------------------------------------------
@@ -96,6 +104,7 @@ class Basis:
     ref: str
     excerpt: str | None = None
     source_id: str | None = None
+    location: str | None = None  # 조문 위치(예: 별표 1 제6호). source_id와 함께 조문 키가 된다
 
 
 @dataclass(frozen=True)
@@ -123,6 +132,7 @@ class Rule:
     effective_from: date | None = None
     effective_to: date | None = None
     origin: str = ""  # 정의된 파일
+    source_rule: str | None = None  # knowledge/의 원본 규칙 ID(빌드가 넣음, 예: S3-6-OIL-5PCT)
 
     def facts(self) -> set[str]:
         return {c.fact for c in iter_conds(self.when)}
@@ -208,6 +218,7 @@ class KnowledgeBase:
     warnings: tuple[str, ...] = ()
     # (result_type, outcome) → 안내. load_kb는 outcome_guidance.yaml을 반드시 읽는다.
     guidance: dict[tuple[str, str | None], RouteGuidance] = field(default_factory=dict)
+    glossary: tuple[Any, ...] = ()  # app.rules.glossary.GlossaryEntry (용어 쉬운 설명, 판정 무관)
 
     def tables_as_of(self, as_of: date) -> tuple[Table, ...]:
         return tuple(t for t in self.tables if t.is_effective(as_of))

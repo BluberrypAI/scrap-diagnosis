@@ -105,6 +105,14 @@ class AnsweredItem(QuestionItem):
     value_label: str | None = None
 
 
+class TermView(BaseModel):
+    """질문 글에 나온 전문용어의 쉬운 설명(knowledge/glossary.yaml, 사람이 쓴 고정 설명)."""
+
+    term: str
+    plain: str
+    example: str | None = None
+
+
 class QuestionView(_DictAccess, BaseModel):
     """지금 질문 카드(1.1절). key·unit·facts·options는 M4부터 있던 필드다."""
 
@@ -120,6 +128,7 @@ class QuestionView(_DictAccess, BaseModel):
     allow_free_number: bool = False
     items: list[QuestionItem] = []  # group: 이번에 묻는 항목
     answered_items: list[AnsweredItem] = []  # group: 같은 묶음에서 이미 답한 항목
+    terms: list[TermView] = []  # 질문 글(제목·도움말·선택지·항목)에 나온 용어 설명
 
 
 class EditView(BaseModel):
@@ -217,6 +226,8 @@ class ResultView(BaseModel):
     conclusion: str
     next_step: str
     review: str
+    # 시험·서류가 아니라 사용자 답에서 추정한 사실의 안내(예: PCB 관련 없음 → 기준 미만 추정)
+    assumptions: list[str] = []
 
 
 class UI(BaseModel):
@@ -388,6 +399,16 @@ def question_view(kb: KnowledgeBase, q: QuestionChoice, effective: dict[str, Fac
             )
     else:
         value_type = kb.catalog[q.key].type
+    from app.rules.glossary import find_terms  # 순환 import 방지
+
+    found = find_terms(
+        kb.glossary,
+        q.question_hint,
+        q.help,
+        *(o.label for o in options),
+        *(i.label for i in items),
+    )
+    terms = [TermView(term=e.term, plain=e.plain, example=e.example) for e in found]
     return QuestionView(
         key=q.key,
         unit=q.unit,
@@ -401,6 +422,7 @@ def question_view(kb: KnowledgeBase, q: QuestionChoice, effective: dict[str, Fac
         allow_free_number=kind == "number",
         items=items,
         answered_items=answered,
+        terms=terms,
     )
 
 
@@ -541,17 +563,22 @@ def build_conflicts(kb: KnowledgeBase, step: EngineStep) -> list[ConflictView]:
     return out
 
 
-def build_result(step: EngineStep, rule_index: dict[str, Rule]) -> ResultView | None:
+def build_result(
+    step: EngineStep, rule_index: dict[str, Rule], kb: KnowledgeBase | None = None
+) -> ResultView | None:
     d, ev = step.decision, step.evaluation
     if d.branch != Branch.FINAL_REVIEW or ev.decided is None:
         return None
     c = ev.decided
     rule = rule_index.get(c.rule_ids[0])
     review = (rule.review if rule else None) or "UNVERIFIED"
+    from app.rules.implications import assumption_notes  # 순환 import 방지
+
     common = dict(
         category=c.category,
         category_label=templates.CATEGORY_LABEL.get(c.category or ""),
         review=review,
+        assumptions=assumption_notes(kb, step.effective) if kb is not None else [],
     )
     if c.code is not None:
         return ResultView(
@@ -593,5 +620,5 @@ def build_ui(
         question=None if q is None else question_view(kb, q, step.effective),
         board=build_board(kb, step, questions_asked=questions_asked, max_questions=max_questions),
         conflicts=build_conflicts(kb, step) if d.branch == Branch.RESOLVE_CONFLICT else [],
-        result=build_result(step, rule_index),
+        result=build_result(step, rule_index, kb),
     )

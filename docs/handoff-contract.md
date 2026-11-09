@@ -8,7 +8,7 @@
   - 분류번호 없이 결론이 난 경우(`result_type = NO_CODE`): 폐기물 아님, 적용 제외 등
 - 결론이 나지 않은 경우는 확정할 수 없고 `NEEDS_INFO`로 남는다. 질문 상한 도달, 증빙 거부, 적용 규칙 없음이 여기에 해당한다.
 - 확정한 건의 상태는 두 종류 모두 `CODE_CONFIRMED`다(경로 미확정). 경로추천 AI는 `result_type`과 `route_guidance.action`으로 분기한다.
-- 모든 판정은 기존 엔진 규칙을 옮긴 것이라 `review: UNVERIFIED`다. 경로추천 AI는 사용자 안내에 이 사실을 표시한다.
+- `review`는 판정에 쓴 규칙의 전문가 검토 상태다: `UNVERIFIED`(검토 전) 또는 `VERIFIED`(검토 완료). 지금은 검토된 규칙이 없어 모든 판정이 `UNVERIFIED`다. 경로추천 AI는 `UNVERIFIED`이면 사용자 안내에 "검토 전 규칙에 따른 참고용 결과"임을 표시한다.
 
 ## 형식
 ```json
@@ -29,14 +29,15 @@
   "facts": {"material": {"value": "pp", "status": "CLAIMED", "source_type": "UTTERANCE"}},
   "evidence": [{"fact": "ph", "document_id": "…"}],
   "basis": [{"id": "B1", "type": "LAW", "ref": "…", "excerpt": "…"}],
-  "review": "UNVERIFIED",
+  "review": "UNVERIFIED | VERIFIED",
   "timestamps": {
     "diagnosis_started_at": "2026-11-08T09:12:03+09:00",
     "confirmed_at": "2026-11-08T09:20:41+09:00",
     "as_of": "2026-11-08"
   },
   "kb": {"kb_version": "…", "table_id": "pp", "table_version": "2026.11.0+re-2f1355a"},
-  "inputs": {"company_profile_version": "p7 | null", "confirmed_profile_keys": ["emission_facility"]}
+  "inputs": {"company_profile_version": "p7 | null", "confirmed_profile_keys": ["emission_facility"]},
+  "assumptions": ["PCB 함량(액체): 시험값이 아니라 'PCB 관련 기기·절연유' 답에서 기준 미만으로 추정했습니다. …"]
 }
 ```
 
@@ -47,6 +48,7 @@
 
 - `inputs`(추가 필드, 기존 필드는 그대로): 서버가 보낸 기업 정보 입력의 요약이다. `company_profile_version`은 서버가 건 생성·문진 답변에 보낸 기업 정보 버전(없으면 null), `confirmed_profile_keys`는 서버가 사용자 확인을 거쳐 보낸 값(`source_type = PROFILE_CONFIRMED`) 중 유효한 사실 키다. 판정 버전(Verdict)에도 같은 `company_profile_version`이 남는다. 이 필드가 없는 이전 객체는 `inputs`가 없다.
 - `facts[].source_type`에 `PROFILE_CONFIRMED`가 더해졌다(서버가 확인한 기업 정보).
+- `assumptions`(추가 필드, 없으면 `[]`): 시험·서류가 아니라 사용자 답(대리 질문)에서 추정한 사실의 안내 문장이다. 경로추천 AI는 이 목록이 비어 있지 않으면 처리 업체 안내 때 "시험으로 확인하지 않은 항목"으로 함께 알린다. 같은 사실은 `facts`에 `source_type: DERIVED`로도 있다.
 
 ## result_type / outcome → route_guidance.action
 | result_type | outcome | action | 경로추천 AI가 할 일 |
@@ -73,7 +75,7 @@
   출처 SCREENING은 아직 없다(묶음 질문 답은 UTTERANCE로 들어온다).
 - `evidence`: 유효 사실 중 출처가 DOCUMENT인 것. `document_id`는 업로드한 문서 id.
 - `basis`: 확정 규칙(`rule_ids[0]`)의 근거. id는 응답 `verdict.rationale`과 같은 B1, B2 …
-- `review`: 규칙의 review 값(없으면 `UNVERIFIED`). 지금 모든 규칙이 `UNVERIFIED`다.
+- `review`: 확정 규칙의 review 값(없으면 `UNVERIFIED`). 값은 `UNVERIFIED` | `VERIFIED` 두 가지다. 빌드(`tools/build_kb.py`)가 `knowledge/reviews.yaml`의 검토 기록으로 정한다. 생성 규칙이 기대는 검토 단위(법 규칙, 소재, 번호 대응표)가 모두 "맞음"이고 검토 뒤 내용이 바뀌지 않았을 때만 `VERIFIED`다(`knowledge/README.md`).
 - `timestamps`: 초 단위 ISO 8601, `+09:00`. 한국은 일광절약시간이 없어 고정 오프셋을 쓴다.
 - `route_guidance`: `data/<kb>/outcome_guidance.yaml`(표 전체, real·sample 같은 내용). 계약 표의 행이나 규칙에 쓰인
   outcome의 항목이 하나라도 없으면 KB 로드(서버 시작)가 실패한다. action·outcome은 계약의 값만 받는다.

@@ -1,0 +1,22 @@
+# 공통 정의: 여러 법 규칙이 함께 쓰는 이름 붙은 조건. 규칙의 when 안에서 {ref: 이름}으로 쓴다.
+# 한 조문의 조건을 한곳에서 관리해, 법이 바뀌면 여기만 고친다(knowledge/README.md 원본 형식).
+#
+# 형식:
+#   이름:
+#     title: 짧은 제목
+#     when: 조건식(목록 = 모두, {any: [...]} = 하나 이상, {not: ...}, {fact, op, value, min_status?}, {ref: 다른 이름})
+#     source: sources.yaml의 근거 문서 ID
+#     location: 조문 위치
+#     quote: 인용문
+#     plain: 쉬운 설명
+definitions:
+  SLUDGE_STATE:
+    title: 오니류 성상(수분·고형물)
+    plain: 수분함량이 95% 미만이거나 고형물함량이 5% 이상인 오니. 둘 중 하나만 맞으면 됩니다.
+    when:
+      any:
+      - {fact: sludge_water_pct, op: lt, value: 95}
+      - {fact: sludge_solids_pct, op: gte, value: 5}
+    source: DEC-A1
+    location: 별표 1 제1호나목
+    quote: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)

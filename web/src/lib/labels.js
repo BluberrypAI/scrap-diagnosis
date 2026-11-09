@@ -108,3 +108,9 @@ export function statusLabel(s) {
 export function evidenceLabel(t) {
   return EVIDENCE_LABEL[t] || t;
 }
+
+/** 규칙 검토 상태(verdict·handoff의 review). 전문가가 검토를 마친 규칙만 VERIFIED다. */
+export const REVIEW_LABEL = {
+  UNVERIFIED: '검토 전 규칙 · 참고용',
+  VERIFIED: '전문가 검토 완료',
+};

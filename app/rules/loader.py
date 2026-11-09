@@ -125,6 +125,11 @@ def parse_catalog(raw: list[dict]) -> dict[str, FactDef]:
             },
             parent=item.get("parent"),
             value_parent={str(k): str(v) for k, v in (item.get("value_parent") or {}).items()},
+            implies={
+                str(k).lower() if isinstance(k, bool) else str(k): dict(v or {})
+                for k, v in (item.get("implies") or {}).items()
+            },
+            complement=_complement(key, item.get("complement")),
         )
         if out[key].domain not in (None, "referenced"):
             raise RuleDataError(f"facts_catalog[{key}]: domain은 referenced만 지원합니다")
@@ -132,7 +137,45 @@ def parse_catalog(raw: list[dict]) -> dict[str, FactDef]:
             raise RuleDataError(f"facts_catalog[{key}]: ask_cost는 0보다 커야 합니다")
     for fd in out.values():
         _check_parent(fd, out)
+        _check_implies(fd, out)
+        _check_complement(fd, out)
     return out
+
+
+def _complement(key: str, raw: Any) -> tuple[str, float] | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, dict) or not raw.get("fact") or raw.get("total") is None:
+        raise RuleDataError(f"facts_catalog[{key}].complement: {{fact, total}} 형식이어야 합니다")
+    return str(raw["fact"]), float(raw["total"])
+
+
+def _check_complement(fd: FactDef, catalog: dict[str, FactDef]) -> None:
+    """보수 관계(complement) 검증: 대상은 카탈로그의 다른 수치 사실이어야 한다."""
+    if fd.complement is None:
+        return
+    tkey = fd.complement[0]
+    tfd = catalog.get(tkey)
+    if tfd is None or tkey == fd.key or fd.type != "number" or tfd.type != "number":
+        raise RuleDataError(
+            f"facts_catalog[{fd.key}].complement: 카탈로그의 다른 수치 사실이어야 합니다: {tkey}"
+        )
+
+
+def _check_implies(fd: FactDef, catalog: dict[str, FactDef]) -> None:
+    """대리 질문 추정(implies) 검증: 대상은 카탈로그의 다른 사실, 값은 대상 타입에 맞아야 한다."""
+    from app.rules.answers import AnswerError, coerce_value  # 순환 import 방지
+
+    where = f"facts_catalog[{fd.key}].implies"
+    for answer, targets in fd.implies.items():
+        for tkey, tval in targets.items():
+            tfd = catalog.get(tkey)
+            if tfd is None or tkey == fd.key:
+                raise RuleDataError(f"{where}[{answer}]: 카탈로그의 다른 사실이어야 합니다: {tkey}")
+            try:
+                coerce_value(tfd, tval)
+            except (AnswerError, TypeError, ValueError) as exc:
+                raise RuleDataError(f"{where}[{answer}].{tkey}: {exc}") from exc
 
 
 def _check_parent(fd: FactDef, catalog: dict[str, FactDef]) -> None:
@@ -246,6 +289,7 @@ def _parse_basis(raw: Any, where: str) -> tuple[Basis, ...]:
                 ref=b["ref"],
                 excerpt=b.get("excerpt"),
                 source_id=b.get("source_id"),
+                location=b.get("location"),
             )
         )
     return tuple(out)
@@ -278,6 +322,7 @@ def _parse_rule(raw: dict, origin: str, hit_policy: str) -> Rule:
         effective_from=_date(raw.get("effective_from")),
         effective_to=_date(raw.get("effective_to")),
         origin=origin,
+        source_rule=raw.get("source_rule"),
     )
 
 
@@ -577,6 +622,10 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
         raise RuleDataError(f"{guidance_path}: 결론 → 경로추천 안내 파일이 없습니다")
     guidance = parse_outcome_guidance(_read_yaml(guidance_path))
     validate_guidance(guidance, tables)
+    from app.rules.glossary import GLOSSARY_FILE, parse_glossary  # 순환 import 방지
+
+    glossary_path = data_dir / GLOSSARY_FILE
+    glossary = parse_glossary(_read_yaml(glossary_path)) if glossary_path.exists() else ()
     return KnowledgeBase(
         catalog=catalog,
         tables=tuple(tables),
@@ -584,4 +633,5 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
         codes=codes,
         warnings=tuple(warnings),
         guidance=guidance,
+        glossary=glossary,
     )
