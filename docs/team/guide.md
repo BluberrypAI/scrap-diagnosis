@@ -209,6 +209,7 @@ X-Company-Id: <서버의 기업 ID>                 ← 로그인한 사용자�
 | A2 | 서류 업로드의 `facts` **동작** | 올리면 바로 증빙(EVIDENCED)으로 판정에 쓰임 | 검수 대기 후보(UNVERIFIED)로만 저장. `values/apply`로 검수 결과를 보내야 판정에 쓰임 | 검수 전 값이 판정에 쓰이지 않게(DOC-002). 응답에 `values`가 추가됨 |
 | A3 | 오류 응답에 `code`·`details` **추가** | `{"detail": {"message", …}}` | 같은 객체에 `code`·`details` 추가(기존 키 유지) | 추가라 합의 대상은 아니지만 서버가 쓸 필드라 알림 |
 | A4 | 서버용 경로 `/internal/v1/...`와 서비스 토큰 **추가** | 없음 | 서버는 이 경로만 부름 | 기업 간 데이터 분리(CORP-007). 루트 경로는 개발·참조 화면용 |
+| A5 | 판정·인계 객체 `review`에 **값 추가** | 항상 `UNVERIFIED` | `UNVERIFIED` 또는 `VERIFIED`(전문가 검토 완료) | 도메인 전문가 규칙 검토 결과를 반영(`knowledge/README.md`). 새 값을 모르는 쪽은 `UNVERIFIED`가 아니면 검토 완료로 보면 된다 |
 
 서버 ↔ 엔진 형식 변경은 서버 담당자 리뷰 승인 후 반영하는 규칙(1장)이 있으므로, A1·A2는 서버 담당자가 [api/server-engine-contract.md](../api/server-engine-contract.md)를 보고 확인해 주세요.
 

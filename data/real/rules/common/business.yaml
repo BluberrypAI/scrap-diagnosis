@@ -1,4 +1,4 @@
-# 자동 생성: tools/build_kb.py (knowledge 832f4326). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge 6cdad5b6). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 rules:
 - rule_id: S2-HOUSEHOLD
   source_rule: S2-HOUSEHOLD
@@ -55,4 +55,16 @@ rules:
     source_id: ACT-WASTE
     location: 제2조제2호
     excerpt: “생활폐기물”이란 사업장폐기물 외의 폐기물을 말한다.
+  review_units:
+  - S2-HOUSEHOLD
+  - S2-EMISSION-FACILITY
+  - S2-PUBLIC-WASTEWATER
+  - S2-PUBLIC-SEWAGE
+  - S2-NIGHTSOIL
+  - S2-LIVESTOCK-PUBLIC
+  - S2-WASTE-FACILITY
+  - S2-DESIGNATED
+  - S2-DAILY-300KG
+  - S2-CONSTRUCTION-5T
+  - S2-SERIES-5T
   review: UNVERIFIED

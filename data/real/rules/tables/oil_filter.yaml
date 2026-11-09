@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge 832f4326). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge 6cdad5b6). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: oil_filter
 title: 폐오일필터
-version: 2026.11.0+kb-832f4326
+version: 2026.11.0+kb-6cdad5b6
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -61,6 +61,12 @@ rules:
     excerpt: 06-01-05 폐오일필터
     source_id: RULE-A4
     location: 06-01-05
+  review_units:
+  - S3-6-WASTE-OIL
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:oil_filter
   review: UNVERIFIED
 - rule_id: oil_filter:S3-8GA-PCB-LIQUID:08-01-00
   source_rule: S3-8GA-PCB-LIQUID
@@ -100,6 +106,10 @@ rules:
     excerpt: 08-01-00 폴리클로리네이티드비페닐 함유 폐유
     source_id: RULE-A4
     location: 08-01-00
+  review_units:
+  - S3-8GA-PCB-LIQUID
+  - code_map
+  - material:oil_filter
   review: UNVERIFIED
 - rule_id: oil_filter:S3-8NA-PCB-NONLIQUID:08-01-00
   source_rule: S3-8NA-PCB-NONLIQUID
@@ -139,6 +149,10 @@ rules:
     excerpt: 08-01-00 폴리클로리네이티드비페닐 함유 폐유
     source_id: RULE-A4
     location: 08-01-00
+  review_units:
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:oil_filter
   review: UNVERIFIED
 - rule_id: oil_filter:S3-9-TOXIC:09-01-00
   source_rule: S3-9-TOXIC
@@ -192,6 +206,12 @@ rules:
     excerpt: 09-01-00 「화학물질관리법」 제2조제5호에 따른 금지물질
     source_id: RULE-A4
     location: 09-01-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:oil_filter
   review: UNVERIFIED
 - rule_id: oil_filter:S3-9-TOXIC:09-02-00
   source_rule: S3-9-TOXIC
@@ -218,6 +238,12 @@ rules:
     excerpt: 09-02-00 연구·검사용 폐시약
     source_id: RULE-A4
     location: 09-02-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:oil_filter
   review: UNVERIFIED
 - rule_id: oil_filter:S3-9-TOXIC:09-03-00
   source_rule: S3-9-TOXIC
@@ -244,6 +270,12 @@ rules:
     excerpt: 09-03-00 「화학물질관리법」 제2조제7호에 따른 유해화학물질
     source_id: RULE-A4
     location: 09-03-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:oil_filter
   review: UNVERIFIED
 - rule_id: oil_filter:S3-9-TOXIC:09-04-00
   source_rule: S3-9-TOXIC
@@ -270,6 +302,12 @@ rules:
     excerpt: 09-04-00 「화학물질관리법」 제2조제3호 및 제4호에 따른 허가물질 및 제한물질
     source_id: RULE-A4
     location: 09-04-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:oil_filter
   review: UNVERIFIED
 - rule_id: oil_filter:GENERAL
   source_rule: S3-NOT-DESIGNATED
@@ -288,4 +326,8 @@ rules:
     source_id: DEC-A1
     location: 별표 1(지정폐기물의 종류)
     excerpt: 지정폐기물의 종류(제3조 관련)
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:oil_filter
+  - code_map
   review: UNVERIFIED

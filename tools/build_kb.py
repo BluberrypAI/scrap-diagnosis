@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from kb_review import CODE_MAP_UNIT, MATERIAL_PREFIX, ReviewIndex
 
 ROOT = Path(__file__).resolve().parents[1]
 KNOWLEDGE = ROOT / "knowledge"
@@ -47,6 +48,7 @@ SOURCE_FILES = (
     "code_map.yaml",
     "sources.yaml",
     "outcome_guidance.yaml",
+    "reviews.yaml",
 )
 # 빌드가 쓰는 파일(data/real/ 기준). --check는 이것만 비교한다.
 # regression/(기존 엔진 판정표 기준)과 scenarios/(시뮬레이터 시나리오)는 빌드하지 않는다.
@@ -150,12 +152,22 @@ class Converter:
         self.s4 = read(src / "code_map.yaml")
         self.sources: dict[str, dict] = read(src / "sources.yaml")
         self.ov = read(src / "fact_settings.yaml") or {}
+        self.reviews = ReviewIndex(src)
+        self.verified_rules = 0
         self.excluded = set(self.s4.get("excluded_codes", []))
         self.used_facts: set[str] = set()
         self.fact_band: dict[str, int] = {}
         self.report: dict[str, Any] = defaultdict(list)
 
     # ---- 공통 --------------------------------------------------------------------------
+
+    def rv(self, deps: list[str]) -> dict:
+        """생성 규칙이 기대는 검토 단위와 그 결과(review). knowledge/reviews.yaml 기준."""
+        deps = list(dict.fromkeys(deps))
+        review = self.reviews.review_of(deps)
+        if review == "VERIFIED":
+            self.verified_rules += 1
+        return {"review_units": deps, "review": review}
 
     def evidence(self, source_id: str) -> str:
         return (self.sources.get(source_id) or {}).get("evidence", "LAW")
@@ -235,7 +247,7 @@ class Converter:
                         "name": r.get("plain"),
                     },
                     "basis": self.basis(r),
-                    "review": r.get("review", "UNVERIFIED"),
+                    **self.rv([r["id"]]),
                 }
             )
         return {"rules": rules}
@@ -243,12 +255,14 @@ class Converter:
     def business_fragment(self) -> dict:
         alts = []
         basis = []
+        alt_ids = []
         for r in self.base_rules:
             if r["stage"] != "S2" or r["concludes"] != "BUSINESS":
                 continue
             if any(c["fact"] == "this_waste_designated" for c in r["when"]):
                 continue  # 지정폐기물 대역이 위에 있으므로 따로 둘 필요 없음
             alts.append(self.expr(r["when"], 2))
+            alt_ids.append(r["id"])
         hh = next(r for r in self.base_rules if r["id"] == "S2-HOUSEHOLD")
         basis = self.basis(hh)
         return {
@@ -265,7 +279,8 @@ class Converter:
                         "name": "생활폐기물(사업장폐기물이 아님)",
                     },
                     "basis": basis,
-                    "review": hh.get("review", "UNVERIFIED"),
+                    # 생활폐기물 = 사업장폐기물 규칙이 모두 거짓 → 그 규칙들에도 기댄다
+                    **self.rv(["S2-HOUSEHOLD", *alt_ids]),
                 }
             ]
         }
@@ -359,12 +374,14 @@ class Converter:
             if not cs:
                 continue
             extra: list[Any] = []
+            ex_ids: list[str] = []
             for ex in self.s4.get("designated_exclusions", []):
                 if not r["id"].startswith(ex["drop"]):
                     continue
                 excluders = [
                     rid for rid in by_id if any(rid.startswith(p) for p in ex["if_any_fired"])
                 ]
+                ex_ids += excluders
                 if excluders:
                     extra.append({"not": {"any": [self.expr(by_id[x], 3, mid) for x in excluders]}})
             base_leaves = [self.leaf(c, 3) for c in folded]
@@ -391,7 +408,7 @@ class Converter:
                             "name": self.code_index[code]["name"],
                         },
                         "basis": self.basis(r) + [self.code_basis(code)],
-                        "review": r.get("review", "UNVERIFIED"),
+                        **self.rv([r["id"], *ex_ids, CODE_MAP_UNIT, f"{MATERIAL_PREFIX}{mid}"]),
                     }
                 )
                 if not need_choice:
@@ -411,7 +428,7 @@ class Converter:
                         "name": r.get("item"),
                     },
                     "basis": self.basis(r),
-                    "review": r.get("review", "UNVERIFIED"),
+                    **self.rv([r["id"], f"{MATERIAL_PREFIX}{mid}"]),
                 }
             )
 
@@ -419,6 +436,8 @@ class Converter:
         gbasis = self.basis(complement) if complement else []
         # 일반 코드의 원본: "지정폐기물 외의 것"을 정의한 보완 규칙(없으면 소재 항목만)
         gsource = {"source_rule": complement["id"]} if complement else {}
+        gdeps = [complement["id"]] if complement else []
+        gdeps += [f"{MATERIAL_PREFIX}{mid}", CODE_MAP_UNIT]
         if goutcome:
             rules.append(
                 {
@@ -428,7 +447,7 @@ class Converter:
                     "when": {"fact": "material", "op": "eq", "value": mid},
                     "then": {"code": None, "category": "GENERAL", "outcome": goutcome},
                     "basis": gbasis,
-                    "review": "UNVERIFIED",
+                    **self.rv(gdeps),
                 }
             )
             self.report["general_outcome"].append(f"{mid}: {goutcome}")
@@ -453,7 +472,7 @@ class Converter:
                             "name": self.code_index[code]["name"],
                         },
                         "basis": gbasis + [self.code_basis(code)],
-                        "review": "UNVERIFIED",
+                        **self.rv(gdeps),
                     }
                 )
         if need_choice:
@@ -642,7 +661,8 @@ class Converter:
             f"- 원본: `knowledge/` ({self.rev()}). 기존 엔진 resource_engine `{LEGACY_REV}`의 "
             "rules/에서 옮겨 왔다.",
             f"- 소재 테이블: {n}개, 시행일 {EFFECTIVE_FROM}",
-            "- 모든 규칙은 기존과 같이 `review: UNVERIFIED`다.",
+            "- 전문가 검토(`knowledge/reviews.yaml`): "
+            f"생성 규칙 {self.verified_rules}개가 `VERIFIED`, 나머지는 `UNVERIFIED`다.",
             "",
             "## 우선순위 대역",
             "| 대역 | priority | 내용 |",
