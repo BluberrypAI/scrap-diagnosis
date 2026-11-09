@@ -49,11 +49,13 @@ rules:
     stage: S0
     concludes: CIRCULAR_RESOURCE
     when:
-      - {fact: circular_resource_recognized, op: eq, value: true}
+      # 2026-11-09: 인정서는 서류로 확인한 경우만(말만으로 비폐기물 확정 안 함, D1)
+      - {fact: circular_resource_recognized, op: eq, value: true, min_status: EVIDENCED}
     source: ACT-CIRCULAR
     location: 제21조제5항
     quote: 제1항부터 제3항까지의 규정에 따라 기후에너지환경부장관의 인정을 받은 순환자원은 폐기물로 보지 아니한다.
-    plain: "정부에서 순환자원으로 인정받은 물질은 법에서 폐기물로 보지 않습니다."
+    plain: "정부에서 순환자원으로 인정받은 물질은 법에서 폐기물로 보지 않습니다. 유효한 인정서(대상 물질·기간)를 서류로 확인합니다."
+    gaps: ["인정 유효기간·취소(제21조제3항·제22조)와 지정·고시 방식(제23조)은 아직 따로 확인하지 않음"]
     review: UNVERIFIED
 
   - id: S0-NOT-NEEDED
@@ -65,7 +67,9 @@ rules:
     source: ACT-WASTE
     location: 제2조제1호
     quote: 사람의 생활이나 사업활동에 필요하지 아니하게 된 물질을 말한다.
-    plain: "법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다. 아직 제품이나 원료로 쓰는 물질은 폐기물이 아닙니다."
+    plain: "법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다. 아직 제품이나 원료로 쓴다는 답만으로는 폐기물이 아니라고 확정하지 않고, 관할 기관 확인을 안내합니다."
+    # 2026-11-09: 진술 하나로 비폐기물 확정하지 않음(D1). 실제 사용 실태·발생 경위 등 개별 사정을 종합해야 함
+    conclusion: interpret
     review: UNVERIFIED
 
   - id: S0-DIRECT-REINPUT
@@ -169,7 +173,10 @@ rules:
   - id: S1-EX-LIVESTOCK-DISEASE
     stage: S1
     concludes: EXCLUDED
-    when: [{fact: law_exclusion, op: eq, value: livestock_disease}]
+    when:
+      - {fact: law_exclusion, op: eq, value: livestock_disease}
+      # 2026-11-09: 법이 열거한 조항(제22조제2항·제23조·제33조·제44조)의 조치 대상으로 한정(D1)
+      - {fact: disease_measure_applies, op: eq, value: true}
     source: ACT-WASTE
     location: 제3조제1항제6호
     quote: 「가축전염병예방법」 제22조제2항, 제23조, 제33조 및 제44조가 적용되는 가축의 사체, 오염 물건, 수입 금지 물건 및 검역 불합격품
@@ -178,7 +185,10 @@ rules:
   - id: S1-EX-AQUATIC-DISEASE
     stage: S1
     concludes: EXCLUDED
-    when: [{fact: law_exclusion, op: eq, value: aquatic_disease}]
+    when:
+      - {fact: law_exclusion, op: eq, value: aquatic_disease}
+      # 2026-11-09: 법이 열거한 조항(제17조제2항·제18조·제25조제1항·제34조제1항)의 조치 대상으로 한정(D1)
+      - {fact: disease_measure_applies, op: eq, value: true}
     source: ACT-WASTE
     location: 제3조제1항제7호
     quote: 「수산생물질병 관리법」 제17조제2항, 제18조, 제25조제1항 각 호 및 제34조제1항이 적용되는 수산동물의 사체, 오염된 시설 또는 물건, 수입금지물건 및 검역 불합격품
@@ -205,7 +215,10 @@ rules:
   - id: S1-EX-FISHERIES
     stage: S1
     concludes: EXCLUDED
-    when: [{fact: law_exclusion, op: eq, value: fisheries_byproduct_unmixed}]
+    when:
+      - {fact: law_exclusion, op: eq, value: fisheries_byproduct_unmixed}
+      # 2026-11-09: 수산부산물만 배출·수집·운반·재활용하는 경우로 한정(D1)
+      - {fact: fisheries_activity, op: eq, value: recycle_chain}
     source: ACT-WASTE
     location: 제3조제3항
     quote: 다른 폐기물과 혼합되지 않아 수산부산물만 배출ㆍ수집ㆍ운반ㆍ재활용하는 경우에는 이 법을 적용하지 아니한다.

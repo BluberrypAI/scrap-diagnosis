@@ -25,7 +25,8 @@ EXPECT = {
     "REAL-PP-EXPAND": ("FINAL_REVIEW", "51-03-01", 12, None),
     "REAL-H2SO4": ("FINAL_REVIEW", "02-01-02", 3, None),
     "REAL-PP-TOXIC": ("FINAL_REVIEW", "09-01-00", 6, None),
-    "REAL-NOT-WASTE": ("FINAL_REVIEW", None, 4, "NOT_WASTE"),
+    # D1(2026-11-09): 해석 필요 결론끼리 합쳐져 상태·다른 법 질문을 먼저 묻는다(4 → 6회)
+    "REAL-NOT-WASTE": ("FINAL_REVIEW", None, 6, "INTERPRETATION_NEEDED"),
     "REAL-SLUDGE-NO-REPORT": ("UNSUPPORTED", None, 4, None),
     "REAL-SOLVENT-GROUP": ("FINAL_REVIEW", "04-02-00", 3, None),
     "REAL-MIXED-AUTO": ("FINAL_REVIEW", None, 3, "NO_MIXTURE_RULE"),
