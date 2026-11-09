@@ -1,4 +1,4 @@
-# 자동 생성: tools/build_kb.py (knowledge 832f4326). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge 6cdad5b6). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 groups:
 - group_id: scope_screen
   title: 이 물질은 사업장에서 더 쓰지 않아 내보내는 것이고, 아래 어느 것에도 해당하지 않나요?

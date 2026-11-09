@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge 832f4326). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge 6cdad5b6). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: sludge_ww_organic
 title: 그 밖의 폐수처리 오니(유기성)
-version: 2026.11.0+kb-832f4326
+version: 2026.11.0+kb-6cdad5b6
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -56,6 +56,10 @@ rules:
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
     location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_PB
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CU:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CU
@@ -101,6 +105,10 @@ rules:
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
     location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_CU
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_AS:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_AS
@@ -146,6 +154,10 @@ rules:
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
     location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_AS
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_HG:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_HG
@@ -191,6 +203,10 @@ rules:
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
     location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_HG
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CD:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CD
@@ -236,6 +252,10 @@ rules:
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
     location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_CD
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CR6:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CR6
@@ -281,6 +301,10 @@ rules:
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
     location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_CR6
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CN:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CN
@@ -326,6 +350,10 @@ rules:
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
     location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_CN
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_OP:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_OP
@@ -371,6 +399,10 @@ rules:
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
     location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_OP
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_PCE:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_PCE
@@ -416,6 +448,10 @@ rules:
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
     location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_PCE
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_TCE:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_TCE
@@ -461,6 +497,10 @@ rules:
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
     location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_TCE
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-OIL_CONTENT_PCT:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-OIL_CONTENT_PCT
@@ -506,6 +546,10 @@ rules:
     excerpt: 01-02-01 폐수처리오니
     source_id: RULE-A4
     location: 01-02-01
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-OIL_CONTENT_PCT
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-6-OIL-5PCT:06-01-01
   source_rule: S3-6-OIL-5PCT
@@ -566,6 +610,12 @@ rules:
     excerpt: 06-01-01 폐윤활유(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조에 따른 재활용의무 대상 제품·포장재인 기어유 및 내연 기관용 윤활유를 말한다)
     source_id: RULE-A4
     location: 06-01-01
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-6-OIL-5PCT:06-01-02
   source_rule: S3-6-OIL-5PCT
@@ -593,6 +643,12 @@ rules:
     excerpt: 06-01-02 폐연마유·비수용성폐절삭유·폐열처리유(금속가공과정에서 발 생된 것을 말한다)
     source_id: RULE-A4
     location: 06-01-02
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-6-OIL-5PCT:06-01-03
   source_rule: S3-6-OIL-5PCT
@@ -620,6 +676,12 @@ rules:
     excerpt: 06-01-03 폐기계유·폐작동유(공업용 기계유·냉동기유·터어빈유·베어링윤 활유·압축기유·유압작동유·열매체유 및 프로세스유 등을 말한 다)
     source_id: RULE-A4
     location: 06-01-03
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-6-OIL-5PCT:06-01-04
   source_rule: S3-6-OIL-5PCT
@@ -647,6 +709,12 @@ rules:
     excerpt: 06-01-04 폐연료유
     source_id: RULE-A4
     location: 06-01-04
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-6-OIL-5PCT:06-01-05
   source_rule: S3-6-OIL-5PCT
@@ -674,6 +742,12 @@ rules:
     excerpt: 06-01-05 폐오일필터
     source_id: RULE-A4
     location: 06-01-05
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-6-OIL-5PCT:06-01-06
   source_rule: S3-6-OIL-5PCT
@@ -701,6 +775,12 @@ rules:
     excerpt: 06-01-06 기름함유 폐전선·폐케이블
     source_id: RULE-A4
     location: 06-01-06
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-6-OIL-5PCT:06-01-07
   source_rule: S3-6-OIL-5PCT
@@ -728,6 +808,12 @@ rules:
     excerpt: 06-01-07 폐절연유(폴리클로리네이티드비페닐 함유 폐기물을 제외한다)
     source_id: RULE-A4
     location: 06-01-07
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-6-OIL-5PCT:06-01-99
   source_rule: S3-6-OIL-5PCT
@@ -755,6 +841,12 @@ rules:
     excerpt: 06-01-99 그 밖의 폐광물유[아스팔트유·그리스(grease)·방청유 및 수용 성절삭유, 20퍼센트 이상의 이물질이 함유된 폐유, 고체상태의 폐유 등을 말한다]
     source_id: RULE-A4
     location: 06-01-99
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-6-OIL-5PCT:06-02-00
   source_rule: S3-6-OIL-5PCT
@@ -782,6 +874,12 @@ rules:
     excerpt: 06-02-00 폐동식물유
     source_id: RULE-A4
     location: 06-02-00
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-6-OIL-5PCT:06-03-00
   source_rule: S3-6-OIL-5PCT
@@ -809,6 +907,12 @@ rules:
     excerpt: 06-03-00 그 밖의 폐유
     source_id: RULE-A4
     location: 06-03-00
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-8GA-PCB-LIQUID:08-03-00
   source_rule: S3-8GA-PCB-LIQUID
@@ -848,6 +952,10 @@ rules:
     excerpt: 08-03-00 그 밖의 폴리클로리네이티드비페닐을 함유한 액상의 것
     source_id: RULE-A4
     location: 08-03-00
+  review_units:
+  - S3-8GA-PCB-LIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-8NA-PCB-NONLIQUID:08-04-00
   source_rule: S3-8NA-PCB-NONLIQUID
@@ -887,6 +995,10 @@ rules:
     excerpt: 08-04-00 그 밖의 폴리클로리네이티드비페닐을 함유한 액상이 아닌 것
     source_id: RULE-A4
     location: 08-04-00
+  review_units:
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-9-TOXIC:09-01-00
   source_rule: S3-9-TOXIC
@@ -940,6 +1052,12 @@ rules:
     excerpt: 09-01-00 「화학물질관리법」 제2조제5호에 따른 금지물질
     source_id: RULE-A4
     location: 09-01-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-9-TOXIC:09-02-00
   source_rule: S3-9-TOXIC
@@ -966,6 +1084,12 @@ rules:
     excerpt: 09-02-00 연구·검사용 폐시약
     source_id: RULE-A4
     location: 09-02-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-9-TOXIC:09-03-00
   source_rule: S3-9-TOXIC
@@ -992,6 +1116,12 @@ rules:
     excerpt: 09-03-00 「화학물질관리법」 제2조제7호에 따른 유해화학물질
     source_id: RULE-A4
     location: 09-03-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-9-TOXIC:09-04-00
   source_rule: S3-9-TOXIC
@@ -1018,6 +1148,12 @@ rules:
     excerpt: 09-04-00 「화학물질관리법」 제2조제3호 및 제4호에 따른 허가물질 및 제한물질
     source_id: RULE-A4
     location: 09-04-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
   review: UNVERIFIED
 - rule_id: sludge_ww_organic:GENERAL
   source_rule: S3-NOT-DESIGNATED
@@ -1041,4 +1177,8 @@ rules:
     excerpt: 51-01-08 그 밖의 폐수처리오니
     source_id: RULE-A4
     location: 51-01-08
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:sludge_ww_organic
+  - code_map
   review: UNVERIFIED

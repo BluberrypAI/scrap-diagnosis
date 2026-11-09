@@ -13,3 +13,6 @@ var/
 .claude/worktrees/
 .claude/launch.json
 .claude/settings.local.json
+
+# 검토 카드·검토표 출력(tools/review_kit.py export)
+build/

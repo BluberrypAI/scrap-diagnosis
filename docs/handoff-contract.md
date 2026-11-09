@@ -8,7 +8,7 @@
   - 분류번호 없이 결론이 난 경우(`result_type = NO_CODE`): 폐기물 아님, 적용 제외 등
 - 결론이 나지 않은 경우는 확정할 수 없고 `NEEDS_INFO`로 남는다. 질문 상한 도달, 증빙 거부, 적용 규칙 없음이 여기에 해당한다.
 - 확정한 건의 상태는 두 종류 모두 `CODE_CONFIRMED`다(경로 미확정). 경로추천 AI는 `result_type`과 `route_guidance.action`으로 분기한다.
-- 모든 판정은 기존 엔진 규칙을 옮긴 것이라 `review: UNVERIFIED`다. 경로추천 AI는 사용자 안내에 이 사실을 표시한다.
+- `review`는 판정에 쓴 규칙의 전문가 검토 상태다: `UNVERIFIED`(검토 전) 또는 `VERIFIED`(검토 완료). 지금은 검토된 규칙이 없어 모든 판정이 `UNVERIFIED`다. 경로추천 AI는 `UNVERIFIED`이면 사용자 안내에 "검토 전 규칙에 따른 참고용 결과"임을 표시한다.
 
 ## 형식
 ```json
@@ -29,7 +29,7 @@
   "facts": {"material": {"value": "pp", "status": "CLAIMED", "source_type": "UTTERANCE"}},
   "evidence": [{"fact": "ph", "document_id": "…"}],
   "basis": [{"id": "B1", "type": "LAW", "ref": "…", "excerpt": "…"}],
-  "review": "UNVERIFIED",
+  "review": "UNVERIFIED | VERIFIED",
   "timestamps": {
     "diagnosis_started_at": "2026-11-08T09:12:03+09:00",
     "confirmed_at": "2026-11-08T09:20:41+09:00",
@@ -73,7 +73,7 @@
   출처 SCREENING은 아직 없다(묶음 질문 답은 UTTERANCE로 들어온다).
 - `evidence`: 유효 사실 중 출처가 DOCUMENT인 것. `document_id`는 업로드한 문서 id.
 - `basis`: 확정 규칙(`rule_ids[0]`)의 근거. id는 응답 `verdict.rationale`과 같은 B1, B2 …
-- `review`: 규칙의 review 값(없으면 `UNVERIFIED`). 지금 모든 규칙이 `UNVERIFIED`다.
+- `review`: 확정 규칙의 review 값(없으면 `UNVERIFIED`). 값은 `UNVERIFIED` | `VERIFIED` 두 가지다. 빌드(`tools/build_kb.py`)가 `knowledge/reviews.yaml`의 검토 기록으로 정한다. 생성 규칙이 기대는 검토 단위(법 규칙, 소재, 번호 대응표)가 모두 "맞음"이고 검토 뒤 내용이 바뀌지 않았을 때만 `VERIFIED`다(`knowledge/README.md`).
 - `timestamps`: 초 단위 ISO 8601, `+09:00`. 한국은 일광절약시간이 없어 고정 오프셋을 쓴다.
 - `route_guidance`: `data/<kb>/outcome_guidance.yaml`(표 전체, real·sample 같은 내용). 계약 표의 행이나 규칙에 쓰인
   outcome의 항목이 하나라도 없으면 KB 로드(서버 시작)가 실패한다. action·outcome은 계약의 값만 받는다.
