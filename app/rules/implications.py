@@ -104,3 +104,24 @@ def apply_implications(kb: KnowledgeBase, facts: dict[str, Fact]) -> dict[str, F
                 recorded_at=f.recorded_at,
             )
     return out
+
+
+def assumption_notes(kb: KnowledgeBase, facts: dict[str, Fact]) -> list[str]:
+    """대리 질문 답에서 추정한 사실의 안내 문장(결과 카드·인계 객체에 표시).
+
+    추정은 시험·서류가 아니라 사용자 답에 근거하므로, 결과를 보는 사람이 알 수 있게 밝힌다.
+    보수 관계(complement)로 계산한 값은 같은 시험의 값이라 여기에 넣지 않는다.
+    """
+    notes: list[str] = []
+    for key, f in sorted(facts.items()):
+        if f.source_type != "DERIVED" or not (f.source_ref or "").startswith("implies:"):
+            continue
+        src = f.source_ref.split(":", 1)[1]
+        sfd, tfd = kb.catalog.get(src), kb.catalog.get(key)
+        slabel = (sfd.label or src) if sfd else src
+        tlabel = (tfd.label or key) if tfd else key
+        notes.append(
+            f"{tlabel}: 시험값이 아니라 '{slabel}' 답에서 기준 미만으로 추정했습니다."
+            " 의심되면 시험성적서로 확인하세요."
+        )
+    return notes

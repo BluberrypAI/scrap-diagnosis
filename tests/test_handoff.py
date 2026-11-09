@@ -58,6 +58,7 @@ HANDOFF_KEYS = {
     "timestamps",
     "kb",
     "inputs",  # 기업 정보 입력 요약(추가 필드)
+    "assumptions",  # 답변에서 추정한 사실 안내(추가 필드)
 }
 # 실제 KB: 아직 공정에서 쓴다는 PP → 진술만으로 비폐기물 확정하지 않음, 해석 필요(코드 없는 결론)
 OUT = "INTERPRETATION_NEEDED"  # 이 사실들의 결론(D1 뒤: 진술만으로 비폐기물 확정 안 함)

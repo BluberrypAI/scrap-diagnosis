@@ -119,6 +119,12 @@ export function FinalCard({ turn, confirmed, handoff, busy, onConfirm, onRecheck
         <span className="wd-chip is-review">{REVIEW_LABEL[r.review] || r.review}</span>
       </div>
       {r.code && <p>{r.conclusion} {r.category && <span className="muted">({CATEGORY_LABEL[r.category] || r.category})</span>}</p>}
+      {r.assumptions?.length > 0 && (
+        <div className="wd-note" role="note">
+          <strong>시험이 아니라 답변으로 추정한 내용</strong>
+          <ul className="plain">{r.assumptions.map((a, i) => <li key={i}>{a}</li>)}</ul>
+        </div>
+      )}
       {v.conditions.length > 0 && (
         <ul className="plain">{v.conditions.map((c, i) => <li key={i}>{MARK[c.satisfied] || '○'} {c.text}</li>)}</ul>
       )}

@@ -124,6 +124,7 @@
      "evidence": [{"fact": "oil_content_pct", "document_id": "D1"}],
      "basis": [{"type": "LAW", "ref": "폐기물관리법 시행령 별표 1", "excerpt": "…"}],
      "review": "UNVERIFIED",
+     "assumptions": ["PCB 함량(액체): 시험값이 아니라 'PCB 관련' 답에서 기준 미만으로 추정했습니다. …"],
      "timestamps": {"diagnosis_started_at": "…", "confirmed_at": "…", "as_of": "2026-11-09"}
    },
    "frozen_trace_rows": 7}

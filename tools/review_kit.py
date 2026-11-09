@@ -481,7 +481,11 @@ def engine_rows(k: Knowledge, r: dict, use: str) -> list[str]:
         return [f"엔진 미사용: {k.unused_reason(r)}"]
     if use == "CONDITION":
         if r.get("stage") == "S2":
-            return ["다른 규칙의 조건: 사업장 조건이 모두 거짓이면 생활폐기물(S2-HOUSEHOLD)"]
+            return [
+                "이 규칙 자체는 결론을 내지 않음. 생활폐기물 규칙(S2-HOUSEHOLD)의"
+                " 판단 조건으로 쓰임:"
+                " 사업장 조건이 모두 거짓일 때만 생활폐기물"
+            ]
         return ["다른 규칙의 조건으로만 쓰임(예: 다른 지정폐기물 규칙의 제외 조건)"]
     out = sorted(k.engine[r["id"]])
     original = CONCLUDES.get(r["concludes"], r["concludes"])

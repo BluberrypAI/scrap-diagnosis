@@ -100,3 +100,40 @@ def test_pcb_screening_yes_asks_concentration(real_kb):
     step = run_engine(real_kb, row_store(real_kb, BASE, row), SessionState(), AS_OF)
     assert step.decision.branch == Branch.ASK_FACT
     assert step.decision.question.key == "pcb_mg_l"
+
+
+def test_pcb_assumption_is_labelled_in_result_and_handoff(real_kb):
+    """PCB '관련 없음' 추정은 결과 카드·인계 객체에 '시험값 아님'으로 표시한다(2차 검수)."""
+    from datetime import UTC, datetime
+
+    from app.domain.handoff import build_handoff
+    from app.domain.verdict import build_result
+
+    row = _oil_row("06-01-07", pcb_possible=False)
+    step = run_engine(real_kb, row_store(real_kb, BASE, row), SessionState(), AS_OF)
+    rules = {r.rule_id: r for t in real_kb.tables for r in t.rules}
+    result = build_result(step, rules, real_kb)
+    assert result is not None and any("PCB" in a and "추정" in a for a in result.assumptions)
+    decided = step.evaluation.decided
+    now = datetime.now(UTC)
+    h = build_handoff(
+        real_kb,
+        case_id="C",
+        verdict_version=1,
+        decided=decided,
+        rule=rules.get(decided.rule_ids[0]),
+        effective=step.effective,
+        table_id=None,
+        table_version=None,
+        kb_version="t",
+        diagnosis_started_at=now,
+        confirmed_at=now,
+        as_of=AS_OF,
+    )
+    assert h.assumptions == result.assumptions
+    # 함량 시험값을 주면 함량은 추정이 아니므로 함량 안내는 빠진다(용출 농도 추정 안내만 남음)
+    label = real_kb.catalog["pcb_mg_l"].label
+    assert any(a.startswith(label) for a in result.assumptions)
+    row = _oil_row("06-01-07", pcb_possible=False, pcb_mg_l=0.5)
+    step = run_engine(real_kb, row_store(real_kb, BASE, row), SessionState(), AS_OF)
+    assert not any(a.startswith(label) for a in build_result(step, rules, real_kb).assumptions)

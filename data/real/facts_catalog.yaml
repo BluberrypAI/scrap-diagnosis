@@ -1,4 +1,4 @@
-# 자동 생성: tools/build_kb.py (knowledge e6c00a93). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge 58812f75). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 - key: material_group
   label: 소재 분류
   type: enum
@@ -411,13 +411,14 @@
     released: 0.9
   none_value: released
 - key: circular_resource_recognized
-  label: 순환자원 인정서
+  label: 유효한 순환자원 인정(이 물질 대상)
   type: bool
   ask_cost: 2
   evidence_type: CIRCULAR_RESOURCE_CERTIFICATE
   legal_priority: 2
-  question_hint: 이 물질에 대해 순환자원 인정서를 받았나요?
-  help: 기후에너지환경부(유역·지방환경청)가 발급한 순환자원 인정서가 있는지, 유효기간 안인지 확인하세요.
+  question_hint: 이 물질에 대해 받은 순환자원 인정이 지금 유효한가요? (인정서의 대상 물질·유효기간이 맞고 취소되지 않음)
+  help: 기후에너지환경부(유역·지방환경청)가 발급한 순환자원 인정서의 대상 물질이 이 물질과 같은지, 유효기간 안인지, 인정이 취소되지 않았는지 확인하세요. 개별 인정이 아니라 지정·고시된 순환자원이라면
+    관할 기관에 확인하세요.
   prior:
     false: 0.97
   none_value: false
@@ -454,7 +455,7 @@
   question_hint: 이 수산부산물을 어떻게 처리하나요?
   help: 폐기물관리법 제3조제3항은 다른 폐기물과 섞이지 않은 수산부산물만 배출·수집·운반·재활용하는 경우만 적용을 제외합니다.
 - key: disease_measure_applies
-  label: 질병 관련 법 조치 대상
+  label: 가축전염병·수산생물질병 법 적용 대상(조치·수입금지·검역 불합격 등)
   type: bool
   ask_cost: 2
   evidence_type: DOCUMENT

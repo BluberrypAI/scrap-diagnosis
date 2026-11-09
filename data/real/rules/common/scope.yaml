@@ -1,4 +1,4 @@
-# 자동 생성: tools/build_kb.py (knowledge e6c00a93). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge 58812f75). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 rules:
 - rule_id: S0-CIRCULAR
   source_rule: S0-CIRCULAR
@@ -109,7 +109,7 @@ rules:
     code: null
     category: OUT_OF_SCOPE
     outcome: EXCLUDED
-    name: 방사성 물질과 그 물질로 오염된 물질은 폐기물관리법이 아니라 원자력안전법으로 관리합니다.
+    name: 「원자력안전법」에 따른 방사성 물질과 이로 인해 오염된 물질은 폐기물관리법을 적용하지 않습니다(원자력안전법으로 관리).
   basis:
   - type: LAW
     ref: 폐기물관리법 제3조제1항제1호
