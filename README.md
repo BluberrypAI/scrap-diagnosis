@@ -20,7 +20,7 @@ uv run python scripts/eval.py                    # 실제 Azure
 uv run python scripts/eval_extractor.py          # 기존 질의회신 60건 추출 평가
 ```
 
-기존 엔진 규칙을 다시 변환할 때(기존 저장소: `C:/Users/zxc20/re_project/resource_engine`):
+기존 엔진 규칙을 다시 변환할 때(기존 저장소 위치: 환경변수 `LEGACY_ENGINE_DIR`, 없으면 이 저장소 옆의 `resource_engine`):
 ```bash
 uv run python tools/convert_legacy.py --regression
 uv run python tools/legacy_regression.py --write

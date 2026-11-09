@@ -1,5 +1,7 @@
 # 폐기물 문진 참조 프론트 (web/)
 
+UI팀이 문진 흐름과 API 응답 형식을 직접 눌러 보며 이해하도록 만든 **테스트용 화면**입니다. scrap-web에 복사하지 않습니다(안내: `docs/ui/handover.md`).
+
 React 19 + Vite. 화면 설계는 `docs/ui/ui-design.md`, API 형식은 `docs/ui/ui-contract.md`.
 
 ## 실행

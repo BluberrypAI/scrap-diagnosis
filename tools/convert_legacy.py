@@ -1,6 +1,6 @@
 """기존 엔진(resource_engine) 규칙 → 새 사실 카탈로그 + 소재별 PRIORITY 테이블.
 
-    uv run python tools/convert_legacy.py --legacy C:/Users/zxc20/re_project/resource_engine
+    uv run python tools/convert_legacy.py --legacy ../resource_engine
     uv run python tools/convert_legacy.py --legacy ... --regression   # 회귀 데이터도 생성
 
 기존 엔진의 S0→S5 단계 흐름을 우선순위 대역으로 펴서 소재마다 테이블 하나로 만든다.
@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from collections import Counter, defaultdict
@@ -26,7 +27,10 @@ from typing import Any
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_LEGACY = Path("C:/Users/zxc20/re_project/resource_engine")
+# 기존 엔진 저장소 위치: 환경변수 LEGACY_ENGINE_DIR, 없으면 이 저장소 옆의 resource_engine
+DEFAULT_LEGACY = Path(
+    os.environ.get("LEGACY_ENGINE_DIR") or Path(__file__).resolve().parents[2] / "resource_engine"
+)
 OUT = ROOT / "data" / "real"
 
 P_S0, P_S1, P_DESIGNATED, P_HOUSEHOLD, P_INTERPRET, P_GENERAL = 1100, 1000, 500, 400, 300, 100

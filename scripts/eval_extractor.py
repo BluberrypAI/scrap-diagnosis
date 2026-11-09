@@ -1,6 +1,7 @@
 """LLM 사실 추출 평가: 기존 엔진의 질의회신 사례(testdata/cases.jsonl) 중 facts 라벨이 있는 것.
 
-    uv run python scripts/eval_extractor.py [--legacy C:/Users/zxc20/re_project/resource_engine]
+    uv run python scripts/eval_extractor.py [--legacy ../resource_engine]
+    (기본: 환경변수 LEGACY_ENGINE_DIR, 없으면 이 저장소 옆의 resource_engine)
 
 질의 원문(question_quote)을 사용자 발화로 넣고 추출 결과를 라벨과 비교한다.
 - 기존 라벨의 waste_kind는 새 카탈로그에 없으므로
@@ -15,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
@@ -48,7 +50,10 @@ def main() -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser()
-    ap.add_argument("--legacy", default="C:/Users/zxc20/re_project/resource_engine")
+    ap.add_argument(
+        "--legacy",
+        default=os.environ.get("LEGACY_ENGINE_DIR") or str(ROOT.parent / "resource_engine"),
+    )
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--report", default=str(ROOT / "var" / "eval_extractor.json"))
     args = ap.parse_args()
