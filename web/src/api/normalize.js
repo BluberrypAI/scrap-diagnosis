@@ -9,7 +9,7 @@ import { EVIDENCE_LABEL, NEXT_ACTION, STATUS_LABEL } from '../lib/labels.js';
  * @typedef {{key: string, unit: 'fact'|'group', facts: string[], options: Option[], text: string, help: string|null,
  *   input: 'choice'|'group'|'material_group'|'material'|'number'|'code', value_type: string|null, allow_unknown: boolean,
  *   allow_free_number: boolean, items: {key: string, label: string}[], answered_items: {key: string, label: string, value_label: string}[],
- *   measure_unit?: string|null}} Question
+ *   measure_unit?: string|null, terms: {term: string, plain: string, example: string|null}[]}} Question
  * @typedef {{key: string, label: string, value: any, value_label: string, status: string, source_type: string, source_label: string,
  *   quote: string|null, recorded_at: string|null, editable: boolean, edit: any}} BoardFact
  * @typedef {{facts: BoardFact[], pending: {key: string, label: string, reason: string}[], progress: {questions_asked: number, max_questions: number}|null,
@@ -68,6 +68,7 @@ export function normalizeQuestion(q, message = '') {
     allow_free_number: q.allow_free_number ?? input === 'number',
     items,
     answered_items: Array.isArray(q.answered_items) ? q.answered_items : [],
+    terms: Array.isArray(q.terms) ? q.terms : [],
     measure_unit: q.measure_unit ?? cat?.unit ?? null,
     _fallback: fb,
   };

@@ -57,6 +57,19 @@ export default function QuestionCard({ question: q, disabled, onSend }) {
       {unknown && (
         <button type="button" className="button button-link" disabled={disabled} onClick={() => reply(unknown)}>{unknown.label}</button>
       )}
+      {q.terms?.length > 0 && (
+        <details>
+          <summary>용어 설명</summary>
+          <dl className="muted">
+            {q.terms.map((t) => (
+              <div key={t.term}>
+                <dt><strong>{t.term}</strong></dt>
+                <dd>{t.plain}{t.example ? ` (예: ${t.example})` : ''}</dd>
+              </div>
+            ))}
+          </dl>
+        </details>
+      )}
       {q.help && (
         <details>
           <summary>어떻게 확인하나요?</summary>
