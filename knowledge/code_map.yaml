@@ -39,14 +39,8 @@ designated:
   S3-RESIDUE-PAINT: ["05"]
   S3-RESIDUE-TOXIC_CHEMICAL: ["09"]
 
-# 같은 폐기물에 여러 지정 사유가 성립할 때, 법이 한쪽을 제외하는 경우
-designated_exclusions:
-  - drop: "S3-6-"            # 제6호 폐유는 PCB 함유 폐기물을 제외한다
-    if_any_fired: ["S3-8"]
-    basis: "시행령 별표 1 제6호: 폴리클로리네이티드비페닐(PCBs)함유 폐기물 … 제외한다"
-  - drop: "S3-9-"            # 제9호 폐유독물질은 폐농약·부식성·폐유기용제·PCB·수은폐기물을 제외한다
-    if_any_fired: ["S3-1DA-", "S3-2", "S3-4-", "S3-8", "S3-11"]
-    basis: "시행령 별표 1 제9호: 제1호다목의 폐농약 …, 제2호의 부식성 폐기물, 제4호의 폐유기용제, 제8호 …, 제11호의 수은폐기물은 제외한다"
+# 같은 폐기물에 여러 지정 사유가 성립할 때 법이 한쪽을 제외하는 경우는 법 규칙의 exceptions에 둔다
+# (knowledge/law_rules/designated.yaml, 2026-11-09 옮김).
 
 # 같은 지정 그룹 안에서 별표 4 명칭만으로 번호가 정해지는 경우. 폐기물 종류(waste_kind)가 정해져 있을 때만 적용한다.
 # 종류가 by_waste_kind에 있으면 그 번호, 아니면 성립한 S3 규칙(by_fired)의 번호.

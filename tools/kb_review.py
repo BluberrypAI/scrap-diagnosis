@@ -6,6 +6,7 @@ build_kb.py와 review_kit.py가 함께 쓴다.
 - 법 규칙: 원본 규칙 ID 그대로(예: S3-6-OIL-5PCT). knowledge/law_rules/*.yaml
 - 소재: `material:<소재 id>`(예: material:pp). knowledge/materials.yaml
 - 번호 대응표: `code_map`. knowledge/code_map.yaml 전체
+- 공통 정의: `def:<이름>`. knowledge/definitions.yaml의 이름 붙은 조건(규칙이 `ref`로 쓴다)
 
 내용 해시는 단위의 내용(원본의 `review` 필드는 뺌)으로 만든다. 검토한 뒤 내용이 바뀌면 해시가 달라져
 그 검토는 효력이 없어진다(상태 STALE, 생성 규칙에는 UNVERIFIED).
@@ -41,6 +42,7 @@ STATUS_ALIASES = {
 }
 CODE_MAP_UNIT = "code_map"
 MATERIAL_PREFIX = "material:"
+DEF_PREFIX = "def:"
 
 
 def content_hash(obj: Any) -> str:
@@ -75,6 +77,11 @@ def units_from(src: Path) -> dict[str, Unit]:
     for mid, m in read(src / "materials.yaml")["materials"].items():
         uid = f"{MATERIAL_PREFIX}{mid}"
         out[uid] = Unit(uid, "MATERIAL", m.get("label", mid), m, content_hash(m))
+    defs_path = src / "definitions.yaml"
+    defs = ((read(defs_path) or {}).get("definitions") or {}) if defs_path.exists() else {}
+    for name, d in defs.items():
+        uid = f"{DEF_PREFIX}{name}"
+        out[uid] = Unit(uid, "DEFINITION", d.get("title") or name, d, content_hash(d))
     cm = read(src / "code_map.yaml")
     out[CODE_MAP_UNIT] = Unit(
         CODE_MAP_UNIT, "CODE_MAP", "법 규칙 → 별표 4 번호 범위 대응표", cm, content_hash(cm)

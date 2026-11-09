@@ -27,7 +27,9 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from build_kb import iter_leaves  # noqa: E402
 from kb_review import (  # noqa: E402
+    DEF_PREFIX,
     MATERIAL_PREFIX,
     STATUS_ALIASES,
     STATUS_LABEL,
@@ -58,7 +60,12 @@ CSV_COLUMNS = (
     "의견",
     "엔진에서",  # 참고용(가져오기에서 읽지 않음): 결론을 냄 / 다른 규칙의 조건 / 엔진 미사용
 )
-KIND_LABEL = {"LAW_RULE": "법 규칙", "MATERIAL": "소재", "CODE_MAP": "번호 대응표"}
+KIND_LABEL = {
+    "LAW_RULE": "법 규칙",
+    "DEFINITION": "공통 정의",
+    "MATERIAL": "소재",
+    "CODE_MAP": "번호 대응표",
+}
 CONCLUDES = {
     "DESIGNATED": "지정폐기물",
     "NOT_DESIGNATED": "지정폐기물 아님",
@@ -121,6 +128,10 @@ class Knowledge:
         self.materials: dict[str, dict] = mats["materials"]
         self.groups: dict[str, dict] = mats.get("groups") or {}
         self.code_map: dict = read(src / "code_map.yaml")
+        defs_path = src / "definitions.yaml"
+        self.defs: dict[str, dict] = (
+            ((read(defs_path) or {}).get("definitions") or {}) if defs_path.exists() else {}
+        )
         self.codes: dict[str, dict] = {c["id"]: c for c in read(src / "annex4_codes.yaml")["codes"]}
         self.sources: dict[str, dict] = read(src / "sources.yaml")
         self.units = units_from(src)
@@ -156,7 +167,8 @@ class Knowledge:
         return "CONDITION" if self.fanout.get(uid) else "UNUSED"
 
     def unused_reason(self, r: dict) -> str:
-        kinds = {c.get("value") for c in r.get("when") or [] if c["fact"] == "waste_kind"}
+        leaves = iter_leaves(r.get("when") or [], self.defs)
+        kinds = {c.get("value") for c in leaves if c["fact"] == "waste_kind"}
         kinds = {v for v in kinds if isinstance(v, str)}
         have = {m.get("waste_kind") for m in self.materials.values() if not m.get("unlisted")}
         missing = sorted(kinds - have)
@@ -207,13 +219,40 @@ class Knowledge:
             s = f"{label} {OPS[op]} {val}"
         else:
             s = f"{label} {op} {val}"
-        # 엔진의 실제 동작 기준(build_kb.py leaf): 시험 수치만 성적서(EVIDENCED)가 있어야 참
+        # 엔진의 실제 동작 기준(build_kb.py leaf): 원본의 min_status, 없으면 시험 수치만 성적서 필요
         cost = (self.facts.get(fid) or {}).get("cost")
-        if cost == "TEST":
-            s += " (시험성적서 필요)"
-        elif cost == "DOCUMENT":
+        need = c.get("min_status") or ("EVIDENCED" if cost == "TEST" else "CLAIMED")
+        if need == "EVIDENCED":
+            s += " (시험성적서 필요)" if cost == "TEST" else " (서류로 확인해야 함)"
+        elif cost in ("TEST", "DOCUMENT"):
             s += " (말로 답해도 됨 · 서류로 확인 가능)"
         return s
+
+    def expr_lines(self, e: Any, depth: int = 0) -> list[str]:
+        """원본 조건식 → 들여쓴 문장 목록.
+
+        최상위 목록·all은 그냥 나열한다(카드 제목이 '모두 만족').
+        """
+        pad = "  " * depth
+        if isinstance(e, list):
+            e = {"all": e}
+        if "all" in e:
+            if depth == 0:
+                return [x for it in e["all"] for x in self.expr_lines(it, 0)]
+            return [f"{pad}다음을 모두 만족:"] + [
+                x for it in e["all"] for x in self.expr_lines(it, depth + 1)
+            ]
+        if "any" in e:
+            return [f"{pad}다음 중 하나 이상:"] + [
+                x for it in e["any"] for x in self.expr_lines(it, depth + 1)
+            ]
+        if "not" in e:
+            return [f"{pad}다음이 아님:"] + self.expr_lines(e["not"], depth + 1)
+        if "ref" in e:
+            d = self.defs.get(e["ref"]) or {}
+            head = f"{pad}[공통 정의 {e['ref']}] {d.get('plain') or d.get('title') or ''}".rstrip()
+            return [head] + (self.expr_lines(d["when"], depth + 1) if d.get("when") else [])
+        return [f"{pad}{'· ' if depth else ''}{self.cond_text(e)}"]
 
     def source_text(self, source: str, location: str | None) -> str:
         src = self.sources.get(source) or {}
@@ -281,7 +320,7 @@ def card(k: Knowledge, u: Unit) -> dict:
             names = ", ".join(CONCLUDES.get(c, c) for c in comp)
             rows.append(("조건", [f"{names}에 해당하는 규칙이 모두 확실히 거짓일 때"]))
         else:
-            conds = [k.cond_text(c) for c in r.get("when") or []]
+            conds = k.expr_lines(r.get("when") or [])
             rows.append(("조건(모두 만족)", conds or ["(조건 없음)"]))
         concl = [CONCLUDES.get(r["concludes"], r["concludes"])]
         if r["concludes"] == "DESIGNATED":
@@ -290,7 +329,7 @@ def card(k: Knowledge, u: Unit) -> dict:
                 concl.append("별표 4 번호 범위: " + ", ".join(pre) + " (번호 대응표)")
         rows.append(("원본 결론", concl))
         rows.append(("엔진 결론", engine_rows(k, r, base["engine"])))
-        exc = exception_rows(k, r["id"])
+        exc = exception_rows(k, r)
         if exc:
             rows.append(("제외", exc))
         quote = [f"{base['location']}", f"“{r['quote']}”"] if r.get("quote") else [base["location"]]
@@ -313,6 +352,22 @@ def card(k: Knowledge, u: Unit) -> dict:
                 ],
             )
         )
+    elif u.kind == "DEFINITION":
+        d = u.content
+        base["location"] = k.source_text(d["source"], d.get("location")) if d.get("source") else ""
+        if d.get("plain"):
+            rows.append(("쉬운 설명", [d["plain"]]))
+        rows.append(("조건", k.expr_lines(d.get("when") or [])))
+        if d.get("quote"):
+            rows.append(("근거", [base["location"], f"“{d['quote']}”"]))
+        name = u.unit.removeprefix(DEF_PREFIX)
+        users = sorted(
+            rid
+            for rid, rr in k.rules.items()
+            if any(c.get("ref") == name for c in _refs(rr.get("when") or []))
+        )
+        rows.append(("쓰는 법 규칙", users or ["(없음)"]))
+        rows.append(("영향", [f"생성 규칙 {base['fanout']}개 (이 정의를 고치면 함께 바뀜)"]))
     elif u.kind == "MATERIAL":
         m = u.content
         grp = (k.groups.get(m.get("group")) or {}).get("label", m.get("group"))
@@ -387,17 +442,6 @@ def card(k: Knowledge, u: Unit) -> dict:
         cm = u.content
         lines = [f"{pre} → {', '.join(v)}" for pre, v in (cm.get("designated") or {}).items()]
         rows.append(("지정폐기물 규칙 → 별표 4 번호 범위", lines))
-        ex = cm.get("designated_exclusions") or []
-        if ex:
-            rows.append(
-                (
-                    "제외 규칙",
-                    [
-                        f"{e['drop']}: {', '.join(e['if_any_fired'])}가 성립하면 적용 안 함"
-                        for e in ex
-                    ],
-                )
-            )
         gk = cm.get("general_by_kind") or {}
         if gk:
             rows.append(
@@ -415,6 +459,19 @@ def card(k: Knowledge, u: Unit) -> dict:
     return base
 
 
+def _refs(e: Any):
+    """조건식 안의 {ref: …} 항목들."""
+    if isinstance(e, list):
+        for x in e:
+            yield from _refs(x)
+    elif "all" in e or "any" in e:
+        yield from _refs(e.get("all") or e.get("any"))
+    elif "not" in e:
+        yield from _refs(e["not"])
+    elif "ref" in e:
+        yield e
+
+
 def engine_rows(k: Knowledge, r: dict, use: str) -> list[str]:
     """법 규칙 카드의 '엔진 결론' 행."""
     if use == "UNUSED":
@@ -426,21 +483,21 @@ def engine_rows(k: Knowledge, r: dict, use: str) -> list[str]:
     out = sorted(k.engine[r["id"]])
     original = CONCLUDES.get(r["concludes"], r["concludes"])
     law = (k.sources.get(r["source"]) or {}).get("evidence", "LAW") == "LAW"
-    if not law and r["concludes"] in ("DESIGNATED", "NOT_WASTE", "CIRCULAR_RESOURCE"):
+    if r.get("conclusion") == "interpret":
+        out.append(f"원본에서 해석 필요로 끝내도록 정함(원본 결론: {original})")
+    elif not law and r["concludes"] in ("DESIGNATED", "NOT_WASTE", "CIRCULAR_RESOURCE"):
         out.append(
             f"근거가 법령이 아니라(질의회신·해설) 원본 결론({original}) 대신 해석 필요로 끝냄"
         )
     return out
 
 
-def exception_rows(k: Knowledge, rule_id: str) -> list[str]:
-    """번호 대응표의 제외 규칙 중 이 규칙에 걸리는 것(생성 규칙에 '아님' 조건으로 들어감)."""
+def exception_rows(k: Knowledge, r: dict) -> list[str]:
+    """법 규칙의 예외(exceptions): 그 규칙들이 성립하면 이 규칙은 적용하지 않는다."""
     out = []
-    for e in k.code_map.get("designated_exclusions") or []:
-        if not rule_id.startswith(e["drop"]):
-            continue
+    for e in r.get("exceptions") or []:
         names = []
-        for p in e["if_any_fired"]:
+        for p in e["unless_any"]:
             items = sorted(
                 {str(x.get("item") or x["id"]) for x in k.rules.values() if x["id"].startswith(p)}
             )
@@ -448,13 +505,15 @@ def exception_rows(k: Knowledge, rule_id: str) -> list[str]:
                 more = " 등" if len(items) > 2 else ""
                 names.append(f"{p}* ({', '.join(items[:2])}{more})")
         out.append("다음 규칙이 성립하면 이 규칙은 적용하지 않음: " + "; ".join(names))
-        if e.get("basis"):
-            out.append(f"근거: {e['basis']}")
+        if e.get("plain"):
+            out.append(e["plain"])
+        if e.get("quote"):
+            out.append(f"근거: {e.get('location') or ''} “{e['quote']}”".replace("  ", " "))
     return out
 
 
 def all_cards(k: Knowledge) -> list[dict]:
-    order = {"LAW_RULE": 0, "CODE_MAP": 1, "MATERIAL": 2}
+    order = {"LAW_RULE": 0, "DEFINITION": 1, "CODE_MAP": 2, "MATERIAL": 3}
     cards = [card(k, u) for u in k.units.values()]
     return sorted(cards, key=lambda c: (order[c["kind"]], -c["fanout"], c["unit"]))
 
@@ -531,7 +590,7 @@ def write_html(cards: list[dict], path: Path, rev: str) -> None:
     )
     kind_buttons = "".join(
         f"<button type='button' data-k='{k}'>{esc(KIND_LABEL[k])} {kinds.get(k, 0)}</button>"
-        for k in ("LAW_RULE", "CODE_MAP", "MATERIAL")
+        for k in ("LAW_RULE", "DEFINITION", "CODE_MAP", "MATERIAL")
     )
     engines = Counter(c["engine"] for c in cards)
     engine_buttons = "".join(

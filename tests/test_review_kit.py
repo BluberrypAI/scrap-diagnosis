@@ -230,3 +230,28 @@ def test_cards_match_engine_behavior():
     assert engine["S2-EMISSION-FACILITY"] == "CONDITION"
     # 소재 카드: 프리셋(고체) 때문에 나오지 않는 지정 번호 후보를 따로 보여 준다
     assert any(x.startswith("01-01-08") for x in cards["material:eps"]["쓰이지 않는 후보"])
+
+
+def test_definition_card_and_nested_conditions(knowledge):
+    """공통 정의는 별도 검토 단위(def:이름)이고, 카드는 중첩 조건을 들여써서 보여 준다."""
+    (knowledge / "definitions.yaml").write_text(
+        "definitions:\n"
+        "  SLUDGE_STATE:\n"
+        "    title: 오니 성상\n"
+        "    plain: 수분 95% 미만이거나 고형물 5% 이상\n"
+        "    when:\n"
+        "      any:\n"
+        "      - {fact: sludge_water_pct, op: lt, value: 95}\n"
+        "      - {fact: sludge_water_pct, op: lte, value: 95}\n"
+        "    source: DEC-A1\n"
+        "    location: 별표 1 제1호나목\n",
+        encoding="utf-8",
+    )
+    k = review_kit.Knowledge(src=knowledge)
+    cards = {c["unit"]: c for c in review_kit.all_cards(k)}
+    d = cards["def:SLUDGE_STATE"]
+    assert d["kind_label"] == "공통 정의"
+    rows = dict(d["rows"])
+    assert rows["조건"][0] == "다음 중 하나 이상:"
+    assert rows["조건"][1].startswith("  · 수분함량 < 95%")
+    assert rows["쓰는 법 규칙"] == ["(없음)"]

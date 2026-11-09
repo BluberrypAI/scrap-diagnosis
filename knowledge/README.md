@@ -15,13 +15,48 @@ uv run python tools/legacy_regression.py   # 기존 엔진 판정표와 비교(�
 | `law_rules/scope_and_business.yaml` | 법 규칙 28개: 폐기물 해당 여부(S0), 법 적용 제외(S1), 사업장폐기물 여부(S2) | 예 |
 | `law_rules/designated.yaml` | 법 규칙 122개: 지정폐기물 기준(S3). 규칙마다 쉬운 설명(`plain`), 인용문(`quote`), 조문 위치(`location`) | 예 |
 | `materials.yaml` | 소재 98개: 폐기물 종류, 소재가 정하는 사실, 별표 4 번호 후보 | 아니오 |
-| `code_map.yaml` | 법 규칙 → 별표 4 번호 범위 대응표(사람이 옮긴 것) | 예(대응) |
+| `code_map.yaml` | 법 규칙 → 별표 4 번호 범위 대응표(사람이 옮긴 것). 법의 예외는 여기 두지 않는다 | 예(대응) |
+| `definitions.yaml` | 공통 정의: 여러 규칙이 함께 쓰는 이름 붙은 조건(규칙이 `{ref: 이름}`으로 씀) | 예 |
 | `annex4_codes.yaml` | 시행규칙 별표 4 번호표 | 법령 원문 |
 | `sources.yaml` | 근거 문서: 법령명, 법령 번호, 시행일 | - |
 | `facts.yaml` | 사실(질문 항목) 정의: 라벨, 값, 질문 문장, 확인 방법 | 아니오 |
 | `fact_settings.yaml` | 빌드 때 더하는 사실 설정: 사전확률, 법적 중요도, 묶음 질문, 증빙 문서 종류 | 아니오 |
 | `outcome_guidance.yaml` | 결론 → 경로추천 안내(`docs/handoff-contract.md`). 빌드가 그대로 복사 | 아니오 |
 | `reviews.yaml` | 전문가 검토 기록. `tools/review_kit.py import`로만 더한다 | - |
+
+## 원본 형식 (2판)
+
+법 규칙(`law_rules/*.yaml`)의 항목:
+
+| 필드 | 뜻 |
+|---|---|
+| `id`, `stage`, `concludes` | 규칙 ID, 단계(S0~S3), 원본 결론(예: DESIGNATED, NOT_WASTE, EXCLUDED) |
+| `when` | 조건식(아래) |
+| `exceptions` | 예외: `[{unless_any: [규칙 ID 접두어…], location, quote, plain}]`. 그 규칙들이 성립하면 이 규칙은 적용하지 않는다. 같은 소재 테이블에 있는 규칙만 따진다 |
+| `conclusion` | 결론 방식: 없음/`auto`이면 근거가 법령일 때 원본 결론 그대로, 아니면 해석 필요. `interpret`이면 근거와 관계없이 해석 필요로 끝낸다 |
+| `source`, `location`, `quote`, `supporting` | 근거 문서·조문 위치·인용문·보조 근거 |
+| `item`, `plain`, `gaps` | 제목, 쉬운 설명, 확인하지 못한 점 |
+| `review` | 기존 엔진에서 온 값. 빌드는 쓰지 않는다(검토 상태는 `reviews.yaml`) |
+
+조건식(`when`, 정의의 `when`):
+
+```yaml
+when:                                   # 목록 = 모두 만족(AND). 기존 형식 그대로
+- {fact: waste_kind, op: eq, value: sludge_process}
+- {ref: SLUDGE_STATE}                   # 공통 정의(definitions.yaml)를 가져다 쓴다
+- any:                                  # 하나 이상(OR)
+  - {fact: leach_pb, op: gte, value: 3}
+  - {fact: leach_cd, op: gte, value: 0.3}
+- not: {fact: dust_from_incinerator, op: eq, value: true}   # 아님(NOT)
+- {fact: circular_resource_recognized, op: eq, value: true, min_status: EVIDENCED}
+```
+
+- 단순 조건: `{fact, op, value}`. `op`는 `eq ne in not_in lt lte gt gte exists`.
+- `min_status`(선택): 이 조건이 참이 되려면 필요한 증빙 수준. `EVIDENCED`면 서류·성적서로 확인한 값만 참으로 본다. 적지 않으면 시험 수치(`facts.yaml`의 `cost: TEST`)만 `EVIDENCED`, 나머지는 말로 답해도 된다.
+- 기준 미만·해당 없음처럼 조건을 **거짓**으로 만드는 답은 증빙 수준과 관계없이 말로도 받는다(엔진의 3값 평가).
+- 소재의 `presets`(소재가 정하는 사실)는 빌드할 때 조건을 미리 참·거짓으로 접는다.
+
+공통 정의(`definitions.yaml`): `이름: {title, when, source, location, quote, plain}`. 검토 단위 `def:<이름>`이 생기고, 정의를 쓰는 생성 규칙은 그 단위에도 기댄다(정의가 바뀌면 그 규칙들의 검토가 함께 풀린다).
 
 ## 빌드가 하는 일
 - 법 규칙의 단계(S0→S3)를 우선순위 대역으로 바꾸고, 소재마다 테이블 하나로 펼친다(`docs/engine/algorithm.md` 2절).
@@ -55,4 +90,5 @@ uv run python tools/legacy_regression.py   # 기존 엔진 판정표와 비교(�
 - 2026-11-09: 기존 엔진(resource_engine `2f1355a`)의 `rules/`에서 옮겨 왔다. 이름을 바꾼 파일: `rules.yaml` → `law_rules/scope_and_business.yaml`, `rules_s3.yaml` → `law_rules/designated.yaml`, `s4_map.yaml` → `code_map.yaml`. `tools/legacy_overrides.yaml` → `fact_settings.yaml`. 내용은 바꾸지 않았고, 빌드 결과는 옮기기 전 `data/real/`과 같다(머리말·버전 표기 제외).
 - 파일 머리말의 주석 일부는 기존 엔진 기준으로 쓰여 있다(예: `re_mcp`, 기존 엔진의 strict 모드). 원본 규칙을 고칠 때 함께 정리한다.
 - 2026-11-09: 검토 기록(`reviews.yaml`)과 검토 도구(`tools/review_kit.py`)를 더했다(설계 P2).
+- 2026-11-09: 원본 형식 2판. 조건 중첩(`any`·`not`), 공통 정의(`definitions.yaml`), 규칙 안 예외(`exceptions`, `code_map.yaml`의 `designated_exclusions`에서 옮김), 조건별 `min_status`, `conclusion`. 빌드 결과는 이전과 같다.
 - 앞으로의 계획(정답 사례표, 개정 반영 흐름)은 `docs/design/rule-review-and-amendment.md`.
