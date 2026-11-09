@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from kb_review import CODE_MAP_UNIT, MATERIAL_PREFIX, ReviewIndex
+from kb_review import CODE_MAP_UNIT, DEF_PREFIX, MATERIAL_PREFIX, ReviewIndex
 
 ROOT = Path(__file__).resolve().parents[1]
 KNOWLEDGE = ROOT / "knowledge"
@@ -49,6 +49,7 @@ SOURCE_FILES = (
     "sources.yaml",
     "outcome_guidance.yaml",
     "reviews.yaml",
+    "definitions.yaml",
 )
 # 빌드가 쓰는 파일(data/real/ 기준). --check는 이것만 비교한다.
 # regression/(기존 엔진 판정표 기준)과 scenarios/(시뮬레이터 시나리오)는 빌드하지 않는다.
@@ -114,16 +115,74 @@ def leaf_true(c: dict, v: Any) -> bool:
     raise ValueError(op)
 
 
-def fold(conds: list[dict], preset: dict[str, Any]) -> list[dict] | None:
-    """프리셋 값으로 AND 조건을 부분 평가. 거짓이면 None, 아니면 남은 조건."""
-    out = []
-    for c in conds:
-        if c["fact"] in preset:
-            if not leaf_true(c, preset[c["fact"]]):
-                return None
-            continue
-        out.append(c)
-    return out
+MIN_STATUSES = ("CLAIMED", "EVIDENCED")
+
+
+def iter_leaves(e: Any, defs: dict[str, dict] | None = None):
+    """원본 조건식의 단순 조건들(정의 참조는 펼친다)."""
+    if isinstance(e, list):
+        for x in e:
+            yield from iter_leaves(x, defs)
+    elif "all" in e or "any" in e:
+        for x in e.get("all") or e.get("any"):
+            yield from iter_leaves(x, defs)
+    elif "not" in e:
+        yield from iter_leaves(e["not"], defs)
+    elif "ref" in e:
+        if defs is not None and e["ref"] in defs:
+            yield from iter_leaves(defs[e["ref"]]["when"], defs)
+    else:
+        yield e
+
+
+def fold_expr(e: Any, preset: dict[str, Any], defs: dict[str, dict], refs: set[str]) -> Any:
+    """원본 조건식을 프리셋 값으로 부분 평가한다. True | False | 남은 식.
+
+    - 목록은 AND(기존 형식). `{all|any: [...]}`, `{not: 식}`, `{ref: 정의 이름}`, 단순 조건.
+    - 프리셋에 있는 사실의 조건은 참·거짓으로 접고, 참은 빼고 거짓은 식 전체를 접는다(Kleene).
+    - 평탄한 AND 목록의 결과는 이전 `fold`와 같다(조건 순서 유지).
+    """
+    if isinstance(e, list):
+        e = {"all": e}
+    if "ref" in e:
+        name = e["ref"]
+        if name not in defs:
+            raise SystemExit(f"정의되지 않은 조건 이름: {name} (knowledge/definitions.yaml)")
+        refs.add(name)
+        return fold_expr(defs[name]["when"], preset, defs, refs)
+    if "all" in e or "any" in e:
+        is_all = "all" in e
+        stop, skip = (False, True) if is_all else (True, False)
+        items = []
+        for x in e["all"] if is_all else e["any"]:
+            v = fold_expr(x, preset, defs, refs)
+            if v is stop:
+                return stop
+            if v is skip:
+                continue
+            items.append(v)
+        if not items:
+            return skip
+        if len(items) == 1:
+            return items[0]
+        return {"all" if is_all else "any": items}
+    if "not" in e:
+        v = fold_expr(e["not"], preset, defs, refs)
+        return (not v) if isinstance(v, bool) else {"not": v}
+    if e.get("min_status") not in (None, *MIN_STATUSES):
+        raise SystemExit(f"min_status는 {MIN_STATUSES} 중 하나여야 합니다: {e}")
+    if e["fact"] in preset:
+        return leaf_true(e, preset[e["fact"]])
+    return e
+
+
+def top_parts(reduced: Any) -> list[Any]:
+    """접은 식의 최상위 AND 항목들(참이면 없음)."""
+    if reduced is True:
+        return []
+    if isinstance(reduced, dict) and "all" in reduced:
+        return list(reduced["all"])
+    return [reduced]
 
 
 def knowledge_rev(src: Path = KNOWLEDGE) -> str:
@@ -152,6 +211,12 @@ class Converter:
         self.s4 = read(src / "code_map.yaml")
         self.sources: dict[str, dict] = read(src / "sources.yaml")
         self.ov = read(src / "fact_settings.yaml") or {}
+        self.defs: dict[str, dict] = (read(src / "definitions.yaml") or {}).get("definitions") or {}
+        if self.s4.get("designated_exclusions"):
+            raise SystemExit(
+                "code_map.yaml의 designated_exclusions는 쓰지 않는다. "
+                "법 규칙의 exceptions로 옮기세요(knowledge/README.md 원본 형식)"
+            )
         self.reviews = ReviewIndex(src)
         self.verified_rules = 0
         self.excluded = set(self.s4.get("excluded_codes", []))
@@ -174,6 +239,22 @@ class Converter:
 
     def is_law(self, rule: dict) -> bool:
         return self.evidence(rule["source"]) == "LAW"
+
+    def concludes_itself(self, rule: dict) -> bool:
+        """원본 결론을 그대로 낼지(아니면 해석 필요로 끝낸다).
+
+        `conclusion: interpret`이면 해석 필요, 없으면 근거가 법령일 때만 그대로 낸다(기본값).
+        """
+        mode = rule.get("conclusion")
+        if mode not in (None, "auto", "interpret"):
+            raise SystemExit(f"{rule['id']}: conclusion은 auto | interpret: {mode}")
+        return mode != "interpret" and self.is_law(rule)
+
+    def fold(self, rule: dict, preset: dict[str, Any] | None = None) -> tuple[Any, list[str]]:
+        """규칙 조건을 프리셋으로 접는다. (접은 식, 쓴 정의의 검토 단위 목록)."""
+        refs: set[str] = set()
+        reduced = fold_expr(rule["when"], preset or {}, self.defs, refs)
+        return reduced, [f"{DEF_PREFIX}{n}" for n in sorted(refs)]
 
     def basis(self, rule: dict) -> list[dict]:
         out = []
@@ -211,16 +292,25 @@ class Converter:
         self.used_facts.add(fid)
         self.fact_band[fid] = max(self.fact_band.get(fid, 0), band)
         out = {"fact": fid, "op": c["op"], "value": c.get("value")}
-        if self.facts.get(fid, {}).get("cost") == "TEST":
+        # 증빙 수준: 원본에 적었으면 그대로, 아니면 시험 수치만 성적서(EVIDENCED) 필요
+        if c.get("min_status"):
+            if c["min_status"] != "CLAIMED":
+                out["min_status"] = c["min_status"]
+        elif self.facts.get(fid, {}).get("cost") == "TEST":
             out["min_status"] = "EVIDENCED"
         return out
 
-    def expr(self, conds: list[dict], band: int, mid: str | None = None) -> Any:
-        leaves = [self.leaf(c, band) for c in conds]
-        if not leaves:
+    def emit(self, reduced: Any, band: int, mid: str | None = None) -> Any:
+        """접은 식 → 엔진 규칙 형식."""
+        if reduced is True:
             # 조건이 모두 접혀 사라짐 → 이 테이블에서는 항상 참
             return {"fact": "material", "op": "eq", "value": mid}
-        return leaves[0] if len(leaves) == 1 else {"all": leaves}
+        if "all" in reduced or "any" in reduced:
+            key = "all" if "all" in reduced else "any"
+            return {key: [self.emit(x, band, mid) for x in reduced[key]]}
+        if "not" in reduced:
+            return {"not": self.emit(reduced["not"], band, mid)}
+        return self.leaf(reduced, band)
 
     # ---- 공통 조각: 범위·사업장 -----------------------------------------------------------
 
@@ -229,17 +319,19 @@ class Converter:
         for r in self.base_rules:
             if r["stage"] == "S0" and r["concludes"] in ("NOT_WASTE", "CIRCULAR_RESOURCE"):
                 prio = P_S0
-                outcome = r["concludes"] if self.is_law(r) else "INTERPRETATION_NEEDED"
+                outcome = r["concludes"] if self.concludes_itself(r) else "INTERPRETATION_NEEDED"
             elif r["stage"] == "S1" and r["concludes"] == "EXCLUDED":
-                prio, outcome = P_S1, "EXCLUDED"
+                prio = P_S1
+                outcome = "EXCLUDED" if self.concludes_itself(r) else "INTERPRETATION_NEEDED"
             else:
                 continue
+            reduced, def_units = self.fold(r)
             rules.append(
                 {
                     "rule_id": r["id"],
                     "source_rule": r["id"],
                     "priority": prio,
-                    "when": self.expr(r["when"], 2),
+                    "when": self.emit(reduced, 2),
                     "then": {
                         "code": None,
                         "category": "OUT_OF_SCOPE",
@@ -247,7 +339,7 @@ class Converter:
                         "name": r.get("plain"),
                     },
                     "basis": self.basis(r),
-                    **self.rv([r["id"]]),
+                    **self.rv([r["id"], *def_units]),
                 }
             )
         return {"rules": rules}
@@ -259,10 +351,11 @@ class Converter:
         for r in self.base_rules:
             if r["stage"] != "S2" or r["concludes"] != "BUSINESS":
                 continue
-            if any(c["fact"] == "this_waste_designated" for c in r["when"]):
+            if any(c["fact"] == "this_waste_designated" for c in iter_leaves(r["when"], self.defs)):
                 continue  # 지정폐기물 대역이 위에 있으므로 따로 둘 필요 없음
-            alts.append(self.expr(r["when"], 2))
-            alt_ids.append(r["id"])
+            reduced, def_units = self.fold(r)
+            alts.append(self.emit(reduced, 2))
+            alt_ids += [r["id"], *def_units]
         hh = next(r for r in self.base_rules if r["id"] == "S2-HOUSEHOLD")
         basis = self.basis(hh)
         return {
@@ -344,17 +437,18 @@ class Converter:
 
     def material_table(self, mid: str, mat: dict) -> dict:
         preset = {"waste_kind": mat.get("waste_kind"), **(mat.get("presets") or {})}
-        designated: list[tuple[dict, list[dict]]] = []
-        interpret: list[tuple[dict, list[dict]]] = []
+        designated: list[tuple[dict, Any]] = []
+        interpret: list[tuple[dict, Any]] = []
+        uses: dict[str, list[str]] = {}  # 규칙 → 쓴 정의의 검토 단위
         complement = None
         for r in self.s3:
             if r.get("complement_of"):
                 complement = r
                 continue
-            folded = fold(r["when"], preset)
-            if folded is None:
+            folded, uses[r["id"]] = self.fold(r, preset)
+            if folded is False:
                 continue
-            if r["concludes"] == "DESIGNATED" and self.is_law(r):
+            if r["concludes"] == "DESIGNATED" and self.concludes_itself(r):
                 designated.append((r, folded))
             else:
                 interpret.append((r, folded))
@@ -375,16 +469,16 @@ class Converter:
                 continue
             extra: list[Any] = []
             ex_ids: list[str] = []
-            for ex in self.s4.get("designated_exclusions", []):
-                if not r["id"].startswith(ex["drop"]):
-                    continue
+            # 법 규칙의 예외: 그 규칙들이 성립하면 이 규칙은 적용하지 않는다(이 소재에 있는 것만)
+            for ex in r.get("exceptions") or []:
                 excluders = [
-                    rid for rid in by_id if any(rid.startswith(p) for p in ex["if_any_fired"])
+                    rid for rid in by_id if any(rid.startswith(p) for p in ex["unless_any"])
                 ]
-                ex_ids += excluders
+                for x in excluders:
+                    ex_ids += [x, *uses[x]]
                 if excluders:
-                    extra.append({"not": {"any": [self.expr(by_id[x], 3, mid) for x in excluders]}})
-            base_leaves = [self.leaf(c, 3) for c in folded]
+                    extra.append({"not": {"any": [self.emit(by_id[x], 3, mid) for x in excluders]}})
+            base_leaves = [self.emit(p, 3, mid) for p in top_parts(folded)]
             for code in cs:
                 parts = base_leaves + extra
                 rid = f"{mid}:{r['id']}"
@@ -408,7 +502,15 @@ class Converter:
                             "name": self.code_index[code]["name"],
                         },
                         "basis": self.basis(r) + [self.code_basis(code)],
-                        **self.rv([r["id"], *ex_ids, CODE_MAP_UNIT, f"{MATERIAL_PREFIX}{mid}"]),
+                        **self.rv(
+                            [
+                                r["id"],
+                                *uses[r["id"]],
+                                *ex_ids,
+                                CODE_MAP_UNIT,
+                                f"{MATERIAL_PREFIX}{mid}",
+                            ]
+                        ),
                     }
                 )
                 if not need_choice:
@@ -420,7 +522,7 @@ class Converter:
                     "rule_id": f"{mid}:{r['id']}",
                     "source_rule": r["id"],
                     "priority": P_INTERPRET,
-                    "when": self.expr(folded, 3, mid),
+                    "when": self.emit(folded, 3, mid),
                     "then": {
                         "code": None,
                         "category": "NEEDS_INTERPRETATION",
@@ -428,7 +530,7 @@ class Converter:
                         "name": r.get("item"),
                     },
                     "basis": self.basis(r),
-                    **self.rv([r["id"], f"{MATERIAL_PREFIX}{mid}"]),
+                    **self.rv([r["id"], *uses[r["id"]], f"{MATERIAL_PREFIX}{mid}"]),
                 }
             )
 
