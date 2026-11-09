@@ -32,8 +32,18 @@ uv run uvicorn app.main:app --port 8030      # 문서: http://localhost:8030/doc
 uv run alembic upgrade head                  # 운영 스키마(DATABASE_URL). 개발은 시작 시 create_all
 uv run alembic -x url=sqlite:///var/other.db upgrade head
 ```
+
+PostgreSQL(운영과 같은 DB로 개발·테스트):
+```bash
+docker compose up -d db                                   # 호스트 포트 55432
+uv run alembic -x url=postgresql+psycopg://wd:wd@localhost:55432/waste_diagnosis upgrade head
+TEST_DATABASE_URL=postgresql+psycopg://wd:wd@localhost:55432/postgres uv run pytest   # 테스트마다 새 DB
+docker compose --profile app up -d --build                # DB + 엔진 컨테이너(포트 8030)
+uv run python scripts/turn_latency.py                     # 실제 Azure로 턴당 지연 측정
+```
 - 설정(`.env`/환경변수): `DATABASE_URL`(기본 `sqlite:///<저장소>/var/app.db`), `KB_DIR`(기본 `data/real`),
-  `DB_CREATE_ALL`(기본 true), `LLM_PROVIDER`(off면 LLM 없이 선택지 버튼·라벨만 받음)
+  `DB_CREATE_ALL`(기본 true), `LLM_PROVIDER`(off면 LLM 없이 선택지 버튼·라벨만 받음),
+  `DB_POOL_SIZE`·`DB_MAX_OVERFLOW`(PostgreSQL 연결 풀), `THREAD_LIMIT`(동시 처리 턴 수, 기본 40)
 - 기업 격리: 서버용 경로 `/internal/v1`은 `Authorization: Bearer <ENGINE_SERVICE_TOKEN>` + `X-Company-Id`(서버 기업 ID). 루트 경로는 개발·참조 화면용으로 `X-Company-Id`만 쓴다. 다른 기업의 건은 404. 자세한 규약은 `docs/api/server-engine-contract.md`.
 - 코드 없는 결론도 확정한다: 규칙 엔진이 분류번호 없이 결론을 낸 경우(폐기물 아님·순환자원·적용 제외·
   생활폐기물·해석 필요·일반 번호 없음·시험 필요·혼합물)는 `FINAL_REVIEW`(`verdict.waste_code` null,

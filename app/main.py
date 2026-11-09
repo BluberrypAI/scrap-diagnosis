@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 from datetime import date
 from pathlib import Path
 
+import anyio.to_thread
 from fastapi import Depends, FastAPI
 from sqlalchemy import Engine
 
@@ -47,6 +48,10 @@ def create_app(
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):  # noqa: ANN202
+        # 동기 핸들러(def)를 돌리는 스레드 수. 동시에 진행할 수 있는 턴 수의 상한이다.
+        anyio.to_thread.current_default_thread_limiter().total_tokens = (
+            container.settings.thread_limit
+        )
         container.warmup()  # 규칙 로드·DB 준비를 첫 요청 전에
         yield
 

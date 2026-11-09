@@ -169,8 +169,15 @@ POST /internal/v1/cases/C1/documents/D1/values/apply
 |---|---|---|
 | `APP_ENV` | `dev` | `dev` 또는 `prod` |
 | `ENGINE_SERVICE_TOKEN` | 없음 | `/internal/v1` Bearer 토큰. prod 필수 |
-| `DATABASE_URL` | SQLite | 운영은 PostgreSQL |
+| `DATABASE_URL` | SQLite | 운영은 PostgreSQL `postgresql+psycopg://…`(`postgresql://`도 psycopg로 바꿔 쓴다) |
+| `DB_POOL_SIZE` / `DB_MAX_OVERFLOW` / `DB_POOL_TIMEOUT` | 10 / 20 / 30초 | DB 연결 풀(PostgreSQL). 턴은 AI를 기다리는 동안 연결을 놓는다 |
+| `THREAD_LIMIT` | 40 | 동시에 처리하는 요청(턴) 수 상한. 부하 측정은 `docs/perf/sync-vs-async.md` |
+| `LLM_TIMEOUT_SECONDS` | 60 | AI 호출 하나의 제한 시간(재시도 2번). 운영 권장 12 (`docs/perf/turn-latency.md`) |
 | `DB_CREATE_ALL` | `true` | 운영은 `false`로 두고 `alembic upgrade head` |
 | `MAX_UPLOAD_BYTES` | 10485760 | 서류 업로드 상한 |
 
-이미지는 `Dockerfile`(uvicorn, 포트 8030). 기존 개발 DB에는 `alembic upgrade head`(0004: `companies.external_id`, 0005: `document_values`, `documents.version`, `fact_records.revoked`)가 필요하다.
+이미지는 `Dockerfile`(uvicorn, 포트 8030). 개발용 PostgreSQL과 엔진은 `docker-compose.yml`(`docker compose up -d db`, 엔진까지는 `--profile app`).
+
+**서버 타임아웃:** 실제 Azure로 잰 턴당 지연은 중앙값 4.4초, 최대 8.2초였다(`docs/perf/turn-latency.md`). 이 경로의 서버 타임아웃은 30초를 권한다. 타임아웃 뒤 다시 보내기 전에 `GET /cases/{id}`로 그 턴이 저장됐는지 확인한다.
+
+ 기존 개발 DB에는 `alembic upgrade head`(0004: `companies.external_id`, 0005: `document_values`, `documents.version`, `fact_records.revoked`)가 필요하다.

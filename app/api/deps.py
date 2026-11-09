@@ -112,7 +112,13 @@ class AppContainer:
 
     @cached_property
     def engine(self) -> Engine:
-        engine = self._engine or make_engine(self.settings.database_url)
+        s = self.settings
+        engine = self._engine or make_engine(
+            s.database_url,
+            pool_size=s.db_pool_size,
+            max_overflow=s.db_max_overflow,
+            pool_timeout=s.db_pool_timeout,
+        )
         if self.settings.db_create_all:
             create_all(engine)
         return engine

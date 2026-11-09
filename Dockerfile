@@ -1,5 +1,5 @@
 # waste-diagnosis 엔진 이미지(포트 8030).
-# 운영 필수 환경변수: APP_ENV=prod, ENGINE_SERVICE_TOKEN, DATABASE_URL, DB_CREATE_ALL=false
+# 운영 필수 환경변수: APP_ENV=prod, ENGINE_SERVICE_TOKEN, DATABASE_URL(postgresql+psycopg://…), DB_CREATE_ALL=false
 # DB 스키마는 컨테이너를 띄우기 전에 `alembic upgrade head`로 만든다.
 FROM python:3.12-slim
 

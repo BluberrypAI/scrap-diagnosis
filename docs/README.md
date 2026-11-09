@@ -16,6 +16,7 @@
 | [llm-data-policy.md](llm-data-policy.md) | AI 전송 정책: 개인정보 가리기, 문서 원문 차단, 기록 최소화 | 모두 |
 | [ui/](ui/) | 화면 설계(`ui-design.md`), 화면용 API 계약(`ui-contract.md`), 프론트 인수인계(`handover.md`) | 웹 |
 | [perf/sync-vs-async.md](perf/sync-vs-async.md) | 동기·비동기 서버 부하 측정 결과 | 서버·DB 결정 |
+| [perf/turn-latency.md](perf/turn-latency.md) | 실제 Azure로 잰 문진 한 턴의 지연, 서버 타임아웃 제안 | 서버 |
 | [history/](history/) | 개발 단계별 결과 보고(M3 AI 추출, M4 API·저장, 소재 2단계 질문) | 기록용 |
 
 ## 문서 관리 규칙

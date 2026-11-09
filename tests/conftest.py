@@ -42,3 +42,12 @@ def kb():
 @pytest.fixture(scope="session")
 def real_kb():
     return load_kb(REAL)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _drop_test_databases():
+    """TEST_DATABASE_URL(PostgreSQL)로 돌릴 때 만든 테스트 DB를 끝나고 지운다."""
+    from tests.dbutil import drop_all
+
+    yield
+    drop_all()

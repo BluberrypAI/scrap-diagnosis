@@ -20,6 +20,7 @@ from app.persistence.models import Base, DiagnosisSessionRecord
 from app.persistence.repository import SessionRepository
 from tests.api_support import PROFILE, Api, build_app, fake_llm
 from tests.conftest import AS_OF
+from tests.dbutil import db_url
 
 ROOT_INI = str(Path(__file__).resolve().parents[1] / "alembic.ini")
 
@@ -111,7 +112,7 @@ def test_session_survives_reload_and_matches_in_memory(kb, tmp_path):
 
 
 def test_alembic_migration_matches_models(tmp_path):
-    url = f"sqlite:///{(tmp_path / 'mig.db').as_posix()}"
+    url = db_url(tmp_path / "mig.db")
     cfg = Config(ROOT_INI)
     cfg.attributes["configure_logger"] = False
     cfg.set_main_option("sqlalchemy.url", url)
@@ -131,7 +132,7 @@ def test_api_works_on_migrated_db(kb, tmp_path):
     db_path = tmp_path / "migrated.db"
     cfg = Config(ROOT_INI)
     cfg.attributes["configure_logger"] = False
-    cfg.set_main_option("sqlalchemy.url", f"sqlite:///{db_path.as_posix()}")
+    cfg.set_main_option("sqlalchemy.url", db_url(db_path))
     command.upgrade(cfg, "head")
     app = build_app(kb, db_path, fake_llm())
     app.state.container.settings.db_create_all = False

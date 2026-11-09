@@ -29,6 +29,15 @@ class Settings(BaseSettings):
     # M4: API·영속화. 개발은 SQLite(저장소 기준 var/app.db), 운영은 PostgreSQL URL.
     database_url: str = f"sqlite:///{(ROOT / 'var' / 'app.db').as_posix()}"
     db_create_all: bool = True  # 개발 편의: 시작할 때 테이블 생성. 운영은 alembic upgrade head
+    # DB 연결 풀(PostgreSQL 등. SQLite 파일 DB에는 적용하지 않음). 동시에 DB를 쓰는 요청 수의 상한.
+    # 문진 턴은 AI 응답을 기다리는 동안 연결을 놓으므로 thread_limit보다 작아도 된다.
+    db_pool_size: int = 10
+    db_max_overflow: int = 20
+    db_pool_timeout: float = 30.0
+    # 동기 핸들러(def)를 실행하는 스레드 수(FastAPI/anyio 기본 40).
+    # 동시에 진행할 수 있는 턴 수의 상한이다.
+    # 부하 측정: docs/perf/sync-vs-async.md (200이면 비동기와 처리량이 거의 같았다)
+    thread_limit: int = 40
     # 배포 환경. prod: 서비스 토큰 필수, 개발용 엔드포인트(기업 생성·수정, 루트 경로) 차단
     app_env: Literal["dev", "prod"] = "dev"
     # scrap-server가 /internal/v1을 부를 때 보내는 Bearer 토큰(ENGINE_SERVICE_TOKEN). prod 필수.

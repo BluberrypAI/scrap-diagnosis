@@ -256,8 +256,7 @@ class CaseService:
             period=period,
             status=CaseStatus.DIAGNOSING.value,
         )
-        self.db.add(case)
-        self.db.flush()
+        self._release_db()
         started_at = utcnow()  # 대화 시작. as_of는 이 시각의 Asia/Seoul 날짜
         s = DiagnosisSession(
             self.kb,
@@ -273,6 +272,8 @@ class CaseService:
         for k, v in confirmed.items():
             s.seed({k: v}, source_type="PROFILE_CONFIRMED")
         resp = s.start(memo.strip() if memo and memo.strip() else None)
+        self.db.add(case)
+        self.db.flush()
         ls = self.repo.create(
             case,
             s,
@@ -355,6 +356,17 @@ class CaseService:
                 current_kb_version=exc.current_kb_version,
             ) from exc
 
+    def _release_db(self) -> None:
+        """AI 호출(수 초) 전에 읽기 트랜잭션을 닫아 DB 연결을 풀에 돌려준다.
+
+        턴의 쓰기는 AI 호출 뒤 한 트랜잭션으로 저장한다. 그 사이 다른 요청이 같은 세션을 고쳤으면
+        저장 때 revision(낙관적 잠금)이 막는다(409 CONCURRENT_UPDATE). 읽은 객체는
+        expire_on_commit=False라 그대로 쓴다. 저장 대기 중인 변경이 있으면 닫지 않는다.
+        """
+        db = self.db
+        if db.in_transaction() and not (db.new or db.dirty or db.deleted):
+            db.commit()
+
     def _finish_turn(self, case: WasteCase, ls: LoadedSession) -> None:
         now = utcnow()
         case.status = status_after_turn(ls.session.case_status).value
@@ -373,6 +385,7 @@ class CaseService:
     ) -> TurnResponse:
         confirmed = self._check_confirmed(confirmed_facts)
         ls = self._open_session(case)
+        self._release_db()
         self._apply_confirmed(ls, confirmed, company_profile_version)
         resp = ls.session.handle(text=text, quick_reply=quick_reply)
         self._finish_turn(case, ls)

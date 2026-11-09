@@ -1,4 +1,7 @@
-"""API 테스트 공용: SAMPLE KB + FakeLLM + 임시 SQLite로 앱을 만든다."""
+"""API 테스트 공용: SAMPLE KB + FakeLLM + 임시 DB로 앱을 만든다.
+
+DB는 SQLite 파일, TEST_DATABASE_URL이 있으면 PostgreSQL(tests/dbutil.py).
+"""
 
 from __future__ import annotations
 
@@ -15,6 +18,7 @@ from app.config import Settings
 from app.main import create_app
 from app.rules.model import KnowledgeBase
 from tests.conftest import AS_OF, DATA
+from tests.dbutil import db_url
 
 # 서버가 보내는 검수 정보(서류 값 적용)
 REVIEW = {"reviewer": "검수자", "reviewed_at": "2026-11-08T10:00:00+09:00"}
@@ -34,7 +38,7 @@ def fake_llm() -> FakeLLMClient:
 
 def make_settings(db_path: Path) -> Settings:
     return Settings(
-        database_url=f"sqlite:///{db_path.as_posix()}",
+        database_url=db_url(db_path),
         llm_provider="off",
         kb_dir=DATA,
         db_create_all=True,
