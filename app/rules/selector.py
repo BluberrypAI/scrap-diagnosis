@@ -383,6 +383,36 @@ def eligible_groups(
     return out
 
 
+def _with_screening(
+    kb: KnowledgeBase, facts: dict[str, Fact], pool_items: list[UnknownFact]
+) -> list[UnknownFact]:
+    """막는 사실 대신 아직 답하지 않은 대리 질문을 묻는다(질문 전략, app/rules/implications.py).
+
+    대리 질문에 '예'·'모름'으로 답했으면 대상 사실을 직접 묻는다(그때부터는 대리 질문이 없다).
+    """
+    from app.rules.implications import screening_map  # 순환 import 방지
+
+    screens = screening_map(kb)
+    if not screens:
+        return pool_items
+    out: list[UnknownFact] = []
+    seen: set[str] = set()
+    for u in pool_items:
+        proxy = next(
+            (
+                s
+                for s in screens.get(u.key, [])
+                if facts.get(s) is None or facts[s].status == FactStatus.UNKNOWN
+            ),
+            None,
+        )
+        item = UnknownFact(key=proxy, reason="MISSING", rule_ids=u.rule_ids) if proxy else u
+        if item.key not in seen:
+            seen.add(item.key)
+            out.append(item)
+    return out
+
+
 def select_question(
     kb: KnowledgeBase,
     facts: dict[str, Fact],
@@ -397,6 +427,7 @@ def select_question(
     if others:
         pool_items = [u for u in pool_items if not kb.catalog[u.key].ask_last]
     pool_items = [u for u in pool_items if u.key not in ctx.exclude_keys]
+    pool_items = _with_screening(kb, facts, pool_items)
     pool = {u.key for u in pool_items}
     if not pool:
         return None

@@ -22,6 +22,7 @@ from pydantic import BaseModel
 from app.domain.facts import Fact, FactStatus, FactStore
 from app.rules.conflicts import Conflict, detect_conflicts
 from app.rules.evaluator import EvaluationResult, UnknownFact, evaluate
+from app.rules.implications import apply_implications
 from app.rules.model import KnowledgeBase
 from app.rules.selector import (
     QuestionChoice,
@@ -284,14 +285,15 @@ def run_engine(
     user_question: str | None = None,
 ) -> EngineStep:
     """평가 → 자동 채움 → 충돌 검사 → 분기 결정. 한 턴의 LLM 없는 부분 (md 10절 3~5단계)."""
-    effective = store.effective()
+    # 대리 질문의 추정(implies)도 유효 사실에 보인다(판정 보드·Trace). evaluate도 같은 추정을 쓴다.
+    effective = apply_implications(kb, store.effective())
     ev = evaluate(kb, effective, as_of)
     for _ in range(3):
         filled = auto_fill(kb, ev, as_of, effective)
         if filled is None:
             break
         store.append(filled)
-        effective = store.effective()
+        effective = apply_implications(kb, store.effective())
         ev = evaluate(kb, effective, as_of)
     conflicts = detect_conflicts(store.history, ev, kb)
     decision = route(

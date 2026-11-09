@@ -661,8 +661,13 @@ class Converter:
                 "value_parent": {k: v["group"] for k, v in mats.items()},
             }
         )
+        # 대리 질문 사실(fact_settings의 implies)은 규칙이 직접 쓰지 않아도
+        # 카탈로그에 둔다(질문 전략)
+        screening = {fid for fid, o in ov.items() if (o or {}).get("implies")}
         for fid, f in self.facts.items():
-            if fid in SKIP_FACTS or fid.startswith("reporting_") or fid not in self.used_facts:
+            if fid in SKIP_FACTS or fid.startswith("reporting_"):
+                continue
+            if fid not in self.used_facts and fid not in screening:
                 continue
             if f.get("kind") == "interpretive_choice" or f.get("derived_from"):
                 continue
