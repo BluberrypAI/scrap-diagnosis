@@ -218,6 +218,7 @@ class KnowledgeBase:
     warnings: tuple[str, ...] = ()
     # (result_type, outcome) → 안내. load_kb는 outcome_guidance.yaml을 반드시 읽는다.
     guidance: dict[tuple[str, str | None], RouteGuidance] = field(default_factory=dict)
+    glossary: tuple[Any, ...] = ()  # app.rules.glossary.GlossaryEntry (용어 쉬운 설명, 판정 무관)
 
     def tables_as_of(self, as_of: date) -> tuple[Table, ...]:
         return tuple(t for t in self.tables if t.is_effective(as_of))

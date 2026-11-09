@@ -50,6 +50,7 @@ SOURCE_FILES = (
     "outcome_guidance.yaml",
     "reviews.yaml",
     "definitions.yaml",
+    "glossary.yaml",
 )
 # 빌드가 쓰는 파일(data/real/ 기준). --check는 이것만 비교한다.
 # regression/(기존 엔진 판정표 기준)과 scenarios/(시뮬레이터 시나리오)는 빌드하지 않는다.
@@ -59,6 +60,7 @@ GENERATED_FILES = (
     "codes.yaml",
     "sources.yaml",
     "outcome_guidance.yaml",
+    "glossary.yaml",
     "conversion_report.md",
     "rules/common/scope.yaml",
     "rules/common/business.yaml",
@@ -758,6 +760,8 @@ class Converter:
         dump(out / "sources.yaml", self.sources, hdr)
         # 경로추천 안내는 사람이 쓴 표 그대로 옮긴다(변환 없음)
         shutil.copyfile(self.src / "outcome_guidance.yaml", out / "outcome_guidance.yaml")
+        # 용어집도 사람이 쓴 그대로 옮긴다(판정 무관, 질문 카드 terms)
+        shutil.copyfile(self.src / "glossary.yaml", out / "glossary.yaml")
         self.write_report(out, n)
         print(f"테이블 {n}개, 사실 {len(self.used_facts)}개 → {out}")
 

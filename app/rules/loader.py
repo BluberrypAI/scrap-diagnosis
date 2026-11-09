@@ -622,6 +622,10 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
         raise RuleDataError(f"{guidance_path}: 결론 → 경로추천 안내 파일이 없습니다")
     guidance = parse_outcome_guidance(_read_yaml(guidance_path))
     validate_guidance(guidance, tables)
+    from app.rules.glossary import GLOSSARY_FILE, parse_glossary  # 순환 import 방지
+
+    glossary_path = data_dir / GLOSSARY_FILE
+    glossary = parse_glossary(_read_yaml(glossary_path)) if glossary_path.exists() else ()
     return KnowledgeBase(
         catalog=catalog,
         tables=tuple(tables),
@@ -629,4 +633,5 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
         codes=codes,
         warnings=tuple(warnings),
         guidance=guidance,
+        glossary=glossary,
     )

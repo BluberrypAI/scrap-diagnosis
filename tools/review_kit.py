@@ -26,6 +26,7 @@ from typing import Any
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from build_kb import iter_leaves  # noqa: E402
 from kb_review import (  # noqa: E402
@@ -40,6 +41,8 @@ from kb_review import (  # noqa: E402
     unit_status,
     units_from,
 )
+
+from app.rules.glossary import find_terms, parse_glossary  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 KNOWLEDGE = ROOT / "knowledge"
@@ -512,9 +515,22 @@ def exception_rows(k: Knowledge, r: dict) -> list[str]:
     return out
 
 
+def add_glossary(k: Knowledge, c: dict) -> None:
+    """카드 글에 나온 전문용어의 쉬운 설명을 "용어 풀이" 행으로 붙인다(knowledge/glossary.yaml)."""
+    path = k.src / "glossary.yaml"
+    if not hasattr(k, "_glossary"):
+        k._glossary = parse_glossary(read(path)) if path.exists() else ()
+    texts = [c["title"], c["location"], *(x for _, items in c["rows"] for x in items)]
+    found = find_terms(k._glossary, *texts)
+    if found:
+        c["rows"].append(("용어 풀이", [f"{e.term}: {e.plain}" for e in found]))
+
+
 def all_cards(k: Knowledge) -> list[dict]:
     order = {"LAW_RULE": 0, "DEFINITION": 1, "CODE_MAP": 2, "MATERIAL": 3}
     cards = [card(k, u) for u in k.units.values()]
+    for c in cards:
+        add_glossary(k, c)
     return sorted(cards, key=lambda c: (order[c["kind"]], -c["fanout"], c["unit"]))
 
 

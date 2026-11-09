@@ -102,6 +102,14 @@ class AnsweredItem(QuestionItem):
     value_label: str | None = None
 
 
+class TermView(BaseModel):
+    """질문 글에 나온 전문용어의 쉬운 설명(knowledge/glossary.yaml, 사람이 쓴 고정 설명)."""
+
+    term: str
+    plain: str
+    example: str | None = None
+
+
 class QuestionView(_DictAccess, BaseModel):
     """지금 질문 카드(1.1절). key·unit·facts·options는 M4부터 있던 필드다."""
 
@@ -117,6 +125,7 @@ class QuestionView(_DictAccess, BaseModel):
     allow_free_number: bool = False
     items: list[QuestionItem] = []  # group: 이번에 묻는 항목
     answered_items: list[AnsweredItem] = []  # group: 같은 묶음에서 이미 답한 항목
+    terms: list[TermView] = []  # 질문 글(제목·도움말·선택지·항목)에 나온 용어 설명
 
 
 class EditView(BaseModel):
@@ -385,6 +394,16 @@ def question_view(kb: KnowledgeBase, q: QuestionChoice, effective: dict[str, Fac
             )
     else:
         value_type = kb.catalog[q.key].type
+    from app.rules.glossary import find_terms  # 순환 import 방지
+
+    found = find_terms(
+        kb.glossary,
+        q.question_hint,
+        q.help,
+        *(o.label for o in options),
+        *(i.label for i in items),
+    )
+    terms = [TermView(term=e.term, plain=e.plain, example=e.example) for e in found]
     return QuestionView(
         key=q.key,
         unit=q.unit,
@@ -398,6 +417,7 @@ def question_view(kb: KnowledgeBase, q: QuestionChoice, effective: dict[str, Fac
         allow_free_number=kind == "number",
         items=items,
         answered_items=answered,
+        terms=terms,
     )
 
 
