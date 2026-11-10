@@ -158,6 +158,10 @@ export function createClient(opts = {}) {
     },
     /** @param {string} id */
     trace: (id) => request('GET', `/cases/${encodeURIComponent(id)}/trace`),
+    // 개발자용(prod 404): 전체 규칙 구조, 소재별 규칙 그래프
+    devOverview: () => request('GET', '/dev/rules/overview', undefined, { auth: false }),
+    devTables: () => request('GET', '/dev/rules/tables', undefined, { auth: false }),
+    devTableGraph: (id) => request('GET', `/dev/rules/tables/${encodeURIComponent(id)}`, undefined, { auth: false }),
   };
 }
 

@@ -7,6 +7,9 @@ import CasesPage from './screens/CasesPage.jsx';
 import NewCasePage from './screens/NewCasePage.jsx';
 import CasePage from './screens/CasePage.jsx';
 import HistoryPage from './screens/HistoryPage.jsx';
+import DevTracePage from './screens/DevTracePage.jsx';
+import RulesGraphPage from './screens/RulesGraphPage.jsx';
+import { DEV_TOOLS } from './lib/devtools.js';
 
 export default function App() {
   const route = useRoute();
@@ -26,11 +29,13 @@ export default function App() {
 
   let page;
   if (isCompany) page = <CompanyPage />;
+  else if (route.name === 'dev-rules' && DEV_TOOLS) page = <RulesGraphPage />;
   else if (!cid) page = null;
   else if (route.name === 'cases') page = <CasesPage />;
   else if (route.name === 'new-case') page = <NewCasePage />;
   else if (route.name === 'case') page = <CasePage key={route.params.id} id={route.params.id} />;
   else if (route.name === 'history') page = <HistoryPage key={route.params.id} id={route.params.id} />;
+  else if (route.name === 'dev-trace' && DEV_TOOLS) page = <DevTracePage key={route.params.id} id={route.params.id} />;
   else page = <p>없는 화면이에요. <a href="#/cases">목록으로</a></p>;
 
   return (
@@ -40,6 +45,7 @@ export default function App() {
         <div>
           <a href="#/cases">내 폐기물</a>
           <a href="#/company">기업 정보</a>
+          {DEV_TOOLS && <a href="#/dev/rules">규칙 그래프(개발)</a>}
           {USE_MOCK && <span className="wd-chip">목 API</span>}
         </div>
       </header>

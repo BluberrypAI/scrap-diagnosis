@@ -13,6 +13,7 @@ from sqlalchemy import Engine
 
 from app.agent.llm_client import LLMClient
 from app.api.deps import _UNSET, INTERNAL_PREFIX, AppContainer, require_service_auth
+from app.api.dev_rules import router as dev_rules_router
 from app.api.errors import install_error_handlers
 from app.api.routes import (
     case_router,
@@ -65,6 +66,7 @@ def create_app(
     install_error_handlers(app)
     # 루트 경로: 참조 화면·개발용(X-Company-Id만). prod에서는 company 의존성이 404로 막는다.
     app.include_router(dev_router)
+    app.include_router(dev_rules_router)  # 개발자용 규칙 그래프(prod 404)
     app.include_router(root_list_router)
     app.include_router(case_router)
     # /internal/v1: scrap-server용. 같은 핸들러를 서비스 토큰 인증 아래에 한 번 더 올린다.

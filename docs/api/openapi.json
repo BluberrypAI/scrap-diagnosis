@@ -1862,6 +1862,99 @@
         "title": "FacilityOption",
         "type": "object"
       },
+      "GraphBand": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "priority": {
+            "title": "Priority",
+            "type": "integer"
+          },
+          "rules": {
+            "items": {
+              "$ref": "#/components/schemas/GraphRule"
+            },
+            "title": "Rules",
+            "type": "array"
+          }
+        },
+        "required": [
+          "priority",
+          "label",
+          "rules"
+        ],
+        "title": "GraphBand",
+        "type": "object"
+      },
+      "GraphRule": {
+        "properties": {
+          "conditions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Conditions",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "outcomes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Outcomes",
+            "type": "array"
+          },
+          "plain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plain"
+          },
+          "review": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review"
+          },
+          "source_rule": {
+            "title": "Source Rule",
+            "type": "string"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "required": [
+          "id",
+          "source_rule",
+          "conditions",
+          "outcomes"
+        ],
+        "title": "GraphRule",
+        "type": "object"
+      },
       "MessageIn": {
         "description": "자유 진술(text) 또는 선택지 버튼(quick_reply) 중 하나.",
         "properties": {
@@ -1934,6 +2027,56 @@
           "label"
         ],
         "title": "OptionView",
+        "type": "object"
+      },
+      "Overview": {
+        "properties": {
+          "mermaid": {
+            "title": "Mermaid",
+            "type": "string"
+          },
+          "nodes": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/OverviewNode"
+            },
+            "title": "Nodes",
+            "type": "object"
+          },
+          "stats": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Stats",
+            "type": "object"
+          }
+        },
+        "required": [
+          "mermaid",
+          "nodes",
+          "stats"
+        ],
+        "title": "Overview",
+        "type": "object"
+      },
+      "OverviewNode": {
+        "properties": {
+          "detail": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Detail",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "title": "OverviewNode",
         "type": "object"
       },
       "PagingInfo": {
@@ -2455,6 +2598,79 @@
           }
         },
         "title": "RevokeIn",
+        "type": "object"
+      },
+      "TableGraph": {
+        "properties": {
+          "bands": {
+            "items": {
+              "$ref": "#/components/schemas/GraphBand"
+            },
+            "title": "Bands",
+            "type": "array"
+          },
+          "mermaid": {
+            "title": "Mermaid",
+            "type": "string"
+          },
+          "table_id": {
+            "title": "Table Id",
+            "type": "string"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "table_id",
+          "title",
+          "version",
+          "bands",
+          "mermaid"
+        ],
+        "title": "TableGraph",
+        "type": "object"
+      },
+      "TableItem": {
+        "properties": {
+          "rules": {
+            "title": "Rules",
+            "type": "integer"
+          },
+          "table_id": {
+            "title": "Table Id",
+            "type": "string"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "required": [
+          "table_id",
+          "title",
+          "rules"
+        ],
+        "title": "TableItem",
         "type": "object"
       },
       "TermView": {
@@ -4733,6 +4949,205 @@
         "summary": "Get Profile Options",
         "tags": [
           "companies"
+        ]
+      }
+    },
+    "/dev/rules/overview": {
+      "get": {
+        "description": "전체 규칙 구조 한 장(공통 단계 → 소재 분류 → 지정폐기물 법 조항 → 결론).",
+        "operationId": "overview_dev_rules_overview_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Overview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Overview",
+        "tags": [
+          "dev"
+        ]
+      }
+    },
+    "/dev/rules/tables": {
+      "get": {
+        "operationId": "list_tables_dev_rules_tables_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TableItem"
+                  },
+                  "title": "Response List Tables Dev Rules Tables Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "List Tables",
+        "tags": [
+          "dev"
+        ]
+      }
+    },
+    "/dev/rules/tables/{table_id}": {
+      "get": {
+        "operationId": "table_graph_dev_rules_tables__table_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "table_id",
+            "required": true,
+            "schema": {
+              "title": "Table Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableGraph"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Table Graph",
+        "tags": [
+          "dev"
         ]
       }
     },

@@ -8,6 +8,7 @@ import QuestionCard from '../components/QuestionCard.jsx';
 import Board from '../components/Board.jsx';
 import { ConflictCard, EvidenceCard, FinalCard, PendingReview, UnsupportedCard } from '../components/BranchCards.jsx';
 import AssistBubble from '../components/AssistBubble.jsx';
+import { DEV_TOOLS } from '../lib/devtools.js';
 
 // 개발·목 모드에서만 "검수 완료로 적용" 버튼을 보인다(운영에서는 서버의 검수 흐름이 적용한다).
 const DEV_REVIEW = import.meta.env.DEV || USE_MOCK;
@@ -144,6 +145,7 @@ export default function CasePage({ id }) {
           <span className="row">
             <a className="button button-small button-quiet" href="#/cases">← 목록</a>
             <a className="button button-small button-quiet" href={`#/cases/${id}/history`}>기록</a>
+            {DEV_TOOLS && <a className="button button-small button-quiet" href={`#/cases/${id}/dev`}>AI 데이터(개발)</a>}
           </span>
         </div>
         <div className="chat" aria-live="polite">
