@@ -23,6 +23,7 @@ uv run python tools/legacy_regression.py   # 기존 엔진 판정표와 비교(�
 | `fact_settings.yaml` | 빌드 때 더하는 사실 설정: 사전확률, 법적 중요도, 묶음 질문, 증빙 문서 종류 | 아니오 |
 | `outcome_guidance.yaml` | 결론 → 경로추천 안내(`docs/handoff-contract.md`). 빌드가 그대로 복사 | 아니오 |
 | `glossary.yaml` | 용어집: 전문용어의 쉬운 설명. 질문 카드 `terms`와 검토 카드 "용어 풀이"에 붙는다. 판정에는 쓰지 않음. 빌드가 그대로 복사 | 아니오 |
+| `skills/interviewer.md` | (초안) 문진 진행 AI의 지침·체크리스트. 판정에는 쓰지 않음(docs/design/agent-skill-harness.md). 사용자 검토 후 확정 | 아니오 |
 | `reviews.yaml` | 전문가 검토 기록. `tools/review_kit.py import`로만 더한다 | - |
 
 ## 원본 형식 (2판)
