@@ -16,7 +16,7 @@ from app.agent.orchestrator import QuickReply
 from app.api.profile import CompanyProfile, profile_out
 from app.domain.case import CaseStatus
 from app.domain.clock import to_seoul
-from app.domain.verdict import TurnResponse
+from app.domain.verdict import AssistView, TurnResponse
 
 # 응답 시각: Asia/Seoul로 바꿔 낸다(저장은 UTC).
 SeoulDateTime = Annotated[datetime, AfterValidator(to_seoul)]
@@ -172,7 +172,7 @@ class ConversationItem(BaseModel):
     - 사용자 말: role user, text = 말한 문장(건 메모 포함, memo true)
     - 버튼 답: role user, text = 고른 선택지 라벨, quick_reply = 보낸 값
     - 서류 업로드: role user, text = "서류를 올렸어요: 파일명", document_id
-    - AI 말: role assistant, branch, question_key
+    - AI 말: role assistant, branch, question_key, assist(보충 설명이 있던 턴만)
     """
 
     turn_id: str
@@ -183,6 +183,7 @@ class ConversationItem(BaseModel):
     document_id: str | None = None
     branch: str | None = None
     question_key: str | None = None
+    assist: AssistView | None = None  # 보충 설명 말풍선(docs/design/agent-skill-harness.md)
     at: SeoulDateTime | None = None  # 이 기능 전에 쌓인 기록은 null
 
 

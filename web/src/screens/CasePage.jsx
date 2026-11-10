@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { api, USE_MOCK } from '../api/index.js';
 import { factLabel } from '../api/normalize.js';
 import { STATUS_LABEL } from '../lib/labels.js';
@@ -7,6 +7,7 @@ import { navigate } from '../lib/router.js';
 import QuestionCard from '../components/QuestionCard.jsx';
 import Board from '../components/Board.jsx';
 import { ConflictCard, EvidenceCard, FinalCard, PendingReview, UnsupportedCard } from '../components/BranchCards.jsx';
+import AssistBubble from '../components/AssistBubble.jsx';
 
 // 개발·목 모드에서만 "검수 완료로 적용" 버튼을 보인다(운영에서는 서버의 검수 흐름이 적용한다).
 const DEV_REVIEW = import.meta.env.DEV || USE_MOCK;
@@ -52,7 +53,7 @@ export default function CasePage({ id }) {
       const t = await call();
       setTurn(t);
       setKase((k) => ({ ...k, status: t.case_status || k.status }));
-      setConv((c) => [...c, { role: 'assistant', text: t.message, branch: t.branch }]);
+      setConv((c) => [...c, { role: 'assistant', text: t.message, branch: t.branch, assist: t.assist }]);
       setUpload(false);
       setHint('');
     } catch (e) {
@@ -146,7 +147,12 @@ export default function CasePage({ id }) {
           </span>
         </div>
         <div className="chat" aria-live="polite">
-          {conv.map((m, i) => <p key={i} className={`bubble ${m.role}`}>{m.text}</p>)}
+          {conv.map((m, i) => (
+            <Fragment key={i}>
+              {m.assist && <AssistBubble a={m.assist} />}
+              <p className={`bubble ${m.role}`}>{m.text}</p>
+            </Fragment>
+          ))}
           {busy && <p className="bubble assistant muted">판정 중…</p>}
         </div>
         {err && <p className="wd-alert" role="alert">{err} {retry && <button type="button" className="button button-small" onClick={retry}>다시 보내기</button>}</p>}

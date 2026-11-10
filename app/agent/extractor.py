@@ -80,9 +80,17 @@ EXTRACTION_SCHEMA: dict[str, Any] = {
         },
         "user_code_claim": {"type": ["string", "null"]},
         "user_question": {"type": ["string", "null"]},
+        "question_kind": {"type": ["string", "null"], "enum": ["why", "term", "off_topic", None]},
         "evidence_refused": {"type": "boolean"},
     },
-    "required": ["facts", "group_answer", "user_code_claim", "user_question", "evidence_refused"],
+    "required": [
+        "facts",
+        "group_answer",
+        "user_code_claim",
+        "user_question",
+        "question_kind",
+        "evidence_refused",
+    ],
     "additionalProperties": False,
 }
 
@@ -111,7 +119,11 @@ EXTRACT_SYSTEM = """너는 사업장 폐기물 문진의 '사실 추출기'다. 
    - "있어요/하나 있어요/잘 모르겠어요" → group_answer.choice = "expand" (구체적으로 말한 사실은 facts에도 넣는다)
 7. quote에는 근거가 된 사용자 발화 원문 일부를 그대로 복사한다(바꾸어 쓰지 마라).
 8. 사용자가 분류번호(예: 51-03-01)를 말하면 user_code_claim에 그 번호를 그대로 쓴다. 그 번호를 사실로 넣지 마라.
-9. 사용자가 무언가를 물으면(예: "왜 기름이 중요해?") user_question에 그 질문을 쓴다.
+9. 사용자가 무언가를 물으면(예: "왜 기름이 중요해?") user_question에 그 질문을 쓰고, question_kind를 고른다.
+   - "why": 왜 그걸 묻는지, 왜 그런 결과인지 묻는 말(예: "왜 기름을 물어봐요?", "왜 지정폐기물이에요?")
+   - "term": 용어나 말뜻을 묻는 말(예: "용출이 뭐예요?", "고형물함량이 뭔데요?")
+   - "off_topic": 폐기물 분류 문진과 상관없는 요청(예: 업체 추천, 비용, 날씨)
+   - 질문이 없으면 user_question과 question_kind는 null이다. 답과 질문이 섞이면 답은 facts에, 질문은 여기에 쓴다.
 10. 서류·시험성적서가 없다거나 구할 수 없다고 하면 evidence_refused = true.
 11. 뽑을 것이 없으면 facts는 빈 배열이다.
 12. 상위 분류가 있는 사실('사실 목록'에서 parent가 적힌 사실. 예: 소재 material의 parent는

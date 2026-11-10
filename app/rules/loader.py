@@ -626,6 +626,10 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
 
     glossary_path = data_dir / GLOSSARY_FILE
     glossary = parse_glossary(_read_yaml(glossary_path)) if glossary_path.exists() else ()
+    notes_path = data_dir / "rule_notes.yaml"
+    notes = (_read_yaml(notes_path) or {}).get("rules") or {} if notes_path.exists() else {}
+    skill_path = data_dir / "skills" / "interviewer.md"
+    skill = skill_path.read_text(encoding="utf-8") if skill_path.exists() else None
     return KnowledgeBase(
         catalog=catalog,
         tables=tuple(tables),
@@ -634,4 +638,6 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
         warnings=tuple(warnings),
         guidance=guidance,
         glossary=glossary,
+        rule_notes={str(k): dict(v) for k, v in notes.items()},
+        skill_text=skill,
     )

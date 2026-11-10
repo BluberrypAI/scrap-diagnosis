@@ -113,6 +113,31 @@ class TermView(BaseModel):
     example: str | None = None
 
 
+class AssistSource(BaseModel):
+    """보충 설명의 근거(법령·질의회신 등)."""
+
+    id: str
+    type: str
+    ref: str
+    excerpt: str | None = None
+
+
+class AssistView(BaseModel):
+    """보충 설명 말풍선. 질문 카드와 별도이며 판정에 쓰지 않는다.
+
+    설계: docs/design/agent-skill-harness.md.
+
+
+    사용자가 "왜?"(why), "뭐예요?"(term)라고 묻거나 문진 밖 요청(off_topic)을 했을 때만 온다.
+    """
+
+    intent: Literal["why", "term", "off_topic"]
+    text: str
+    sources: list[AssistSource] = []
+    terms: list[TermView] = []
+    review: str | None = None  # 근거 규칙이 검토 전이면 UNVERIFIED("검토 전 규칙 · 참고용")
+
+
 class QuestionView(_DictAccess, BaseModel):
     """지금 질문 카드(1.1절). key·unit·facts·options는 M4부터 있던 필드다."""
 
@@ -250,6 +275,7 @@ class TurnResponse(BaseModel):
     verdict: Verdict
     ui: UI
     case_status: str
+    assist: AssistView | None = None  # 보충 설명(추가 필드). 평범한 답변 턴에는 null
 
 
 def _value_text(kb: KnowledgeBase, c: Cond) -> str:

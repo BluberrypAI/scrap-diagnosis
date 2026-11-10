@@ -65,6 +65,7 @@ def normalize_extract(e: dict | None) -> dict:
         "group_answer": ga,
         "user_code_claim": e.get("user_code_claim"),
         "user_question": e.get("user_question"),
+        "question_kind": e.get("question_kind"),
         "evidence_refused": bool(e.get("evidence_refused", False)),
     }
 

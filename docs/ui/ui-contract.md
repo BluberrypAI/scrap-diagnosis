@@ -82,13 +82,23 @@ NO_CANDIDATE 충돌은 `fact`에 원인 사실 목록의 첫 키, `facts`에 전
 ```
 코드 없는 결론은 `result_type: "NO_CODE"`, `code: null`, `outcome`, `conclusion`(OUTCOME_TEXT)을 채운다.
 
+## 1.5 보충 설명: 턴 응답의 `assist` (2026-11-11 추가)
+사용자가 "왜 물어봐요?", "용출이 뭐예요?"처럼 묻거나 문진 밖 요청을 하면 온다. 평범한 턴에는 `null`이다.
+```json
+"assist": {"intent": "why", "text": "이 답에 따라 적용되는 법 규칙이 달라져서 여쭤봐요. …",
+           "sources": [{"id": "S1", "type": "LAW", "ref": "폐기물관리법 시행령 별표 1 …", "excerpt": "…"}],
+           "terms": [{"term": "용출", "plain": "…", "example": null}], "review": "UNVERIFIED"}
+```
+- 화면: `text`는 AI 말풍선(질문 말풍선 앞), `sources`는 "근거 보기" 접기, `terms`는 "용어 설명" 접기. `review`가 `UNVERIFIED`면 "검토 전 규칙 · 참고용"을 붙인다.
+- 판정에 쓰지 않는다. 질문 카드·판정 보드는 직전과 같다(참조 화면 `web/src/components/AssistBubble.jsx`).
+
 ## 2. 대화 기록: `GET /cases/{id}` 의 `conversation`
 `CaseDetail`에 `conversation[]`을 추가한다. 새로고침하거나 다시 들어왔을 때 대화를 다시 그리기 위해서다.
 ```json
 [{"turn_id": "…", "role": "user", "text": "PP 사출 스크랩이에요", "quick_reply": null, "at": "…+09:00"},
  {"turn_id": "…", "role": "assistant", "text": "…", "branch": "ASK_FACT", "question_key": "contamination_screen", "at": "…"}]
 ```
-버튼 답은 `role: "user"`, `text`는 고른 선택지 라벨, `quick_reply`는 보낸 값으로 기록한다. 마지막 턴의 카드는 `latest_turn`으로 그린다(과거 카드는 다시 그리지 않고 읽기 전용 요약만).
+버튼 답은 `role: "user"`, `text`는 고른 선택지 라벨, `quick_reply`는 보낸 값으로 기록한다. 보충 설명이 있던 AI 말에는 `assist`(턴 응답의 `assist`와 같은 모양)가 붙는다. 마지막 턴의 카드는 `latest_turn`으로 그린다(과거 카드는 다시 그리지 않고 읽기 전용 요약만).
 
 ## 3. 건 목록 카드: `CaseOut.summary`
 ```json

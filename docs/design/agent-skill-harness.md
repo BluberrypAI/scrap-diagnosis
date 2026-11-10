@@ -1,6 +1,6 @@
 # 설계: 규칙 엔진 위의 스킬·하네스 (문진 진행자)
 
-> 상태: 설계 초안(2026-11-10). 범위는 **문진 지원만**(사용자 결정, 12절). 스킬 문구는 사용자가 검토한다.
+> 상태: S1·S2 일부 구현(2026-11-11, `app/agent/assist.py`). 처음 설계 2026-11-10. 범위는 **문진 지원만**(사용자 결정, 12절). 스킬 문구는 사용자가 검토한다.
 > 관련: [engine/algorithm.md](../engine/algorithm.md)(엔진), [llm-data-policy.md](../llm-data-policy.md)(AI 전송 정책), [ui/ui-contract.md](../ui/ui-contract.md)(화면 계약)
 
 ## 1. 한 줄 요약
@@ -138,6 +138,10 @@
 | S1 | 추출 출력에 `intent` 추가, `lookup_term`·`explain_current` 도구, `assist` 필드, 출력 검사 확장 | 없음 |
 | S2 | `explain_rule`·`explain_result`(검토 카드 로직 이전), 스킬 파일(사용자 검토 후)·Trace 기록, 설명 골든 | 없음 |
 | (범위 밖) | 문진 밖 기능(업체 문의 초안, 신고 준비물), AI가 도구를 직접 고르는 에이전트 루프 | - |
+
+### 구현 현황 (2026-11-11)
+- 됨: 의도 분류(`question_kind`: why·term·off_topic), 지금 질문 설명(관련 규칙 쉬운 설명·근거·답별 남는 후보 수), 결과 설명(확정 후보 규칙), 용어 풀이, `assist` 필드·대화 기록, 출력 검사(자료 밖 번호·숫자, why 근거 인용), 실패 시 템플릿, 스킬 지침 연결(보충 설명 턴만)·Trace 스킬 해시, 참조 화면 말풍선. 빌드가 `rule_notes.yaml`·`skills/interviewer.md`를 만든다.
+- 남음: 설명 골든 20건, 실제 AI로 의도 분류 평가(`scripts/eval_extractor.py`), `explain_rule(rule_id)`·`get_state`처럼 특정 규칙을 지정하는 설명, 스킬 문구 사용자 확정.
 
 ## 12. 결정 (2026-11-10)
 

@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge 58812f75). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge da368ae1). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: fiber_synthetic
 title: 폐합성섬유
-version: 2026.11.0+kb-58812f75
+version: 2026.11.0+kb-da368ae1
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:

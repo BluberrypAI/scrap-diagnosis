@@ -19,6 +19,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel
 
+from app.agent.assist import INTENTS, build_context, to_view
 from app.agent.extractor import extract
 from app.agent.guard import ExtractionResult, norm
 from app.agent.llm_client import LLMCall, LLMClient
@@ -48,6 +49,15 @@ class QuickReply(BaseModel):
     key: str  # fact key 또는 group_id
     kind: Literal["value", "unknown", "none_all", "expand", "retract"] = "value"
     value: Any = None
+
+
+def _skill_hash(text: str | None) -> str | None:
+    """어떤 스킬 지침으로 설명했는지 Trace에 남기는 짧은 해시."""
+    if not text:
+        return None
+    import hashlib
+
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
 
 
 def _now_iso() -> str:
@@ -224,6 +234,7 @@ class DiagnosisSession:
         extraction: ExtractionResult | None = None
         appended: list[Fact] = []
         user_question = None
+        intent = None
         if text:
             self.messages.append(
                 {"role": "user", "id": turn_id, "text": text, "memo": _is_memo, "at": _now_iso()}
@@ -247,6 +258,8 @@ class DiagnosisSession:
             extraction, calls = self._extract(text, turn_id)
             appended = self._apply_extraction(extraction)
             user_question = extraction.user_question
+            if extraction.question_kind in INTENTS:
+                intent = extraction.question_kind
 
         step = run_engine(
             self.kb,
@@ -255,6 +268,10 @@ class DiagnosisSession:
             self.as_of,
             max_questions=self.max_questions,
             user_question=user_question,
+        )
+        # 보충 설명: 엔진 평가가 끝난 뒤 그 결과를 설명할 자료만 모은다(판정 무관)
+        assist_ctx = (
+            build_context(self.kb, step, self.rule_index, intent, user_question) if intent else None
         )
         # 입력이 AI 전송 정책으로 막힌 턴은 응답도 템플릿으로 한다
         blocked = extraction.llm_blocked if extraction else None
@@ -265,8 +282,10 @@ class DiagnosisSession:
             self.rule_index,
             prompt_version=self.prompt_version,
             user_question=user_question,
+            assist=assist_ctx,
         )
         calls += rcalls
+        assist_view = to_view(assist_ctx, out.assist_text or "") if assist_ctx is not None else None
         if blocked and not out.llm_blocked:
             out.llm_blocked = blocked
 
@@ -284,6 +303,7 @@ class DiagnosisSession:
                 "role": "assistant",
                 "id": turn_id,
                 "text": out.message,
+                **({"assist": assist_view.model_dump(mode="json")} if assist_view else {}),
                 "branch": d.branch.value,
                 "question_key": q.key if q is not None else None,
                 "at": _now_iso(),
@@ -307,6 +327,7 @@ class DiagnosisSession:
                 max_questions=self.max_questions,
             ),
             case_status=self.case_status,
+            assist=assist_view,
         )
         self.traces.append(
             TraceTurn(
@@ -332,6 +353,15 @@ class DiagnosisSession:
                 responder={
                     "used_template": out.used_template,
                     "problems": out.problems,
+                    **(
+                        {
+                            "assist_intent": intent,
+                            "assist_cited_ids": out.assist_cited_ids,
+                            "skill_hash": _skill_hash(self.kb.skill_text),
+                        }
+                        if assist_view
+                        else {}
+                    ),
                     **({"llm_blocked": out.llm_blocked} if out.llm_blocked else {}),
                 },
                 response=resp.model_dump(mode="json"),

@@ -51,6 +51,7 @@ SOURCE_FILES = (
     "reviews.yaml",
     "definitions.yaml",
     "glossary.yaml",
+    "skills/interviewer.md",
 )
 # 빌드가 쓰는 파일(data/real/ 기준). --check는 이것만 비교한다.
 # regression/(기존 엔진 판정표 기준)과 scenarios/(시뮬레이터 시나리오)는 빌드하지 않는다.
@@ -61,6 +62,8 @@ GENERATED_FILES = (
     "sources.yaml",
     "outcome_guidance.yaml",
     "glossary.yaml",
+    "rule_notes.yaml",
+    "skills/interviewer.md",
     "conversion_report.md",
     "rules/common/scope.yaml",
     "rules/common/business.yaml",
@@ -762,8 +765,22 @@ class Converter:
         shutil.copyfile(self.src / "outcome_guidance.yaml", out / "outcome_guidance.yaml")
         # 용어집도 사람이 쓴 그대로 옮긴다(판정 무관, 질문 카드 terms)
         shutil.copyfile(self.src / "glossary.yaml", out / "glossary.yaml")
+        # 문진 설명용(판정 무관): 원본 규칙의 쉬운 설명, 문진 진행 AI 지침
+        # (docs/design/agent-skill-harness.md)
+        dump(out / "rule_notes.yaml", self.rule_notes(), hdr)
+        (out / "skills").mkdir(exist_ok=True)
+        shutil.copyfile(self.src / "skills" / "interviewer.md", out / "skills" / "interviewer.md")
         self.write_report(out, n)
         print(f"테이블 {n}개, 사실 {len(self.used_facts)}개 → {out}")
+
+    def rule_notes(self) -> dict:
+        """원본 규칙 ID → 제목·쉬운 설명. 생성 규칙의 source_rule로 찾는다(설명 전용)."""
+        notes: dict[str, dict] = {}
+        for r in [*self.base_rules, *self.s3]:
+            item = {k: r[k] for k in ("title", "plain") if r.get(k)}
+            if item:
+                notes[r["id"]] = item
+        return {"rules": notes}
 
     def write_report(self, out: Path, n: int) -> None:
         lines = [

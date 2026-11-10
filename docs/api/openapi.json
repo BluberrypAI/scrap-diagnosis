@@ -118,6 +118,92 @@
         "title": "ApplyValueIn",
         "type": "object"
       },
+      "AssistSource": {
+        "description": "보충 설명의 근거(법령·질의회신 등).",
+        "properties": {
+          "excerpt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Excerpt"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "ref": {
+            "title": "Ref",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "ref"
+        ],
+        "title": "AssistSource",
+        "type": "object"
+      },
+      "AssistView": {
+        "description": "보충 설명 말풍선. 질문 카드와 별도이며 판정에 쓰지 않는다.\n\n설계: docs/design/agent-skill-harness.md.\n\n\n사용자가 \"왜?\"(why), \"뭐예요?\"(term)라고 묻거나 문진 밖 요청(off_topic)을 했을 때만 온다.",
+        "properties": {
+          "intent": {
+            "enum": [
+              "why",
+              "term",
+              "off_topic"
+            ],
+            "title": "Intent",
+            "type": "string"
+          },
+          "review": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review"
+          },
+          "sources": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AssistSource"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "terms": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/TermView"
+            },
+            "title": "Terms",
+            "type": "array"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "intent",
+          "text"
+        ],
+        "title": "AssistView",
+        "type": "object"
+      },
       "Board": {
         "description": "판정 보드(1.2절).",
         "properties": {
@@ -1257,8 +1343,18 @@
         "type": "object"
       },
       "ConversationItem": {
-        "description": "대화 기록 한 줄(docs/ui/ui-contract.md 2절). 새로고침해도 대화를 다시 그린다.\n\n- 사용자 말: role user, text = 말한 문장(건 메모 포함, memo true)\n- 버튼 답: role user, text = 고른 선택지 라벨, quick_reply = 보낸 값\n- 서류 업로드: role user, text = \"서류를 올렸어요: 파일명\", document_id\n- AI 말: role assistant, branch, question_key",
+        "description": "대화 기록 한 줄(docs/ui/ui-contract.md 2절). 새로고침해도 대화를 다시 그린다.\n\n- 사용자 말: role user, text = 말한 문장(건 메모 포함, memo true)\n- 버튼 답: role user, text = 고른 선택지 라벨, quick_reply = 보낸 값\n- 서류 업로드: role user, text = \"서류를 올렸어요: 파일명\", document_id\n- AI 말: role assistant, branch, question_key, assist(보충 설명이 있던 턴만)",
         "properties": {
+          "assist": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AssistView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "at": {
             "anyOf": [
               {
@@ -2545,6 +2641,16 @@
       },
       "TurnResponse": {
         "properties": {
+          "assist": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AssistView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "branch": {
             "title": "Branch",
             "type": "string"

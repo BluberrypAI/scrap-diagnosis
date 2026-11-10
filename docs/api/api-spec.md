@@ -151,6 +151,7 @@ POST /cases/C1/diagnosis/messages {"quick_reply": {"key": "material", "kind": "r
 
 - `ui.question.terms`: 질문 글에 나온 전문용어의 쉬운 설명 `[{term, plain, example}]`(`knowledge/glossary.yaml`, 사람이 쓴 고정 설명).
 - `ui.result.assumptions`, `handoff.assumptions`: 시험·서류가 아니라 사용자 답(대리 질문)에서 추정한 사실의 안내 문장 목록. 비었으면 `[]`.
+- `assist`(턴 응답, 추가 필드): 사용자가 "왜?"(`why`), "뭐예요?"(`term`)라고 묻거나 문진 밖 요청(`off_topic`)을 했을 때만 오는 보충 설명 `{intent, text, sources[{id, type, ref, excerpt}], terms[], review}`. 평범한 답변 턴에는 `null`. 사실을 기록하지 않으므로 `branch`·질문 카드·판정이 직전과 같다(답과 질문이 섞이면 답은 평소처럼 기록). 서버는 가공 없이 화면에 넘긴다. 설계: `docs/design/agent-skill-harness.md`.
 
 ## 6. 질문 카드 `ui.question.input` 규칙
 

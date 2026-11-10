@@ -14,6 +14,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from app.agent import templates
+from app.agent.assist import AssistContext, template_text
 from app.agent.guard import validate_response
 from app.agent.llm_client import LLMCall, LLMClient
 from app.agent.redact import RedactionError, find_identifiers, redact_obj, scrub_call
@@ -30,6 +31,32 @@ RESPONSE_SCHEMA = {
     "required": ["message", "cited_basis_ids"],
     "additionalProperties": False,
 }
+
+# 보충 설명(assist)이 있는 턴: 설명 문장을 따로 받는다(docs/design/agent-skill-harness.md)
+ASSIST_RESPONSE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "message": {"type": "string"},
+        "cited_basis_ids": {"type": "array", "items": {"type": "string"}},
+        "assist_text": {"type": "string"},
+        "assist_cited_ids": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["message", "cited_basis_ids", "assist_text", "assist_cited_ids"],
+    "additionalProperties": False,
+}
+
+SKILL_HEADER = "\n\n문진 진행 지침(스킬)\n"
+
+ASSIST_RULES = """
+
+보충 설명(payload.assist가 있을 때)
+- assist_text에 사용자 질문(assist.user_question)에 대한 설명을 2~3문장으로 쓴다. message에는 원래 분기의 말만 쓴다.
+- intent가 why면 assist.rules의 plain과 assist.sources로만 설명하고, 인용한 source id를 assist_cited_ids에 넣는다.
+  option_effects가 있으면 답에 따라 남는 후보 수가 어떻게 달라지는지 말해도 된다.
+- intent가 term이면 assist.terms의 설명만 쓴다. 없으면 정확한 정의는 확인이 필요하다고 말한다.
+- intent가 off_topic이면 지금은 폐기물 분류번호 문진만 돕는다고 짧게 말한다.
+- assist.review가 UNVERIFIED면 검토 전 규칙이라 참고용이라고 덧붙인다.
+- assist에 없는 분류번호·숫자·조문을 쓰지 마라. 판정을 바꾸거나 단정하지 마라."""
 
 RESPOND_SYSTEM = """너는 사업장 폐기물 분류 문진 도우미다. 기업 담당자에게 한국어 존댓말로 짧게(2~4문장) 말한다.
 판정과 다음 행동은 이미 규칙 엔진이 정했다. 너는 주어진 payload를 자연스러운 문장으로 옮기기만 한다.
@@ -60,6 +87,8 @@ class ResponderOutput(BaseModel):
     problems: list[str] = []
     payload: dict = {}
     llm_blocked: str | None = None  # AI 전송을 막은 이유(가리기 실패). 템플릿으로 답했다
+    assist_text: str | None = None  # 보충 설명 문장(assist가 있을 때만)
+    assist_cited_ids: list[str] = []
 
 
 def _fact_label(kb: KnowledgeBase, key: str) -> str:
@@ -162,10 +191,21 @@ def respond(
     *,
     prompt_version: str,
     user_question: str | None = None,
+    assist: AssistContext | None = None,
     max_retries: int = 1,
     settings: Settings | None = None,
 ) -> tuple[ResponderOutput, list[LLMCall]]:
-    payload = build_payload(kb, step, rule_index, user_question=user_question)
+    payload = build_payload(kb, step, rule_index, user_question=None if assist else user_question)
+    if assist is not None:
+        payload["assist"] = assist.payload()
+    system = RESPOND_SYSTEM
+    schema = RESPONSE_SCHEMA
+    if assist is not None:
+        system = RESPOND_SYSTEM + ASSIST_RULES
+        if kb.skill_text:
+            system += SKILL_HEADER + kb.skill_text
+        schema = ASSIST_RESPONSE_SCHEMA
+    source_ids = {s.id for s in assist.sources} if assist is not None else set()
     replies = suggested_replies(step)
     cfg = settings or get_settings()
     blocked: str | None = None
@@ -197,9 +237,9 @@ def respond(
             )
             call = llm.complete_json(
                 name="respond",
-                system=RESPOND_SYSTEM,
+                system=system,
                 user=user,
-                schema=RESPONSE_SCHEMA,
+                schema=schema,
                 prompt_version=prompt_version,
             )
             calls.append(scrub_call(call, original_text, store_prompts=cfg.trace_store_prompts))
@@ -210,6 +250,19 @@ def respond(
             msg = str(call.parsed.get("message", ""))
             cited = [str(x) for x in call.parsed.get("cited_basis_ids", [])]
             found = validate_response(msg, cited, send_payload, payload_text, basis_ids)
+            a_text, a_cited = None, []
+            if assist is not None:
+                a_text = str(call.parsed.get("assist_text") or "")
+                a_cited = [str(x) for x in call.parsed.get("assist_cited_ids") or []]
+                found += [
+                    f"assist: {x}"
+                    for x in validate_response(
+                        a_text, a_cited, send_payload, payload_text, source_ids
+                    )
+                    if not x.startswith("한 턴에 질문")
+                ]
+                if assist.intent == "why" and assist.sources and not a_cited:
+                    found.append("assist: 근거 source id를 인용하지 않음")
             if not found:
                 return ResponderOutput(
                     message=msg,
@@ -217,6 +270,8 @@ def respond(
                     suggested_replies=replies,
                     problems=problems,
                     payload=payload,
+                    assist_text=a_text,
+                    assist_cited_ids=a_cited,
                 ), calls
             problems.extend(found)
             feedback = found
@@ -230,4 +285,6 @@ def respond(
         problems=problems,
         payload=payload,
         llm_blocked=blocked,
+        assist_text=template_text(assist) if assist is not None else None,
+        assist_cited_ids=[assist.sources[0].id] if assist is not None and assist.sources else [],
     ), calls

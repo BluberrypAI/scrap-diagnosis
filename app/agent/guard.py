@@ -40,6 +40,7 @@ class ExtractionResult(BaseModel):
     group_answer: dict | None = None
     user_code_claim: str | None = None
     user_question: str | None = None
+    question_kind: str | None = None  # why | term | off_topic (문진 보충 설명, agent/assist.py)
     evidence_refused: bool = False
     rejected: list[dict] = []
     errors: list[str] = []
@@ -219,6 +220,11 @@ def validate_extraction(
             )
     if raw.get("user_question"):
         res.user_question = str(raw["user_question"])
+    kind = raw.get("question_kind")
+    if kind in ("why", "term", "off_topic"):
+        res.question_kind = kind
+        if not res.user_question:  # 질문 문장을 비웠으면 발화 전체를 질문으로 본다
+            res.user_question = text.strip()[:200]
     res.evidence_refused = bool(raw.get("evidence_refused"))
     return res
 
