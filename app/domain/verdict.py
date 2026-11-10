@@ -120,6 +120,7 @@ class AssistSource(BaseModel):
     type: str
     ref: str
     excerpt: str | None = None
+    url: str | None = None  # type WEB(웹 검색 참고)일 때 출처 주소
 
 
 class AssistView(BaseModel):

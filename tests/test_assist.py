@@ -51,7 +51,7 @@ def test_term_question_uses_glossary(real_kb):
     r = s.handle(text="PCB가 뭐예요?")
     assert r.assist.intent == "term"
     assert any(t.term == "PCB" for t in r.assist.terms)
-    assert "PCB" in r.assist.text
+    assert "변압기" in r.assist.text  # 질문 안내의 "PCB가 뭐예요?" 답
 
 
 def test_off_topic_is_redirected(real_kb):

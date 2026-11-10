@@ -1,4 +1,4 @@
-# 자동 생성: tools/build_kb.py (knowledge da368ae1). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge 81726a7d). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 rules:
 - rule_id: S0-CIRCULAR
   source_rule: S0-CIRCULAR

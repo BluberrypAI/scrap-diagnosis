@@ -51,6 +51,13 @@ class QuickReply(BaseModel):
     value: Any = None
 
 
+def _default_web_search():  # noqa: ANN202
+    from app.agent.web_search import get_web_search
+    from app.config import get_settings
+
+    return get_web_search(get_settings())
+
+
 def _skill_hash(text: str | None) -> str | None:
     """어떤 스킬 지침으로 설명했는지 Trace에 남기는 짧은 해시."""
     if not text:
@@ -98,6 +105,9 @@ class DiagnosisSession:
         self.as_of = as_of or seoul_today()  # 법 기준일: 대화를 시작한 Asia/Seoul 날짜
         self.max_questions = max_questions
         self.prompt_version = prompt_version
+        # 보충 설명의 마지막 수단(준비된 자료가 없을 때만). 설정이 없으면 None
+        # (app/agent/web_search.py)
+        self.web_search = _default_web_search() if responder_llm is not None else None
         self.store = FactStore()
         self.state = SessionState()
         self.messages: list[dict] = []
@@ -279,6 +289,7 @@ class DiagnosisSession:
                 intent,
                 user_question,
                 answered_question=prev_question if appended else None,
+                web=self.web_search,
             )
             if intent
             else None
@@ -367,6 +378,9 @@ class DiagnosisSession:
                         {
                             "assist_intent": intent,
                             "assist_cited_ids": out.assist_cited_ids,
+                            # 준비된 자료로 답했나(아니면 설명 자료 보강 대상), 웹 검색을 썼나
+                            "assist_matched": assist_ctx.matched,
+                            "assist_web": assist_ctx.web_used,
                             "skill_hash": _skill_hash(self.kb.skill_text),
                         }
                         if assist_view

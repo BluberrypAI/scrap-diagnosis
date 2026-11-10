@@ -30,6 +30,9 @@ guard는 모델이 실제로 본 '가린 문장'으로 quote를 검사한다. �
 ## 보충 설명(assist)에 보내는 자료
 사용자가 "왜?", "뭐예요?"라고 물으면 응답 AI에 설명 자료를 더 보낸다(`app/agent/assist.py`): 관련 규칙의 쉬운 설명(`rule_notes.yaml`), 근거 조문 인용, 용어집 설명, 문진 진행 지침(`knowledge/skills/interviewer.md`). 모두 공개 법령과 사람이 쓴 문구라 식별 정보는 없다. 사용자 질문 문장은 다른 payload와 같이 가린 뒤 보낸다. AI가 쓴 설명은 guard가 검사한다(자료에 없는 번호·숫자 금지, `why`는 근거 id 인용 필수). 실패하면 템플릿 문장으로 바꾼다.
 
+## 웹 검색(보충 설명의 마지막 수단)
+질문 안내·용어집·규칙 설명에 답할 자료가 없을 때만 웹 검색을 한다(`app/agent/web_search.py`, 기본 꺼짐: `WEB_SEARCH_PROVIDER=none`). 켜면 네이버 검색 API로 사용자 질문 문장을 보낸다. 보내기 전에 식별 정보를 가리고, 가린 뒤에도 남으면 검색하지 않는다. 결과는 허용 도메인(법령·공공기관 사이트)만 쓰고 "공식 자료로 확인" 안내와 출처 주소를 붙인다. 판정에는 쓰지 않는다. 자료가 없어 웹 검색으로 넘어간 질문은 Trace(`responder.assist_matched=false`)에 남아 질문 안내 보강 대상이 된다.
+
 ## Trace 기록
 `LLMCall.user`에는 가린 프롬프트만 들어가고, 원문의 `user_sha256`·`user_len`, 응답의 `raw_sha256`·`raw_len`이 붙는다.
 `trace_store_prompts=false`(`TRACE_STORE_PROMPTS`)면 프롬프트·응답 본문을 비우고 해시와 길이만 남긴다.

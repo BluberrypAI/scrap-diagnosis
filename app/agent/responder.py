@@ -53,7 +53,10 @@ ASSIST_RULES = """
 - assist_text에 사용자 질문(assist.user_question)에 대한 설명을 2~3문장으로 쓴다. message에는 원래 분기의 말만 쓴다.
 - intent가 why면 assist.rules의 plain과 assist.sources로만 설명하고, 인용한 source id를 assist_cited_ids에 넣는다.
   option_effects가 있으면 답에 따라 남는 후보 수가 어떻게 달라지는지 말해도 된다.
-- intent가 term이면 assist.terms의 설명만 쓴다. 없으면 정확한 정의는 확인이 필요하다고 말한다.
+- intent가 term이면 assist.guide(질문의 뜻·선택지 뜻·해당 예시·FAQ), assist.topics, assist.terms로만 설명한다.
+  assist.best_faq가 있으면 그 답을 중심으로 쓴다. 자료에 없으면 정확한 정의는 확인이 필요하다고 말한다.
+- intent가 why면 assist.guide의 why도 함께 쓸 수 있다.
+- sources 중 type이 WEB인 것은 웹 검색 참고 자료다. 쓸 때는 "공식 자료로 확인하세요"를 덧붙이고, 판정처럼 단정하지 마라.
 - intent가 off_topic이면 지금은 폐기물 분류번호 문진만 돕는다고 짧게 말한다.
 - assist.review가 UNVERIFIED면 검토 전 규칙이라 참고용이라고 덧붙인다.
 - assist에 없는 분류번호·숫자·조문을 쓰지 마라. 판정을 바꾸거나 단정하지 마라."""

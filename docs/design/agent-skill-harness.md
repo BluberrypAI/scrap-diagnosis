@@ -141,6 +141,7 @@
 
 ### 구현 현황 (2026-11-11)
 - 됨: 의도 분류(`question_kind`: why·term·off_topic), 지금 질문 설명(관련 규칙 쉬운 설명·근거·답별 남는 후보 수), 결과 설명(확정 후보 규칙), 용어 풀이, `assist` 필드·대화 기록, 출력 검사(자료 밖 번호·숫자, why 근거 인용), 실패 시 템플릿, 스킬 지침 연결(보충 설명 턴만)·Trace 스킬 해시, 참조 화면 말풍선. 빌드가 `rule_notes.yaml`·`skills/interviewer.md`를 만든다.
+- 됨(2026-11-11 추가): 질문 안내(`knowledge/question_guide.yaml`)로 모든 질문·선택지 설명, 참고 주제(MSDS 등), 자료가 없을 때만 허용 도메인 웹 검색(기본 꺼짐, 네이버 검색 API).
 - 남음: 설명 골든 20건, 실제 AI로 의도 분류 평가(`scripts/eval_extractor.py`), `explain_rule(rule_id)`·`get_state`처럼 특정 규칙을 지정하는 설명, 스킬 문구 사용자 확정.
 
 ## 12. 결정 (2026-11-10)

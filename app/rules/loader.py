@@ -630,6 +630,8 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
     notes = (_read_yaml(notes_path) or {}).get("rules") or {} if notes_path.exists() else {}
     skill_path = data_dir / "skills" / "interviewer.md"
     skill = skill_path.read_text(encoding="utf-8") if skill_path.exists() else None
+    guide_path = data_dir / "question_guide.yaml"
+    guide = (_read_yaml(guide_path) or {}) if guide_path.exists() else {}
     return KnowledgeBase(
         catalog=catalog,
         tables=tuple(tables),
@@ -640,4 +642,8 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
         glossary=glossary,
         rule_notes={str(k): dict(v) for k, v in notes.items()},
         skill_text=skill,
+        question_guide={
+            "facts": dict(guide.get("facts") or {}),
+            "topics": dict(guide.get("topics") or {}),
+        },
     )

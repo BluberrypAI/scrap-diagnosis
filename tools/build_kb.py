@@ -52,6 +52,7 @@ SOURCE_FILES = (
     "definitions.yaml",
     "glossary.yaml",
     "skills/interviewer.md",
+    "question_guide.yaml",
 )
 # 빌드가 쓰는 파일(data/real/ 기준). --check는 이것만 비교한다.
 # regression/(기존 엔진 판정표 기준)과 scenarios/(시뮬레이터 시나리오)는 빌드하지 않는다.
@@ -64,6 +65,7 @@ GENERATED_FILES = (
     "glossary.yaml",
     "rule_notes.yaml",
     "skills/interviewer.md",
+    "question_guide.yaml",
     "conversion_report.md",
     "rules/common/scope.yaml",
     "rules/common/business.yaml",
@@ -770,6 +772,7 @@ class Converter:
         dump(out / "rule_notes.yaml", self.rule_notes(), hdr)
         (out / "skills").mkdir(exist_ok=True)
         shutil.copyfile(self.src / "skills" / "interviewer.md", out / "skills" / "interviewer.md")
+        shutil.copyfile(self.src / "question_guide.yaml", out / "question_guide.yaml")
         self.write_report(out, n)
         print(f"테이블 {n}개, 사실 {len(self.used_facts)}개 → {out}")
 
