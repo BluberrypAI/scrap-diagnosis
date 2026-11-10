@@ -179,6 +179,7 @@ class BoardFact(BaseModel):
     recorded_at: str | None = None  # ISO 8601, Asia/Seoul
     editable: bool
     edit: EditView | None = None  # editable일 때만
+    hedged: bool = False  # 사용자가 추측으로 답함("아마 ~일걸"). source_label에도 "· 추측"을 붙인다
 
 
 class PendingItem(BaseModel):
@@ -484,12 +485,14 @@ def board_fact(kb: KnowledgeBase, f: Fact) -> BoardFact:
         value_label=value_label(kb, f.key, f.value),
         status=f.status.value,
         source_type=f.source_type,
-        source_label=templates.SOURCE_LABEL.get(f.source_type, f.source_type),
+        source_label=templates.SOURCE_LABEL.get(f.source_type, f.source_type)
+        + (" · 추측" if f.hedged else ""),
         document_id=(document_id_of(f.source_ref) or None) if f.source_type == "DOCUMENT" else None,
         quote=f.quote,
         recorded_at=seoul_iso(f.recorded_at) if isinstance(f.recorded_at, datetime) else None,
         editable=editable,
         edit=edit_view(kb.catalog[f.key]) if editable else None,
+        hedged=f.hedged,
     )
 
 

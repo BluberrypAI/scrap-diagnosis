@@ -55,6 +55,7 @@ EXTRACTION_SCHEMA: dict[str, Any] = {
                     },
                     "note": {"type": ["string", "null"]},
                     "quote": {"type": "string"},
+                    "certainty": {"type": "string", "enum": ["sure", "guess"]},
                 },
                 "required": [
                     "key",
@@ -65,6 +66,7 @@ EXTRACTION_SCHEMA: dict[str, Any] = {
                     "status",
                     "note",
                     "quote",
+                    "certainty",
                 ],
                 "additionalProperties": False,
             },
@@ -75,8 +77,9 @@ EXTRACTION_SCHEMA: dict[str, Any] = {
                 "group_id": {"type": "string"},
                 "choice": {"type": "string", "enum": ["none_all", "expand"]},
                 "quote": {"type": "string"},
+                "certainty": {"type": "string", "enum": ["sure", "guess"]},
             },
-            "required": ["group_id", "choice", "quote"],
+            "required": ["group_id", "choice", "quote", "certainty"],
             "additionalProperties": False,
         },
         "user_code_claim": {"type": ["string", "null"]},
@@ -121,6 +124,9 @@ EXTRACT_SYSTEM = """너는 사업장 폐기물 문진의 '사실 추출기'다. 
      group_answer.choice = "none_all"이다. 이때 구성 사실을 facts로 하나씩 나누어 내지 마라.
    - "있어요/하나 있어요/잘 모르겠어요" → group_answer.choice = "expand" (구체적으로 말한 사실은 facts에도 넣는다)
 7. quote에는 근거가 된 사용자 발화 원문 일부를 그대로 복사한다(바꾸어 쓰지 마라).
+   certainty: 사용자가 확신하면 "sure", 추측으로 말하면 "guess"다("아마", "~일걸요", "~것 같아요",
+   "대충", "~정도", "글쎄요"). 추측이어도 말한 값은 그대로 뽑는다("아마 PP일걸요" → material=pp, guess).
+   "모르겠어요"는 추측이 아니라 DECLARED_UNKNOWN이다. 묶음 답(group_answer)에도 같은 기준으로 쓴다.
 8. 사용자가 분류번호(예: 51-03-01)를 말하면 user_code_claim에 그 번호를 그대로 쓴다. 그 번호를 사실로 넣지 마라.
 9. 사용자가 무언가를 물으면(예: "왜 기름이 중요해?") user_question에 그 질문을 쓰고, question_kind를 고른다.
    - "why": '왜' 그걸 묻는지, '왜' 그런 결과인지 묻는 말(예: "왜 기름을 물어봐요?", "왜 지정폐기물이에요?")

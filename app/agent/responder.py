@@ -79,7 +79,9 @@ RESPOND_SYSTEM = """너는 사업장 폐기물 분류 문진 도우미다. 기�
 6. UNSUPPORTED면 왜 정할 수 없는지(failure_text)와 확인할 항목을 안내한다. 판정을 대신 내리지 마라.
 7. user_question이 있으면 먼저 help 내용 안에서만 짧게 답하고, 이어서 원래 분기의 말을 한다.
    help에 답이 없으면 '근거 자료를 확인해 안내하겠다'고만 한다.
-8. 판정을 바꾸거나 새 사실을 추측하지 마라."""
+8. 판정을 바꾸거나 새 사실을 추측하지 마라.
+9. confirm_guess가 true면 "앞에서 추측으로 답하신 항목이 있어 확정 전에 한 번만 확인할게요"라는 뜻을
+   먼저 말하고 질문한다."""
 
 
 class ResponderOutput(BaseModel):
@@ -108,6 +110,8 @@ def build_payload(
 ) -> dict[str, Any]:
     d, ev = step.decision, step.evaluation
     p: dict[str, Any] = {"branch": d.branch.value}
+    if d.sub_branch == "CONFIRM_GUESS":  # 추측 답변 확인(app/agent/router.py)
+        p["confirm_guess"] = True
     if d.branch == Branch.ASK_FACT and d.question is not None:
         q = d.question
         p["question"] = {

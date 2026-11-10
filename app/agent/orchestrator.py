@@ -24,7 +24,7 @@ from app.agent.extractor import extract
 from app.agent.guard import ExtractionResult, norm
 from app.agent.llm_client import LLMCall, LLMClient
 from app.agent.responder import respond
-from app.agent.router import Branch, EngineStep, SessionState, run_engine
+from app.agent.router import SUB_CONFIRM_GUESS, Branch, EngineStep, SessionState, run_engine
 from app.agent.templates import RETRACT_REPLY_LABEL
 from app.domain.clock import seoul_today, utcnow
 from app.domain.facts import Fact, FactStatus, FactStore, retract_fact
@@ -138,6 +138,7 @@ class DiagnosisSession:
                 "expanded_groups": sorted(self.state.expanded_groups),
                 "focus_codes": sorted(self.state.focus_codes),
                 "evidence_refused": self.state.evidence_refused,
+                "guess_checked": sorted(self.state.guess_checked),
             },
             "last_question": (
                 self.last_question.model_dump(mode="json") if self.last_question else None
@@ -191,6 +192,7 @@ class DiagnosisSession:
             expanded_groups=set(st.get("expanded_groups", ())),
             focus_codes=set(st.get("focus_codes", ())),
             evidence_refused=st.get("evidence_refused", False),
+            guess_checked=set(st.get("guess_checked", ())),
         )
         lq = state.get("last_question")
         s.last_question = QuestionChoice.model_validate(lq) if lq else None
@@ -205,6 +207,7 @@ class DiagnosisSession:
             expanded_groups=set(self.state.expanded_groups),
             focus_codes=set(self.state.focus_codes),
             evidence_refused=self.state.evidence_refused,
+            guess_checked=set(self.state.guess_checked),
         )
         return run_engine(
             self.kb, self.store.copy(), state, self.as_of, max_questions=self.max_questions
@@ -312,6 +315,9 @@ class DiagnosisSession:
             out.llm_blocked = blocked
 
         d = step.decision
+        if d.sub_branch == SUB_CONFIRM_GUESS and d.question is not None:
+            # 추측 답변 확인은 사실마다 한 번만(묶음이면 구성 사실 모두)
+            self.state.guess_checked.update(d.question.facts or [d.question.key])
         if d.branch == Branch.ASK_FACT and d.question is not None:
             self.state.questions_asked += 1
             self.last_question = d.question
@@ -454,6 +460,7 @@ class DiagnosisSession:
                 ex.group_answer["group_id"],
                 ex.group_answer["choice"],
                 ex.facts[0].source_ref if ex.facts else "group",
+                hedged=bool(ex.group_answer.get("hedged")),
             )
         if ex.user_code_claim:
             if ex.user_code_claim in self.kb.codes:
@@ -462,18 +469,28 @@ class DiagnosisSession:
             self.state.evidence_refused = True
         return appended
 
-    def _apply_group(self, group_id: str, choice: str, ref: str) -> list[Fact]:
+    def _apply_group(
+        self, group_id: str, choice: str, ref: str, *, hedged: bool = False
+    ) -> list[Fact]:
+        lq = self.last_question
+        confirming = bool(lq and lq.key == group_id and lq.reason == "CONFIRM_GUESS")
         if choice == "expand":
             self.state.expanded_groups.add(group_id)
+            if confirming:  # 추측 확인에서 "해당 있음/모름" → 추측 답을 거두고 하나씩 묻는다
+                undo = [retract_fact(k, source_ref=ref) for k in lq.facts]
+                self.store.extend(undo)
+                return undo
             return []
-        members = (
-            self.last_question.facts
-            if (self.last_question and self.last_question.key == group_id)
-            else list(self.kb.group(group_id).facts)
-        )
+        members = lq.facts if (lq and lq.key == group_id) else list(self.kb.group(group_id).facts)
         effective = self.store.effective()
-        open_members = [k for k in members if not (k in effective and effective[k].is_known)]
+        open_members = [
+            k
+            for k in members
+            if confirming or not (k in effective and effective[k].is_known)  # 확인이면 다시 기록
+        ]
         facts = group_none_answer(self.kb, group_id, open_members, source_ref=ref)
+        if hedged:  # "아마 다 해당 없을걸요" → 추측 답변으로 표시
+            facts = [f.model_copy(update={"hedged": True}) for f in facts]
         self.store.extend(facts)
         return facts
 

@@ -292,6 +292,11 @@
             "title": "Editable",
             "type": "boolean"
           },
+          "hedged": {
+            "default": false,
+            "title": "Hedged",
+            "type": "boolean"
+          },
           "key": {
             "title": "Key",
             "type": "string"

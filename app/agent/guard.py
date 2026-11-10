@@ -191,6 +191,7 @@ def validate_extraction(
                 source_ref=message_id,
                 quote=quote,
                 note=item.get("note"),
+                hedged=item.get("certainty") == "guess",
             )
         )
 
@@ -209,7 +210,11 @@ def validate_extraction(
                 {"key": ga.get("group_id"), "reason": "quote가 발화에 없음", "item": ga}
             )
         else:
-            res.group_answer = {"group_id": ga["group_id"], "choice": ga["choice"]}
+            res.group_answer = {
+                "group_id": ga["group_id"],
+                "choice": ga["choice"],
+                "hedged": ga.get("certainty") == "guess",
+            }
 
     claim = raw.get("user_code_claim")
     if claim:
