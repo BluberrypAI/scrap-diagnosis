@@ -235,6 +235,7 @@ class DiagnosisSession:
         appended: list[Fact] = []
         user_question = None
         intent = None
+        prev_question = self.last_question  # 답과 "왜?"가 함께 오면 이 질문을 설명한다
         if text:
             self.messages.append(
                 {"role": "user", "id": turn_id, "text": text, "memo": _is_memo, "at": _now_iso()}
@@ -271,7 +272,16 @@ class DiagnosisSession:
         )
         # 보충 설명: 엔진 평가가 끝난 뒤 그 결과를 설명할 자료만 모은다(판정 무관)
         assist_ctx = (
-            build_context(self.kb, step, self.rule_index, intent, user_question) if intent else None
+            build_context(
+                self.kb,
+                step,
+                self.rule_index,
+                intent,
+                user_question,
+                answered_question=prev_question if appended else None,
+            )
+            if intent
+            else None
         )
         # 입력이 AI 전송 정책으로 막힌 턴은 응답도 템플릿으로 한다
         blocked = extraction.llm_blocked if extraction else None

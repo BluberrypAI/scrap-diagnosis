@@ -19,6 +19,7 @@ from app.domain.verdict import AssistSource, AssistView, TermView
 from app.rules.evaluator import TV
 from app.rules.glossary import find_terms
 from app.rules.model import KnowledgeBase, Rule
+from app.rules.selector import QuestionChoice
 
 Intent = Literal["why", "term", "off_topic"]  # AssistView.intent와 같음
 INTENTS: tuple[str, ...] = ("why", "term", "off_topic")
@@ -45,15 +46,19 @@ class AssistContext(BaseModel):
         return d
 
 
-def _rules_for_question(step: EngineStep, rule_index: dict[str, Rule]) -> list[Rule]:
-    """지금 질문의 사실이 걸린, 아직 성립 여부를 모르는 규칙(우선순위 높은 순)."""
-    q = step.decision.question
+def _rules_for_question(
+    step: EngineStep, rule_index: dict[str, Rule], q: QuestionChoice | None, answered: bool
+) -> list[Rule]:
+    """질문의 사실이 걸린 규칙(우선순위 높은 순).
+
+    아직 안 답한 질문이면 성립 여부를 모르는 규칙만 고른다.
+    """
     if q is None:
         return []
     keys = set(q.facts or [q.key])
     found: list[Rule] = []
     for r in step.evaluation.rule_results:
-        if r.status != TV.UNKNOWN:
+        if not answered and r.status != TV.UNKNOWN:
             continue
         rule = rule_index.get(r.rule_id)
         if rule is not None and rule.facts() & keys:
@@ -75,18 +80,20 @@ def build_context(
     rule_index: dict[str, Rule],
     intent: Intent,
     user_question: str | None,
+    answered_question: QuestionChoice | None = None,
 ) -> AssistContext:
+    """answered_question: 같은 메시지에 답과 질문이 함께 오면 방금 답한 질문을 설명한다."""
     ctx = AssistContext(intent=intent, user_question=user_question)
     d, ev = step.decision, step.evaluation
-    q = d.question
+    q = answered_question or d.question
     if intent == "why":
-        if d.branch == Branch.FINAL_REVIEW and ev.decided is not None:
+        if answered_question is None and d.branch == Branch.FINAL_REVIEW and ev.decided:
             ctx.about = "result"
             rule = rule_index.get(ev.decided.rule_ids[0])
             rules = [rule] if rule else []
         else:
             ctx.about = "question" if q is not None else "none"
-            rules = _rules_for_question(step, rule_index)
+            rules = _rules_for_question(step, rule_index, q, answered_question is not None)
             if q is not None:
                 ctx.question = q.question_hint
                 top = next((e for e in q.score_breakdown if e.key == q.key), None)
