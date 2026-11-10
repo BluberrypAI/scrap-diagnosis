@@ -25,30 +25,30 @@
 ```
 
 ## 다른 행 (36)
-- hcl#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
-- hcl#5 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 2.04, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
+- hcl#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
+- hcl#5 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 2.04, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
 - hcl#7 {"oil_presence": "none", "toxic_chemical_discard": true, "pcb_possible": false, "ph": 1.96} → 기대 번호 선택(6) / 결과 FINAL_REVIEW 02-01-01
-- hcl#11 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04, "oil_content_pct": 4.9} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
-- h2so4#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
-- h2so4#5 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 2.04, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
+- hcl#11 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04, "oil_content_pct": 4.9} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
+- h2so4#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
+- h2so4#5 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 2.04, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
 - h2so4#7 {"oil_presence": "none", "toxic_chemical_discard": true, "pcb_possible": false, "ph": 1.96} → 기대 번호 선택(6) / 결과 FINAL_REVIEW 02-01-02
-- h2so4#11 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04, "oil_content_pct": 4.9} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
-- hno3#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
-- hno3#5 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 2.04, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
+- h2so4#11 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04, "oil_content_pct": 4.9} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
+- hno3#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
+- hno3#5 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 2.04, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
 - hno3#7 {"oil_presence": "none", "toxic_chemical_discard": true, "pcb_possible": false, "ph": 1.96} → 기대 번호 선택(6) / 결과 FINAL_REVIEW 02-01-03
-- hno3#11 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04, "oil_content_pct": 4.9} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
-- hf#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
-- hf#5 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 2.04, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
+- hno3#11 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04, "oil_content_pct": 4.9} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
+- hf#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
+- hf#5 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 2.04, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
 - hf#7 {"oil_presence": "none", "toxic_chemical_discard": true, "pcb_possible": false, "ph": 1.96} → 기대 번호 선택(6) / 결과 FINAL_REVIEW 02-01-04
-- hf#11 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04, "oil_content_pct": 4.9} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
-- acid_lcd_semi#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
-- acid_lcd_semi#5 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 2.04, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
+- hf#11 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04, "oil_content_pct": 4.9} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
+- acid_lcd_semi#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
+- acid_lcd_semi#5 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 2.04, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
 - acid_lcd_semi#7 {"oil_presence": "none", "toxic_chemical_discard": true, "pcb_possible": false, "ph": 1.96} → 기대 번호 선택(6) / 결과 FINAL_REVIEW 02-01-05
-- acid_lcd_semi#11 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04, "oil_content_pct": 4.9} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
-- acid_other#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
-- acid_other#5 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 2.04, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
+- acid_lcd_semi#11 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04, "oil_content_pct": 4.9} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
+- acid_other#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
+- acid_other#5 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 2.04, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
 - acid_other#7 {"oil_presence": "none", "toxic_chemical_discard": true, "pcb_possible": false, "ph": 1.96} → 기대 번호 선택(6) / 결과 FINAL_REVIEW 02-01-99
-- acid_other#11 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04, "oil_content_pct": 4.9} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
+- acid_other#11 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04, "oil_content_pct": 4.9} → 기대 번호 선택(47) / 결과 ASK_FACT organic_solvent_mixed(2)
 - caustic_solution#1 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 12.25} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
 - caustic_solution#3 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 12.25, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
 - caustic_solution#8 {"oil_presence": "none", "toxic_chemical_discard": true, "pcb_possible": false, "ph": 12.75} → 기대 번호 선택(5) / 결과 FINAL_REVIEW 02-02-01

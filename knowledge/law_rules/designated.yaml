@@ -2637,6 +2637,35 @@ rules:
     location: 별표 1 제4호나목
     quote: 그 밖의 폐유기용제(가목 외의 유기용제를 말한다)
   plain: 폐유기용제는 종류와 관계없이 지정폐기물입니다.
+- id: S3-4-ACID_SOLVENT_MIX
+  stage: S3
+  concludes: DESIGNATED
+  when:
+  - fact: waste_kind
+    op: eq
+    value: acid
+  - fact: physical_state
+    op: eq
+    value: liquid
+  - fact: ph
+    op: gt
+    value: 2.0
+  - fact: organic_solvent_mixed
+    op: eq
+    value: true
+  source: QA-WONJU26
+  location: 사례 56 (질의 4·답변 4)
+  quote: 수소이온 농도지수가 폐산에 해당하지 않으며 유기용매와 혼합된 폐기물이라면 폐유기용제로 분류할 수 있을 것입니다.
+  review: UNVERIFIED
+  item: 유기용매가 섞인 산 폐액(pH 2.0 초과)
+  supporting:
+  - source: DEC-A1
+    location: 별표 1 제4호
+    quote: 폐유기용제
+  gaps:
+  - 시행령 별표 1은 폐유기용제를 정하지만 '유기용매와 섞인 폐액'의 혼합 비율 기준은 두지 않는다. 근거는 질의회신이다
+  - 알칼리 폐액 등 산이 아닌 액체에 같은 원칙이 적용되는지는 확인하지 않았다
+  plain: 액체 산 폐액이 pH 2.0 이하가 아니어서 폐산에 해당하지 않더라도, 유기용매와 섞여 있으면 폐유기용제(지정폐기물)로 분류할 수 있다는 질의회신이 있습니다. 법 조문이 아닌 회신이 근거이므로 관할 기관 확인이 필요합니다.
 - id: S3-5-PAINT
   stage: S3
   concludes: DESIGNATED

@@ -51,3 +51,16 @@
   as_of: 2026-11-08
   setup: {facts: {emission_facility: true}}
   answers: {material_group: special, scope_screen: none, contamination_screen: none}
+- id: REAL-ACID-SOLVENT-MIX
+  description: "유기용매가 섞인 산 폐액(pH 3.0) → 폐산은 아니지만 폐유기용제일 수 있음(원주청 질의회신 사례 56) → 해석 필요"
+  as_of: 2026-11-10
+  setup: {facts: {emission_facility: true, material: acid_other}}
+  answers: {scope_screen: none, contamination_screen: expand, designated_residue: false, oil_presence: none,
+            pcb_possible: false, toxic_chemical_discard: false, organic_solvent_mixed: true}
+  documents: {TEST_REPORT: {ph: 3.0}}
+- id: REAL-ACID-WEAK-PLAIN
+  description: "유기용매가 섞이지 않은 산 폐액(pH 3.0) → 지정폐기물 아님, 일반 번호는 확인 필요"
+  as_of: 2026-11-10
+  setup: {facts: {emission_facility: true, material: acid_other}}
+  answers: {scope_screen: none, contamination_screen: none}
+  documents: {TEST_REPORT: {ph: 3.0}}

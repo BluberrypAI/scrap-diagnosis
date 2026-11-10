@@ -129,7 +129,15 @@ export default function CasePage({ id }) {
   let card = null;
   if (!confirmed) {
     if (turn.branch === 'FINAL_REVIEW') card = <FinalCard turn={turn} busy={busy} onConfirm={confirm} onRecheck={() => composer.current?.focus()} />;
-    else if (turn.branch === 'UNSUPPORTED') card = <UnsupportedCard message={turn.message} pending={turn.ui.board.pending} />;
+    else if (turn.branch === 'UNSUPPORTED') {
+      // 서류가 있으면 이어서 판정할 수 있으므로 판정 불가 카드에서도 바로 올리게 한다
+      const docsNeeded = turn.ui.board.documents_needed || [];
+      card = (
+        <UnsupportedCard message={turn.message} pending={turn.ui.board.pending}>
+          {docsNeeded.length > 0 && <EvidenceCard docs={docsNeeded} disabled={busy} onUpload={sendFile} onText={sendText} />}
+        </UnsupportedCard>
+      );
+    }
     else if (turn.branch === 'RESOLVE_CONFLICT' && turn.ui.conflicts.length) card = <ConflictCard conflicts={turn.ui.conflicts} disabled={busy} onReply={sendReply} onAction={onAction} />;
     else if (q && !showEvidence) card = <QuestionCard key={q.key} question={q} disabled={busy} onSend={sendReply} />;
     if (showEvidence) card = <EvidenceCard docs={turn.ui.requested_documents} disabled={busy} onUpload={sendFile} onText={sendText} />;

@@ -116,3 +116,12 @@ QA-MOE25:
   path: sources/raw/tc-moe-qa-casebook-2025-07.pdf
   verify: text
   note: 1MB 초과로 저장소에 넣지 않음 — 파일이 없으면 원문 대조 테스트는 건너뜀
+QA-WONJU26:
+  title: 지정폐기물 질의·회신 사례(원주지방환경청 게시)
+  version: 2021~2025 질의 수록, 원주지방환경청 누리집 게시
+  effective_on: null
+  version_status: NOT_APPLICABLE
+  evidence: QA
+  path: sources/raw/wonju-qa-2026.pdf
+  verify: manual
+  note: 원문 게시 위치 원주지방환경청 누리집 게시판(boardId=1862850). 저장소에 넣지 않음. 작업공간 data/pre/wonju-qa-2026.md(텍스트 추출본)로 인용문 대조 2026-11-10. 사례집은 참고용이며 유권해석이 아님을 스스로 밝힌다

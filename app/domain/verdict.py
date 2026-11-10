@@ -228,6 +228,8 @@ class ResultView(BaseModel):
     review: str
     # 시험·서류가 아니라 사용자 답에서 추정한 사실의 안내(예: PCB 관련 없음 → 기준 미만 추정)
     assumptions: list[str] = []
+    # 코드 없는 결론의 이유 한 줄(규칙 설명). 분류번호가 있으면 null
+    reason: str | None = None
 
 
 class UI(BaseModel):
@@ -586,7 +588,7 @@ def build_result(
             code=c.code,
             name=c.name,
             outcome=None,
-            conclusion=templates.code_conclusion(c.code, c.name),
+            conclusion=templates.code_conclusion(c.code, c.name, c.category),
             next_step=templates.WASTE_CODE_NEXT_STEP,
             **common,
         )
@@ -596,9 +598,20 @@ def build_result(
         name=None,
         outcome=c.outcome,
         conclusion=templates.OUTCOME_TEXT.get(c.outcome or "", ""),
-        next_step=templates.NO_CODE_NEXT_STEP,
+        next_step=templates.no_code_next_step(_guidance_action(kb, c.outcome)),
+        reason=templates.outcome_reason(c.name),
         **common,
     )
+
+
+def _guidance_action(kb: KnowledgeBase | None, outcome: str | None) -> str | None:
+    """확정하면 이어질 경로추천 안내의 행동(outcome_guidance.yaml의 action). 없으면 None."""
+    if kb is None:
+        return None
+    try:
+        return kb.guidance_for("NO_CODE", outcome).action
+    except KeyError:
+        return None
 
 
 def build_ui(

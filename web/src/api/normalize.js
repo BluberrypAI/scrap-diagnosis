@@ -126,7 +126,7 @@ function deriveResult(turn) {
     name: v.waste_name || null,
     category: v.category || null,
     outcome: v.outcome || null,
-    conclusion: code ? `분류번호 ${code} ${v.waste_name || ''}로 판정됩니다`.replace(' 로', '로') : firstSentence(turn.message),
+    conclusion: code ? `분류번호는 ${code}입니다.${v.waste_name ? ` 명칭: ${v.waste_name}` : ''}` : firstSentence(turn.message),
     next_step: code ? '확정하면 경로 추천으로 넘어갑니다' : '확정하면 다음 단계에서 어떻게 처리하면 되는지 안내해 드립니다',
     review: v.review || 'UNVERIFIED',
   };

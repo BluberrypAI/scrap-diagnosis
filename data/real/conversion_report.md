@@ -1,6 +1,6 @@
 # 규칙 빌드 보고서
 
-- 원본: `knowledge/` (58812f75). 기존 엔진 resource_engine `2f1355a`의 rules/에서 옮겨 왔다.
+- 원본: `knowledge/` (ecf6a4bc). 기존 엔진 resource_engine `2f1355a`의 rules/에서 옮겨 왔다.
 - 소재 테이블: 97개, 시행일 2026-10-02
 - 전문가 검토(`knowledge/reviews.yaml`): 생성 규칙 0개가 `VERIFIED`, 나머지는 `UNVERIFIED`다.
 
@@ -41,6 +41,7 @@
 - 지정 사유가 여럿일 때 기존 엔진은 사유별 번호 범위를 합친 뒤, 모든 사유가 소재 자체에서 나온 경우에만 소재 번호로 좁혔다. 새 테이블은 사유마다 따로 좁힌 뒤 합친다. 그래서 선택지가 기존보다 적거나 같다(예: 액상 PP + 유해화학물질 → 01-01-02와 09번대).
 - 산·알칼리 + 유해화학물질: 법이 제9호를 제외하므로 제외를 먼저 적용해 산·알칼리 번호 하나로 정한다(기존은 선택지 여러 개).
 - 지정 기준 미만 산·알칼리: 기존은 일반 그룹·번호를 물었지만 NO_GENERAL_CODE로 안내한다.
+- pH가 2.0 이하가 아닌 산은 먼저 유기용제 혼합 여부를 묻고, 섞였으면 폐유기용제일 수 있어 해석 필요로 안내한다(S3-4-ACID_SOLVENT_MIX, 원주청 질의회신 사례 56). 기존 판정표에는 이 사실이 없다.
 - 회귀 비교 결과는 regression/summary.md, 허용 기준은 tests/test_legacy_regression.py.
 - 시험 수치 조건은 `min_status: EVIDENCED`다. 지정 판정에는 성적서가 필요하고, 기준 미만 진술로는 지정 후보를 지울 수 있다.
 
@@ -134,12 +135,12 @@
 - oil_filter: 지정 4규칙/6코드, 해석 0, 일반 NO_GENERAL_CODE
 - insulating_oil: 지정 3규칙/6코드, 해석 0, 일반 NO_GENERAL_CODE
 - cutting_oil_soluble: 지정 3규칙/6코드, 해석 0, 일반 NO_GENERAL_CODE
-- hcl: 지정 4규칙/16코드, 해석 0, 일반 NO_GENERAL_CODE
-- h2so4: 지정 4규칙/16코드, 해석 0, 일반 NO_GENERAL_CODE
-- hno3: 지정 4규칙/16코드, 해석 0, 일반 NO_GENERAL_CODE
-- hf: 지정 4규칙/16코드, 해석 0, 일반 NO_GENERAL_CODE
-- acid_lcd_semi: 지정 4규칙/16코드, 해석 0, 일반 NO_GENERAL_CODE
-- acid_other: 지정 4규칙/16코드, 해석 0, 일반 NO_GENERAL_CODE
+- hcl: 지정 4규칙/16코드, 해석 1, 일반 NO_GENERAL_CODE
+- h2so4: 지정 4규칙/16코드, 해석 1, 일반 NO_GENERAL_CODE
+- hno3: 지정 4규칙/16코드, 해석 1, 일반 NO_GENERAL_CODE
+- hf: 지정 4규칙/16코드, 해석 1, 일반 NO_GENERAL_CODE
+- acid_lcd_semi: 지정 4규칙/16코드, 해석 1, 일반 NO_GENERAL_CODE
+- acid_other: 지정 4규칙/16코드, 해석 1, 일반 NO_GENERAL_CODE
 - caustic_solution: 지정 4규칙/16코드, 해석 0, 일반 NO_GENERAL_CODE
 - ammonia_solution: 지정 4규칙/16코드, 해석 0, 일반 NO_GENERAL_CODE
 - naoh_solid: 지정 4규칙/16코드, 해석 0, 일반 NO_GENERAL_CODE

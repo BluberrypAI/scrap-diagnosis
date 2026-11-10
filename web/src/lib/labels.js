@@ -83,7 +83,7 @@ export const EVIDENCE_LABEL = {
   CIRCULAR_RESOURCE_CERTIFICATE: '순환자원 인정서',
   WASTE_DISCHARGE_REPORT: '폐기물 배출자신고서',
   CONSTRUCTION_CONTRACT: '공사 계약서',
-  FACILITY_NOTIFICATION: '시설 설치 신고서',
+  FACILITY_NOTIFICATION: '오니 발생시설 확인 자료(배출시설 허가·신고 서류)',
   DOCUMENT: '관련 서류',
 };
 

@@ -128,7 +128,9 @@ POST /cases/C1/documents/D1/values/apply   {"values": [{"value_id": "V1", "docum
 ```
 → turn: {"branch": "FINAL_REVIEW", "verdict": {"waste_code": null, "outcome": "NOT_WASTE", …},
          "ui": {"can_confirm": true, "result": {"result_type": "NO_CODE", "code": null,
-                "outcome": "NOT_WASTE", "conclusion": "…폐기물이 아닌 것으로 판정됩니다"}}}
+                "outcome": "NOT_WASTE", "conclusion": "…폐기물이 아닌 것으로 판정됩니다",
+                "reason": "결론의 이유 한 줄(규칙 설명)",
+                "next_step": "확정하면 다음 단계에서 '처리 경로 필요 없음'으로 이어집니다."}}}
 
 POST /cases/C1/confirm   {"expected_code": "NOT_WASTE"}     # 코드 없는 결론은 사유(outcome)로 비교, "@NOT_WASTE"도 받음
 → 200 {"case": {"status": "CODE_CONFIRMED", "summary": {"code": null, "outcome": "NOT_WASTE", "result_label": "폐기물 아님"}},
@@ -150,7 +152,14 @@ POST /cases/C1/diagnosis/messages {"quick_reply": {"key": "material", "kind": "r
 ### 5.5 용어 설명과 추정 안내 (2026-11-09 추가)
 
 - `ui.question.terms`: 질문 글에 나온 전문용어의 쉬운 설명 `[{term, plain, example}]`(`knowledge/glossary.yaml`, 사람이 쓴 고정 설명).
-- `ui.result.assumptions`, `handoff.assumptions`: 시험·서류가 아니라 사용자 답(대리 질문)에서 추정한 사실의 안내 문장 목록. 비었으면 `[]`.
+- `ui.result.assumptions`, `handoff.assumptions`: 시험·서류가 아니라 사용자 답(대리 질문)에서 추정한 사실의 안내 문장 목록. 비었으면 `[]`. 같은 대리 질문에서 나온 추정은 한 문장으로 합친다(2026-11-10).
+
+### 5.6 결과 이유와 다음 단계 (2026-11-10 추가)
+
+- `ui.result.reason`(추가 필드): 코드 없는 결론의 이유 한 줄(규칙 설명). 분류번호가 있으면 null.
+- `ui.result.next_step`: 코드 없는 결론이면 확정하면 이어질 안내 이름을 담는다(예: "확정하면 다음 단계에서 '관할 기관 질의 안내'로 이어집니다.").
+- `ui.result.conclusion`(분류번호 있음): "분류번호는 51-03-01(사업장일반폐기물)입니다. 명칭: …" 형식. 문장이므로 화면은 그대로 보여 주고 비교에 쓰지 않는다.
+- 판정 불가(UNSUPPORTED)의 `message`는 부족한 항목과 이어 가는 방법(서류·시험 의뢰·판정 보드 수정)을 담는다. 서류로 이어 갈 수 있으면 `ui.board.documents_needed`가 채워진다(`docs/ui/ui-contract.md` 1.5절).
 
 ## 6. 질문 카드 `ui.question.input` 규칙
 

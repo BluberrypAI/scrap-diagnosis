@@ -197,6 +197,28 @@ def knowledge_rev(src: Path = KNOWLEDGE) -> str:
     return h.hexdigest()[:8]
 
 
+def basis_ref(title: str | None, location: str | None) -> str:
+    """근거 이름 = 문서 제목 + 조문 위치. 위치가 제목과 겹치는 앞부분은 한 번만 쓴다.
+
+    예) 제목 "폐기물관리법 시행령 별표 1(지정폐기물의 종류)" + 위치 "별표 1 제2호가목"
+        → "폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제2호가목"
+        위치 "별표 1(지정폐기물의 종류)"처럼 제목에 이미 있으면 제목만 쓴다.
+    """
+    title = (title or "").strip()
+    loc = (location or "").strip()
+    if not loc:
+        return title
+    if not title:
+        return loc
+    if loc in title:
+        return title
+    m = re.match(r"(별표\s*\d+(?:의\d+)?)(?:\([^)]*\))?\s*(.*)$", loc)
+    if m and re.search(re.escape(m.group(1)) + r"(?![의\d])", title):
+        rest = m.group(2).strip()
+        return f"{title} {rest}" if rest else title
+    return f"{title} {loc}"
+
+
 class Converter:
     def __init__(self, src: Path = KNOWLEDGE):
         self.src = src
@@ -265,7 +287,7 @@ class Converter:
         ] + list(rule.get("supporting") or [])
         for it in items:
             src = self.sources.get(it["source"], {})
-            ref = " ".join(x for x in (src.get("title"), it.get("location")) if x)
+            ref = basis_ref(src.get("title"), it.get("location"))
             b = {
                 "type": src.get("evidence", "LAW"),
                 "ref": ref or it["source"],
@@ -606,15 +628,16 @@ class Converter:
     # ---- 카탈로그 --------------------------------------------------------------------------
 
     def help_text(self, f: dict) -> str | None:
+        # 순서: 확인 방법 → 설명(note) → 시험 방법. 처음 쓰는 사람이 먼저 읽을 것을 앞에 둔다
         parts = [h["text"] for h in f.get("how_to_check") or [] if h.get("text")]
+        note = f.get("note")
+        if isinstance(note, dict) and note.get("text"):
+            parts.append(note["text"])
         t = f.get("test")
         if t:
             parts.append(f"시험: {t.get('item', '')} — {t.get('method', '')}".strip())
             if t.get("report"):
                 parts.append(f"성적서에서 확인할 값: {t['report']}")
-        note = f.get("note")
-        if isinstance(note, dict) and note.get("text"):
-            parts.append(note["text"])
         return "\n".join(parts) or None
 
     def material_group_fact(self, mats: dict[str, dict]) -> dict:
@@ -805,6 +828,10 @@ class Converter:
             "하나로 정한다(기존은 선택지 여러 개).",
             "- 지정 기준 미만 산·알칼리: 기존은 일반 그룹·번호를 물었지만 "
             "NO_GENERAL_CODE로 안내한다.",
+            "- pH가 2.0 이하가 아닌 산은 먼저 유기용제 혼합 여부를 묻고, 섞였으면 "
+            "폐유기용제일 수 있어 해석 필요로 안내한다"
+            "(S3-4-ACID_SOLVENT_MIX, 원주청 질의회신 사례 56). "
+            "기존 판정표에는 이 사실이 없다.",
             "- 회귀 비교 결과는 regression/summary.md, "
             "허용 기준은 tests/test_legacy_regression.py.",
             "- 시험 수치 조건은 `min_status: EVIDENCED`다. 지정 판정에는 성적서가 필요하고, "

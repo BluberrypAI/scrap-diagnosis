@@ -131,9 +131,10 @@ def test_pcb_assumption_is_labelled_in_result_and_handoff(real_kb):
         as_of=AS_OF,
     )
     assert h.assumptions == result.assumptions
-    # 함량 시험값을 주면 함량은 추정이 아니므로 함량 안내는 빠진다(용출 농도 추정 안내만 남음)
+    # 함량 시험값을 주면 함량은 추정이 아니므로 안내에서 빠진다(용출 농도만 남음).
+    # 같은 대리 질문의 추정은 한 문장으로 합친다(2026-11-10 화면 문구 점검 B7)
     label = real_kb.catalog["pcb_mg_l"].label
-    assert any(a.startswith(label) for a in result.assumptions)
+    assert any(label in a for a in result.assumptions)
     row = _oil_row("06-01-07", pcb_possible=False, pcb_mg_l=0.5)
     step = run_engine(real_kb, row_store(real_kb, BASE, row), SessionState(), AS_OF)
-    assert not any(a.startswith(label) for a in build_result(step, rules, real_kb).assumptions)
+    assert not any(label in a for a in build_result(step, rules, real_kb).assumptions)

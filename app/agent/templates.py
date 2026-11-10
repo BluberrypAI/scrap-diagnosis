@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+from app.domain.josa import attach
+
 # 결론이 나지 않은 경우(UNSUPPORTED). 확정할 수 없다.
 FAILURE_TEXT = {
     "NO_TABLE": "이 소재·폐기물은 아직 판정 규칙이 없어 분류번호를 정할 수 없습니다.",
     "AMBIGUOUS_TABLE": "입력하신 내용으로는 적용할 판정 기준이 둘 이상이라 정할 수 없습니다.",
     "RULE_TIE": "규칙끼리 결론이 엇갈려 자동으로 정할 수 없습니다. 담당자 검토가 필요합니다.",
     "QUESTION_LIMIT": "질문을 충분히 드렸지만 아직 정할 수 없습니다. 확인된 내용으로 검토를 요청해 주세요.",
-    "UNDETERMINABLE": "지금 자료로는 분류번호를 정할 수 없습니다. 확인이 필요한 항목을 정리해 드립니다.",
+    "UNDETERMINABLE": "지금 자료로는 분류번호를 정할 수 없습니다.",
     "NO_PATH": "더 진행할 수 있는 질문이 없습니다. 담당자 검토가 필요합니다.",
 }
 
@@ -25,6 +27,33 @@ OUTCOME_TEXT = {
     "소재별로 나눠 확인해야 합니다.",
 }
 NO_CODE_NEXT_STEP = "확정하시면 다음 단계에서 어떻게 처리하면 되는지 안내해 드립니다."
+
+
+def no_code_next_step(action: str | None) -> str:
+    """코드 없는 결론의 다음 단계. 확정 전에도 확정하면 무엇으로 이어지는지 보여 준다.
+
+    경로추천 안내의 행동(route_guidance.action) 이름을 쓴다. 안내 요지(summary)는 경로추천 AI용
+    문장이라 결론 문장과 겹치므로 여기서는 쓰지 않는다.
+    """
+    label = NEXT_ACTION_BY_ROUTE.get(action or "")
+    if not label:
+        return NO_CODE_NEXT_STEP
+    return f"확정하면 다음 단계에서 {attach(f"'{label}'", '로')} 이어집니다."
+
+
+def outcome_reason(name: str | None) -> str | None:
+    """코드 없는 결론의 이유 한 줄. 규칙의 설명(then.name)을 쓴다.
+
+    S0·S1 규칙은 설명 문장이고, 지정폐기물 해석 규칙은 짧은 항목 이름이다.
+    """
+    name = (name or "").strip()
+    if not name:
+        return None
+    if name.endswith(("다.", "다", "요.", "요")):
+        return name if name.endswith(".") else f"{name}."
+    return f"판단 근거가 된 경우: {name}."
+
+
 WASTE_CODE_NEXT_STEP = "확정하면 경로 추천으로 넘어갑니다."
 
 # ---- 화면용 짧은 라벨 (docs/ui/ui-contract.md) ---------------------------------------------
@@ -91,9 +120,18 @@ CONFLICT_EDIT_FACT = "{label} 다시 답하기"
 DOCUMENT_MESSAGE = "서류를 올렸어요: {filename}"
 
 
-def code_conclusion(code: str, name: str | None) -> str:
-    """분류번호가 있는 결론 문장(결과 카드)."""
-    return f"분류번호 {code} {name or ''}".strip() + "로 판정됩니다"
+UNVERIFIED_NOTE = "전문가 검토 전 기준으로 낸 참고용 결과입니다."
+
+
+def code_conclusion(code: str, name: str | None, category: str | None = None) -> str:
+    """분류번호가 있는 결론 문장(결과 카드).
+
+    법령 명칭은 괄호·'제외한다' 같은 문구가 들어 있어 조사를 바로 붙이면 문장이 꼬인다.
+    번호와 구분을 먼저 말하고 명칭은 따로 둔다.
+    """
+    cat = CATEGORY_LABEL.get(category or "", "")
+    head = f"분류번호는 {code}({cat})입니다." if cat else f"분류번호는 {code}입니다."
+    return f"{head} 명칭: {name}" if name else head
 
 
 EVIDENCE_TEXT = {
@@ -104,13 +142,20 @@ EVIDENCE_TEXT = {
     "CIRCULAR_RESOURCE_CERTIFICATE": "순환자원 인정서",
     "WASTE_DISCHARGE_REPORT": "폐기물 배출자신고서",
     "CONSTRUCTION_CONTRACT": "공사 계약서",
-    "FACILITY_NOTIFICATION": "시설 설치 신고서",
+    "FACILITY_NOTIFICATION": "오니 발생시설 확인 자료(배출시설 허가·신고 서류)",
     "DOCUMENT": "관련 서류",
 }
 
 
 def evidence_label(t: str) -> str:
     return EVIDENCE_TEXT.get(t, t)
+
+
+def _is_question(text: str) -> bool:
+    """이미 묻거나 부탁하는 문장인지. 괄호로 끝나도 물음표가 있으면 질문이다."""
+    if "?" in text:
+        return True
+    return text.rstrip(" .").endswith(("요", "까", "니다", "세요"))
 
 
 def ask_fact(payload: dict) -> str:
@@ -120,36 +165,54 @@ def ask_fact(payload: dict) -> str:
     if q.get("already_answered"):
         done = ", ".join(q["already_answered"])
         rest = ", ".join(q.get("items") or [])
-        parts.append(f"{done}은(는) 확인했습니다. 남은 항목({rest})도 해당 없나요?")
+        parts.append(f"{attach(done, '은')} 확인했습니다. 남은 항목({rest})도 해당 없나요?")
         return " ".join(parts).strip()
     text = q["question"].strip()
-    if not text.endswith(("?", "요", "요.")):
-        text = f"{text}을(를) 알려 주세요."
+    if not _is_question(text):
+        text = f"{attach(text, '을')} 알려 주세요."
     parts.append(text)
     return " ".join(parts).strip()
 
 
+LEACH_SUFFIX = " 용출 농도"
+TEST_LAB_HINT = "시험성적서가 없으면 폐기물 분석전문기관에 시험을 의뢰하세요."
+
+
+def summarize_labels(labels: list[str]) -> str:
+    """서류에서 확인할 항목 목록을 짧게. 용출 항목이 여럿이면 '용출시험 n종(…)'으로 묶는다."""
+    leach = [x[: -len(LEACH_SUFFIX)] for x in labels if x.endswith(LEACH_SUFFIX)]
+    rest = [x for x in labels if not x.endswith(LEACH_SUFFIX)]
+    out = []
+    if len(leach) >= 3:
+        out.append(f"용출시험 {len(leach)}종({'·'.join(leach)})")
+    else:
+        rest = [f"{x}{LEACH_SUFFIX}" for x in leach] + rest
+    return ", ".join(out + rest)
+
+
 def request_evidence(payload: dict) -> str:
     docs = payload["documents"]
-    names = ", ".join(evidence_label(d["evidence_type"]) for d in docs)
-    facts = ", ".join(f for d in docs for f in d["fact_labels"])
-    return f"확정하려면 서류 확인이 필요합니다. {names}를 올려 주세요. (확인할 항목: {facts})"
+    parts = [
+        f"{evidence_label(d['evidence_type'])} — {summarize_labels(d['fact_labels'])}" for d in docs
+    ]
+    msg = f"확정하려면 서류로 확인해야 할 항목이 남았습니다. 올려 주실 서류: {' / '.join(parts)}."
+    if any(d["evidence_type"] == "TEST_REPORT" for d in docs):
+        msg += f" {TEST_LAB_HINT}"
+    return msg
 
 
 def final_review(payload: dict) -> str:
     v = payload["verdict"]
-    note = (
-        " 이 판정은 검토 전 규칙(UNVERIFIED)에 따른 것이라 참고용입니다."
-        if payload.get("unverified")
-        else ""
-    )
-    if v.get("code") is None:  # 코드 없는 결론
+    note = f" {UNVERIFIED_NOTE}" if payload.get("unverified") else ""
+    if v.get("code") is None:  # 코드 없는 결론: 결론 → 이유 → 확정하면 받을 안내
         conclusion = v.get("conclusion") or OUTCOME_TEXT.get(v.get("outcome") or "", "")
-        return f"{conclusion} 내용이 맞으면 확정해 주세요. {payload.get('next_step', '')}{note}"
-    cat = {"DESIGNATED": "지정폐기물", "GENERAL": "사업장일반폐기물"}.get(v.get("category"), "")
-    head = f"분류번호는 {v['code']} {v.get('name') or ''}".strip()
-    tail = f" ({cat})" if cat else ""
-    return f"{head}{tail}로 판정됩니다. 내용이 맞으면 확정해 주세요.{note}"
+        reason = f" {v['reason']}" if v.get("reason") else ""
+        nxt = payload.get("next_step") or NO_CODE_NEXT_STEP
+        return f"{conclusion}{reason} 답한 내용이 맞으면 확정해 주세요. {nxt}{note}"
+    head = code_conclusion(v["code"], v.get("name"), v.get("category"))
+    if v.get("name"):
+        head += "."
+    return f"{head} 답한 내용이 맞으면 확정해 주세요.{note}"
 
 
 def resolve_conflict(payload: dict) -> str:
@@ -157,9 +220,30 @@ def resolve_conflict(payload: dict) -> str:
     return " ".join(msgs) + " 어느 쪽이 맞는지 알려 주세요."
 
 
+MAX_LISTED = 3
+
+
 def unsupported(payload: dict) -> str:
+    """판정 불가. 무엇이 부족한지와 어떻게 하면 이어지는지까지 말한다(막다른 길을 만들지 않는다)."""
     reason = payload.get("failure_reason") or "NO_PATH"
-    return FAILURE_TEXT.get(reason, FAILURE_TEXT["NO_PATH"])
+    parts = [FAILURE_TEXT.get(reason, FAILURE_TEXT["NO_PATH"])]
+    items = payload.get("open_items") or []
+    if items:
+        shown = ", ".join(items[:MAX_LISTED])
+        more = f" 외 {len(items) - MAX_LISTED}개" if len(items) > MAX_LISTED else ""
+        parts.append(f"아직 확인되지 않은 항목: {shown}{more}.")
+    docs = payload.get("evidence_labels") or []
+    if docs:
+        parts.append(f"{attach(', '.join(docs), '을')} 준비해 올리면 이어서 판정합니다.")
+        if payload.get("needs_test_report"):
+            parts.append(TEST_LAB_HINT)
+    if payload.get("unknown_items"):
+        hint = payload.get("unknown_hint")
+        first = payload["unknown_items"][0]
+        parts.append("'모름'으로 답한 항목은 판정 보드에서 고치면 이어서 진행합니다.")
+        if hint:
+            parts.append(f"{first} 확인 방법: {hint}")
+    return " ".join(parts)
 
 
 def answer_prefix(payload: dict) -> str:

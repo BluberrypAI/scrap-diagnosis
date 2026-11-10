@@ -1,21 +1,23 @@
-# 자동 생성: tools/build_kb.py (knowledge 58812f75). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge ecf6a4bc). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 groups:
 - group_id: scope_screen
-  title: 이 물질은 사업장에서 더 쓰지 않아 내보내는 것이고, 아래 어느 것에도 해당하지 않나요?
-  help: 제조 공정에서 나와 버리거나 위탁·판매하는 물질은 대부분 '그렇다'입니다. 순환자원 인정을 받았거나, 방사성 물질·폐수·가축분뇨처럼 다른 법을 따르는 물질이면 '아니다/잘 모르겠다'를 고르세요.
+  title: 이 물질은 더 쓰지 않아 버리거나 위탁·판매하는 일반적인 경우인가요?
+  help: 제조 공정에서 나와 버리거나 위탁·판매하는 물질은 대부분 '네'입니다. 아직 원료로 쓰거나, 순환자원 인정을 받았거나, 방사성 물질·폐수·가축분뇨처럼 다른 법을 따르는 물질이면 '아니요
+    / 잘 모르겠어요'를 고르세요. 하나씩 확인합니다.
   facts:
   - material_fate
   - circular_resource_recognized
   - law_exclusion
-  none_label: 그렇다 (내보내는 물질이고 해당 없음)
-  expand_label: 아니다 / 잘 모르겠다
+  none_label: 네, 내보내는 물질이에요
+  expand_label: 아니요 / 잘 모르겠어요
 - group_id: contamination_screen
-  title: 이 폐기물에 해당하는 것이 있나요? (기름·잔류물·PCB·유해화학물질)
-  help: 대부분의 제조 공정 폐기물은 '모두 해당 없음'입니다. 기름이 묻었거나, 용기에 내용물이 남았거나, PCB 기기·유해화학물질과 관련이 있으면 개별로 확인합니다.
+  title: 이 폐기물에 해당하는 것이 있나요? (기름·잔류물·PCB·유해화학물질·유기용제 혼합)
+  help: 대부분의 제조 공정 폐기물은 '모두 해당 없음'입니다. 기름이 묻었거나, 용기에 내용물이 남았거나, PCB 기기·유해화학물질과 관련이 있거나, 폐액에 유기용제가 섞였으면 개별로 확인합니다.
   facts:
   - designated_residue
   - oil_presence
   - pcb_possible
   - toxic_chemical_discard
+  - organic_solvent_mixed
   none_label: 모두 해당 없음
   expand_label: 해당하는 게 있어요 / 잘 모르겠어요

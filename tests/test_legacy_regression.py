@@ -7,6 +7,9 @@
 - FEWER_CHOICES: 지정 사유가 여럿일 때 사유별로 번호를 좁혀 선택지가 기존보다 적다.
 - 산·알칼리가 지정 기준 미만이면 기존은 일반 그룹·번호를 물었지만
   새 엔진은 코드 없는 결론 NO_GENERAL_CODE(FINAL_REVIEW @NO_GENERAL_CODE)로 안내한다.
+- 산의 pH가 2.0 이하가 아니면 결론 전에 유기용제 혼합 여부를 묻는다
+  (2026-11-10, 원주청 질의회신 사례 56). 기존 판정표에는 이 사실이 없어
+  그 행은 ASK_FACT organic_solvent_mixed에서 멈춘다.
 - 산·알칼리 + 유해화학물질: 법이 제9호를 제외하므로, 새 엔진은 제외를 먼저 적용해 산·알칼리 번호
   하나로 확정한다(기존은 제외 전 사유로 좁히기를 판단해 선택지 여러 개).
 """
@@ -53,8 +56,17 @@ def test_remaining_diffs_are_known_acid_alkali_cases(result):
     for line in result["diffs"]:
         mid = line.split("#")[0]
         assert mid in ACID_ALKALI, line
-        assert ("NO_GENERAL_CODE" in line) or ("FINAL_REVIEW 02-0" in line), line
+        assert (
+            ("NO_GENERAL_CODE" in line)
+            or ("FINAL_REVIEW 02-0" in line)
+            or ("ASK_FACT organic_solvent_mixed" in line)
+        ), line
     assert len(result["diffs"]) == 36
+    # 유기용제 혼합을 묻는 행은 산뿐이다(알칼리에는 이 규칙이 없다)
+    asked = [x for x in result["diffs"] if "ASK_FACT organic_solvent_mixed" in x]
+    assert len(asked) == 18
+    alkali = {"caustic_solution", "ammonia_solution", "alkali_other"}
+    assert all(x.split("#")[0] in ACID_ALKALI - alkali for x in asked)
 
 
 def test_extra_questions_are_rare(result):

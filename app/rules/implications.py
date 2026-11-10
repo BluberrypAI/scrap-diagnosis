@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 from app.domain.facts import Fact, FactStatus
+from app.domain.josa import attach
 from app.domain.ranges import NumRange
 from app.rules.answers import coerce_value
 from app.rules.model import FactDef, KnowledgeBase
@@ -112,16 +113,21 @@ def assumption_notes(kb: KnowledgeBase, facts: dict[str, Fact]) -> list[str]:
     추정은 시험·서류가 아니라 사용자 답에 근거하므로, 결과를 보는 사람이 알 수 있게 밝힌다.
     보수 관계(complement)로 계산한 값은 같은 시험의 값이라 여기에 넣지 않는다.
     """
-    notes: list[str] = []
+    by_source: dict[str, list[str]] = {}
     for key, f in sorted(facts.items()):
         if f.source_type != "DERIVED" or not (f.source_ref or "").startswith("implies:"):
             continue
         src = f.source_ref.split(":", 1)[1]
-        sfd, tfd = kb.catalog.get(src), kb.catalog.get(key)
+        tfd = kb.catalog.get(key)
+        by_source.setdefault(src, []).append((tfd.label or key) if tfd else key)
+    # 같은 대리 질문에서 나온 추정은 한 문장으로 합친다(예: PCB 용출 농도·PCB 함량)
+    notes: list[str] = []
+    for src, targets in sorted(by_source.items()):
+        sfd = kb.catalog.get(src)
         slabel = (sfd.label or src) if sfd else src
-        tlabel = (tfd.label or key) if tfd else key
+        what = attach("·".join(targets), "은")
         notes.append(
-            f"{tlabel}: 시험값이 아니라 '{slabel}' 답에서 기준 미만으로 추정했습니다."
+            f"'{slabel}' 답을 근거로 {what} 시험 없이 기준 미만으로 추정했습니다."
             " 의심되면 시험성적서로 확인하세요."
         )
     return notes

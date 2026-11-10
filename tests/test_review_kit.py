@@ -70,7 +70,7 @@ def test_units_cover_law_rules_materials_and_code_map():
     kinds = {}
     for u in units.values():
         kinds[u.kind] = kinds.get(u.kind, 0) + 1
-    assert kinds == {"LAW_RULE": 150, "MATERIAL": 98, "CODE_MAP": 1, "DEFINITION": 1}
+    assert kinds == {"LAW_RULE": 151, "MATERIAL": 98, "CODE_MAP": 1, "DEFINITION": 1}
 
 
 def test_committed_data_has_no_verified_rules_yet():
@@ -202,7 +202,7 @@ def test_cards_render_conditions_in_words_and_html(tmp_path):
     assert cards["S3-6-OIL-5PCT"]["tables"] == 87
     review_kit.write_html(list(cards.values()), tmp_path / "c.html", "test")
     page = (tmp_path / "c.html").read_text(encoding="utf-8")
-    assert "<title>규칙 검토 카드</title>" in page and page.count("<article class='card'") == 250
+    assert "<title>규칙 검토 카드</title>" in page and page.count("<article class='card'") == 251
     assert "카드 읽는 법" in page and "data-engine='UNUSED'" in page
 
 

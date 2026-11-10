@@ -92,12 +92,13 @@ export function ConflictCard({ conflicts, disabled, onReply, onAction }) {
 }
 
 /** UNSUPPORTED */
-export function UnsupportedCard({ message, pending }) {
+export function UnsupportedCard({ message, pending, children = null }) {
   return (
     <section className="wd-card qcard" aria-label="판정 불가">
       <h3>지금은 판정할 수 없어요</h3>
       <p>{message}</p>
       {pending.length > 0 && <ul className="plain">{pending.map((p) => <li key={p.key}>○ {p.label}</li>)}</ul>}
+      {children}
       <a className="button button-quiet" href="#/cases">목록으로</a>
     </section>
   );

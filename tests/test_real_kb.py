@@ -31,6 +31,10 @@ EXPECT = {
     "REAL-SLUDGE-NO-REPORT": ("UNSUPPORTED", None, 4, None),
     "REAL-SOLVENT-GROUP": ("FINAL_REVIEW", "04-02-00", 3, None),
     "REAL-MIXED-AUTO": ("FINAL_REVIEW", None, 3, "NO_MIXTURE_RULE"),
+    # 2026-11-10: 유기용매가 섞인 산 폐액은 pH가 2.0을 넘어도 '지정 아님'으로 끝내지 않는다
+    # (원주청 질의회신 사례 56)
+    "REAL-ACID-SOLVENT-MIX": ("FINAL_REVIEW", None, 7, "INTERPRETATION_NEEDED"),
+    "REAL-ACID-WEAK-PLAIN": ("FINAL_REVIEW", None, 3, "NO_GENERAL_CODE"),
 }
 
 

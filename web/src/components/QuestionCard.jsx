@@ -30,7 +30,7 @@ export default function QuestionCard({ question: q, disabled, onSend }) {
       {q.input === 'group' && (
         <>
           {q.answered_items.length > 0 && (
-            <p className="muted">{q.answered_items.map((a) => `${a.label}: ${a.value_label}`).join(' · ')} 은(는) 확인했어요.</p>
+            <p className="muted">이미 확인한 항목: {q.answered_items.map((a) => `${a.label}: ${a.value_label}`).join(' · ')}</p>
           )}
           <ul className="qcard-items">{q.items.map((i) => <li key={i.key}>{i.label}</li>)}</ul>
         </>

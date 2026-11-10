@@ -34,7 +34,8 @@
     "board": {"facts": ["지금까지 확인된 사실"], "pending": ["남은 확인 항목"], "progress": "…"},
     "requested_documents": [{"evidence_type": "TEST_REPORT", "label": "시험성적서"}],
     "can_confirm": false,
-    "result": {"result_type": "WASTE_CODE | NO_CODE", "code": "51-03-01", "conclusion": "…"}
+    "result": {"result_type": "WASTE_CODE | NO_CODE", "code": "51-03-01", "conclusion": "…",
+               "reason": "코드 없는 결론의 이유(없으면 null)", "next_step": "…", "assumptions": []}
   }
 }
 ```
@@ -124,7 +125,7 @@
      "evidence": [{"fact": "oil_content_pct", "document_id": "D1"}],
      "basis": [{"type": "LAW", "ref": "폐기물관리법 시행령 별표 1", "excerpt": "…"}],
      "review": "UNVERIFIED",
-     "assumptions": ["PCB 함량(액체): 시험값이 아니라 'PCB 관련' 답에서 기준 미만으로 추정했습니다. …"],
+     "assumptions": ["'PCB 사용 기기·절연유 관련' 답을 근거로 PCB 용출 농도·PCB 함량(액체)은 시험 없이 기준 미만으로 추정했습니다. …"],
      "timestamps": {"diagnosis_started_at": "…", "confirmed_at": "…", "as_of": "2026-11-09"}
    },
    "frozen_trace_rows": 7}
