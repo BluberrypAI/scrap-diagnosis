@@ -290,6 +290,7 @@ class DiagnosisSession:
                 user_question,
                 answered_question=prev_question if appended else None,
                 web=self.web_search,
+                about=extraction.about if extraction else None,
             )
             if intent
             else None

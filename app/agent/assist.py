@@ -19,6 +19,7 @@ from app.agent.router import Branch, EngineStep
 from app.domain.verdict import AssistSource, AssistView, TermView
 from app.rules.evaluator import TV
 from app.rules.glossary import find_terms
+from app.rules.guide_index import FACT, TERM, TOPIC
 from app.rules.model import KnowledgeBase, Rule
 from app.rules.selector import QuestionChoice
 
@@ -45,6 +46,7 @@ class AssistContext(BaseModel):
     guide: list[dict[str, Any]] = []  # 질문 안내(무엇을·왜·어떻게 확인·선택지 뜻·예시·FAQ)
     topics: list[dict[str, Any]] = []  # 사용자 질문에 걸린 참고 주제(MSDS 등)
     matched: bool = False  # 사용자 질문에 직접 답할 자료(FAQ·주제·용어)를 찾았나
+    chosen: list[str] = []  # 추출 AI가 뜻으로 고른 자료 id(guide_index)
     best_faq: dict[str, str] | None = (
         None  # 사용자 질문과 가장 가까운 FAQ(질문 안내·참고 주제 전체에서)
     )
@@ -143,17 +145,23 @@ def _best_faq(user_question: str | None, guide: list[dict], topics: list[dict]) 
     return best if _similar(user_question, best.get("q", "")) >= FAQ_MATCH else None
 
 
-def _topics(kb: KnowledgeBase, user_question: str | None) -> list[dict]:
+def _topic_item(name: str, tp: dict, text: str) -> dict:
+    item = {"topic": name, **{k: tp[k] for k in ("plain", "detail") if tp.get(k)}}
+    faq = sorted(tp.get("faq") or [], key=lambda f: -_similar(text, f.get("q", "")))
+    item["faq"] = faq[:3]
+    return item
+
+
+def _topics(kb: KnowledgeBase, user_question: str | None, chosen: list[str]) -> list[dict]:
+    """AI가 뜻으로 고른 주제(chosen) 먼저, 그다음 이름·키워드가 질문에 들어 있는 주제."""
     text = (user_question or "").lower()
-    found = []
-    for name, tp in (kb.question_guide.get("topics") or {}).items():
+    topics = kb.question_guide.get("topics") or {}
+    found = [_topic_item(n, topics[n], text) for n in chosen if n in topics]
+    for name, tp in topics.items():
         keys = [name, *(tp.get("keywords") or [])]
-        if any(k and k.lower() in text for k in keys):
-            item = {"topic": name, **{k: tp[k] for k in ("plain", "detail") if tp.get(k)}}
-            faq = sorted(tp.get("faq") or [], key=lambda f: -_similar(text, f.get("q", "")))
-            item["faq"] = faq[:3]
-            found.append(item)
-    return found[:2]
+        if name not in chosen and any(k and k.lower() in text for k in keys):
+            found.append(_topic_item(name, tp, text))
+    return found[:3]
 
 
 def build_context(
@@ -164,9 +172,14 @@ def build_context(
     user_question: str | None,
     answered_question: QuestionChoice | None = None,
     web: WebSearch | None = None,
+    about: list[str] | None = None,
 ) -> AssistContext:
-    """answered_question: 같은 메시지에 답과 질문이 함께 오면 방금 답한 질문을 설명한다."""
-    ctx = AssistContext(intent=intent, user_question=user_question)
+    """answered_question: 같은 메시지에 답과 질문이 함께 오면 방금 답한 질문을 설명한다.
+
+    about: 추출 AI가 '설명 자료 목록'(app/rules/guide_index.py)에서 뜻으로 고른 자료 id.
+    단어가 겹치지 않는 질문도 자료를 찾게 한다. guard가 목록에 있는 id만 남긴다.
+    """
+    ctx = AssistContext(intent=intent, user_question=user_question, chosen=list(about or []))
     d, ev = step.decision, step.evaluation
     q = answered_question or d.question
     if intent == "why":
@@ -207,13 +220,31 @@ def build_context(
                 if g:
                     ctx.guide.append(g)
                 hits.append(hit)
+        # AI가 고른 질문 안내(지금 질문 밖의 사실이어도)
+        have = {g.get("label") for g in ctx.guide}
+        for aid in ctx.chosen:
+            if aid.startswith(FACT):
+                g, _ = _fact_guide(kb, aid[len(FACT) :], user_question)
+                if g and g.get("label") not in have:
+                    ctx.guide.append(g)
+                    have.add(g.get("label"))
+        chosen_terms = {aid[len(TERM) :] for aid in ctx.chosen if aid.startswith(TERM)}
+        if chosen_terms:
+            known = {x.term for x in ctx.terms}
+            ctx.terms += [
+                TermView(term=e.term, plain=e.plain, example=e.example)
+                for e in kb.glossary
+                if e.term in chosen_terms and e.term not in known
+            ]
         # 사용자 질문과 가까운 안내가 앞에 오게(묶음 질문은 사실이 여럿)
         ctx.guide.sort(key=lambda g: -_relevance(user_question, g))
-        ctx.topics = _topics(kb, user_question)
+        chosen_topics = [aid[len(TOPIC) :] for aid in ctx.chosen if aid.startswith(TOPIC)]
+        ctx.topics = _topics(kb, user_question, chosen_topics)
         ctx.best_faq = _best_faq(user_question, ctx.guide, ctx.topics)
         asked_terms = find_terms(kb.glossary, user_question)
         ctx.matched = (
             any(hits)
+            or bool(ctx.chosen)
             or bool(ctx.best_faq)
             or bool(ctx.topics)
             or bool(asked_terms)

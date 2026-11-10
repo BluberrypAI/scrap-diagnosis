@@ -102,3 +102,25 @@ def test_safe_query_blocks_identifiers():
     assert safe_query("010-1234-5678로 연락 주세요") is None or "1234" not in safe_query(
         "010-1234-5678로 연락 주세요"
     )
+
+
+def test_ai_chosen_material_answers_question_without_shared_words(real_kb):
+    """단어가 겹치지 않는 질문도 추출 AI가 뜻으로 고른 자료 id로 답한다(목록 밖 id는 버림)."""
+    q = "옛날 전기 설비에 든 독한 기름 있잖아요, 그거 뭐예요?"
+    web = FakeWeb([WebResult(title="x", url="https://www.law.go.kr/x")])
+    ex = {"user_question": q, "question_kind": "term", "about": ["topic:PCB", "topic:없는주제"]}
+    s = _session(real_kb, [PP, ex], web)
+    r = s.handle(text=q)
+    found = s.traces[-1].responder["assist_found"]
+    assert found["chosen"] == ["topic:PCB"]
+    assert any(t["topic"] == "PCB" for t in found["topics"])
+    assert web.queries == []  # 자료를 찾았으므로 웹 검색 안 함
+    assert s.traces[-1].extraction["about_dropped"] == ["topic:없는주제"]  # 재시도 없이 버림
+    assert r.assist.text
+
+
+def test_guide_index_covers_facts_topics_terms(real_kb):
+    from app.rules.guide_index import guide_index
+
+    ids = {x["id"] for x in guide_index(real_kb)}
+    assert "fact:pcb_possible" in ids and "topic:MSDS" in ids and "term:용출" in ids

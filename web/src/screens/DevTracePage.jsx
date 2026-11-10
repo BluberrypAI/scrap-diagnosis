@@ -47,6 +47,9 @@ function FoundMaterial({ t }) {
       <p className="small">
         준비된 자료로 답함: <strong>{r.assist_matched ? '예' : '아니오(자료 보강 대상)'}</strong> · 웹 검색: <strong>{r.assist_web ? '사용' : '안 함'}</strong> · 설명 문장: <strong>{r.assist_used_template ? '템플릿(AI 문장이 검사에 걸림)' : 'AI 작성'}</strong>
       </p>
+      {f.chosen?.length > 0 && (
+        <p className="small"><strong>AI가 뜻으로 고른 자료:</strong> {f.chosen.map((c) => <code key={c} style={{ marginRight: 6 }}>{c}</code>)}</p>
+      )}
       {f.best_faq && (
         <div className="dev-found-block"><h5>가장 가까운 FAQ</h5><p className="small"><strong>Q.</strong> {f.best_faq.q}<br /><strong>A.</strong> {f.best_faq.a}</p></div>
       )}

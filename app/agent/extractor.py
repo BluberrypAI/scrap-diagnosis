@@ -19,6 +19,7 @@ from app.agent.redact import (
 )
 from app.config import Settings, get_settings
 from app.domain.facts import Fact
+from app.rules.guide_index import guide_index
 from app.rules.model import FactDef, KnowledgeBase
 from app.rules.selector import QuestionChoice
 
@@ -81,6 +82,7 @@ EXTRACTION_SCHEMA: dict[str, Any] = {
         "user_code_claim": {"type": ["string", "null"]},
         "user_question": {"type": ["string", "null"]},
         "question_kind": {"type": ["string", "null"], "enum": ["why", "term", "off_topic", None]},
+        "about": {"type": "array", "items": {"type": "string"}},
         "evidence_refused": {"type": "boolean"},
     },
     "required": [
@@ -89,6 +91,7 @@ EXTRACTION_SCHEMA: dict[str, Any] = {
         "user_code_claim",
         "user_question",
         "question_kind",
+        "about",
         "evidence_refused",
     ],
     "additionalProperties": False,
@@ -125,6 +128,9 @@ EXTRACT_SYSTEM = """너는 사업장 폐기물 문진의 '사실 추출기'다. 
      (예: "용출이 뭐예요?", "어떤 기름이 해당돼요?", "우리 변압기가 PCB인지 어떻게 알아요?")
    - "off_topic": 폐기물 분류 문진과 상관없는 요청(예: 업체 추천, 비용, 날씨)
    - 질문이 없으면 user_question과 question_kind는 null이다. 답과 질문이 섞이면 답은 facts에, 질문은 여기에 쓴다.
+   - 질문이 있으면 '설명 자료 목록'에서 그 질문과 뜻이 관련된 자료의 id를 about에 최대 3개 고른다.
+     단어가 같지 않아도 뜻으로 고른다(예: "옛날 변압기에 든 독한 기름" → topic:PCB). 목록에 없는 id는 쓰지 마라.
+     질문이 없거나 관련 자료가 없으면 빈 배열이다.
 10. 서류·시험성적서가 없다거나 구할 수 없다고 하면 evidence_refused = true.
 11. 뽑을 것이 없으면 facts는 빈 배열이다.
 12. 상위 분류가 있는 사실('사실 목록'에서 parent가 적힌 사실. 예: 소재 material의 parent는
@@ -210,6 +216,8 @@ def build_user_prompt(
         "직전 질문": _question_view(last_question),
         "최근 대화": recent[-6:],
         "사용자 발화": text,
+        # 사용자가 질문하면 관련 자료 id를 고르는 데 쓴다(app/rules/guide_index.py)
+        "설명 자료 목록": guide_index(kb),
     }
     if feedback:
         payload["이전 출력의 오류(고쳐서 다시 내라)"] = feedback

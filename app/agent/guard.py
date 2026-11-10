@@ -41,6 +41,8 @@ class ExtractionResult(BaseModel):
     user_code_claim: str | None = None
     user_question: str | None = None
     question_kind: str | None = None  # why | term | off_topic (문진 보충 설명, agent/assist.py)
+    about: list[str] = []  # 사용자 질문과 관련된 설명 자료 id(app/rules/guide_index.py)
+    about_dropped: list[str] = []  # 목록에 없어 버린 id(재시도하지 않음, 설명 자료일 뿐이라)
     evidence_refused: bool = False
     rejected: list[dict] = []
     errors: list[str] = []
@@ -220,6 +222,13 @@ def validate_extraction(
             )
     if raw.get("user_question"):
         res.user_question = str(raw["user_question"])
+    about = [str(x) for x in raw.get("about") or []]
+    if about:
+        from app.rules.guide_index import index_ids  # 지연 import
+
+        valid = index_ids(kb)
+        res.about = [x for x in about if x in valid][:3]
+        res.about_dropped = [x for x in about if x not in valid]
     kind = raw.get("question_kind")
     if kind in ("why", "term", "off_topic"):
         res.question_kind = kind
