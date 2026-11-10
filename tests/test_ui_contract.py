@@ -256,3 +256,19 @@ def test_openapi_has_new_endpoints_and_error_schema():
     assert "ErrorResponse" in schemas
     assert "conversation" in schemas["CaseDetail"]["properties"]
     assert "summary" in schemas["CaseOut"]["properties"]
+
+
+def test_assist_is_kept_in_conversation(api):
+    """보충 설명(assist)은 턴 응답과 대화 기록 모두에 남아 새로고침해도 다시 그린다."""
+    from app.agent.golden import normalize_extract
+
+    cid = api.create_case(memo="PP 필름 자투리")["case"]["id"]
+    api.llm.push(
+        "extract", normalize_extract({"user_question": "왜 물어봐요?", "question_kind": "why"})
+    )
+    t = api.post(f"/cases/{cid}/diagnosis/messages", json={"text": "왜 물어봐요?"}).json()
+    assert t["assist"]["intent"] == "why" and t["assist"]["text"]
+    conv = api.get(f"/cases/{cid}").json()["conversation"]
+    last = [m for m in conv if m["role"] == "assistant"][-1]
+    assert last["assist"]["text"] == t["assist"]["text"]
+    assert all(m.get("assist") is None for m in conv[:-1])

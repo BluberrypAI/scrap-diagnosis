@@ -168,6 +168,7 @@ class CaseService:
                         text=m.get("text", ""),
                         branch=m.get("branch"),
                         question_key=m.get("question_key"),
+                        assist=m.get("assist"),  # 보충 설명이 있던 턴만
                     )
                 elif role == "document":
                     item.update(
