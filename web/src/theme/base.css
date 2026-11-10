@@ -394,13 +394,44 @@ p {
   border-radius: 0;
 }
 
-/* 개발자 화면: 규칙 그래프·AI 데이터 확인 */
-.dev-page h4 { margin: 12px 0 4px; }
-.dev-graph-row { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start; }
-.dev-graph { overflow: auto; max-height: 80vh; border: 1px solid var(--color-border, #ddd); border-radius: 8px; padding: 8px; background: #fff; }
-.dev-detail { position: sticky; top: 8px; max-height: 80vh; overflow: auto; }
+/* 개발자 화면: 규칙 보기·AI 데이터 확인 */
+.dev-page h4 { margin: 12px 0 6px; }
 .dev-json { white-space: pre-wrap; word-break: break-all; font-size: 12px; background: #f6f6f4; padding: 8px; border-radius: 6px; max-height: 420px; overflow: auto; }
 .dev-call { border-top: 1px dashed #ccc; padding-top: 8px; margin-top: 8px; }
 .dev-turn { margin-bottom: 16px; }
 .small { font-size: 0.85em; }
-@media (max-width: 900px) { .dev-graph-row { grid-template-columns: 1fr; } }
+.rg-tabs { gap: 8px; flex-wrap: wrap; align-items: center; margin: 8px 0 12px; }
+.rg-tabs .wd-input { max-width: 260px; }
+.rg-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+.rg-detail { position: sticky; top: 8px; max-height: calc(100vh - 32px); overflow: auto; }
+.rg-list { margin: 0; padding-left: 18px; font-size: 0.9em; }
+.rg-list li { margin-bottom: 4px; }
+.rg { display: flex; flex-direction: column; align-items: stretch; }
+.rg button { font: inherit; text-align: left; cursor: pointer; }
+.rg-step { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border: 1px solid #b4b2a9; border-radius: 10px; background: #fff; min-width: 240px; }
+.rg-step:hover, .rg-card:hover, .rg-cell:hover, .rg-chip:hover { border-color: #0f6e56; background: #f4fbf8; }
+.rg-start { align-self: flex-start; background: #f1efe8; }
+.rg-stage-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rg-exit { color: #888780; font-size: 0.85em; }
+.rg-stop { padding: 4px 10px; border-radius: 999px; background: #f1efe8; color: #444441; font-size: 0.85em; }
+.rg-arrow { color: #888780; padding: 4px 0 4px 16px; font-size: 0.9em; }
+.rg-section { border: 1px solid #d3d1c7; border-radius: 12px; padding: 12px; background: #fff; }
+.rg-section h3 { margin: 0 0 4px; }
+.rg-table-wrap { overflow-x: auto; }
+.rg-table { border-collapse: collapse; width: 100%; font-size: 0.85em; }
+.rg-table th, .rg-table td { border-bottom: 1px solid #eee; padding: 6px; vertical-align: middle; }
+.rg-table thead th { font-weight: 500; text-align: center; }
+.rg-table thead th button, .rg-table tbody th button { background: none; border: none; padding: 0; color: inherit; }
+.rg-table tbody th { text-align: left; white-space: nowrap; font-weight: 400; }
+.rg-table td { text-align: center; }
+.rg-cell { min-width: 34px; padding: 2px 8px; border-radius: 999px; border: 1px solid #5dcaa5; background: #e1f5ee; color: #085041; }
+.rg-common { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+.rg-chip { padding: 4px 10px; border-radius: 999px; border: 1px solid #b4b2a9; background: #faf9f5; font-size: 0.85em; }
+.rg-outcomes { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+.rg-out { padding: 10px; border-radius: 10px; background: #e1f5ee; color: #085041; font-size: 0.85em; }
+.rg-band h4 { margin: 4px 0 8px; }
+.rg-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+.rg-card { padding: 8px 10px; border: 1px solid #d3d1c7; border-radius: 10px; background: #fff; display: flex; flex-direction: column; gap: 6px; }
+.rg-cond { margin: 0; padding-left: 16px; font-size: 0.82em; }
+.rg-then { font-size: 0.85em; color: #085041; font-weight: 500; }
+@media (max-width: 900px) { .rg-layout { grid-template-columns: 1fr; } .rg-detail { position: static; } }

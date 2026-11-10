@@ -2029,8 +2029,131 @@
         "title": "OptionView",
         "type": "object"
       },
+      "OvGroup": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "materials": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Materials",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "materials"
+        ],
+        "title": "OvGroup",
+        "type": "object"
+      },
+      "OvLaw": {
+        "properties": {
+          "common": {
+            "title": "Common",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "materials": {
+            "title": "Materials",
+            "type": "integer"
+          },
+          "rules": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rules",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "common",
+          "materials",
+          "rules"
+        ],
+        "title": "OvLaw",
+        "type": "object"
+      },
+      "OvStage": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "rules": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rules",
+            "type": "array"
+          },
+          "stop": {
+            "title": "Stop",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "stop",
+          "rules"
+        ],
+        "title": "OvStage",
+        "type": "object"
+      },
       "Overview": {
         "properties": {
+          "groups": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/OvGroup"
+            },
+            "title": "Groups",
+            "type": "array"
+          },
+          "laws": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/OvLaw"
+            },
+            "title": "Laws",
+            "type": "array"
+          },
+          "matrix": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "type": "object"
+            },
+            "default": {},
+            "title": "Matrix",
+            "type": "object"
+          },
           "mermaid": {
             "title": "Mermaid",
             "type": "string"
@@ -2041,6 +2164,14 @@
             },
             "title": "Nodes",
             "type": "object"
+          },
+          "stages": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/OvStage"
+            },
+            "title": "Stages",
+            "type": "array"
           },
           "stats": {
             "additionalProperties": {

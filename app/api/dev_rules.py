@@ -210,10 +210,36 @@ class OverviewNode(BaseModel):
     detail: list[str] = []  # 클릭하면 보일 규칙·소재 목록
 
 
+class OvStage(BaseModel):
+    id: str
+    label: str
+    stop: str  # 해당하면 빠지는 결론
+    rules: list[str]
+
+
+class OvGroup(BaseModel):
+    id: str
+    label: str
+    materials: list[str]
+
+
+class OvLaw(BaseModel):
+    id: str
+    label: str
+    common: bool  # 거의 모든 소재에 걸림(기름·PCB·유해화학물질)
+    materials: int
+    rules: list[str]
+
+
 class Overview(BaseModel):
     mermaid: str
     nodes: dict[str, OverviewNode]
     stats: dict[str, int]
+    # 화면 폭에 맞춘 보기용(참조 화면 #/dev/rules)
+    stages: list[OvStage] = []
+    groups: list[OvGroup] = []
+    laws: list[OvLaw] = []
+    matrix: dict[str, dict[str, list[str]]] = {}  # 소재 분류 → 법 조항 → 해당 소재
 
 
 def _item_of(r: Rule) -> str | None:
@@ -243,6 +269,7 @@ def build_overview(kb: KnowledgeBase) -> Overview:
     group_mats: dict[str, list[str]] = {}
     group_items: dict[str, dict[str, int]] = {}
     item_rules: dict[str, set[str]] = {}
+    matrix: dict[str, dict[str, list[str]]] = {}
     for t in kb.tables:
         mid = t.applies_when.value if isinstance(t.applies_when, Cond) else t.table_id
         g = parent.get(str(mid), "special")
@@ -257,6 +284,8 @@ def build_overview(kb: KnowledgeBase) -> Overview:
                         seen.add(item)
                         group_items.setdefault(g, {}).setdefault(item, 0)
                         group_items[g][item] += 1
+                        cell = matrix.setdefault(g, {}).setdefault(item, [])
+                        cell.append(t.title or t.table_id)
     nodes: dict[str, OverviewNode] = {}
 
     def note(src: str) -> str:
@@ -323,7 +352,38 @@ def build_overview(kb: KnowledgeBase) -> Overview:
         "tables": len(kb.tables),
         "engine_rules": sum(len(t.rules) for t in kb.tables),
     }
-    return Overview(mermaid="\n".join(lines), nodes=nodes, stats=stats)
+    stages = [
+        OvStage(
+            id=nid,
+            label=label,
+            stop=out_label,
+            rules=[note(s) for s in sorted(k for k in kb.rule_notes if k.startswith(prefixes))],
+        )
+        for nid, label, prefixes, _, out_label in COMMON
+    ]
+    groups = [
+        OvGroup(id=g, label=group_label.get(g, g), materials=sorted(group_mats[g]))
+        for g in sorted(group_mats, key=lambda x: order.index(x) if x in order else 99)
+    ]
+    laws = [
+        OvLaw(
+            id=item,
+            label=LAW_ITEMS.get(item, f"제{item}호"),
+            common=item in common,
+            materials=covered[item],
+            rules=[note(s) for s in sorted(item_rules[item])],
+        )
+        for item in sorted(item_rules, key=lambda x: (x in common, int(x)))
+    ]
+    return Overview(
+        mermaid="\n".join(lines),
+        nodes=nodes,
+        stats=stats,
+        stages=stages,
+        groups=groups,
+        laws=laws,
+        matrix=matrix,
+    )
 
 
 @router.get("/overview", response_model=Overview)
