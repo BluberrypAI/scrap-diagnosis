@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge ecf6a4bc). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge 3fbc9eae). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: coated_wire
 title: 합성수지 피복 폐전선
-version: 2026.11.0+kb-ecf6a4bc
+version: 2026.11.0+kb-3fbc9eae
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:

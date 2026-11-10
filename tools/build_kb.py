@@ -188,12 +188,15 @@ def top_parts(reduced: Any) -> list[Any]:
 
 
 def knowledge_rev(src: Path = KNOWLEDGE) -> str:
-    """원본 파일 내용의 sha256 앞 8자리. 테이블 버전·생성물 머리말에 쓴다."""
+    """원본 파일 내용의 sha256 앞 8자리. 테이블 버전·생성물 머리말에 쓴다.
+
+    줄바꿈은 LF로 통일해 계산한다. Windows 작업 사본(CRLF)과 CI(LF)에서 같은 값이 나와야 한다.
+    """
     h = hashlib.sha256()
     for name in SOURCE_FILES:
         h.update(name.encode())
         h.update(b"\0")
-        h.update((src / name).read_bytes())
+        h.update((src / name).read_bytes().replace(b"\r\n", b"\n"))
     return h.hexdigest()[:8]
 
 
