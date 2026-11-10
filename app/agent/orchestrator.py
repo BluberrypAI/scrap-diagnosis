@@ -382,6 +382,9 @@ class DiagnosisSession:
                             "assist_matched": assist_ctx.matched,
                             "assist_web": assist_ctx.web_used,
                             "skill_hash": _skill_hash(self.kb.skill_text),
+                            # 보충 설명용으로 엔진이 찾은 자료 전체(개발자 화면 '찾은 자료만')
+                            "assist_found": assist_ctx.payload(),
+                            "assist_used_template": out.used_template,
                         }
                         if assist_view
                         else {}

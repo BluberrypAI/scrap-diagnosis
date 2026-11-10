@@ -435,3 +435,6 @@ p {
 .rg-cond { margin: 0; padding-left: 16px; font-size: 0.82em; }
 .rg-then { font-size: 0.85em; color: #085041; font-weight: 500; }
 @media (max-width: 900px) { .rg-layout { grid-template-columns: 1fr; } .rg-detail { position: static; } }
+.dev-found h5 { margin: 8px 0 4px; font-size: 0.9em; }
+.dev-found-block { border-left: 3px solid #5dcaa5; padding-left: 10px; margin: 8px 0; }
+.dev-badge { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 999px; background: #e1f5ee; color: #085041; font-size: 0.8em; }

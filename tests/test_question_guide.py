@@ -65,6 +65,8 @@ def test_term_question_answers_from_guide_without_web(real_kb):
     assert r.assist.intent == "term" and r.assist.text
     assert web.queries == []  # 용어집에 있으므로 웹 검색하지 않음
     assert s.traces[-1].responder["assist_matched"] is True
+    found = s.traces[-1].responder["assist_found"]  # 찾은 자료 전체가 Trace에 남는다
+    assert found["intent"] == "term" and found["terms"]
 
 
 def test_web_search_only_when_no_material_and_only_allowed_domains(real_kb):
