@@ -37,6 +37,31 @@ def test_every_question_and_option_has_guide(real_kb):
     assert not no_opt, f"설명이 없는 선택지: {no_opt}"
 
 
+CARD_FIELDS = ("background", "reason", "how_to_check", "if_unknown")
+
+
+def test_every_question_card_has_background_reason_and_actions(real_kb):
+    """질문 카드만 보고 답할 수 있게: 화면에 나오는 모든 질문(번호·묶음 포함)에 카드 안내가 있다."""
+    guide = real_kb.question_guide
+    lacking = []
+    for key in real_kb.catalog:
+        g = (guide.get("facts") or {}).get(key) or {}
+        lacking += [f"{key}.{f}" for f in CARD_FIELDS if not g.get(f)]
+    for grp in real_kb.groups:
+        g = (guide.get("groups") or {}).get(grp.group_id) or {}
+        lacking += [f"group:{grp.group_id}.{f}" for f in CARD_FIELDS if not g.get(f)]
+    assert not lacking, f"카드 안내가 빠진 곳: {lacking}"
+
+
+def test_question_card_carries_guide(real_kb):
+    """API 질문 카드(ui.question.guide)에 배경·이유·확인 단계가 실린다(ui-contract 1.1)."""
+    s = DiagnosisSession(real_kb, case_id="g", as_of=AS_OF)
+    s.seed({"emission_facility": True, "material_group": "plastic", "material": "pp"})
+    q = s.handle().ui.question
+    assert q["unit"] == "group" and q["guide"] is not None
+    assert q["guide"].background and q["guide"].reason and q["guide"].actions
+
+
 class FakeWeb:
     def __init__(self, results):
         self.results = results

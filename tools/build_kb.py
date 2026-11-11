@@ -761,9 +761,14 @@ class Converter:
                 "internal": True,
                 "ask_cost": 1,
                 "legal_priority": 1,
-                "question_hint": "시행규칙 별표 4의 세부분류 중 이 폐기물에 해당하는 번호",
-                "help": "기존 배출자신고서나 처리 계약서의 분류번호와 명칭을 대조하세요. "
-                "'그 밖의' 번호는 같은 분류의 다른 번호에 해당하지 않을 때만 고릅니다.",
+                # 질문 문구는 facts.yaml의 code 항목(사람이 고치는 원본)에서 가져온다
+                "question_hint": (self.facts.get("code") or {}).get("question")
+                or "이 폐기물에 해당하는 분류번호(시행규칙 별표 4)를 골라 주세요.",
+                "help": (
+                    (self.help_text(self.facts["code"]) if "code" in self.facts else None)
+                    or "기존 배출자신고서나 처리 계약서의 분류번호와 명칭을 대조하세요."
+                )
+                + " '그 밖의' 번호는 같은 분류의 다른 번호에 해당하지 않을 때만 고릅니다.",
             }
         )
         return out

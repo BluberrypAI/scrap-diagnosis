@@ -645,5 +645,6 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
         question_guide={
             "facts": dict(guide.get("facts") or {}),
             "topics": dict(guide.get("topics") or {}),
+            "groups": dict(guide.get("groups") or {}),  # 묶음 질문 카드 안내
         },
     )

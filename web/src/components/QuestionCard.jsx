@@ -13,6 +13,7 @@ export default function QuestionCard({ question: q, disabled, onSend }) {
     title.current?.focus?.();
   }, [q.key]);
 
+  const g = q.guide || null;
   const reply = (o) => onSend(o.kind === 'value' ? { key: q.key, kind: 'value', value: o.value } : { key: q.key, kind: o.kind }, o.label);
   const unknown = q.options.find((o) => o.kind === 'unknown') || (q.allow_unknown ? { label: q.input === 'material' ? '목록에 없어요' : '모름', kind: 'unknown' } : null);
   let opts = q.options.filter((o) => o.kind !== 'unknown');
@@ -27,6 +28,12 @@ export default function QuestionCard({ question: q, disabled, onSend }) {
   return (
     <section className="wd-card qcard" aria-labelledby="qcard-title" data-input={q.input}>
       <h3 id="qcard-title" tabIndex={-1} ref={title}>{q.text}</h3>
+      {g && (g.background || g.reason) && (
+        <div className="qcard-guide">
+          {g.background && <p><strong>어떤 뜻인가요?</strong> {g.background}</p>}
+          {g.reason && <p><strong>왜 묻나요?</strong> {g.reason}</p>}
+        </div>
+      )}
       {q.input === 'group' && (
         <>
           {q.answered_items.length > 0 && (
@@ -54,9 +61,16 @@ export default function QuestionCard({ question: q, disabled, onSend }) {
           <button type="button" className="button button-primary" disabled={disabled || num.trim() === ''} onClick={sendNumber}>입력</button>
         </div>
       )}
+      {g?.actions?.length > 0 && (
+        <div className="qcard-guide qcard-actions">
+          <strong>이렇게 확인하세요</strong>
+          <ol>{g.actions.map((a, i) => <li key={i}>{a}</li>)}</ol>
+        </div>
+      )}
       {unknown && (
         <button type="button" className="button button-link" disabled={disabled} onClick={() => reply(unknown)}>{unknown.label}</button>
       )}
+      {g?.if_unknown && <p className="muted qcard-unknown">{g.if_unknown}</p>}
       {q.terms?.length > 0 && (
         <details>
           <summary>용어 설명</summary>
@@ -70,7 +84,7 @@ export default function QuestionCard({ question: q, disabled, onSend }) {
           </dl>
         </details>
       )}
-      {q.help && (
+      {q.help && !(g?.actions?.length > 0) && (
         <details>
           <summary>어떻게 확인하나요?</summary>
           <p className="muted">{q.help}</p>

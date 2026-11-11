@@ -224,7 +224,7 @@ class KnowledgeBase:
         default_factory=dict
     )  # 원본 규칙 ID → 제목·쉬운 설명
     skill_text: str | None = None  # 문진 진행 AI 지침(knowledge/skills/interviewer.md)
-    # 질문 안내(knowledge/question_guide.yaml): {"facts": {키: {...}}, "topics": {주제: {...}}}
+    # 질문 안내(knowledge/question_guide.yaml): {"facts": {...}, "topics": {...}, "groups": {...}}
     question_guide: dict[str, Any] = field(default_factory=dict)
 
     def tables_as_of(self, as_of: date) -> tuple[Table, ...]:

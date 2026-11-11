@@ -35,6 +35,7 @@
 | `answered_items` | group: 같은 묶음에서 이미 답한 항목. 비었으면 [] |
 | `result.assumptions` | 결과 카드: 시험·서류가 아니라 사용자 답에서 추정한 사실의 안내 문장 목록(예: PCB 관련 없음 → 기준 미만 추정). 비었으면 []. 화면은 결론 아래에 눈에 띄게 보여 준다 |
 | `terms` | 질문 글에 나온 전문용어의 쉬운 설명 `[{term, plain, example}]`(knowledge/glossary.yaml, 사람이 쓴 고정 설명). 비었으면 []. 화면은 "용어 설명" 접기 등으로 보여 주면 된다 |
+| `guide` | (2026-11-11 추가) 처음 쓰는 사람이 카드만 보고 답할 수 있게 하는 고정 안내 `{background, reason, actions[], if_unknown}`. `background` 말의 뜻·상황, `reason` 왜 묻는지(답에 따라 무엇이 달라지는지), `actions` "이렇게 확인하세요" 단계(볼 서류·항목·검색할 곳), `if_unknown` 모를 때 안내. 사람이 쓴 문구(knowledge/question_guide.yaml)라 판정에 쓰지 않는다. 자료가 없으면 null. 화면은 제목 아래 배경·이유를, 선택지 아래 확인 단계를 접지 않고 보여 준다. `actions`가 있으면 `help`(한 줄 도움말)는 감춰도 된다 |
 
 `input`이 `material_group`/`material`인 기준: 질문 key가 카탈로그의 상위 분류(다른 사실의 `parent`)면 `material_group`, `parent`가 있는 사실이면 `material`.
 

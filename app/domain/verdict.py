@@ -139,6 +139,18 @@ class AssistView(BaseModel):
     review: str | None = None  # 근거 규칙이 검토 전이면 UNVERIFIED("검토 전 규칙 · 참고용")
 
 
+class QuestionGuideView(BaseModel):
+    """질문 카드에 함께 보일 안내(knowledge/question_guide.yaml, 사람이 쓴 고정 문구).
+
+    처음 쓰는 사람이 카드만 보고 답할 수 있게: 배경(말의 뜻) · 왜 묻는지 · 확인 방법 · 모를 때.
+    """
+
+    background: str | None = None
+    reason: str | None = None
+    actions: list[str] = []  # "이렇게 확인하세요" 단계
+    if_unknown: str | None = None
+
+
 class QuestionView(_DictAccess, BaseModel):
     """지금 질문 카드(1.1절). key·unit·facts·options는 M4부터 있던 필드다."""
 
@@ -155,6 +167,23 @@ class QuestionView(_DictAccess, BaseModel):
     items: list[QuestionItem] = []  # group: 이번에 묻는 항목
     answered_items: list[AnsweredItem] = []  # group: 같은 묶음에서 이미 답한 항목
     terms: list[TermView] = []  # 질문 글(제목·도움말·선택지·항목)에 나온 용어 설명
+    guide: QuestionGuideView | None = None  # 배경·왜 묻나요·이렇게 확인하세요(없으면 null)
+
+
+def question_guide_view(kb: KnowledgeBase, unit: str, key: str) -> QuestionGuideView | None:
+    """질문 안내 자료에서 카드용 안내를 만든다. 묶음은 groups, 사실은 facts 항목."""
+    section = "groups" if unit == "group" else "facts"
+    g = (kb.question_guide.get(section) or {}).get(key) or {}
+    actions = [str(x).strip() for x in g.get("how_to_check") or [] if str(x).strip()]
+    view = QuestionGuideView(
+        background=(g.get("background") or "").strip() or None,
+        reason=(g.get("reason") or "").strip() or None,
+        actions=actions,
+        if_unknown=(g.get("if_unknown") or "").strip() or None,
+    )
+    if not (view.background or view.reason or view.actions or view.if_unknown):
+        return None
+    return view
 
 
 class EditView(BaseModel):
@@ -429,10 +458,12 @@ def question_view(kb: KnowledgeBase, q: QuestionChoice, effective: dict[str, Fac
         value_type = kb.catalog[q.key].type
     from app.rules.glossary import find_terms  # 순환 import 방지
 
+    guide = question_guide_view(kb, q.unit, q.key)
     found = find_terms(
         kb.glossary,
         q.question_hint,
         q.help,
+        guide.background if guide else None,
         *(o.label for o in options),
         *(i.label for i in items),
     )
@@ -451,6 +482,7 @@ def question_view(kb: KnowledgeBase, q: QuestionChoice, effective: dict[str, Fac
         items=items,
         answered_items=answered,
         terms=terms,
+        guide=guide,
     )
 
 

@@ -2349,6 +2349,54 @@
         "title": "Progress",
         "type": "object"
       },
+      "QuestionGuideView": {
+        "description": "질문 카드에 함께 보일 안내(knowledge/question_guide.yaml, 사람이 쓴 고정 문구).\n\n처음 쓰는 사람이 카드만 보고 답할 수 있게: 배경(말의 뜻) · 왜 묻는지 · 확인 방법 · 모를 때.",
+        "properties": {
+          "actions": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Actions",
+            "type": "array"
+          },
+          "background": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Background"
+          },
+          "if_unknown": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "If Unknown"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "title": "QuestionGuideView",
+        "type": "object"
+      },
       "QuestionItem": {
         "properties": {
           "key": {
@@ -2395,6 +2443,16 @@
             },
             "title": "Facts",
             "type": "array"
+          },
+          "guide": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/QuestionGuideView"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "help": {
             "anyOf": [
