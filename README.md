@@ -51,6 +51,45 @@ Windows PowerShell이면 1)을 `$env:DATABASE_URL="sqlite:///var/ui.db"; uv run 
 
 자세한 화면 설명은 [docs/ui/handover.md](docs/ui/handover.md).
 
+## 문진 대화는 어떻게 동작하나 (답변과 질문 구분, 설명 자료)
+
+AI가 엔진을 부르는 구조가 아니라, **코드(하네스)가 AI와 엔진을 정해진 순서로 부른다**(`app/agent/orchestrator.py`). 판정은 매 턴 규칙 엔진이 하고, AI는 말을 이해하고 문장을 쓰는 일만 한다. 설계: [docs/design/agent-skill-harness.md](docs/design/agent-skill-harness.md).
+
+**1. 엔진에 넣을 답과 일반 질문을 나누기** — 추출 AI가 한 번 읽고 나눈다(`app/agent/extractor.py`, 턴당 첫 번째 AI 호출)
+
+| 사용자 말 | AI 출력 | 다음 처리 |
+|---|---|---|
+| "PP예요", "다 해당 없어요" | `facts`, `group_answer` | guard 검사 → 엔진 사실로 기록 → 판정 |
+| "왜 물어봐요?" | `question_kind: "why"` | 엔진에 넣지 않음 → 보충 설명 |
+| "PCB가 뭐예요?", "어떻게 확인해요?" | `question_kind: "term"` | 엔진에 넣지 않음 → 보충 설명 |
+| "업체 추천해 줘" | `question_kind: "off_topic"` | 문진만 돕는다고 안내 |
+| "다 없어요, 근데 왜요?" | 둘 다 | 답은 엔진에, 질문은 설명으로 |
+| "아마 PP일걸요" | 값 + `certainty: "guess"` | 기록하되 "추측" 표시, 위험한 추측은 확정 전에 한 번 다시 물음 |
+
+질문은 판정에 들어가지 않는다. 설명은 엔진 결과 위에 덧붙는 말풍선(턴 응답의 `assist`)이다.
+
+**2. 질문에 답할 정보가 있는 곳** — 모두 `knowledge/`에 사람이 쓴 파일이고, 빌드(`tools/build_kb.py`)가 `data/real/`로 옮긴다
+
+| 파일 | 내용 | 쓰임 |
+|---|---|---|
+| `question_guide.yaml` | 문진 질문마다 뜻·이유·확인 방법·선택지 뜻·예시·FAQ, 참고 주제(폐유·PCB·MSDS 등) | "어떤 게 해당돼요?", "어디를 봐요?" |
+| `glossary.yaml` | 전문용어의 쉬운 설명 | "용출이 뭐예요?" |
+| `law_rules/*.yaml`의 `plain` → `rule_notes.yaml` | 규칙마다의 쉬운 설명과 근거 조문 | "왜 물어봐요?", "왜 이 결과예요?" |
+| `skills/interviewer.md` | 설명하는 AI의 말투·체크리스트 | 설명 문장 작성 지침 |
+
+**3. 모델이 정보를 읽는 방법** — AI가 파일을 직접 찾거나 도구를 부르지 않는다. 코드가 골라서 건넨다
+```
+① 추출 AI: 질문 목록 + 사용자 말 + "설명 자료 목록"(자료 id·짧은 제목, app/rules/guide_index.py)을 받아
+           질문 종류와 관련 자료 id를 최대 3개 고른다(예: topic:PCB). guard가 목록에 있는 id만 인정
+② 규칙 엔진: 판정(코드)
+③ 자료 모으기(코드, app/agent/assist.py): 지금 질문의 안내(항상) + AI가 고른 id의 자료(뜻으로 찾기)
+           + 단어가 겹치는 FAQ·주제·용어(보조) + "왜?"면 관련 규칙 설명·근거 조문
+           + 아무것도 없으면 웹 검색(기본 꺼짐, app/agent/web_search.py)
+④ 응답 AI: 엔진 결과 + ③의 자료 + 스킬 지침으로 질문 문장과 설명 문장을 쓴다
+           검사(app/agent/guard.py): 자료에 없는 번호·숫자 금지, "왜?"는 근거 인용 필수. 실패하면 템플릿 문장
+```
+AI 호출은 한 턴에 최대 2번(①·④)이다. 무엇을 보내고 받았는지는 개발자 화면 "AI 데이터(개발)" → "안내용으로 찾은 자료만"에서 본다.
+
 ## 실행
 ```bash
 uv sync
