@@ -1,7 +1,7 @@
 # 규칙 빌드 보고서
 
-- 원본: `knowledge/` (81726a7d). 기존 엔진 resource_engine `2f1355a`의 rules/에서 옮겨 왔다.
-- 소재 테이블: 97개, 시행일 2026-10-02
+- 원본: `knowledge/` (cf990f84). 기존 엔진 resource_engine `2f1355a`의 rules/에서 옮겨 왔다.
+- 소재 테이블: 98개, 시행일 2026-10-02
 - 전문가 검토(`knowledge/reviews.yaml`): 생성 규칙 0개가 `VERIFIED`, 나머지는 `UNVERIFIED`다.
 
 ## 우선순위 대역
@@ -30,6 +30,7 @@
 - catalyst_adsorbent 촉매·흡착제: 소재 6개
 - product 제품·복합물: 소재 10개
 - special 여러 소재가 섞여 나누기 어려운 것: 소재 1개
+- unlisted_family 목록에 없는 폐기물(별표 4 계열에서 고르기): 소재 1개
 
 ## 변환하지 않은 기능
 - 결정 카드(해석 선택, residue_choice 등): 해석 필요 규칙은 판정 불가로 안내한다.
@@ -176,3 +177,4 @@
 - battery_fuel_cell: 지정 4규칙/16코드, 해석 1, 일반 1
 - battery_secondary_other: 지정 4규칙/16코드, 해석 1, 일반 1
 - mixed_inseparable: 지정 4규칙/16코드, 해석 6, 일반 NO_MIXTURE_RULE
+- unlisted_other: 지정 4규칙/16코드, 해석 6, 일반 171

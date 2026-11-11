@@ -174,7 +174,7 @@ def test_real_material_group_covers_every_material(real_kb):
     assert mat.parent == "material_group"
     assert set(mat.value_parent) == set(mat.values)
     assert set(mat.value_parent.values()) == set(grp.values)
-    assert len(grp.values) == 13
+    assert len(grp.values) == 14
     # 상위 분류는 규칙이 참조하지 않는다(판정은 소재로만).
     assert all("material_group" not in r.facts() for t in real_kb.tables for r in t.rules)
 
@@ -182,7 +182,7 @@ def test_real_material_group_covers_every_material(real_kb):
 def test_real_first_question_is_material_group(real_kb):
     q = run_engine(real_kb, FactStore(), SessionState(), AS_OF).decision.question
     assert q.key == "material_group"
-    assert len(values(q)) == 13 and q.value_options[-1].kind == "unknown"
+    assert len(values(q)) == 14 and q.value_options[-1].kind == "unknown"
 
 
 def test_real_broad_category_limits_material_options(real_kb):

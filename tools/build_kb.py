@@ -213,6 +213,7 @@ class Converter:
         self.materials: dict[str, dict] = m["materials"]
         self.groups_meta = m.get("groups") or {}
         a4 = read(src / "annex4_codes.yaml")
+        self.a4_groups: list[dict] = a4.get("groups") or []
         self.codes: list[dict] = a4["codes"]
         self.code_index = {c["id"]: c for c in self.codes}
         self.s4 = read(src / "code_map.yaml")
@@ -426,8 +427,14 @@ class Converter:
             return [], "NO_MIXTURE_RULE"
         if mat.get("code_needs_test"):
             return [], "CODE_NEEDS_TEST"
-        prefixes = (mat.get("codes") or {}).get("GENERAL") or self.s4["general_by_kind"].get(
-            mat.get("waste_kind"), []
+        if mat.get("general_by_family"):  # 목록에 없는 폐기물: 별표 4 일반 번호 전체(계열로 좁힘)
+            prefixes = ["51-"]
+        else:
+            prefixes = []
+        prefixes = (
+            prefixes
+            or (mat.get("codes") or {}).get("GENERAL")
+            or self.s4["general_by_kind"].get(mat.get("waste_kind"), [])
         )
         if not prefixes:
             return [], "NO_GENERAL_CODE"
@@ -569,6 +576,14 @@ class Converter:
                     when = {"fact": "annex4_code", "op": "eq", "value": code}
                     rid = f"{rid}:{code}"
                     self.used_facts.add("annex4_code")
+                if mat.get("general_by_family"):  # 계열(예: 51-22 폐콘크리트)을 먼저 고르게 한다
+                    when = {
+                        "all": [
+                            {"fact": "general_group", "op": "eq", "value": code[:5]},
+                            {"fact": "annex4_code", "op": "eq", "value": code},
+                        ]
+                    }
+                    self.used_facts.add("general_group")
                 rules.append(
                     {
                         "rule_id": rid,
@@ -702,6 +717,31 @@ class Converter:
                 item["help"] = h
             item.update(ov.get(fid) or {})
             out.append(item)
+        if "general_group" in self.used_facts:
+            f = self.facts["general_group"]
+            # 계열 = 일반 번호의 앞 5자리(51-22 등). 별표 4에 계열 행이 없으면 첫 번호의 명칭을 쓴다
+            names = {
+                g["id"]: g["name"]
+                for g in self.a4_groups
+                if g.get("section") == "GENERAL" and g.get("level") == "group"
+            }
+            families: dict[str, str] = {}
+            for c in self.codes:
+                if c["section"] == "GENERAL" and c["id"] not in self.excluded:
+                    fam = c["id"][:5]
+                    families.setdefault(fam, names.get(fam) or c["name"])
+            out.append(
+                {
+                    "key": "general_group",
+                    "label": f.get("label"),
+                    "type": "enum",
+                    "values": {k: f"{k} {v}" for k, v in families.items()},
+                    "ask_cost": 1,
+                    "legal_priority": 1,
+                    "question_hint": f.get("question") or f.get("label"),
+                    **({"help": self.help_text(f)} if self.help_text(f) else {}),
+                }
+            )
         designated_or_general = [
             c
             for c in self.codes

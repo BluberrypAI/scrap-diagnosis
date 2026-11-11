@@ -45,6 +45,7 @@ groups:
   catalyst_adsorbent: {label: 촉매·흡착제, hint: "폐촉매, 폐활성탄, 이온교환수지"}
   product: {label: 제품·복합물, hint: "피복전선, 전기전자제품, 폐타이어, 태양광 패널, 전지"}
   special: {label: 목록에 없거나 섞인 것, hint: "목록에 없는 소재, 나누기 어려운 혼합물"}
+  unlisted_family: {label: "목록에 없는 폐기물(별표 4 계열에서 고르기)", hint: "폐콘크리트, 음식물류, 폐석재 등 위 목록에 없는 것"}
 
 materials:
   # ---------------- 플라스틱·고무
@@ -245,3 +246,8 @@ materials:
   mixed_inseparable: {label: "여러 소재가 섞여 나누기 어려움", group: special, waste_kind: other, no_general_code: true,
                       note: "법령에서 혼합물 일반의 분류번호 결정 규정을 확인하지 못함(MIX-CLASS NOT_FOUND). 지정 성분은 공통 규칙으로 확인"}
   unlisted: {label: "목록에 없음", group: special, unlisted: true}
+  # 목록에 맞는 소재가 없을 때의 대체 경로(2026-11-11): 공통 단계(폐기물·법 적용·사업장)와 공통 오염 확인
+  # (기름·PCB·유해화학물질·잔류물)은 그대로 하고, 일반 번호는 별표 4의 일반 계열(general_group)을 고른 뒤
+  # 그 계열의 번호(annex4_code)를 고른다. 계열별 지정 기준(용출 등)은 적용하지 않으므로 전문가 확인 대상.
+  unlisted_other: {label: "목록에 없는 폐기물(별표 4 계열에서 고르기)", group: unlisted_family, waste_kind: other,
+                   general_by_family: true, aliases: [그 밖의 폐기물, 기타 폐기물]}

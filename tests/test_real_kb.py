@@ -36,7 +36,7 @@ EXPECT = {
 
 def test_structure(real_kb):
     assert real_kb.warnings == ()
-    assert len(real_kb.tables) == 97
+    assert len(real_kb.tables) == 98
     assert all(t.effective_from.isoformat() == "2026-10-02" for t in real_kb.tables)
     code = real_kb.catalog["annex4_code"]
     assert code.domain == "referenced" and code.ask_last and code.auto_single and code.internal

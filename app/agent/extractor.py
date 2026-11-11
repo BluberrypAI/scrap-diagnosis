@@ -144,7 +144,10 @@ EXTRACT_SYSTEM = """너는 사업장 폐기물 문진의 '사실 추출기'다. 
    - 폐기물의 종류를 말하면 상위 분류 사실을 뽑는다(values와 aliases 참고).
      예: "폐유기용제", "폐알칼리", "폐유", "분진", "오니", "폐축전지".
    - 세부 값(예: "PP", "폐황산", "시너")을 분명히 말했으면 세부 사실도 함께 뽑는다.
-   - 큰 분류만 말했으면 세부 사실은 비운다. 큰 분류만 듣고 세부 값을 짐작하지 마라."""
+   - 큰 분류만 말했으면 세부 사실은 비운다. 큰 분류만 듣고 세부 값을 짐작하지 마라.
+13. 사용자가 말한 폐기물이 소재 목록 어디에도 맞지 않고 분명하면(예: 폐콘크리트, 음식물찌꺼기, 폐형광등,
+   오염토) material_group=unlisted_family, material=unlisted_other로 두고, general_group(별표 4 일반 계열)에서
+   분명히 맞는 계열이 있으면 그것도 뽑는다(예: "폐콘크리트" → 51-22). 애매하면 general_group은 비운다."""
 
 
 def catalog_view(kb: KnowledgeBase, last_question: QuestionChoice | None) -> list[dict]:

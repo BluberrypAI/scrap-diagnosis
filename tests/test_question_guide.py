@@ -15,6 +15,7 @@ from app.agent.web_search import WebResult, allowed, safe_query
 
 AS_OF = date(2026, 11, 11)
 NOT_ASKED = {"material", "annex4_code"}  # 소재는 소재 목록·분류 설명, 번호는 별표 4 명칭으로 설명
+SELF_DESCRIBING = {"general_group"}  # 선택지가 별표 4 계열 명칭 그대로(선택지별 설명 생략)
 
 
 def test_every_question_and_option_has_guide(real_kb):
@@ -28,7 +29,7 @@ def test_every_question_and_option_has_guide(real_kb):
             missing.append(key)
             continue
         opts = g.get("options") or {}
-        if fd.type == "enum":
+        if fd.type == "enum" and key not in SELF_DESCRIBING:
             no_opt += [f"{key}.{v}" for v in fd.values or () if v not in opts]
         elif fd.type == "bool":
             no_opt += [f"{key}.{v}" for v in ("true", "false") if v not in opts]
@@ -124,3 +125,32 @@ def test_guide_index_covers_facts_topics_terms(real_kb):
 
     ids = {x["id"] for x in guide_index(real_kb)}
     assert "fact:pcb_possible" in ids and "topic:MSDS" in ids and "term:용출" in ids
+
+
+def test_unlisted_waste_narrows_by_annex4_family(real_kb):
+    """목록에 없는 폐기물: 공통 단계·오염 확인 후 별표 4 계열 → 번호로 좁혀 확정한다."""
+    from app.agent.orchestrator import QuickReply
+
+    for fam, code in (("51-22", "51-22-01"), ("51-38", "51-38-01"), ("51-47", "51-47-01")):
+        s = DiagnosisSession(real_kb, case_id="u", as_of=AS_OF)
+        s.seed(
+            {"emission_facility": True, "material_group": "special", "material": "unlisted_other"}
+        )
+        r = s.handle()
+        asked = []
+        for _ in range(12):
+            if r.branch != "ASK_FACT":
+                break
+            q = r.ui.question
+            asked.append(q["key"])
+            if q["input"] == "group":
+                r = s.handle(quick_reply=QuickReply(key=q["key"], kind="none_all"))
+            elif q["key"] == "general_group":
+                r = s.handle(quick_reply=QuickReply(key="general_group", value=fam))
+            elif q["key"] == "annex4_code":
+                assert all(o.value.startswith(fam) for o in q["options"] if o.kind == "value")
+                r = s.handle(quick_reply=QuickReply(key="annex4_code", value=code))
+            else:
+                r = s.handle(quick_reply=QuickReply(key=q["key"], value=q["options"][0].value))
+        assert "contamination_screen" in asked  # 지정폐기물 공통 오염 확인은 그대로
+        assert r.branch == "FINAL_REVIEW" and r.verdict.waste_code == code
