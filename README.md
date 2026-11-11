@@ -6,6 +6,51 @@
 
 엔진이 질문을 고르고 판정하는 방법: [docs/engine/algorithm.md](docs/engine/algorithm.md)
 
+## 웹 화면에서 바로 써 보기
+
+참조 화면(`web/`, UI팀 확인용 테스트 화면)으로 문진·판정·보충 설명을 직접 눌러 볼 수 있다.
+
+**준비(처음 한 번)**: Python 패키지 관리자 [uv](https://docs.astral.sh/uv/), Node.js 20 이상
+```bash
+uv sync
+cd web && npm install && cd ..
+cp .env.example .env        # 실제 AI를 쓰려면 AZURE_OPENAI_* 값을 채운다(값은 팀에서 따로 받음)
+uv run alembic -x url=sqlite:///var/ui.db upgrade head   # 화면용 테스트 DB
+```
+`AZURE_OPENAI_*` 값을 비워 두면(또는 `LLM_PROVIDER=off`) AI 없이 동작한다. 이때는 자유 문장을 알아듣지 못하므로 선택지 버튼으로만 답한다.
+
+**실행(터미널 두 개)**
+```bash
+# 1) 엔진 API (http://localhost:8030, API 문서 /docs)
+DATABASE_URL=sqlite:///var/ui.db uv run uvicorn app.main:app --port 8030
+```
+```bash
+# 2) 화면 (http://localhost:5180)
+cd web && npm run dev
+```
+Windows PowerShell이면 1)을 `$env:DATABASE_URL="sqlite:///var/ui.db"; uv run uvicorn app.main:app --port 8030`로 실행한다. 화면은 `/api` 요청을 `VITE_PROXY_TARGET`(기본 `http://127.0.0.1:8030`)으로 넘긴다.
+엔진 없이 화면만 보려면 `cd web && npm run dev:mock`(목 API, 정해진 시나리오만).
+
+**써 보기**
+1. http://localhost:5180 → "회사 만들기"에 아무 이름을 넣고, 배출시설에서 "대기 배출시설"을 골라 저장한다(로그인은 다른 팀 담당이라 개발용 회사 선택으로 대신한다).
+2. "새 문진"에 폐기물을 말로 적거나 예시 버튼을 누른다. 질문 카드의 버튼이나 자유 문장으로 답한다. 실제 AI를 쓰면 한 턴에 5~10초 걸린다.
+3. 결과가 나오면 "확정"을 누른다. 확정하면 경로추천 AI로 넘길 인계 객체가 만들어진다(문진 화면 "기록").
+
+| 입력해 볼 문장 | 확인할 것 |
+|---|---|
+| `PP 필름 자투리예요` → 버튼으로 답 | 질문 3~4번에 `51-03-01` 확정, 결과의 "근거 보기" |
+| `이건 왜 물어봐요?`, `PCB가 뭐예요?` | 질문 카드는 그대로, 근거 조문·용어 설명이 붙은 보충 설명 말풍선 |
+| `옛날 변압기에 든 독한 기름 있잖아요, 그거 뭐예요?` | 단어가 달라도 뜻으로 자료를 찾음(PCB 설명) |
+| `아마 PP일걸요`, 오염 묶음 질문에 `아마 다 해당 없을걸요` | 판정 보드에 "· 추측", 확정 전에 추측한 오염 항목을 한 번 다시 물음 |
+| `근처 처리업체 추천해 줘` | 문진만 돕는다고 안내하고 원래 질문 유지 |
+| `폐수처리 오니` → 함수율 `모르겠어요` | 추측하지 않고 시험성적서 요청 |
+
+**개발자 화면**(개발 서버 `npm run dev`에서만 보임, 엔진도 `APP_ENV=prod`면 404)
+- 상단 **"규칙 그래프(개발)"**(`#/dev/rules`): 엔진 규칙 전체 구조(폐기물 해당 → 법 적용 → 사업장 → 소재 분류 × 지정폐기물 법 조항 → 결론), 소재별 판정 흐름과 검색
+- 문진 화면 **"AI 데이터(개발)"**(`#/cases/{id}/dev`): 턴마다 AI에 보낸 데이터·받은 값·guard 채택/버림·질문 점수. "안내용으로 찾은 자료만"으로 보충 설명에 쓴 자료만 따로 본다
+
+자세한 화면 설명은 [docs/ui/handover.md](docs/ui/handover.md).
+
 ## 실행
 ```bash
 uv sync
