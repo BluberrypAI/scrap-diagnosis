@@ -427,6 +427,8 @@ class Converter:
             return [], "NO_MIXTURE_RULE"
         if mat.get("code_needs_test"):
             return [], "CODE_NEEDS_TEST"
+        if mat.get("designated_only"):  # 별표 4에 지정 번호만 있는 소재(예: 납축전지 03-10-01)
+            return [], "NO_GENERAL_CODE"
         if mat.get("general_by_family"):  # 목록에 없는 폐기물: 별표 4 일반 번호 전체(계열로 좁힘)
             prefixes = ["51-"]
         else:

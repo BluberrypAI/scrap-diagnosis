@@ -14,7 +14,7 @@ uv run python tools/legacy_regression.py   # 기존 엔진 판정표와 비교(�
 |---|---|---|
 | `law_rules/scope_and_business.yaml` | 법 규칙 28개: 폐기물 해당 여부(S0), 법 적용 제외(S1), 사업장폐기물 여부(S2) | 예 |
 | `law_rules/designated.yaml` | 법 규칙 122개: 지정폐기물 기준(S3). 규칙마다 쉬운 설명(`plain`), 인용문(`quote`), 조문 위치(`location`) | 예 |
-| `materials.yaml` | 소재 99개: 폐기물 종류, 소재가 정하는 사실, 별표 4 번호 후보 | 아니오 |
+| `materials.yaml` | 소재 102개: 폐기물 종류, 소재가 정하는 사실, 별표 4 번호 후보 | 아니오 |
 | `code_map.yaml` | 법 규칙 → 별표 4 번호 범위 대응표(사람이 옮긴 것). 법의 예외는 여기 두지 않는다 | 예(대응) |
 | `definitions.yaml` | 공통 정의: 여러 규칙이 함께 쓰는 이름 붙은 조건(규칙이 `{ref: 이름}`으로 씀) | 예 |
 | `annex4_codes.yaml` | 시행규칙 별표 4 번호표 | 법령 원문 |

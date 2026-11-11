@@ -1,4 +1,4 @@
-# 자동 생성: tools/build_kb.py (knowledge cf990f84). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge cc0addd8). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 - key: material_group
   label: 소재 분류
   type: enum
@@ -93,7 +93,7 @@
 
     촉매·흡착제: 폐촉매, 폐활성탄, 이온교환수지
 
-    제품·복합물: 피복전선, 전기전자제품, 폐타이어, 태양광 패널, 전지
+    제품·복합물: 피복전선, 전기전자제품, 폐타이어, 태양광 패널, 전지(납축전지 포함)
 
     여러 소재가 섞여 나누기 어려운 것: 여러 재질이 섞여 분리하기 어려운 폐기물
 
@@ -197,6 +197,9 @@
     battery_drive: 구동용 폐이차전지(전기차 외)
     battery_cathode: 폐양극활물질(양극재·전구체 공정 포함)
     battery_fuel_cell: 폐연료전지
+    battery_lead_acid: 폐납축전지(황산 전해액)
+    battery_alkaline: 폐알칼리 이차전지(니켈카드뮴·니켈수소)
+    battery_scrap: 이차전지 스크랩(제조·해체 부산물)
     battery_secondary_other: 그 밖의 폐이차전지
     mixed_inseparable: 여러 소재가 섞여 나누기 어려움
     unlisted_other: 목록에 없는 폐기물(별표 4 계열에서 고르기)
@@ -290,6 +293,18 @@
     - 건전지
     battery_ev:
     - 전기차 배터리
+    battery_lead_acid:
+    - 납축전지
+    - 납산 배터리
+    - 자동차 배터리
+    - 지게차 배터리
+    battery_alkaline:
+    - 니켈카드뮴 전지
+    - 니켈수소 전지
+    - 니카드 배터리
+    battery_scrap:
+    - 배터리 스크랩
+    - 전극 스크랩
     battery_secondary_other:
     - 리튬이온 배터리
     unlisted_other:
@@ -398,6 +413,9 @@
     battery_drive: product
     battery_cathode: product
     battery_fuel_cell: product
+    battery_lead_acid: product
+    battery_alkaline: product
+    battery_scrap: product
     battery_secondary_other: product
     mixed_inseparable: special
     unlisted_other: unlisted_family
@@ -804,6 +822,20 @@
   help: '시험: 트리클로로에틸렌 용출 — 폐기물공정시험기준 용출시험
 
     성적서에서 확인할 값: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)'
+- key: battery_type
+  label: 이차전지 종류
+  type: enum
+  values:
+    lithium: 리튬계(리튬이온·리튬폴리머 등)
+    lead_acid: 납축전지(황산 전해액, 자동차·지게차 시동용 등)
+    alkaline: 알칼리 이차전지(니켈카드뮴·니켈수소 등)
+    scrap: 이차전지 스크랩(전지 제조·해체 과정의 셀·전극 부스러기)
+    other_secondary: 그 밖의 이차전지
+    not_secondary: 이차전지가 아님(일차전지·연료전지·양극재)
+  ask_cost: 1
+  legal_priority: 3
+  question_hint: 어떤 종류의 전지인가요?
+  help: 전지 겉면 라벨이나 명판의 종류 표시(Li-ion, Pb, Ni-Cd, Ni-MH 등)를 확인하세요. 없으면 제품 사양서나 공급사에 확인하세요.
 - key: battery_damaged
   label: 전지 손상·훼손
   type: bool

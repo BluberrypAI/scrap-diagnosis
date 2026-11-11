@@ -9,6 +9,9 @@
   새 엔진은 코드 없는 결론 NO_GENERAL_CODE(FINAL_REVIEW @NO_GENERAL_CODE)로 안내한다.
 - 산·알칼리 + 유해화학물질: 법이 제9호를 제외하므로, 새 엔진은 제외를 먼저 적용해 산·알칼리 번호
   하나로 확정한다(기존은 제외 전 사유로 좁히기를 판단해 선택지 여러 개).
+- 폐이차전지(docs/rule-changes/d6-secondary-battery.md): 판정표에는 전지 종류가 없어
+  새 엔진은 종류를 묻는다(ASK_FACT battery_type). 손상 규칙은 이차전지에만 적용하므로
+  일차전지·양극재·연료전지의 '손상' 행은 해석 필요 대신 일반 번호가 된다.
 """
 
 import pytest
@@ -26,6 +29,8 @@ ACID_ALKALI = {
     "ammonia_solution",
     "alkali_other",
 }
+BATTERY_ASKS_TYPE = {"battery_ev", "battery_drive", "battery_secondary_other"}
+NOT_SECONDARY = {"battery_primary", "battery_cathode", "battery_fuel_cell"}
 
 
 @pytest.fixture(scope="module")
@@ -35,8 +40,9 @@ def result(real_kb):
 
 def test_codes_and_stops_match_exactly(result):
     kinds = result["by_kind"]
-    assert kinds.get("CODE/MATCH") == 2332 and "CODE/DIFF" not in kinds
-    assert kinds.get("STOP/MATCH") == 233 and "STOP/DIFF" not in kinds
+    # 전지 행만 다르다(test_remaining_diffs_are_known_cases): 종류 질문 15행, 손상 6행
+    assert kinds.get("CODE/MATCH") == 2317 and kinds.get("CODE/DIFF") == 15
+    assert kinds.get("STOP/MATCH") == 227 and kinds.get("STOP/DIFF") == 6
 
 
 def test_code_choice_matches_or_has_fewer_options(result):
@@ -49,12 +55,21 @@ def test_code_choice_matches_or_has_fewer_options(result):
     )
 
 
-def test_remaining_diffs_are_known_acid_alkali_cases(result):
+def test_remaining_diffs_are_known_cases(result):
+    acid = battery = 0
     for line in result["diffs"]:
         mid = line.split("#")[0]
-        assert mid in ACID_ALKALI, line
-        assert ("NO_GENERAL_CODE" in line) or ("FINAL_REVIEW 02-0" in line), line
-    assert len(result["diffs"]) == 36
+        if mid in BATTERY_ASKS_TYPE:
+            assert "ASK_FACT battery_type" in line, line
+            battery += 1
+        elif mid in NOT_SECONDARY:
+            assert '"battery_damaged": true' in line and "FINAL_REVIEW 51-41-" in line, line
+            battery += 1
+        else:
+            assert mid in ACID_ALKALI, line
+            assert ("NO_GENERAL_CODE" in line) or ("FINAL_REVIEW 02-0" in line), line
+            acid += 1
+    assert (acid, battery) == (36, 21)
 
 
 def test_extra_questions_are_rare(result):

@@ -516,6 +516,21 @@ leach_tce:
     method: 폐기물공정시험기준 용출시험
     report: 용출액 mg/L, 시료 채취일, 분석기관(폐기물분석전문기관)
 
+battery_type:
+  label: 이차전지 종류
+  type: enum
+  cost: USER
+  question: 어떤 종류의 전지인가요?
+  values:
+    lithium: 리튬계(리튬이온·리튬폴리머 등)
+    lead_acid: 납축전지(황산 전해액, 자동차·지게차 시동용 등)
+    alkaline: 알칼리 이차전지(니켈카드뮴·니켈수소 등)
+    scrap: 이차전지 스크랩(전지 제조·해체 과정의 셀·전극 부스러기)
+    other_secondary: 그 밖의 이차전지
+    not_secondary: 이차전지가 아님(일차전지·연료전지·양극재)
+  how_to_check:
+    - text: 전지 겉면 라벨이나 명판의 종류 표시(Li-ion, Pb, Ni-Cd, Ni-MH 등)를 확인하세요. 없으면 제품 사양서나 공급사에 확인하세요.
+
 battery_damaged:
   label: 전지 손상·훼손
   type: bool

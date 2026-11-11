@@ -69,8 +69,8 @@ PP 스크랩의 실제 진행(기업 정보에 "배출시설 있음"이 있을 �
 
 | 파일 | 내용 | `data/real` 규모 |
 |---|---|---|
-| `facts_catalog.yaml` | 사실 카탈로그: 물을 수 있는 사실과 값 영역 | 38개 |
-| `rules/tables/*.yaml` | 소재별 규칙 테이블 | 98개 테이블, 규칙 3,742개 |
+| `facts_catalog.yaml` | 사실 카탈로그: 물을 수 있는 사실과 값 영역 | 39개 |
+| `rules/tables/*.yaml` | 소재별 규칙 테이블 | 101개 테이블, 규칙 3,850개 |
 | `rules/common/*.yaml` | 여러 테이블이 함께 쓰는 규칙(적용 범위, 사업장 여부). 테이블이 `includes`로 넣는다 | - |
 | `question_groups.yaml` | 묶음 질문 | 2개 |
 | `codes.yaml` | 별표 4 분류번호표 | 313개 |

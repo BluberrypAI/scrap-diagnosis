@@ -43,7 +43,7 @@ groups:
   solvent_paint: {label: 용제·페인트, hint: "유기용제, 유성·수성 페인트, 락카"}
   wood_paper_fiber: {label: 목재·종이·섬유·유리, hint: "목재 포장재, 폐지, 섬유, 폐유리"}
   catalyst_adsorbent: {label: 촉매·흡착제, hint: "폐촉매, 폐활성탄, 이온교환수지"}
-  product: {label: 제품·복합물, hint: "피복전선, 전기전자제품, 폐타이어, 태양광 패널, 전지"}
+  product: {label: 제품·복합물, hint: "피복전선, 전기전자제품, 폐타이어, 태양광 패널, 전지(납축전지 포함)"}
   special: {label: 목록에 없거나 섞인 것, hint: "목록에 없는 소재, 나누기 어려운 혼합물"}
   unlisted_family: {label: "목록에 없는 폐기물(별표 4 계열에서 고르기)", hint: "폐콘크리트, 음식물류, 폐석재 등 위 목록에 없는 것"}
 
@@ -232,13 +232,26 @@ materials:
   tire_auto: {label: "자동차 폐타이어", group: product, waste_kind: synthetic_rubber, codes: {GENERAL: ["51-15-01"]}, composite: true}
   solar_panel: {label: "태양광 폐패널", group: product, waste_kind: other, codes: {GENERAL: ["51-41-04"]}, composite: true}
   # 폐전지: 손상된 이차전지는 공통 규칙에서 따로 판정(해석 필요). 아래 번호는 손상되지 않은 것.
-  battery_primary: {label: "폐일차전지", group: product, aliases: [건전지], waste_kind: battery, codes: {GENERAL: ["51-41-01"]}}
+  battery_primary: {label: "폐일차전지", group: product, aliases: [건전지], waste_kind: battery,
+                    presets: {battery_type: not_secondary}, codes: {GENERAL: ["51-41-01"]}}
   battery_ev: {label: "전기자동차 폐이차전지", group: product, aliases: [전기차 배터리], waste_kind: battery,
                codes: {GENERAL: ["51-41-05"]}}
   battery_drive: {label: "구동용 폐이차전지(전기차 외)", group: product, waste_kind: battery, codes: {GENERAL: ["51-41-06"]}}
   battery_cathode: {label: "폐양극활물질(양극재·전구체 공정 포함)", group: product, waste_kind: battery,
-                    codes: {GENERAL: ["51-41-07"]}}
-  battery_fuel_cell: {label: "폐연료전지", group: product, waste_kind: battery, codes: {GENERAL: ["51-41-08"]}}
+                    presets: {battery_type: not_secondary}, codes: {GENERAL: ["51-41-07"]}}
+  battery_fuel_cell: {label: "폐연료전지", group: product, waste_kind: battery,
+                      presets: {battery_type: not_secondary}, codes: {GENERAL: ["51-41-08"]}}
+  # 별표 4 03-10(지정): 납축·알칼리 이차전지, 이차전지 스크랩(2026-11-11). 시행령 별표 1 근거를 찾지 못해
+  # 공통 규칙이 '해석 필요'로 판정한다. 일반 번호(51-41-99 등)로 가지 않게 일반 번호를 두지 않는다.
+  battery_lead_acid: {label: "폐납축전지(황산 전해액)", group: product, aliases: [납축전지, 납산 배터리, 자동차 배터리, 지게차 배터리],
+                      waste_kind: battery, presets: {battery_type: lead_acid}, designated_only: true,
+                      codes: {DESIGNATED: ["03-10-01"]}}
+  battery_alkaline: {label: "폐알칼리 이차전지(니켈카드뮴·니켈수소)", group: product, aliases: [니켈카드뮴 전지, 니켈수소 전지, 니카드 배터리],
+                     waste_kind: battery, presets: {battery_type: alkaline}, designated_only: true,
+                     codes: {DESIGNATED: ["03-10-02"]}}
+  battery_scrap: {label: "이차전지 스크랩(제조·해체 부산물)", group: product, aliases: [배터리 스크랩, 전극 스크랩],
+                  waste_kind: battery, presets: {battery_type: scrap}, designated_only: true,
+                  codes: {DESIGNATED: ["03-10-04"]}}
   battery_secondary_other: {label: "그 밖의 폐이차전지", group: product, aliases: [리튬이온 배터리], waste_kind: battery,
                             codes: {GENERAL: ["51-41-99"]}}
 
