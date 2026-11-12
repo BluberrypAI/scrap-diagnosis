@@ -247,6 +247,13 @@ def _item_for_row(
             )
         )
 
+    # 배율이 1이 아닌 환산은 메모에 남긴다(검수 화면이 "환산했어요"로 알린다)
+    conv_note = (
+        f"단위 환산: {unit_raw} → {test_item.unit} (×{rule.factor:g})"
+        if unit_raw and rule.factor != 1 and not rule.assumed
+        else None
+    )
+
     if parsed.kind == "nd":
         dl, dl_raw, dl_ref, dl_unit = _detection_limit(
             layout, info.row, col.col, parsed.detection_limit, parsed.detection_limit_raw
@@ -277,7 +284,7 @@ def _item_for_row(
             unit_ref=unit_ref,
             detection_limit_ref=dl_ref,
             detection_limit_basis=basis,
-            note=dl_note,
+            note=f"{dl_note} · {conv_note}" if conv_note else dl_note,
             **base,
         )
         return _Candidate(item, ("ND", dl_conv), warnings)
@@ -291,6 +298,7 @@ def _item_for_row(
         value_raw=parsed.number_raw,
         unit_raw=unit_raw,
         unit_ref=unit_ref,
+        note=conv_note,
         **base,
     )
     return _Candidate(item, ("VAL", value, parsed.comparator), warnings)

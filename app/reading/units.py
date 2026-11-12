@@ -28,6 +28,17 @@ _RULES: dict[str, dict[str, UnitRule]] = {
         "ug/l": UnitRule(0.001),
         "ppb": UnitRule(0.001, assumed=True),
         "g/l": UnitRule(1000),
+        # 부피 기준이 mL인 표기(2026-11-12): 1 mg/mL = 1000 mg/L. 환산했다고 메모에 남긴다
+        "mg/ml": UnitRule(1000),
+        "μg/ml": UnitRule(1),
+        "ug/ml": UnitRule(1),
+        # 같은 질량/부피 단위의 접두어만 다른 표기(2026-11-13). 밀도가 필요한 환산은 넣지 않는다
+        "ng/ml": UnitRule(0.001),
+        "ng/l": UnitRule(0.000001),
+        "mg/dl": UnitRule(10),
+        "μg/dl": UnitRule(0.01),
+        "ug/dl": UnitRule(0.01),
+        "g/ml": UnitRule(1_000_000),
         "ppm": UnitRule(1, assumed=True),
     },
     "%": {
@@ -36,12 +47,22 @@ _RULES: dict[str, dict[str, UnitRule]] = {
         "중량%": UnitRule(1),
         "%(w/w)": UnitRule(1),
         "mg/kg": UnitRule(0.0001),
+        # 질량/질량 표기(2026-11-13): 1 g/kg = 0.1 %, 1 mg/g = 0.1 %, 1 μg/g = 1 mg/kg
+        "g/kg": UnitRule(0.1),
+        "mg/g": UnitRule(0.1),
+        "μg/g": UnitRule(0.0001),
+        "ug/g": UnitRule(0.0001),
+        "μg/kg": UnitRule(0.0000001),
+        "ug/kg": UnitRule(0.0000001),
+        "g/100g": UnitRule(1),
         "ppm": UnitRule(0.0001, assumed=True),
     },
 }
 
 UNIT_TOKEN_RE = re.compile(
-    r"(mg\s*/\s*[lℓL]|㎎\s*/\s*[lℓL]|[μµu]g\s*/\s*[lℓL]|g\s*/\s*[lℓL]|mg\s*/\s*kg|ppm|ppb|wt\s*%|중량\s*%|%)",
+    # 질량(g·mg·㎎·μg·ug·ng) / 부피(L·mL·dL) 또는 질량(kg·g·100g).
+    # 뒤에 영문자가 이어지면 다른 단위다(예: mg/m3는 잡지 않음).
+    r"((?:[mμµun]?g|㎎)\s*/\s*(?:100\s*g|kg|g|[md]?[lℓL])(?![a-zA-Z])|ppm|ppb|wt\s*%|중량\s*%|%)",
     re.IGNORECASE,
 )
 

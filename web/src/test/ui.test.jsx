@@ -202,6 +202,17 @@ describe('서류 값 검수 창', () => {
     expect(sent).toHaveLength(4);
   });
 
+  it('단위를 환산한 값은 환산했다고 알리고, 기준값까지 환산한 불검출은 오타 가능성을 짚는다', () => {
+    setCatalog(cat);
+    const d2 = { id: 'd2', filename: 'r.pdf', version: 1, extracted_facts: { table_read: { items: [
+      { key: 'leach_cd', status: 'FOUND', page: 1, item_raw: '카드뮴(mg/mL)', value_raw: '불검출', unit_raw: 'mg/mL', below_detection_limit: true, detection_limit_basis: 'limit_column', cell_ref: at(3), note: '불검출. 검출한계가 없어 같은 행 기준 0.3 미만으로 봄 · 단위 환산: mg/mL → mg/L (×1000)' },
+    ] } } };
+    const cdv = v('v3', 'leach_cd', { lo: null, hi: 300, hi_inc: false });
+    render(<ReviewDialog items={[{ doc: d2, value: cdv }]} docs={[d2]} onApply={vi.fn()} onClose={vi.fn()} />);
+    expect(screen.getByRole('note').textContent).toMatch(/원문 단위 ‘mg\/mL’를 mg\/L로 바꿔 계산했어요\(×1000\)/);
+    expect(screen.getByRole('note').textContent).toMatch(/원문 단위가 오타일 수 있어요/);
+  });
+
   it('Esc로 닫는다', async () => {
     const onClose = vi.fn();
     render(<ReviewDialog items={items} docs={[doc]} onApply={vi.fn()} onClose={onClose} />);

@@ -532,7 +532,7 @@ def test_unread_item_keeps_place_raw_name_and_unit():
     rows = [
         ["시험항목", "결과", "기준"],
         ["납(mg/L)", "불검출", "3.0 이상"],
-        ["카드뮴(mg/mL)", "불검출", "0.3 이상"],
+        ["카드뮴(ppt)", "불검출", "0.3 이상"],
         ["TCE(mg/L)", "불검출", "0.3 이상"],
     ]
     rep = read_test_report(_build([_table(rows)]), "r.pdf", "application/pdf", settings=Settings())
@@ -541,9 +541,54 @@ def test_unread_item_keeps_place_raw_name_and_unit():
     assert cd.status is ItemStatus.AMBIGUOUS
     assert (cd.page, cd.item_raw, cd.unit_raw, cd.value_raw) == (
         1,
-        "카드뮴(mg/mL)",
-        "mg/mL",
+        "카드뮴(ppt)",
+        "ppt",
         "불검출",
     )
     assert cd.cell_ref is not None and cd.cell_ref.row == 2
     assert by["leach_tce"].item_raw == "TCE(mg/L)"
+
+
+def test_mg_per_ml_is_converted_with_note():
+    """mg/mL은 ×1000으로 mg/L에 환산하고, 환산했다고 메모에 남긴다."""
+    rows = [
+        ["시험항목", "결과", "기준"],
+        ["구리(mg/mL)", "0.002", "3.0 이상"],
+        ["카드뮴(mg/mL)", "불검출", "0.3 이상"],
+    ]
+    rep = read_test_report(_build([_table(rows)]), "r.pdf", "application/pdf", settings=Settings())
+    by = {it.key: it for it in rep.result.facts}
+    cu, cd = by["leach_cu"], by["leach_cd"]
+    assert cu.status is ItemStatus.FOUND and cu.value == pytest.approx(2.0)
+    assert "단위 환산: mg/mL → mg/L (×1000)" in (cu.note or "")
+    # 불검출 + 같은 줄 기준값도 같은 단위로 본다(0.3 mg/mL = 300 mg/L)
+    assert cd.status is ItemStatus.FOUND and cd.detection_limit == pytest.approx(300)
+    assert "단위 환산" in (cd.note or "")
+
+
+@pytest.mark.parametrize(
+    ("text", "target", "factor"),
+    [
+        ("카드뮴(mg/mL)", "mg/L", 1000),
+        ("㎎/mL", "mg/L", 1000),
+        ("ug/mL", "mg/L", 1),
+        ("ng/mL", "mg/L", 0.001),
+        ("ng/L", "mg/L", 0.000001),
+        ("mg/dL", "mg/L", 10),
+        ("g/kg", "%", 0.1),
+        ("mg/g", "%", 0.1),
+        ("μg/g", "%", 0.0001),
+        ("g/100g", "%", 1),
+    ],
+)
+def test_same_dimension_units_convert(text, target, factor):
+    from app.reading.units import convert, find_unit
+
+    assert convert(1, find_unit(text), target) == pytest.approx(factor)
+
+
+@pytest.mark.parametrize(("text", "target"), [("mg/m3", "mg/L"), ("mg/L", "%"), ("%", "mg/L")])
+def test_units_needing_density_or_unknown_are_not_converted(text, target):
+    from app.reading.units import convert, find_unit
+
+    assert convert(1, find_unit(text), target) is None

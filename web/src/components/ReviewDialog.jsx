@@ -181,6 +181,7 @@ function ReviewRow({ row, mark, label, fact, active, busy, onPick, onMark }) {
   }
   const { value } = row.item;
   const nd = r.below_detection_limit;
+  const conv = unitConversion(r);
   return (
     <li className="review-item" data-state={mark.state || 'todo'} data-active={active}>
       {head}
@@ -206,6 +207,14 @@ function ReviewRow({ row, mark, label, fact, active, busy, onPick, onMark }) {
           </>
         )}
       </div>
+      {conv && (
+        <p className="review-conv small" role="note">
+          원문 단위 &lsquo;{conv.from}&rsquo;를 {conv.to}로 바꿔 계산했어요(×{conv.factor}).
+          {nd && r.detection_limit_basis === 'limit_column'
+            ? ` 같은 줄 기준값도 ${conv.from}로 보고 바꿨어요. 기준 칸이 ${conv.to} 기준이면 원문 단위가 오타일 수 있어요. 오타라면 '고치기'로 ${conv.to} 값을 적어 주세요.`
+            : ' 원문 단위가 맞는지 확인해 주세요.'}
+        </p>
+      )}
       {mark.state === 'fix' && (
         <div className="doc-value-row review-fix">
           <ValueInput label={`${label} 고칠 값`} fact={fact} mark={mark} onMark={onMark} placeholder="원문 값" />
@@ -222,6 +231,12 @@ function unreadReason(r, fact) {
     return `원문 단위가 '${r.unit_raw}'로 적혀 있어요. 이 항목은 ${fact.unit} 기준이라 자동으로 읽지 않았어요. 단위가 오타인지 성적서나 분석기관에 확인한 뒤 ${fact.unit} 값으로 적어 주세요. 불검출이면 '미만'을 고르고 검출한계(없으면 같은 줄 기준값)를 적어 주세요.`;
   }
   return `${r.note || '값을 자동으로 정하지 못했어요.'} 원문을 보고 값을 적어 주세요.`;
+}
+
+/** 표 읽기가 단위를 환산했으면 {from, to, factor}. 메모 '단위 환산: mg/mL → mg/L (×1000)'에서 읽는다 */
+function unitConversion(r) {
+  const m = /단위 환산: (.+?) → (.+?) \(×([\d.e+-]+)\)/.exec(r?.note || '');
+  return m ? { from: m[1], to: m[2], factor: m[3] } : null;
 }
 
 /** 원문 순서 비교 값(쪽 → 표 → 행). 위치가 없으면 맨 뒤 */
