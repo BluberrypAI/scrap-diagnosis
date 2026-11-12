@@ -31,7 +31,8 @@ from app.agent import templates
 from app.agent.orchestrator import DiagnosisSession, QuickReply
 from app.agent.router import Branch
 from app.api.deps import KBInfo, LLMs
-from app.api.documents import extract_text
+from app.api.document_reading import TableReadOutcome, is_image, read_document_tables
+from app.api.documents import UnsupportedDocument, extract_text
 from app.api.profile import profile_facts
 from app.api.schemas import ApplyValueIn
 from app.config import Settings
@@ -97,8 +98,11 @@ class CaseService:
         company: Company,
         *,
         seed_local_profile: bool = True,
+        azure_client: Any = None,
     ):
         self.db = db
+        # 문서 인식(Azure) 클라이언트 주입(시험용). None이면 설정으로 만든다
+        self.azure_client = azure_client
         self.kb = kb
         self.kb_info = kb_info
         self.llms = llms
@@ -397,7 +401,8 @@ class CaseService:
     # - 업로드·직접 입력 값은 후보(document_values, UNVERIFIED)로만 저장한다. 판정은 바뀌지 않는다.
     # - 서버가 검수 완료로 보낸 값만 EVIDENCED 사실로 append한다(source_ref = 문서id@v버전).
     # - 엔진은 서류 원문과 값을 대조하지 않는다. 형식만 거른다(check_document_value).
-    # - 자동 읽기(OCR·AI)는 하지 않는다(document-extraction-v1 계약만 둔다). 원문은 저장만 한다.
+    # - PDF·이미지는 시험성적서 표를 자동으로 읽어 후보로 저장한다(app/api/document_reading.py).
+    #   직접 입력(facts)한 키는 자동으로 읽지 않는다. 읽은 값도 검수 전에는 판정에 쓰지 않는다.
 
     def get_document(self, case: WasteCase, document_id: str) -> Document:
         doc = self.db.get(Document, document_id)
@@ -425,11 +430,13 @@ class CaseService:
     ) -> tuple[Document, TurnResponse, list[DocumentValue]]:
         ls = self._open_session(case)
         manual = self._parse_manual_facts(manual_facts) if manual_facts else {}
-        text = extract_text(filename, content_type, data)
-        doc = Document(id=new_id(), case_id=case.id, version=1)
-        self._set_file(doc, filename, content_type, data, text, manual)
+        doc_id = new_id()
+        self._release_db()  # 표 읽기(Azure OCR이면 수십 초) 동안 DB 연결을 잡지 않는다
+        text, table = self._read_file(filename, content_type, data, doc_id, set(manual))
+        doc = Document(id=doc_id, case_id=case.id, version=1)
+        self._set_file(doc, filename, content_type, data, text, manual, table)
         self.db.add(doc)
-        values = self._store_candidates(case, ls, doc, manual)
+        values = self._store_candidates(case, ls, doc, manual, table)
         self._document_trace(ls, doc, text, values)
         return doc, self._document_turn(case, ls, doc, filename), values
 
@@ -447,7 +454,8 @@ class CaseService:
         ls = self._open_session(case)
         doc = self.get_document(case, document_id)
         manual = self._parse_manual_facts(manual_facts) if manual_facts else {}
-        text = extract_text(filename, content_type, data)
+        self._release_db()  # 표 읽기 동안 DB 연결을 잡지 않는다(아래 쓰기는 읽기 뒤에)
+        text, table = self._read_file(filename, content_type, data, doc.id, set(manual))
         prev = doc.version
         # 교체 시점까지의 모든 버전(이전 표기 '문서id' 포함)을 해제한다 = 이전 파일 전부
         revoked_keys, revoked_rows = self._revoke(
@@ -460,8 +468,8 @@ class CaseService:
         )
         doc.version = prev + 1
         doc.updated_at = utcnow()
-        self._set_file(doc, filename, content_type, data, text, manual)
-        values = self._store_candidates(case, ls, doc, manual)
+        self._set_file(doc, filename, content_type, data, text, manual, table)
+        values = self._store_candidates(case, ls, doc, manual, table)
         self._document_trace(
             ls,
             doc,
@@ -473,6 +481,36 @@ class CaseService:
         )
         return doc, self._document_turn(case, ls, doc, filename), values
 
+    def _read_file(
+        self,
+        filename: str,
+        content_type: str | None,
+        data: bytes,
+        document_id: str,
+        skip_keys: set[str],
+    ) -> tuple[str, TableReadOutcome | None]:
+        """원문 글자와 표 자동 읽기 결과. 이미지는 OCR이 켜져 있을 때만 받는다(아니면 415)."""
+        image = is_image(filename, content_type)
+        if image and not self.settings.ocr_enabled:
+            raise UnsupportedDocument(
+                "이미지 서류는 문서 인식(OCR)이 켜져 있어야 읽을 수 있습니다. PDF로 올리거나 "
+                "값을 직접 입력하세요"
+            )
+        text = "" if image else extract_text(filename, content_type, data)
+        table = read_document_tables(
+            self.kb,
+            self.settings,
+            filename=filename,
+            content_type=content_type,
+            data=data,
+            document_id=document_id,
+            skip_keys=skip_keys,
+            azure_client=self.azure_client,
+        )
+        if table is not None and not text.strip() and table.page_text:
+            text = table.page_text  # 스캔본·이미지: OCR이 읽은 글자
+        return text, table
+
     def _set_file(
         self,
         doc: Document,
@@ -481,22 +519,51 @@ class CaseService:
         data: bytes,
         text: str,
         manual: dict[str, Any],
+        table: TableReadOutcome | None = None,
     ) -> None:
         doc.filename = filename
         doc.content_type = content_type
         doc.size = len(data)
         doc.sha256 = hashlib.sha256(data).hexdigest()
         doc.extracted_text = text
+        auto = table.candidates if table else []
+        methods = [m for m, on in (("manual", manual), ("table", auto)) if on]
         doc.extracted_facts = {
-            "method": "manual" if manual else "none",
-            "candidates": {k: _json_value(v) for k, v in manual.items()},
+            "method": "+".join(methods) or "none",
+            "candidates": {
+                **{c.key: _json_value(c.value) for c in auto},
+                **{k: _json_value(v) for k, v in manual.items()},
+            },
             "accepted": {},  # 이전 호환. 업로드 값은 더 이상 바로 적용되지 않는다
         }
+        if table is not None:
+            doc.extracted_facts["table_read"] = table.summary
 
     def _store_candidates(
-        self, case: WasteCase, ls: LoadedSession, doc: Document, manual: dict[str, Any]
+        self,
+        case: WasteCase,
+        ls: LoadedSession,
+        doc: Document,
+        manual: dict[str, Any],
+        table: TableReadOutcome | None = None,
     ) -> list[DocumentValue]:
         out = []
+        for c in table.candidates if table else []:
+            row = DocumentValue(
+                id=new_id(),
+                document_id=doc.id,
+                document_version=doc.version,
+                case_id=case.id,
+                session_id=ls.record.id,
+                fact_key=c.key,
+                value=_json_value(c.value),
+                unit=c.unit,
+                status=VALUE_UNVERIFIED,
+                note=c.note,
+                created_at=utcnow(),
+            )
+            self.db.add(row)
+            out.append(row)
         for k, v in manual.items():
             row = DocumentValue(
                 id=new_id(),

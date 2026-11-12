@@ -37,6 +37,7 @@ FOUND가 아닌 항목(NOT_FOUND 등)은 Fact를 만들지 않는다. 이미 있
 | `document.case_id`, `document_id`, `filename`, `content_type`, `sha256`(소문자 hex 64자), `size`(바이트), `uploaded_at`(시간대 포함 ISO 8601) | 업로드 메타데이터 |
 | `content.text_pages[]` | `{page(1부터), text}`. 쪽 번호 단위로 나눈 추출 텍스트. 기본 입력 |
 | `content.page_images[]` | **[미래·OCR]** `{page, content_type, ref}`. 텍스트 층이 없는 스캔본용. v1 구현은 쓰지 않아도 되며, 있으면 `text_pages`를 보완하는 용도다. 바이트를 싣지 않고 저장소 참조만 싣는다 |
+| `content.tables[]` | (선택) 표 인식 층의 칸 단위 표(`TableGrid`, `app/domain/tables.py`). 형식은 `docs/design/test-report-table-extraction.md` 4절 |
 | `content.page_count` | 원본 쪽 수(알면) |
 | `doc_type_hint` | 카탈로그 `evidence_type` 중 하나(`TEST_REPORT`, `MSDS`, `EQUIPMENT_NAMEPLATE`, `EMISSION_FACILITY_PERMIT`, `CIRCULAR_RESOURCE_CERTIFICATE`, `WASTE_DISCHARGE_REPORT`, `CONSTRUCTION_CONTRACT`, `FACILITY_NOTIFICATION`, `DOCUMENT`) 또는 null. REQUEST_EVIDENCE가 요청한 유형이며 **힌트일 뿐**이다 |
 | `requested_facts[]` | REQUEST_EVIDENCE의 `RequestedDocument.facts`를 카탈로그로 풀어 쓴 목록. 각 항목: `key`, `label`, `type`(`bool`/`enum`/`number`), `unit`, `allowed_values`(enum), `note`(기준값 등 판정 관련 힌트), `help`(카탈로그 help: 시험방법·확인할 값) |
@@ -75,7 +76,9 @@ FOUND가 아닌 항목(NOT_FOUND 등)은 Fact를 만들지 않는다. 이미 있
 | `method` | 서류에 적힌 시험방법 표기 |
 | `sample_label` | 시료가 여럿일 때 어느 시료인지 |
 | `below_detection_limit`, `detection_limit` | 불검출 여부, 정규화 단위의 검출한계. 불검출이면 `detection_limit` 필수, `value`는 null |
+| `detection_limit_basis` | (선택) 검출한계의 출처. `stated`(서류에 적힌 검출한계, 기본) / `limit_column`(검출한계가 서류에 없어 같은 행 **기준 칸**의 값을 상한으로 씀, §5-5) |
 | `note` | 읽기 구성요소의 짧은 메모 |
+| `cell_ref`, `unit_ref`, `detection_limit_ref` | (선택) 값·단위·검출한계를 읽은 표 칸 `{page, table_index, row, col}`(검출한계는 각주 `{page, table_index, footnote_mark}`도 가능). 있으면 엔진이 표 구조로 다시 검증한다(설계 문서 6절 T1~T10) |
 
 규칙
 - FOUND가 아닌 항목에는 `value`·불검출을 넣지 않는다.
@@ -83,7 +86,7 @@ FOUND가 아닌 항목(NOT_FOUND 등)은 Fact를 만들지 않는다. 이미 있
 - `AMBIGUOUS`는 후보를 `note`에 적을 수 있지만 값을 고르지 않는다. 사용자에게 되묻는 것은 엔진 몫이다.
 
 ### 경고 코드
-`SAMPLE_DATE_OLD` 시료 채취일이 오래됨 / `UNIT_CONVERSION_FAILED` 단위 환산 불가 / `UNIT_ASSUMED` 단위를 가정해 환산 / `DOC_TYPE_MISMATCH` 힌트와 판별 종류 불일치 / `DIFFERENT_SUBJECT` 다른 시료·회사로 보임 / `MULTIPLE_SAMPLES` 한 서류에 시료 여럿 / `NO_SIGNATURE_OR_SEAL` 서명·직인 없음 / `LOW_QUALITY` 읽기 품질 낮음 / `PARTIAL_DOCUMENT` 일부 쪽만 있는 듯함 / `METHOD_MISMATCH` 시험방법이 카탈로그 기준과 다름
+`SAMPLE_DATE_OLD` 시료 채취일이 오래됨 / `UNIT_CONVERSION_FAILED` 단위 환산 불가 / `UNIT_ASSUMED` 단위를 가정해 환산 / `DOC_TYPE_MISMATCH` 힌트와 판별 종류 불일치 / `DIFFERENT_SUBJECT` 다른 시료·회사로 보임 / `MULTIPLE_SAMPLES` 한 서류에 시료 여럿 / `NO_SIGNATURE_OR_SEAL` 서명·직인 없음 / `LOW_QUALITY` 읽기 품질 낮음 / `PARTIAL_DOCUMENT` 일부 쪽만 있는 듯함 / `METHOD_MISMATCH` 시험방법이 카탈로그 기준과 다름 / `COLUMN_ROLE_UNCERTAIN` 열 역할을 규칙으로 정하지 못함 / `VALUE_OUTSIDE_TABLE` 표가 있는데 표 밖에서 값을 읽음 / `TABLE_NOT_DETECTED` 표를 찾지 못함 / `TABLE_CONTINUATION_GUESSED` 쪽 넘김 표 잇기를 추정함
 
 경고가 있어도 FOUND 값은 그대로 낸다. 받을지 말지는 엔진이 정한다(§5). 경고는 사용자 응답에 사실 그대로 전달할 수 있게 한국어 문장으로 쓴다.
 
@@ -117,7 +120,7 @@ FOUND가 아닌 항목(NOT_FOUND 등)은 Fact를 만들지 않는다. 이미 있
 2. **타입·값 영역**: `coerce_value`와 같은 기준. bool은 true/false, enum은 `allowed_values` 안, number는 숫자 또는 구간.
 3. **quote**: FOUND는 `quote`가 비어 있지 않고, 공백을 무시하고 비교했을 때 **`page`로 지정한 쪽의 본문에 실제로 있어야** 한다.
 4. **수치**: 숫자는 `value_raw`(없으면 `value`)의 숫자 표기가 `quote` 안에 있어야 한다(쉼표 제거, `1.50`/`1.5` 표기 차이 허용). 환산한 `value`는 `value_raw`·`unit_raw`와 단위 정규화 표로 다시 계산해 일치해야 한다(상대오차 1e-6). 지어낸 숫자는 거부.
-5. **불검출**: `quote`에 `불검출`, `ND`, `N.D.`, `검출되지 않음`, `불검출(<0.01)` 중 하나가 있어야 한다. `detection_limit`는 quote에 숫자로 나오면 그 값과 같아야 하고, 나오지 않으면 `detection_limit`를 null로 둘 수 없으므로 **FOUND가 아니라 `AMBIGUOUS`로 낸다**(검출한계를 모르면 값 구간을 만들 수 없다).
+5. **불검출**: `quote`에 `불검출`, `ND`, `N.D.`, `검출되지 않음`, `불검출(<0.01)` 중 하나가 있어야 한다. `detection_limit`는 quote에 숫자로 나오면 그 값과 같아야 하고, 나오지 않으면 같은 행 **기준 칸**에 "이 값 이상이면 해당"인 숫자가 하나 있을 때(`3.0 이상`, `3`, `5% 초과`) 그 값을 `detection_limit`로 쓰고 `detection_limit_basis = "limit_column"`, `detection_limit_ref`는 그 기준 칸으로 낸다(불검출은 "기준보다 낮다"는 뜻으로만 쓴다). 기준 칸도 없거나 `2.0 이하`처럼 낮을수록 해당하는 기준, 숫자가 여럿인 기준이면 **FOUND가 아니라 `AMBIGUOUS`로 낸다**. 어떤 경우에도 불검출을 `0`으로 내지 않는다.
 6. **부등호·구간**: `<0.1`, `0.1 미만` 같은 표기는 `comparator`로 낸다. 값을 `0.1`로 뭉개거나 `0`으로 바꾸지 않는다.
 7. **시료가 여럿**: 한 서류에 시료가 여럿이고 `case_context.subject_hint`로 하나를 고를 수 없으면 해당 항목은 `AMBIGUOUS`, `MULTIPLE_SAMPLES` 경고. 하나로 좁혀지면 `sample_label`을 채운다.
 8. **날짜 상식**(`as_of` 기준):
@@ -149,7 +152,7 @@ FOUND가 아닌 항목(NOT_FOUND 등)은 Fact를 만들지 않는다. 이미 있
 표에 없는 단위, 부피↔질량 환산이 필요한 경우(밀도가 필요), 기간이 다른 경우(`톤/년` → `kg/일`은 가동일수를 모른다)는 환산하지 않는다. 항목은 `UNREADABLE`이 아니라 **`AMBIGUOUS`**, `value`는 null, `value_raw`·`unit_raw`는 남기고 경고 `UNIT_CONVERSION_FAILED`를 낸다. 값을 지어내서 맞추지 않는다.
 
 ### 불검출(ND)의 표현
-불검출은 **0이 아니다.** `below_detection_limit = true` + `detection_limit`로 내고, 엔진은 `NumRange(hi=detection_limit, hi_inc=False)`(검출한계 미만)로 저장한다. `note`에는 `불검출(검출한계 0.01)`이 붙는다. 같은 규칙이 기존 구간 평가(`range_satisfies`)에 그대로 올라타므로, 기준값이 검출한계보다 크면 "기준 미만"이 참으로, 작으면 판단 보류로 평가된다. 검출한계를 알 수 없는 ND는 §5-5에 따라 `AMBIGUOUS`다.
+불검출은 **0이 아니다.** `below_detection_limit = true` + `detection_limit`로 내고, 엔진은 `NumRange(hi=detection_limit, hi_inc=False)`(검출한계 미만)로 저장한다. `note`에는 `불검출(검출한계 0.01)`이 붙는다. 같은 규칙이 기존 구간 평가(`range_satisfies`)에 그대로 올라타므로, 기준값이 검출한계보다 크면 "기준 미만"이 참으로, 작으면 판단 보류로 평가된다. 검출한계가 서류에 없으면 같은 행 기준값을 상한으로 쓴다(§5-5, `note` `불검출. 검출한계가 없어 같은 행 기준 3.0 미만으로 봄`). 엔진 규칙의 기준선이 그 값 이상이면 "기준 미만"이 참이고, 더 낮으면 판단 보류라 다시 묻는다. 그래서 0으로 넣을 때와 달리 서류에 없는 값을 만들지 않고, 판정을 잘못 내리지도 않는다. 기준값도 쓸 수 없는 ND는 `AMBIGUOUS`다.
 
 ## 6. 오류·경계 사례
 
@@ -312,7 +315,7 @@ FOUND가 아닌 항목(NOT_FOUND 등)은 Fact를 만들지 않는다. 이미 있
 | 서류 속성·날짜 검사·경고 | 없음 | `attributes`, §5-8, 경고 코드 |
 | 항목별 NOT_FOUND/AMBIGUOUS | 못 찾은 키는 그냥 빠짐 | 요청한 키마다 상태를 반환 |
 | 서류 종류 판별 | 없음(요청 유형을 믿음) | `detected_doc_type` + 불일치 경고 |
-| OCR | 없음(스캔본은 텍스트가 비어 실패) | `page_images` |
+| OCR | 시험성적서 시험 구현: `app/reading/`(pdfplumber 로컬 + Azure layout, `ALLOW_DOCUMENT_OCR`). 업로드 흐름에는 아직 연결하지 않음 | `page_images` 또는 `tables` |
 | `facts` 폼 필드(LLM 끔) | 사람이 값을 넣음 | 유지 가능: 같은 검증기를 통과시키는 대체 입력 경로 |
 | 엔진 쪽 검증기 | 없음(`guard.validate_extraction`을 공유) | §5를 구현한 `validate_document_extraction` |
 | 요청 만들기 | 없음 | `RequestedDocument` → `RequestedFact` 변환(카탈로그 + 규칙의 기준값 note) |

@@ -5,9 +5,11 @@ description = "폐기물 코드 판정 엔진과 문진 에이전트"
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.20.1",
+    "azure-ai-documentintelligence>=1.0.2",
     "fastapi>=0.162.2",
     "httpx>=0.28.1",
     "openai>=2",
+    "pdfplumber>=0.11.10",
     "psycopg[binary]>=3.2",
     "pydantic>=2.7",
     "pydantic-settings>=2",
@@ -24,6 +26,7 @@ dev = [
     "pytest>=8.0",
     "hypothesis>=6.100",
     "ruff>=0.6",
+    "reportlab>=5.1.0",
 ]
 
 [tool.uv]

@@ -55,6 +55,21 @@ class Settings(BaseSettings):
     naver_client_id: str | None = None
     naver_client_secret: str | None = None
 
+    # 서류 표 인식(docs/design/test-report-table-extraction.md 9절).
+    # 원본 쪽 이미지를 Azure Document Intelligence로 보낸다. 엔진과 같은 구독·리전의 리소스만 쓴다.
+    document_table_reading: bool = True  # PDF·이미지 업로드 때 시험성적서 표 자동 읽기(후보만)
+    allow_document_ocr: bool = False  # 기본 꺼짐: 개발·시험 환경의 과금·전송을 막는다
+    azure_docintel_endpoint: str | None = None
+    azure_docintel_api_key: str | None = None
+    azure_docintel_model: str = "prebuilt-layout"
+    ocr_timeout_seconds: float = 120.0
+
+    @property
+    def ocr_enabled(self) -> bool:
+        return self.allow_document_ocr and bool(
+            self.azure_docintel_endpoint and self.azure_docintel_api_key
+        )
+
     @property
     def llm_enabled(self) -> bool:
         return self.llm_provider == "azure" and all(

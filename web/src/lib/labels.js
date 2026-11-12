@@ -114,3 +114,6 @@ export const REVIEW_LABEL = {
   UNVERIFIED: '검토 전 규칙 · 참고용',
   VERIFIED: '전문가 검토 완료',
 };
+
+/** 서류 파일 선택 창이 받는 형식. PDF·사진은 엔진이 시험성적서 표 값을 자동으로 읽는다(사진·스캔본은 서버의 문서 인식이 켜져 있어야 함) */
+export const DOCUMENT_ACCEPT = '.pdf,.jpg,.jpeg,.png,.tif,.tiff,.bmp,.heic,.heif,.txt,.md,application/pdf,image/*';

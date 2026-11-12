@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import { CATEGORY_LABEL, EVIDENCE_REFUSE_REPLY, REVIEW_LABEL, ROUTE_ACTION_LABEL } from '../lib/labels.js';
-import { formatDateTime } from '../lib/format.js';
+import { CATEGORY_LABEL, DOCUMENT_ACCEPT, EVIDENCE_REFUSE_REPLY, REVIEW_LABEL, ROUTE_ACTION_LABEL } from '../lib/labels.js';
+import { formatDateTime, formatValue } from '../lib/format.js';
 
-/** REQUEST_EVIDENCE: 서류 올리기 + 값 직접 입력(JSON, 선택) + 서류가 없어요 */
-export function EvidenceCard({ docs, disabled, onUpload, onText }) {
+/**
+ * 서류 올리기 + 값 직접 입력(JSON, 선택). REQUEST_EVIDENCE면 요청 서류 목록과 '서류가 없어요'.
+ * docs가 비어 있으면(사용자가 직접 연 경우) 목록 대신 닫기 버튼.
+ */
+export function EvidenceCard({ docs = [], disabled, onUpload, onText, onClose = null }) {
   const [file, setFile] = useState(null);
   const [facts, setFacts] = useState('');
   const [err, setErr] = useState('');
@@ -22,11 +25,12 @@ export function EvidenceCard({ docs, disabled, onUpload, onText }) {
   };
   return (
     <section className="wd-card qcard" aria-label="서류 요청">
-      <h3>이 서류로 확인할 수 있어요</h3>
-      <ul className="plain">{docs.map((d) => <li key={d.evidence_type}><strong>{d.label}</strong> <span className="muted">확인 항목: {d.fact_labels.join(', ')}</span></li>)}</ul>
-      <label className="wd-field"><span>파일 (.pdf/.txt/.md)</span>
-        <input type="file" accept=".pdf,.txt,.md" onChange={(e) => setFile(e.target.files?.[0] || null)} /></label>
-      <p className="muted">서류에서 읽은 값을 입력하면 &lsquo;검수 대기&rsquo;로 저장돼요. 검수가 끝난 값만 판정에 쓰여요.</p>
+      <h3>{docs.length ? '이 서류로 확인할 수 있어요' : '서류 올리기'}</h3>
+      {docs.length > 0 && <ul className="plain">{docs.map((d) => <li key={d.evidence_type}><strong>{d.label}</strong> <span className="muted">확인 항목: {d.fact_labels.join(', ')}</span></li>)}</ul>}
+      <label className="wd-field"><span>파일 (PDF·사진·텍스트)</span>
+        <input type="file" accept={DOCUMENT_ACCEPT} aria-label="서류 파일" onChange={(e) => setFile(e.target.files?.[0] || null)} /></label>
+      {file && <p className="muted">{file.name} · {Math.max(1, Math.round(file.size / 1024))}KB</p>}
+      <p className="muted">PDF·사진을 올리면 시험성적서 표의 값을 자동으로 읽어 &lsquo;검수 대기&rsquo;로 넣어요. 사진은 읽는 데 몇 초 걸려요. 검수가 끝난 값만 판정에 쓰여요.</p>
       <details>
         <summary>서류 값 입력</summary>
         <textarea className="wd-input" rows={2} placeholder='{"oil_content_pct": 2}' value={facts} onChange={(e) => setFacts(e.target.value)} />
@@ -34,7 +38,8 @@ export function EvidenceCard({ docs, disabled, onUpload, onText }) {
       {err && <p className="wd-alert" role="alert">{err}</p>}
       <div className="row">
         <button type="button" className="button button-primary" disabled={disabled || (!file && !facts.trim())} onClick={submit}>서류 올리기</button>
-        <button type="button" className="button button-quiet" disabled={disabled} onClick={() => onText(EVIDENCE_REFUSE_REPLY)}>{EVIDENCE_REFUSE_REPLY}</button>
+        {docs.length > 0 && <button type="button" className="button button-quiet" disabled={disabled} onClick={() => onText(EVIDENCE_REFUSE_REPLY)}>{EVIDENCE_REFUSE_REPLY}</button>}
+        {onClose && <button type="button" className="button button-quiet" disabled={disabled} onClick={onClose}>닫기</button>}
       </div>
     </section>
   );
@@ -54,8 +59,9 @@ export function PendingReview({ items, labels = {}, disabled, onApply = null }) 
       <ul className="plain">
         {items.map(({ doc, value }) => (
           <li key={value.id}>
-            <strong>{labels[value.fact_key] || value.fact_key}</strong> = {typeof value.value === 'object' ? JSON.stringify(value.value) : String(value.value)}{value.unit ? ` ${value.unit}` : ''}{' '}
+            <strong>{labels[value.fact_key] || value.fact_key}</strong> = {formatValue(value.value, value.unit ? ` ${value.unit}` : '')}{' '}
             <span className="muted">{doc.filename} v{value.document_version} · 검수 대기</span>
+            {value.note && <div className="muted small">{value.note}</div>}
           </li>
         ))}
       </ul>
@@ -64,6 +70,42 @@ export function PendingReview({ items, labels = {}, disabled, onApply = null }) 
           <button type="button" className="button button-small" disabled={disabled} onClick={() => onApply(items)}>검수 완료로 적용 (개발용)</button>
         </div>
       )}
+    </section>
+  );
+}
+
+const READ_STATUS_LABEL = { AMBIGUOUS: '확인 필요', UNREADABLE: '글자를 못 읽음' };
+
+/**
+ * 서류 자동 읽기 결과 중 사람이 알아야 할 것: 값을 정하지 못한 항목, 읽기 오류·경고.
+ * 값을 정한 항목은 검수 대기 목록에 이미 있으므로 여기서는 보이지 않는다.
+ * @param {{docs: any[], labels?: Record<string, string>}} p
+ */
+export function AutoReadNotes({ docs, labels = {} }) {
+  const rows = docs
+    .map((d) => ({ doc: d, tr: d.extracted_facts?.table_read }))
+    .filter(({ tr }) => tr && ((tr.items || []).some((i) => i.status !== 'FOUND') || (tr.errors || []).length || (tr.warnings || []).length));
+  if (!rows.length) return null;
+  return (
+    <section className="wd-card qcard" aria-label="자동 읽기 메모">
+      <h3>자동으로 정하지 못한 값</h3>
+      {rows.map(({ doc, tr }) => (
+        <div key={doc.id}>
+          <p className="muted">{doc.filename} v{doc.version ?? 1}{tr.backend ? ` · ${tr.source === 'ocr' ? '문서 인식(OCR)으로 읽음' : 'PDF 글자로 읽음'}` : ''}</p>
+          <ul className="plain">
+            {(tr.errors || []).map((e, i) => <li key={`e${i}`} className="wd-alert">{e.message}</li>)}
+            {(tr.items || []).filter((i) => i.status !== 'FOUND').map((i) => (
+              <li key={i.key}>
+                <strong>{labels[i.key] || i.key}</strong> · {READ_STATUS_LABEL[i.status] || i.status}
+                {i.value_raw ? ` · 원문 '${[i.value_raw, i.unit_raw].filter(Boolean).join(' ')}'` : ''}
+                {i.note && <div className="muted small">{i.note}</div>}
+              </li>
+            ))}
+            {(tr.warnings || []).map((w, i) => <li key={`w${i}`} className="muted small">{w.message}</li>)}
+          </ul>
+        </div>
+      ))}
+      <p className="muted">이 값들은 원문을 보고 직접 입력해 주세요.</p>
     </section>
   );
 }

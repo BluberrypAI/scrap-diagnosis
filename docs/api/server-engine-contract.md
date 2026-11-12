@@ -48,7 +48,7 @@ scrap-server 담당자가 엔진(waste-diagnosis)을 부를 때 쓰는 규약이
 | `POST /internal/v1/cases/{id}/documents/{doc}/values/apply` | 검수 완료된 서류 값 적용 `{values: [...]}`(3.1절). EVIDENCED로 반영하고 다시 평가 | 200 `TurnResponse` | 404 `DOCUMENT_NOT_FOUND`, 409 `DOCUMENT_VERSION_MISMATCH`·`CASE_NOT_DIAGNOSABLE`·`KB_CHANGED`, 422 |
 | `POST /internal/v1/cases/{id}/documents/{doc}/revoke` | 서류 효력 해제 `{reason?, document_version?}`. 버전을 빼면 모든 버전 | 200 `TurnResponse` | 404, 409 `DOCUMENT_VERSION_MISMATCH`·`CASE_NOT_DIAGNOSABLE`·`KB_CHANGED` |
 | `POST /internal/v1/cases/{id}/rebase` | 저장된 규칙 버전이 바뀐 건을 지금 규칙으로 다시 평가(본문 없음). 확정 건은 409 | 200 `TurnResponse` | 404, 409 `CASE_NOT_DIAGNOSABLE` |
-| `POST /internal/v1/cases/{id}/documents/{doc}/extract` | 서류 자동 읽기(OCR·AI, `document-extraction-v1`) | 미구현 | 값은 사람이 입력한다 |
+| `POST /internal/v1/cases/{id}/documents/{doc}/extract` | 서류 자동 읽기(OCR·AI, `document-extraction-v1`) | 별도 경로는 미구현 | 시험성적서 표 읽기는 업로드 때 함께 한다(3.1절 1-1) |
 | `DELETE /internal/v1/companies/{external_id}/data` | 기업 탈퇴 시 데이터 삭제(멱등, 3.3절). `X-Company-Id` 없이 경로의 서버 기업 ID를 쓴다 | 200 `DeletionOut` | 401, 500 `DELETION_FAILED` |
 | `GET /internal/v1/companies/{external_id}/data/deletion` | 가장 최근 삭제 이력 | 200 `DeletionOut` | 401, 404 `DELETION_NOT_FOUND` |
 
@@ -56,9 +56,11 @@ scrap-server 담당자가 엔진(waste-diagnosis)을 부를 때 쓰는 규약이
 
 ### 3.1 서류 값: 후보 → 검수 → 적용
 
-엔진은 서류 원문과 값을 대조하지 않는다(값이 맞는지 엔진이 판단할 수 없다). **검수가 끝난 값만 판정에 쓴다.** 자동 읽기(OCR·AI)는 하지 않으므로 값은 사람이 입력한다.
+엔진은 서류 원문과 값을 대조하지 않는다(값이 맞는지 엔진이 판단할 수 없다). **검수가 끝난 값만 판정에 쓴다.** PDF·이미지를 올리면 엔진이 시험성적서 표에서 값을 자동으로 읽어 **후보로만** 넣는다(아래 1-1). 읽은 값이 맞는지는 사람이 원문을 보고 검수한다.
 
 1. **업로드**: `POST …/documents`(multipart `file`, 선택 `facts` = `{"사실 키": 값}` JSON 문자열). 값은 `document_values`에 `UNVERIFIED` 후보로 저장된다. 판정·사실 이력은 바뀌지 않는다(응답 `turn`은 같은 판정). 응답 `values`와 `document.values`에 후보가 있다(`id`, `fact_key`, `value`, `document_version`, `status`).
+   - **1-1. 표 자동 읽기**: PDF·이미지면 시험성적서 표에서 납·카드뮴 용출, 기름성분, 수분, pH 등을 읽어 같은 `UNVERIFIED` 후보로 더한다(`note`가 `표 자동 읽기(검수 대기) · 1쪽 표1 3행 3열 · 원문 '0.12 mg/L'`). `facts`로 직접 보낸 키는 자동으로 읽지 않는다(직접 입력이 우선). 불검출은 0이 아니라 구간 `{"hi": 검출한계, "hi_inc": false}`다. 읽은 위치·탈락 사유는 `document.extracted_facts.table_read`(`backend`, `route`, `items[{key, status, value_raw, unit_raw, page, quote, cell_ref, note, guard_reasons?}]`, `not_found`, `warnings`, `errors`)에 있다. 검수 화면은 `cell_ref`(`{page, table_index, row, col}`)로 원문 위치를 보여 줄 수 있다. `extracted_facts.method`는 `none`·`manual`·`table`·`manual+table`.
+   - 글자 있는 PDF는 엔진 안에서 읽는다(외부 전송 없음). 스캔본 PDF·이미지는 문서 인식(Azure Document Intelligence, `ALLOW_DOCUMENT_OCR`)이 켜져 있을 때만 읽는다. 꺼져 있으면 스캔본 PDF는 후보 없이 저장되고(`table_read.errors`에 `EMPTY_CONTENT`), **이미지는 415**다. 읽기가 실패해도 업로드는 실패하지 않는다. `DOCUMENT_TABLE_READING=false`면 자동 읽기를 끈다.
 2. **형식 검사**(업로드·적용 모두): 카탈로그에 없는 키, 빈 값(`""`, `"-"`, `null`), 숫자 칸의 글자(`"약 2"`, `"5mg"`, `"nan"`), 선택지 밖 값, 카탈로그 단위와 다른 `unit`은 `422 VALIDATION_ERROR`이고 `details.problems[{key, value, reason, index?, value_id?}]`에 항목별로 나온다. 하나라도 틀리면 아무것도 저장하지 않는다.
 3. **적용**: 서버가 검수 결과를 보낸다.
 

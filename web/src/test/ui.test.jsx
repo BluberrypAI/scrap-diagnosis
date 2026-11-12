@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import QuestionCard from '../components/QuestionCard.jsx';
 import Board from '../components/Board.jsx';
-import { PendingReview } from '../components/BranchCards.jsx';
+import { AutoReadNotes, EvidenceCard, PendingReview } from '../components/BranchCards.jsx';
 import { normalizeQuestion } from '../api/normalize.js';
 
 const q = (o) => normalizeQuestion({ unit: 'fact', facts: [o.key], text: '질문', ...o });
@@ -63,5 +63,37 @@ describe('PendingReview', () => {
     expect(onApply).toHaveBeenCalledWith([{ doc, value }]);
     rerender(<PendingReview items={[{ doc, value }]} onApply={null} />);
     expect(screen.queryByRole('button', { name: /검수 완료로 적용/ })).toBeNull();
+  });
+});
+
+describe('서류 자동 읽기', () => {
+  it('파일 선택은 PDF와 사진을 받고, 직접 연 카드는 닫기 버튼이 있다', () => {
+    const onClose = vi.fn();
+    render(<EvidenceCard docs={[]} onUpload={vi.fn()} onText={vi.fn()} onClose={onClose} />);
+    const input = screen.getByLabelText('서류 파일');
+    expect(input.getAttribute('accept')).toMatch(/\.pdf/);
+    expect(input.getAttribute('accept')).toMatch(/image\/\*/);
+    expect(screen.getByRole('button', { name: '닫기' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '서류가 없어요' })).toBeNull();
+  });
+
+  it('불검출 구간과 읽은 위치를 보여 준다', () => {
+    const doc = { id: 'd1', filename: 'r.pdf', version: 1 };
+    const value = { id: 'v1', fact_key: 'leach_cd', value: { lo: null, hi: 0.01, hi_inc: false }, unit: 'mg/L', status: 'UNVERIFIED', document_version: 1, note: '표 자동 읽기(검수 대기) · 1쪽 표1 3행 3열' };
+    render(<PendingReview items={[{ doc, value }]} />);
+    expect(screen.getByText(/0.01 mg\/L 미만/)).toBeInTheDocument();
+    expect(screen.getByText(/1쪽 표1 3행 3열/)).toBeInTheDocument();
+  });
+
+  it('정하지 못한 값만 메모로 보여 준다', () => {
+    const docs = [{ id: 'd1', filename: 'scan.png', version: 1, extracted_facts: { table_read: { backend: 'azure-prebuilt-layout', source: 'ocr', items: [
+      { key: 'leach_pb', status: 'FOUND' },
+      { key: 'leach_cd', status: 'AMBIGUOUS', value_raw: 'ND', note: '불검출이지만 검출한계를 찾지 못함' },
+    ], errors: [], warnings: [] } } }];
+    render(<AutoReadNotes docs={docs} labels={{ leach_cd: '카드뮴 용출' }} />);
+    expect(screen.getByText('카드뮴 용출')).toBeInTheDocument();
+    expect(screen.getByText(/검출한계를 찾지 못함/)).toBeInTheDocument();
+    expect(screen.queryByText('leach_pb')).toBeNull();
+    expect(screen.getByText(/문서 인식\(OCR\)으로 읽음/)).toBeInTheDocument();
   });
 });

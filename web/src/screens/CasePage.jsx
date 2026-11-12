@@ -7,7 +7,7 @@ import { navigate } from '../lib/router.js';
 import { QuestionBody, QuestionOptions } from '../components/QuestionCard.jsx';
 import berry from '../assets/berry.png';
 import Board from '../components/Board.jsx';
-import { ConflictCard, EvidenceCard, FinalCard, PendingReview, UnsupportedCard } from '../components/BranchCards.jsx';
+import { AutoReadNotes, ConflictCard, EvidenceCard, FinalCard, PendingReview, UnsupportedCard } from '../components/BranchCards.jsx';
 import AssistBubble from '../components/AssistBubble.jsx';
 import BerrySpeech from '../components/BerrySpeech.jsx';
 import { DEV_TOOLS } from '../lib/devtools.js';
@@ -128,7 +128,7 @@ export default function CasePage({ id }) {
     const go = () => run(`서류 올림: ${f.name || 'manual-facts.json'}`, () => api.uploadDocument(id, f, facts).then((d) => {
       setDocs((ds) => [...ds.filter((x) => x.id !== d.document.id), d.document]);
       return d.turn;
-    }), go, '서류를 읽고 있어요');
+    }), go, '성적서 표를 읽고 있어요');
     go();
   };
   /** 개발용: 검수 대기 값을 검수 완료로 적용한다(서류별로 apply 호출) */
@@ -173,7 +173,10 @@ export default function CasePage({ id }) {
     .map((v) => ({ doc: d, value: v })));
   const pendingLabels = Object.fromEntries(pending.map(({ value }) => [value.fact_key, factLabel(value.fact_key) || value.fact_key]));
   const q = turn.ui.question;
-  const showEvidence = (turn.branch === 'REQUEST_EVIDENCE' || upload) && turn.ui.requested_documents.length > 0;
+  // 서류 카드: 엔진이 서류를 요청했을 때, 또는 사용자가 '서류 올리기'를 눌렀을 때
+  const showEvidence = (turn.branch === 'REQUEST_EVIDENCE' && turn.ui.requested_documents.length > 0) || upload;
+  const readDocs = docs.filter((d) => d.extracted_facts?.table_read);
+  const readLabels = Object.fromEntries(readDocs.flatMap((d) => (d.extracted_facts.table_read.items || []).map((i) => [i.key, factLabel(i.key) || i.key])));
   // 질문이 아닌 단계(판정 확인·서류 요청·값 충돌·판정 불가)는 베리 말풍선 안에 카드로 넣는다
   let card = null;
   let asking = false; // 질문 중: 질문 내용은 베리 말풍선, 선택지는 입력창 바로 위
@@ -182,13 +185,14 @@ export default function CasePage({ id }) {
     else if (turn.branch === 'UNSUPPORTED') card = <UnsupportedCard message={turn.message} pending={turn.ui.board.pending} />;
     else if (turn.branch === 'RESOLVE_CONFLICT' && turn.ui.conflicts.length) card = <ConflictCard conflicts={turn.ui.conflicts} disabled={busy} onReply={sendReply} onAction={onAction} />;
     else if (q && !showEvidence) asking = true;
-    if (showEvidence) card = <EvidenceCard docs={turn.ui.requested_documents} disabled={busy} onUpload={sendFile} onText={sendText} />;
+    if (showEvidence) card = <EvidenceCard docs={turn.ui.requested_documents} disabled={busy} onUpload={sendFile} onText={sendText} onClose={upload ? () => setUpload(false) : null} />;
   } else if (turn.ui.result) card = <FinalCard turn={turn} confirmed handoff={handoff} />;
 
   // 베리 머리 위 말풍선: 처리 중이면 하는 일, 아니면 지금 단계 안내
   let speech;
   if (busy) speech = { mode: 'thinking', text: status || '확인하고 있어요' };
   else if (confirmed) speech = { mode: 'idle', text: '확정됐어요. 기록에서 다시 볼 수 있어요' };
+  else if (pending.length > 0) speech = { mode: 'idle', text: '성적서에서 값을 읽었어요. 맞는지 확인해 주세요' };
   else if (asking) speech = { mode: 'idle', text: '아래에서 고르거나 편하게 말씀해 주세요' };
   else if (turn.branch === 'FINAL_REVIEW') speech = { mode: 'idle', text: '결과를 보고 맞으면 확정해 주세요' };
   else if (showEvidence) speech = { mode: 'idle', text: '서류를 올려 주시면 값을 읽어 볼게요' };
@@ -230,6 +234,8 @@ export default function CasePage({ id }) {
               <BerryRow><div className="bubble assistant"><QuestionBody question={q} /></div></BerryRow>
             )}
             {card && !busy && <BerryRow>{card}</BerryRow>}
+            {/* 올린 서류에서 자동으로 읽은 값 안내도 베리가 말한다(검수 전 후보) */}
+            {!confirmed && !busy && readDocs.length > 0 && <BerryRow><AutoReadNotes docs={readDocs} labels={readLabels} /></BerryRow>}
             <span ref={chatEnd} />
           </div>
           {hint && <p className="wd-alert is-info">{hint}</p>}
@@ -248,6 +254,7 @@ export default function CasePage({ id }) {
                 value={text} onChange={(e) => setText(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); if (text.trim()) sendText(text.trim()); } }} />
               <button type="submit" className="button button-primary" disabled={busy || !text.trim()}>보내기</button>
+              {!showEvidence && <button type="button" className="button button-quiet" disabled={busy} onClick={() => setUpload(true)}>서류 올리기</button>}
             </form>
           )}
         </div>

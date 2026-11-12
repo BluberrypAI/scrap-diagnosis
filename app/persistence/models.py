@@ -180,7 +180,8 @@ class Document(Base):
     size: Mapped[int] = mapped_column(Integer, default=0)
     sha256: Mapped[str] = mapped_column(String(64))
     extracted_text: Mapped[str | None] = mapped_column(Text)
-    # {"method": "manual"|"none", "candidates": {key: value}, "accepted": {}}.
+    # {"method": "none"|"manual"|"table"|"manual+table", "candidates": {key: value},
+    #  "accepted": {}, "table_read"?: 표 자동 읽기 요약}.
     # 0005부터 업로드 값은 판정에 쓰지 않는 후보(document_values)다. accepted는 이전 호환(빈 객체).
     extracted_facts: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     # 파일 버전. 같은 서류의 파일을 바꾸면 1씩 올리고 파일 정보(이름·해시·본문)를 새 파일로 바꾼다.

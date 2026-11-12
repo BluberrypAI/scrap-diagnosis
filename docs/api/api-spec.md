@@ -118,7 +118,8 @@ POST /cases/C1/documents/D1/values/apply   {"values": [{"value_id": "V1", "docum
 ```
 
 - 업로드 값은 후보일 뿐이다. 검수 완료로 적용(apply)한 값만 `DOCUMENT` 출처의 `EVIDENCED` 사실이 된다(보드에서 "서류로 확인"). 엔진은 원문과 대조하지 않고 형식(빈 값, "-", 숫자 칸의 글자, 선택지 밖 값)만 거른다. 자세한 흐름·해제·교체는 `server-engine-contract.md` 3.1절. 말한 값과 서류 값이 다르면 `RESOLVE_CONFLICT` 턴이 오고 `ui.conflicts`의 `choices`로 해결한다.
-- 지원 형식: PDF·텍스트 등. 그 밖은 415, 크기 한도(기본 10MiB) 초과는 413.
+- 지원 형식: PDF·텍스트 등, 이미지(jpg·png·tiff 등)는 문서 인식(OCR)이 켜져 있을 때만. 그 밖은 415, 크기 한도(기본 10MiB) 초과는 413.
+- PDF·이미지는 시험성적서 표 값을 자동으로 읽어 검수 대기 후보로 더한다(`note`에 읽은 위치, `document.extracted_facts.table_read`에 자세한 결과). 검수 전에는 판정에 쓰지 않는다. 자세히는 `server-engine-contract.md` 3.1절.
 - 업로드는 대화 기록에 "서류를 올렸어요: 파일명"으로 남는다.
 
 ### 5.3 코드 없는 결론(NOT_WASTE) 확정
