@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { api, USE_MOCK } from '../api/index.js';
+import { api } from '../api/index.js';
 import { factLabel, getCatalog } from '../api/normalize.js';
 import { STATUS_LABEL } from '../lib/labels.js';
 import { useLoad } from '../lib/useLoad.js';
@@ -10,6 +10,8 @@ import Board from '../components/Board.jsx';
 import { AutoReadNotes, autoReadNoteRows, unreadReasons, ConflictCard, EvidenceCard, FinalCard, PendingReview, UnsupportedCard } from '../components/BranchCards.jsx';
 import AssistBubble from '../components/AssistBubble.jsx';
 import BerrySpeech from '../components/BerrySpeech.jsx';
+import ReviewDialog from '../components/ReviewDialog.jsx';
+import { saveDocumentFile } from '../lib/docStore.js';
 import { DEV_TOOLS } from '../lib/devtools.js';
 
 const MANUAL_NOTE_NAME = '서류값-직접입력.txt';
@@ -20,9 +22,8 @@ function manualNote(facts) {
   return ['사용자가 서류를 보고 직접 적은 값', ...lines].join('\n');
 }
 
-// 개발·목 모드에서만 "검수 완료로 적용" 버튼을 보인다(운영에서는 서버의 검수 흐름이 적용한다).
-const DEV_REVIEW = import.meta.env.DEV || USE_MOCK;
-const DEV_REVIEWER = '참조 화면(개발용)';
+// 검수한 사람 이름. 로그인이 붙으면 사용자 이름으로 바꾼다.
+const REVIEWER = '화면 검수';
 
 /** 베리가 하는 말 한 줄(말풍선이나 카드). 얼굴은 채팅창 밖 BerryStage에 하나만 둔다 */
 function BerryRow({ children }) {
@@ -61,6 +62,7 @@ export default function CasePage({ id }) {
   const [err, setErr] = useState(null);
   const [retry, setRetry] = useState(null);
   const [upload, setUpload] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
   const [hint, setHint] = useState('');
   const [text, setText] = useState('');
   const composer = useRef(null);
@@ -135,25 +137,31 @@ export default function CasePage({ id }) {
     // 값은 검수 대기 후보로만 저장된다(판정은 그대로). 검수 완료 값만 적용(apply)되어 판정에 쓰인다.
     const go = () => run(file ? `서류 올림: ${f.name}` : '서류 값 직접 입력', () => api.uploadDocument(id, f, facts).then((d) => {
       setDocs((ds) => [...ds.filter((x) => x.id !== d.document.id), d.document]);
+      // 원문은 이 브라우저에만 보관해 검수 창에서 비교할 때 쓴다(엔진은 원문을 보관하지 않음)
+      saveDocumentFile(d.document.id, d.document.version ?? 1, f);
+      if (d.values?.length) setReviewing(true); // 읽은 값이 있으면 바로 검수 창을 연다
       return d.turn;
     }), go, '성적서 표를 읽고 있어요');
     go();
   };
-  /** 개발용: 검수 대기 값을 검수 완료로 적용한다(서류별로 apply 호출) */
-  const applyPending = (items) => {
+  /** 검수 완료: 확인한 값을 서류별로 적용(apply)한다. 고친 값은 고친 값으로 */
+  const applyReviewed = (entries) => {
     const byDoc = new Map();
-    for (const it of items) byDoc.set(it.doc.id, [...(byDoc.get(it.doc.id) || []), it]);
+    for (const it of entries) byDoc.set(it.doc.id, [...(byDoc.get(it.doc.id) || []), it]);
     const reviewed_at = new Date().toISOString();
-    const go = () => run('서류 값 검수 완료 (개발용)', async () => {
+    const go = () => run(`서류 값 ${entries.length}개 검수 완료`, async () => {
       let t = null;
       for (const [docId, its] of byDoc) {
-        t = await api.applyDocumentValues(id, docId, its.map(({ doc, value }) => (
-          { value_id: value.id, document_version: doc.version ?? 1, reviewer: DEV_REVIEWER, reviewed_at })));
+        t = await api.applyDocumentValues(id, docId, its.map(({ doc, value, fixed }) => ({
+          value_id: value.id, document_version: doc.version ?? 1, reviewer: REVIEWER, reviewed_at,
+          ...(fixed !== undefined ? { value: fixed } : {}),
+        })));
       }
-      const ids = new Set(items.map((i) => i.value.id));
+      const ids = new Set(entries.map((i) => i.value.id));
       setDocs((ds) => ds.map((d) => ({ ...d, values: (d.values || []).map((v) => (ids.has(v.id) ? { ...v, status: 'APPLIED' } : v)) })));
+      setReviewing(false);
       return t;
-    }, go);
+    }, go, '검수한 값으로 다시 판정하고 있어요');
     go();
   };
   async function confirm() {
@@ -255,7 +263,7 @@ export default function CasePage({ id }) {
             <span ref={chatEnd} />
           </div>
           {hint && <p className="wd-alert is-info">{hint}</p>}
-          {!confirmed && <PendingReview items={pending} labels={pendingLabels} disabled={busy} onApply={DEV_REVIEW ? applyPending : null} />}
+          {!confirmed && <PendingReview items={pending} labels={pendingLabels} disabled={busy} onReview={() => setReviewing(true)} />}
           {err && <p className="wd-alert" role="alert">{err} {retry && <button type="button" className="button button-small" onClick={retry}>다시 보내기</button>}</p>}
           {/* 선택지는 입력창 바로 위에 띄운다. 골라도 되고 직접 입력해도 된다 */}
           {asking && !busy && <QuestionOptions key={q.key} question={q} disabled={busy} onSend={sendReply} />}
@@ -276,6 +284,9 @@ export default function CasePage({ id }) {
         </div>
       </div>
       <Board board={turn.ui.board} locked={confirmed || busy} onReply={sendReply} />
+      {reviewing && !confirmed && pending.length > 0 && (
+        <ReviewDialog items={pending} labels={pendingLabels} busy={busy} onApply={applyReviewed} onClose={() => setReviewing(false)} />
+      )}
     </div>
   );
 }

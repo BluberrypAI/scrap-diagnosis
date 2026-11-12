@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import QuestionCard from '../components/QuestionCard.jsx';
+import ReviewDialog from '../components/ReviewDialog.jsx';
 import Board from '../components/Board.jsx';
 import { AutoReadNotes, EvidenceCard, PendingReview, toDocumentValue, UnsupportedCard, unreadReasons } from '../components/BranchCards.jsx';
 import { normalizeQuestion, setCatalog } from '../api/normalize.js';
@@ -54,15 +55,15 @@ describe('PendingReview', () => {
   const doc = { id: 'd1', filename: 'r.txt', version: 1 };
   const value = { id: 'v1', fact_key: 'oil_content_pct', value: 2, unit: null, status: 'UNVERIFIED', document_version: 1 };
 
-  it('검수 대기 값을 보여 주고, 개발용 버튼은 onApply가 있을 때만', async () => {
-    const onApply = vi.fn();
-    const { rerender } = render(<PendingReview items={[{ doc, value }]} labels={{ oil_content_pct: '유분' }} onApply={onApply} />);
-    expect(screen.getByText('유분')).toBeInTheDocument();
-    expect(screen.getByText(/v1 · 검수 대기/)).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: '검수 완료로 적용 (개발용)' }));
-    expect(onApply).toHaveBeenCalledWith([{ doc, value }]);
-    rerender(<PendingReview items={[{ doc, value }]} onApply={null} />);
-    expect(screen.queryByRole('button', { name: /검수 완료로 적용/ })).toBeNull();
+  it('할 일(원문과 비교해 검수하기)을 먼저 보이고 값은 접어 둔다', async () => {
+    const onReview = vi.fn();
+    const { rerender } = render(<PendingReview items={[{ doc, value }]} labels={{ oil_content_pct: '유분' }} onReview={onReview} />);
+    expect(screen.getByText(/확인한 값만 판정에 쓰여요/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: '원문과 비교해 검수하기' }));
+    expect(onReview).toHaveBeenCalled();
+    expect(screen.getByText('읽은 값 미리 보기')).toBeInTheDocument();
+    rerender(<PendingReview items={[{ doc, value }]} onReview={null} />);
+    expect(screen.queryByRole('button', { name: '원문과 비교해 검수하기' })).toBeNull();
   });
 });
 
@@ -77,12 +78,11 @@ describe('서류 자동 읽기', () => {
     expect(screen.queryByRole('button', { name: '서류가 없어요' })).toBeNull();
   });
 
-  it('불검출 구간과 읽은 위치를 보여 준다', () => {
+  it('불검출은 미만 구간으로 보여 준다(읽은 위치는 검수 창에서)', () => {
     const doc = { id: 'd1', filename: 'r.pdf', version: 1 };
     const value = { id: 'v1', fact_key: 'leach_cd', value: { lo: null, hi: 0.01, hi_inc: false }, unit: 'mg/L', status: 'UNVERIFIED', document_version: 1, note: '표 자동 읽기(검수 대기) · 1쪽 표1 3행 3열' };
     render(<PendingReview items={[{ doc, value }]} />);
     expect(screen.getByText(/0.01 mg\/L 미만/)).toBeInTheDocument();
-    expect(screen.getByText(/1쪽 표1 3행 3열/)).toBeInTheDocument();
   });
 
   it('정하지 못한 값만 메모로 보여 준다', () => {
@@ -153,5 +153,42 @@ describe('판정 불가에서 이어 가기', () => {
     expect(screen.queryByLabelText('카드뮴 용출 농도')).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: '서류 값 적기' }));
     expect(screen.getByLabelText('카드뮴 용출 농도')).toBeInTheDocument();
+  });
+});
+
+describe('서류 값 검수 창', () => {
+  const doc = { id: 'd1', filename: '성적서.pdf', version: 1, extracted_facts: { table_read: { items: [
+    { key: 'leach_pb', page: 1, value_raw: '불검출', unit_raw: 'mg/L', quote: 'S-1 | 납(mg/L) | 3.0 이상 | 불검출', cell_ref: { page: 1, table_index: 0, row: 1, col: 3 } },
+  ] } } };
+  const pb = { id: 'v1', fact_key: 'leach_pb', value: { lo: null, hi: 3, hi_inc: false }, unit: 'mg/L', status: 'UNVERIFIED', document_version: 1 };
+  const cu = { id: 'v2', fact_key: 'leach_cu', value: 0.021, unit: 'mg/L', status: 'UNVERIFIED', document_version: 1 };
+  const items = [{ doc, value: pb }, { doc, value: cu }];
+
+  it('맞아요·고치기로 확인한 값만 검수 완료로 보낸다', async () => {
+    setCatalog([
+      { key: 'leach_pb', label: '납 용출 농도', type: 'number', unit: 'mg/L', parent: null, values: [] },
+      { key: 'leach_cu', label: '구리 용출 농도', type: 'number', unit: 'mg/L', parent: null, values: [] },
+    ]);
+    const onApply = vi.fn();
+    render(<ReviewDialog items={items} onApply={onApply} onClose={vi.fn()} />);
+    expect(screen.getByRole('dialog', { name: '서류 값 검수' })).toBeInTheDocument();
+    // 원문 위치와 원문 표기를 보여 준다
+    expect(screen.getByText(/원문 '불검출 mg\/L' · 1쪽 표1 2행/)).toBeInTheDocument();
+    const done = screen.getByRole('button', { name: '검수 완료' });
+    expect(done).toBeDisabled();
+    const [okPb] = screen.getAllByRole('button', { name: '맞아요' });
+    await userEvent.click(okPb);
+    const fixes = screen.getAllByRole('button', { name: '고치기' });
+    await userEvent.click(fixes[1]);
+    await userEvent.type(screen.getByLabelText('구리 용출 농도 고칠 값'), '0.02');
+    await userEvent.click(done);
+    expect(onApply).toHaveBeenCalledWith([{ doc, value: pb }, { doc, value: cu, fixed: 0.02 }]);
+  });
+
+  it('Esc로 닫는다', async () => {
+    const onClose = vi.fn();
+    render(<ReviewDialog items={items} onApply={vi.fn()} onClose={onClose} />);
+    await userEvent.keyboard('{Escape}');
+    expect(onClose).toHaveBeenCalled();
   });
 });

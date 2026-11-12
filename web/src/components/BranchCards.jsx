@@ -156,30 +156,32 @@ export function EvidenceCard({ docs = [], disabled, onUpload, onText, onClose = 
 }
 
 /**
- * 검수 대기 서류 값. 업로드 값은 후보(UNVERIFIED)일 뿐이라 판정에 쓰이지 않는다.
- * onApply가 있으면(개발용) "검수 완료로 적용" 버튼을 보인다. 운영에서는 서버의 검수 흐름이 적용한다.
- * @param {{items: {doc: any, value: any}[], labels?: Record<string, string>, disabled?: boolean, onApply?: ((items: {doc: any, value: any}[]) => void)|null}} p
+ * 검수 대기 안내. 서류에서 읽은 값은 사람이 원문과 비교해 확인해야 판정에 쓰인다.
+ * 할 일(원문과 비교해 검수하기)을 앞에 두고, 값 목록은 접어 둔다. 검수는 ReviewDialog에서 한다.
+ * @param {{items: {doc: any, value: any}[], labels?: Record<string, string>, disabled?: boolean, onReview?: (() => void)|null}} p
  */
-export function PendingReview({ items, labels = {}, disabled, onApply = null }) {
+export function PendingReview({ items, labels = {}, disabled, onReview = null }) {
   if (!items.length) return null;
   return (
-    <section className="wd-card qcard" aria-label="검수 대기">
-      <h3>검수 대기 <span className="muted">({items.length})</span></h3>
-      <p className="muted">서류 값은 검수가 끝나야 판정에 쓰여요.</p>
-      <ul className="plain">
-        {items.map(({ doc, value }) => (
-          <li key={value.id}>
-            <strong>{labels[value.fact_key] || value.fact_key}</strong> = {formatValue(value.value, value.unit ? ` ${value.unit}` : '')}{' '}
-            <span className="muted">{doc.filename} v{value.document_version} · 검수 대기</span>
-            {value.note && <div className="muted small">{value.note}</div>}
-          </li>
-        ))}
-      </ul>
-      {onApply && (
+    <section className="wd-card qcard pending-review" aria-label="검수 대기">
+      <h3>서류 값 확인이 필요해요 <span className="muted">({items.length}개)</span></h3>
+      <p>서류에서 읽은 값이 원문과 맞는지 확인해 주세요. <strong>확인한 값만 판정에 쓰여요.</strong></p>
+      {onReview && (
         <div className="row">
-          <button type="button" className="button button-small" disabled={disabled} onClick={() => onApply(items)}>검수 완료로 적용 (개발용)</button>
+          <button type="button" className="button button-primary" disabled={disabled} onClick={onReview}>원문과 비교해 검수하기</button>
         </div>
       )}
+      <details>
+        <summary>읽은 값 미리 보기</summary>
+        <ul className="plain small">
+          {items.map(({ doc, value }) => (
+            <li key={value.id}>
+              <strong>{labels[value.fact_key] || value.fact_key}</strong> = {formatValue(value.value, value.unit ? ` ${value.unit}` : '')}{' '}
+              <span className="muted">{doc.filename}</span>
+            </li>
+          ))}
+        </ul>
+      </details>
     </section>
   );
 }
