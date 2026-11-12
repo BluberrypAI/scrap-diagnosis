@@ -84,7 +84,8 @@ export default function Board({ board, locked, onReply }) {
   return (
     <aside className="board wd-card" aria-label="판정 보드">
       <h3>판정 보드</h3>
-      {p && <p className="muted">질문 {p.questions_asked}/{p.max_questions}</p>}
+      {/* 질문 상한(max_questions)은 안전장치라 보이지 않는다 */}
+      {p && <p className="muted">질문 {p.questions_asked}개</p>}
       <h4>문진 항목 <span className="muted">(확인 {board.facts.length} / 전체 {rows.length})</span></h4>
       {rows.length === 0 ? <p className="muted">아직 없어요</p> : (
         <ul className="plain">

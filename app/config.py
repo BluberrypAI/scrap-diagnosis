@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = 60.0
 
     kb_dir: Path = ROOT / "data" / "real"
-    max_questions: int = 12
+    max_questions: int = 40  # 안전장치(app/agent/router.py DEFAULT_MAX_QUESTIONS)
     # m3.2: 소재 분류(material_group) 추출·묶음 긍정 답 규칙. m3.3: 코드 없는 결론의 확정 안내(응답)
     prompt_version: str = "m3.3"
 

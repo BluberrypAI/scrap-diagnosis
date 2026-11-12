@@ -50,7 +50,7 @@
        "options": [{"label": "PP(폴리프로필렌)", "value": "pp"}]}}
   ],
   "pending": [{"key": "toxic_chemical_discard", "label": "유해화학물질 폐기", "reason": "MISSING"}],
-  "progress": {"questions_asked": 2, "max_questions": 12},
+  "progress": {"questions_asked": 2, "max_questions": 40},
   "candidates_count": 22,
   "top_candidates": [{"code": "51-03-01", "name": "…", "outcome": null}],
   "documents_needed": [{"evidence_type": "TEST_REPORT", "label": "시험성적서", "facts": ["ph"], "fact_labels": ["pH"]}]

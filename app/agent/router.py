@@ -35,7 +35,9 @@ from app.rules.selector import (
     value_domain,
 )
 
-DEFAULT_MAX_QUESTIONS = 12
+# 질문 상한은 끝없이 묻는 것을 막는 안전장치다. 정상 문진이 여기에 걸리지 않도록 넉넉히 둔다
+# (2026-11-12: 12 → 40. 12회에서는 묶음 질문을 펼치고 사업장 질문까지 받으면 판정 전에 멈췄다)
+DEFAULT_MAX_QUESTIONS = 40
 
 
 class Branch(StrEnum):

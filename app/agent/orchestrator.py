@@ -24,7 +24,14 @@ from app.agent.extractor import extract
 from app.agent.guard import ExtractionResult, norm
 from app.agent.llm_client import LLMCall, LLMClient
 from app.agent.responder import respond
-from app.agent.router import SUB_CONFIRM_GUESS, Branch, EngineStep, SessionState, run_engine
+from app.agent.router import (
+    DEFAULT_MAX_QUESTIONS,
+    SUB_CONFIRM_GUESS,
+    Branch,
+    EngineStep,
+    SessionState,
+    run_engine,
+)
 from app.agent.templates import RETRACT_REPLY_LABEL
 from app.domain.clock import seoul_today, utcnow
 from app.domain.facts import Fact, FactStatus, FactStore, retract_fact
@@ -94,7 +101,7 @@ class DiagnosisSession:
         case_id: str = "case",
         session_id: str | None = None,
         as_of: date | None = None,
-        max_questions: int = 12,
+        max_questions: int = DEFAULT_MAX_QUESTIONS,
         prompt_version: str = "m3.3",
     ):
         self.kb = kb
@@ -177,7 +184,7 @@ class DiagnosisSession:
             case_id=state["case_id"],
             session_id=state["session_id"],
             as_of=date.fromisoformat(state["as_of"]),
-            max_questions=state.get("max_questions", 12),
+            max_questions=state.get("max_questions", DEFAULT_MAX_QUESTIONS),
             prompt_version=state.get("prompt_version", "m3.1"),
         )
         raw_facts = state.get("facts", []) if facts is None else facts
