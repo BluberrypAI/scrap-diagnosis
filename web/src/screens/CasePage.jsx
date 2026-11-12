@@ -4,15 +4,41 @@ import { factLabel } from '../api/normalize.js';
 import { STATUS_LABEL } from '../lib/labels.js';
 import { useLoad } from '../lib/useLoad.js';
 import { navigate } from '../lib/router.js';
-import QuestionCard from '../components/QuestionCard.jsx';
+import { QuestionBody, QuestionOptions } from '../components/QuestionCard.jsx';
+import berry from '../assets/berry.png';
 import Board from '../components/Board.jsx';
 import { ConflictCard, EvidenceCard, FinalCard, PendingReview, UnsupportedCard } from '../components/BranchCards.jsx';
 import AssistBubble from '../components/AssistBubble.jsx';
+import BerrySpeech from '../components/BerrySpeech.jsx';
 import { DEV_TOOLS } from '../lib/devtools.js';
 
 // 개발·목 모드에서만 "검수 완료로 적용" 버튼을 보인다(운영에서는 서버의 검수 흐름이 적용한다).
 const DEV_REVIEW = import.meta.env.DEV || USE_MOCK;
 const DEV_REVIEWER = '참조 화면(개발용)';
+
+/** 베리가 하는 말 한 줄(말풍선이나 카드). 얼굴은 채팅창 밖 BerryStage에 하나만 둔다 */
+function BerryRow({ children }) {
+  return <div className="berry-say">{children}</div>;
+}
+
+/** 채팅창 왼쪽의 큰 베리(마스코트). 머리 위 개인 말풍선(BerrySpeech)으로 지금 하는 일을 말한다 */
+function BerryStage({ speech, talking }) {
+  return (
+    <aside className="berry-stage" data-busy={speech?.mode === 'idle' ? 'false' : 'true'} aria-label="문진 도우미 베리">
+      <BerrySpeech text={speech?.text} mode={speech?.mode} />
+      {/* 말하는 동안 두 장면을 번갈아 보인다: ① 원래 웃는 입 ② 몸 색으로 덮고 벌린 입(반달) */}
+      <div className="berry-figure" data-talking={talking ? 'true' : 'false'}>
+        <img src={berry} alt="베리" />
+        <span className="berry-mouth-cover" aria-hidden="true">
+          <svg className="berry-mouth" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M2 8 L98 8 A48 88 0 0 1 2 8 Z" />
+          </svg>
+        </span>
+      </div>
+      <strong>베리</strong>
+    </aside>
+  );
+}
 
 export default function CasePage({ id }) {
   const { data, error, loading, reload } = useLoad(() => api.getCase(id), [id]);
@@ -22,12 +48,29 @@ export default function CasePage({ id }) {
   const [handoff, setHandoff] = useState(null);
   const [docs, setDocs] = useState([]);
   const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState(''); // 처리 중 베리 말풍선 문구(SSE 진행 이벤트가 생기면 여기로 넣는다)
+  const [talking, setTalking] = useState(false); // 베리 입 움직임
   const [err, setErr] = useState(null);
   const [retry, setRetry] = useState(null);
   const [upload, setUpload] = useState(false);
   const [hint, setHint] = useState('');
   const [text, setText] = useState('');
   const composer = useRef(null);
+  const chatEnd = useRef(null);
+  // 새 말풍선이 쌓이면 대화 영역 맨 아래(최신)로 내린다
+  useEffect(() => {
+    const box = chatEnd.current?.parentElement;
+    if (box) box.scrollTop = box.scrollHeight;
+  }, [conv.length, busy]);
+  // 베리가 새로 말하면(마지막 말풍선이 베리 것) 글 길이만큼 잠깐 입을 움직인다
+  useEffect(() => {
+    const last = conv[conv.length - 1];
+    if (!last || last.role !== 'assistant') return undefined;
+    setTalking(true);
+    const ms = Math.min(800 + (last.text || '').length * 35, 3500);
+    const t = setTimeout(() => setTalking(false), ms);
+    return () => clearTimeout(t);
+  }, [conv]);
 
   useEffect(() => {
     if (!data) return;
@@ -45,8 +88,9 @@ export default function CasePage({ id }) {
   const confirmed = kase.status === 'CODE_CONFIRMED' || kase.status === 'IN_TRANSIT' || kase.status === 'COMPLETED';
 
   /** 서버 호출 공통: 잠금, 오류 처리(409 stale → 새로 불러오기, 네트워크 → 다시 보내기) */
-  async function run(userText, call, again) {
+  async function run(userText, call, again, doing = '답변을 확인하고 있어요') {
     setBusy(true);
+    setStatus(doing);
     setErr(null);
     setRetry(null);
     setConv((c) => [...c, { role: 'user', text: userText }]);
@@ -54,7 +98,8 @@ export default function CasePage({ id }) {
       const t = await call();
       setTurn(t);
       setKase((k) => ({ ...k, status: t.case_status || k.status }));
-      setConv((c) => [...c, { role: 'assistant', text: t.message, branch: t.branch, assist: t.assist }]);
+      // 질문 턴은 질문 내용(ui.question)을 함께 남겨, 지난 질문도 베리 말풍선에 같은 모양으로 보인다
+      setConv((c) => [...c, { role: 'assistant', text: t.message, branch: t.branch, assist: t.assist, question: t.ui?.question || null }]);
       setUpload(false);
       setHint('');
     } catch (e) {
@@ -83,7 +128,7 @@ export default function CasePage({ id }) {
     const go = () => run(`서류 올림: ${f.name || 'manual-facts.json'}`, () => api.uploadDocument(id, f, facts).then((d) => {
       setDocs((ds) => [...ds.filter((x) => x.id !== d.document.id), d.document]);
       return d.turn;
-    }), go);
+    }), go, '서류를 읽고 있어요');
     go();
   };
   /** 개발용: 검수 대기 값을 검수 완료로 적용한다(서류별로 apply 호출) */
@@ -105,6 +150,7 @@ export default function CasePage({ id }) {
   };
   async function confirm() {
     setBusy(true);
+    setStatus('확정하고 있어요');
     setErr(null);
     try {
       const d = await api.confirm(id, turn.ui.result?.code || turn.ui.result?.outcome || null);
@@ -128,52 +174,83 @@ export default function CasePage({ id }) {
   const pendingLabels = Object.fromEntries(pending.map(({ value }) => [value.fact_key, factLabel(value.fact_key) || value.fact_key]));
   const q = turn.ui.question;
   const showEvidence = (turn.branch === 'REQUEST_EVIDENCE' || upload) && turn.ui.requested_documents.length > 0;
+  // 질문이 아닌 단계(판정 확인·서류 요청·값 충돌·판정 불가)는 베리 말풍선 안에 카드로 넣는다
   let card = null;
+  let asking = false; // 질문 중: 질문 내용은 베리 말풍선, 선택지는 입력창 바로 위
   if (!confirmed) {
     if (turn.branch === 'FINAL_REVIEW') card = <FinalCard turn={turn} busy={busy} onConfirm={confirm} onRecheck={() => composer.current?.focus()} />;
     else if (turn.branch === 'UNSUPPORTED') card = <UnsupportedCard message={turn.message} pending={turn.ui.board.pending} />;
     else if (turn.branch === 'RESOLVE_CONFLICT' && turn.ui.conflicts.length) card = <ConflictCard conflicts={turn.ui.conflicts} disabled={busy} onReply={sendReply} onAction={onAction} />;
-    else if (q && !showEvidence) card = <QuestionCard key={q.key} question={q} disabled={busy} onSend={sendReply} />;
+    else if (q && !showEvidence) asking = true;
     if (showEvidence) card = <EvidenceCard docs={turn.ui.requested_documents} disabled={busy} onUpload={sendFile} onText={sendText} />;
   } else if (turn.ui.result) card = <FinalCard turn={turn} confirmed handoff={handoff} />;
 
+  // 베리 머리 위 말풍선: 처리 중이면 하는 일, 아니면 지금 단계 안내
+  let speech;
+  if (busy) speech = { mode: 'thinking', text: status || '확인하고 있어요' };
+  else if (confirmed) speech = { mode: 'idle', text: '확정됐어요. 기록에서 다시 볼 수 있어요' };
+  else if (asking) speech = { mode: 'idle', text: '아래에서 고르거나 편하게 말씀해 주세요' };
+  else if (turn.branch === 'FINAL_REVIEW') speech = { mode: 'idle', text: '결과를 보고 맞으면 확정해 주세요' };
+  else if (showEvidence) speech = { mode: 'idle', text: '서류를 올려 주시면 값을 읽어 볼게요' };
+  else speech = { mode: 'idle', text: '폐기물 문진을 도와드려요' };
+
+  /** 베리의 말: 질문이면 질문 내용, 아니면 AI가 쓴 문장 */
+  const berrySays = (m, i) => {
+    const last = i === conv.length - 1;
+    const question = last && asking ? q : m.branch === 'ASK_FACT' ? m.question : null;
+    if (question) return <QuestionBody question={question} />;
+    return <p>{m.text}</p>;
+  };
+
   return (
     <div className="case-layout">
+      {/* 제목 줄은 베리·채팅·보드 위에 한 줄로 걸친다 */}
+      <div className="case-head row between">
+        <h2>문진 <span className="status-badge" data-status={kase.status}>{kase.summary.status_label || STATUS_LABEL[kase.status]}</span></h2>
+        <span className="row">
+          <a className="button button-small button-quiet" href="#/cases">← 목록</a>
+          <a className="button button-small button-quiet" href={`#/cases/${id}/history`}>기록</a>
+          {DEV_TOOLS && <a className="button button-small button-quiet" href={`#/cases/${id}/dev`}>AI 데이터(개발)</a>}
+        </span>
+      </div>
+      <BerryStage speech={speech} talking={talking || speech.mode === 'streaming'} />
       <div className="case-main">
-        <div className="row between">
-          <h2>{kase.summary.title} <span className="status-badge" data-status={kase.status}>{kase.summary.status_label || STATUS_LABEL[kase.status]}</span></h2>
-          <span className="row">
-            <a className="button button-small button-quiet" href="#/cases">← 목록</a>
-            <a className="button button-small button-quiet" href={`#/cases/${id}/history`}>기록</a>
-            {DEV_TOOLS && <a className="button button-small button-quiet" href={`#/cases/${id}/dev`}>AI 데이터(개발)</a>}
-          </span>
-        </div>
-        <div className="chat" aria-live="polite">
-          {conv.map((m, i) => (
-            <Fragment key={i}>
-              {m.assist && <AssistBubble a={m.assist} />}
-              <p className={`bubble ${m.role}`}>{m.text}</p>
-            </Fragment>
-          ))}
-          {busy && <p className="bubble assistant muted">판정 중…</p>}
-        </div>
-        {err && <p className="wd-alert" role="alert">{err} {retry && <button type="button" className="button button-small" onClick={retry}>다시 보내기</button>}</p>}
-        {hint && <p className="wd-alert is-info">{hint}</p>}
-        {card}
-        {!confirmed && <PendingReview items={pending} labels={pendingLabels} disabled={busy} onApply={DEV_REVIEW ? applyPending : null} />}
-        {confirmed ? (
-          <div className="row">
-            <p className="muted">확정된 건입니다. 고치려면 기록에서 다시 여세요.</p>
-            <button type="button" className="button button-small button-quiet" onClick={() => navigate(`/cases/${id}/history`)}>기록 보기</button>
+        <div className="chat-col">
+          <div className="chat" aria-live="polite">
+            {conv.map((m, i) => (
+              <Fragment key={i}>
+                {m.assist && <BerryRow><AssistBubble a={m.assist} /></BerryRow>}
+                {m.role === 'user'
+                  ? <p className="bubble user">{m.text}</p>
+                  : <BerryRow><div className="bubble assistant">{berrySays(m, i)}</div></BerryRow>}
+              </Fragment>
+            ))}
+            {/* 첫 질문처럼 앞에 베리 말이 없으면 질문을 따로 띄운다 */}
+            {asking && !busy && conv[conv.length - 1]?.role !== 'assistant' && (
+              <BerryRow><div className="bubble assistant"><QuestionBody question={q} /></div></BerryRow>
+            )}
+            {card && !busy && <BerryRow>{card}</BerryRow>}
+            <span ref={chatEnd} />
           </div>
-        ) : (
-          <form className="composer" onSubmit={(e) => { e.preventDefault(); if (text.trim()) sendText(text.trim()); }}>
-            <textarea ref={composer} className="wd-input" rows={2} disabled={busy} aria-label="메시지" placeholder="자유롭게 입력하거나 위에서 고르세요…"
-              value={text} onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); if (text.trim()) sendText(text.trim()); } }} />
-            <button type="submit" className="button button-primary" disabled={busy || !text.trim()}>보내기</button>
-          </form>
-        )}
+          {hint && <p className="wd-alert is-info">{hint}</p>}
+          {!confirmed && <PendingReview items={pending} labels={pendingLabels} disabled={busy} onApply={DEV_REVIEW ? applyPending : null} />}
+          {err && <p className="wd-alert" role="alert">{err} {retry && <button type="button" className="button button-small" onClick={retry}>다시 보내기</button>}</p>}
+          {/* 선택지는 입력창 바로 위에 띄운다. 골라도 되고 직접 입력해도 된다 */}
+          {asking && !busy && <QuestionOptions key={q.key} question={q} disabled={busy} onSend={sendReply} />}
+          {confirmed ? (
+            <div className="row">
+              <p className="muted">확정된 건입니다. 고치려면 기록에서 다시 여세요.</p>
+              <button type="button" className="button button-small button-quiet" onClick={() => navigate(`/cases/${id}/history`)}>기록 보기</button>
+            </div>
+          ) : (
+            <form className="composer" onSubmit={(e) => { e.preventDefault(); if (text.trim()) sendText(text.trim()); }}>
+              <textarea ref={composer} className="wd-input" rows={2} disabled={busy} aria-label="메시지" placeholder="자유롭게 입력하거나 위에서 고르세요…"
+                value={text} onChange={(e) => setText(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); if (text.trim()) sendText(text.trim()); } }} />
+              <button type="submit" className="button button-primary" disabled={busy || !text.trim()}>보내기</button>
+            </form>
+          )}
+        </div>
       </div>
       <Board board={turn.ui.board} locked={confirmed || busy} onReply={sendReply} />
     </div>
