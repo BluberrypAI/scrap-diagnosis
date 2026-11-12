@@ -135,6 +135,32 @@ def _row_sample(layout: TableLayout, info: RowInfo) -> str | None:
     return layout.table.expanded()[info.row][cols[0].col].strip() or None
 
 
+_PAREN = re.compile(r"\(([^)]*)\)")
+
+
+def _unsure_place(layout: TableLayout, info: RowInfo, col: ColumnInfo | None) -> dict:
+    """값을 정하지 못한 행의 위치·원문(쪽, 행 글자, 항목 이름, 괄호 속 단위 표기, 결과 칸 글자)."""
+    t = layout.table
+    place: dict = {
+        "page": t.page,
+        "quote": _quote(t, info.row),
+        "item_raw": (info.item_text or "").strip() or None,
+    }
+    m = _PAREN.search(info.item_text or "")
+    if info.unit_raw:
+        place["unit_raw"] = info.unit_raw
+    elif m and m.group(1).strip():
+        place["unit_raw"] = m.group(1).strip()
+    if col is not None:
+        cell = t.cell_at(info.row, col.col)
+        if cell is not None and cell.text.strip():
+            place["value_raw"] = cell.text.strip()
+        place["cell_ref"] = CellRef(
+            page=t.page, table_index=t.table_index, row=info.row, col=col.col
+        )
+    return place
+
+
 def _item_for_row(
     layout: TableLayout,
     info: RowInfo,
@@ -152,6 +178,7 @@ def _item_for_row(
         key=key,
         page=t.page,
         quote=_quote(t, info.row),
+        item_raw=(info.item_text or "").strip() or None,
         method=info.method,
         sample_label=(col.sample_label if multiple_results else None) or _row_sample(layout, info),
         cell_ref=ref,
@@ -373,6 +400,8 @@ def map_test_report(
     warnings: list[ExtractionWarning] = []
     multi_sample_keys: set[str] = set()
     unsure: dict[str, str] = {}
+    # 정하지 못한 항목이 원문 어디에 있었는지(검수 화면이 원문 순서 자리에 "읽지 못함"으로 보인다)
+    unsure_at: dict[str, dict] = {}
     per_sample = _per_sample_tables(layouts)
     blocked: set[str] = set()
 
@@ -404,6 +433,7 @@ def map_test_report(
                         if notes
                         else (f"'{info.item_text}' 행이 용출·함량 중 어느 쪽인지 정하지 못함")
                     )
+                    unsure_at.setdefault(it.key, _unsure_place(layout, info, col))
                 continue
             test_item = items[0]
             if col is None:
@@ -444,7 +474,12 @@ def map_test_report(
         if not cands:
             if key in unsure:
                 out.append(
-                    ExtractedFactItem(key=key, status=ItemStatus.AMBIGUOUS, note=unsure[key])
+                    ExtractedFactItem(
+                        key=key,
+                        status=ItemStatus.AMBIGUOUS,
+                        note=unsure[key],
+                        **unsure_at.get(key, {}),
+                    )
                 )
             else:
                 out.append(ExtractedFactItem(key=key, status=ItemStatus.NOT_FOUND))

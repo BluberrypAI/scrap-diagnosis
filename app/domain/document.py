@@ -178,6 +178,7 @@ class ExtractedFactItem(_Strict):
     unit_raw: str | None = None
     page: int | None = Field(default=None, ge=1)
     quote: str | None = None  # 서류 원문 발췌(해당 쪽에 실제로 있어야 함)
+    item_raw: str | None = None  # 서류에 적힌 항목 이름 그대로(예: 'TCE(mg/L)'). 검수 화면 비교용
     method: str | None = None  # 시험방법 표기
     sample_label: str | None = None  # 시료가 여럿일 때 어느 시료인지
     below_detection_limit: bool = False  # 불검출(ND)

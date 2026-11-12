@@ -63,6 +63,7 @@ export default function CasePage({ id }) {
   const [retry, setRetry] = useState(null);
   const [upload, setUpload] = useState(false);
   const [reviewing, setReviewing] = useState(false);
+  const [resolved, setResolved] = useState([]); // 검수 창에서 직접 적어 반영한 못 읽은 항목
   const [hint, setHint] = useState('');
   const [text, setText] = useState('');
   const composer = useRef(null);
@@ -139,7 +140,8 @@ export default function CasePage({ id }) {
       setDocs((ds) => [...ds.filter((x) => x.id !== d.document.id), d.document]);
       // 원문은 이 브라우저에만 보관해 검수 창에서 비교할 때 쓴다(엔진은 원문을 보관하지 않음)
       saveDocumentFile(d.document.id, d.document.version ?? 1, f);
-      if (d.values?.length) setReviewing(true); // 읽은 값이 있으면 바로 검수 창을 연다
+      // 읽은 값이나 못 읽은 값이 있으면 바로 검수 창을 연다
+      if (d.values?.length || (d.document.extracted_facts?.table_read?.items || []).some((i) => i.status !== 'FOUND')) setReviewing(true);
       return d.turn;
     }), go, '성적서 표를 읽고 있어요');
     go();
@@ -152,12 +154,16 @@ export default function CasePage({ id }) {
     const go = () => run(`서류 값 ${entries.length}개 검수 완료`, async () => {
       let t = null;
       for (const [docId, its] of byDoc) {
-        t = await api.applyDocumentValues(id, docId, its.map(({ doc, value, fixed }) => ({
-          value_id: value.id, document_version: doc.version ?? 1, reviewer: REVIEWER, reviewed_at,
+        // 읽은 값은 value_id로, 못 읽어 직접 적은 값은 fact_key로 보낸다
+        t = await api.applyDocumentValues(id, docId, its.map(({ doc, value, factKey, fixed }) => ({
+          ...(value ? { value_id: value.id } : { fact_key: factKey }),
+          document_version: doc.version ?? 1, reviewer: REVIEWER, reviewed_at,
           ...(fixed !== undefined ? { value: fixed } : {}),
         })));
       }
-      const ids = new Set(entries.map((i) => i.value.id));
+      const ids = new Set(entries.filter((i) => i.value).map((i) => i.value.id));
+      const keys = new Set(entries.filter((i) => !i.value).map((i) => i.factKey));
+      setResolved((r) => [...new Set([...r, ...keys])]);
       setDocs((ds) => ds.map((d) => ({ ...d, values: (d.values || []).map((v) => (ids.has(v.id) ? { ...v, status: 'APPLIED' } : v)) })));
       setReviewing(false);
       return t;
@@ -192,7 +198,10 @@ export default function CasePage({ id }) {
   // 서류 카드: 엔진이 서류를 요청했을 때, 또는 사용자가 '서류 올리기'를 눌렀을 때
   const showEvidence = (turn.branch === 'REQUEST_EVIDENCE' && turn.ui.requested_documents.length > 0) || upload;
   const readDocs = docs.filter((d) => d.extracted_facts?.table_read);
-  const unread = unreadReasons(readDocs);
+  // 서류 값으로 이미 정해진 항목(적용됨)과 검수 창에서 직접 적은 항목은 '못 읽은 값'에서 뺀다
+  const resolvedKeys = [...new Set([...resolved, ...docs.flatMap((d) => (d.values || []).filter((v) => v.status === 'APPLIED').map((v) => v.fact_key))])];
+  const unread = Object.fromEntries(Object.entries(unreadReasons(readDocs)).filter(([k]) => !resolvedKeys.includes(k)));
+  const unreadLeft = Object.keys(unread).length > 0;
   const readLabels = Object.fromEntries(readDocs.flatMap((d) => (d.extracted_facts.table_read.items || []).map((i) => [i.key, factLabel(i.key) || i.key])));
   // 질문이 아닌 단계(판정 확인·서류 요청·값 충돌·판정 불가)는 베리 말풍선 안에 카드로 넣는다
   let card = null;
@@ -263,7 +272,7 @@ export default function CasePage({ id }) {
             <span ref={chatEnd} />
           </div>
           {hint && <p className="wd-alert is-info">{hint}</p>}
-          {!confirmed && <PendingReview items={pending} labels={pendingLabels} disabled={busy} onReview={() => setReviewing(true)} />}
+          {!confirmed && <PendingReview items={pending} unreadCount={Object.keys(unread).length} labels={pendingLabels} disabled={busy} onReview={() => setReviewing(true)} />}
           {err && <p className="wd-alert" role="alert">{err} {retry && <button type="button" className="button button-small" onClick={retry}>다시 보내기</button>}</p>}
           {/* 선택지는 입력창 바로 위에 띄운다. 골라도 되고 직접 입력해도 된다 */}
           {asking && !busy && <QuestionOptions key={q.key} question={q} disabled={busy} onSend={sendReply} />}
@@ -284,8 +293,8 @@ export default function CasePage({ id }) {
         </div>
       </div>
       <Board board={turn.ui.board} locked={confirmed || busy} onReply={sendReply} />
-      {reviewing && !confirmed && pending.length > 0 && (
-        <ReviewDialog items={pending} labels={pendingLabels} busy={busy} onApply={applyReviewed} onClose={() => setReviewing(false)} />
+      {reviewing && !confirmed && (pending.length > 0 || unreadLeft) && (
+        <ReviewDialog items={pending} docs={readDocs} resolvedKeys={resolvedKeys} labels={pendingLabels} busy={busy} onApply={applyReviewed} onClose={() => setReviewing(false)} />
       )}
     </div>
   );

@@ -215,6 +215,7 @@ def read_test_report(
                     unit_raw=it.unit_raw,
                     page=it.page,
                     quote=it.quote,
+                    item_raw=it.item_raw,
                     cell_ref=it.cell_ref,
                     note=("표 검증 실패: " + "; ".join(reasons))[:500],
                 )

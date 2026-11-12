@@ -160,18 +160,21 @@ export function EvidenceCard({ docs = [], disabled, onUpload, onText, onClose = 
  * 할 일(원문과 비교해 검수하기)을 앞에 두고, 값 목록은 접어 둔다. 검수는 ReviewDialog에서 한다.
  * @param {{items: {doc: any, value: any}[], labels?: Record<string, string>, disabled?: boolean, onReview?: (() => void)|null}} p
  */
-export function PendingReview({ items, labels = {}, disabled, onReview = null }) {
-  if (!items.length) return null;
+export function PendingReview({ items, unreadCount = 0, labels = {}, disabled, onReview = null }) {
+  if (!items.length && !unreadCount) return null;
   return (
     <section className="wd-card qcard pending-review" aria-label="검수 대기">
-      <h3>서류 값 확인이 필요해요 <span className="muted">({items.length}개)</span></h3>
-      <p>서류에서 읽은 값이 원문과 맞는지 확인해 주세요. <strong>확인한 값만 판정에 쓰여요.</strong></p>
+      <h3>서류 값 확인이 필요해요 <span className="muted">({items.length + unreadCount}개)</span></h3>
+      <p>
+        서류에서 읽은 값이 원문과 맞는지 확인해 주세요. <strong>확인한 값만 판정에 쓰여요.</strong>
+        {unreadCount > 0 && <> 자동으로 못 읽은 값 {unreadCount}개는 원문을 보고 직접 적어 주세요.</>}
+      </p>
       {onReview && (
         <div className="row">
           <button type="button" className="button button-primary" disabled={disabled} onClick={onReview}>원문과 비교해 검수하기</button>
         </div>
       )}
-      <details>
+      {items.length > 0 && <details>
         <summary>읽은 값 미리 보기</summary>
         <ul className="plain small">
           {items.map(({ doc, value }) => (
@@ -181,7 +184,7 @@ export function PendingReview({ items, labels = {}, disabled, onReview = null })
             </li>
           ))}
         </ul>
-      </details>
+      </details>}
     </section>
   );
 }

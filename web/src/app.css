@@ -187,3 +187,8 @@
   .review-body[data-tab="values"] .review-doc, .review-body[data-tab="doc"] .review-values { display: none; }
   .review-item { grid-template-columns: minmax(0, 1fr); }
 }
+.review-item-read { grid-column: 1 / -1; display: grid; gap: 2px; }
+.review-unread { grid-column: 1 / -1; display: grid; gap: 6px; }
+.review-unread p { margin: 0; }
+.review-item-chip { justify-self: end; align-self: start; white-space: nowrap; }
+.review-item[data-state="unread"] { border-color: var(--wd-warn); background: color-mix(in srgb, var(--wd-warn) 6%, var(--color-card)); }

@@ -73,6 +73,7 @@ FOUND가 아닌 항목(NOT_FOUND 등)은 Fact를 만들지 않는다. 이미 있
 | `value_raw`, `unit_raw` | 서류에 적힌 그대로의 값·단위 |
 | `page` | 근거가 있는 쪽(1부터). FOUND에서 필수 |
 | `quote` | 서류 원문 발췌. FOUND에서 필수 |
+| `item_raw` | (선택, 2026-11-12) 서류에 적힌 항목 이름 그대로(예: `TCE(mg/L)`). 검수 화면이 원문과 맞춰 보이는 데만 쓴다. 정하지 못한 항목(AMBIGUOUS)도 원문 위치(`page`·`quote`·`cell_ref`)와 함께 낸다 |
 | `method` | 서류에 적힌 시험방법 표기 |
 | `sample_label` | 시료가 여럿일 때 어느 시료인지 |
 | `below_detection_limit`, `detection_limit` | 불검출 여부, 정규화 단위의 검출한계. 불검출이면 `detection_limit` 필수, `value`는 null |

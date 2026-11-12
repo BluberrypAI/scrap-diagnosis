@@ -525,3 +525,20 @@ def test_repeated_header_rows_in_one_table_are_ambiguous():
     )
     facts, _, _ = facts_of([t], ["leach_pb"])
     assert facts["leach_pb"].status is ItemStatus.AMBIGUOUS
+
+
+def test_unread_item_keeps_place_raw_name_and_unit():
+    """단위 표기가 달라 정하지 못한 항목도 원문 위치·항목 이름·단위 표기를 남긴다(검수 화면용)."""
+    rows = [
+        ["시험항목", "결과", "기준"],
+        ["납(mg/L)", "불검출", "3.0 이상"],
+        ["카드뮴(mg/mL)", "불검출", "0.3 이상"],
+        ["TCE(mg/L)", "불검출", "0.3 이상"],
+    ]
+    rep = read_test_report(_build([_table(rows)]), "r.pdf", "application/pdf", settings=Settings())
+    by = {it.key: it for it in rep.result.facts}
+    cd = by["leach_cd"]
+    assert cd.status is ItemStatus.AMBIGUOUS
+    assert (cd.page, cd.item_raw, cd.unit_raw, cd.value_raw) == (1, "카드뮴(mg/mL)", "mg/mL", "불검출")
+    assert cd.cell_ref is not None and cd.cell_ref.row == 2
+    assert by["leach_tce"].item_raw == "TCE(mg/L)"
