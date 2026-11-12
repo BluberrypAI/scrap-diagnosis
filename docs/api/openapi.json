@@ -118,6 +118,103 @@
         "title": "ApplyValueIn",
         "type": "object"
       },
+      "AssistSource": {
+        "description": "보충 설명의 근거(법령·질의회신 등).",
+        "properties": {
+          "excerpt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Excerpt"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "ref": {
+            "title": "Ref",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "ref"
+        ],
+        "title": "AssistSource",
+        "type": "object"
+      },
+      "AssistView": {
+        "description": "보충 설명 말풍선. 질문 카드와 별도이며 판정에 쓰지 않는다.\n\n설계: docs/design/agent-skill-harness.md.\n\n\n사용자가 \"왜?\"(why), \"뭐예요?\"(term)라고 묻거나 문진 밖 요청(off_topic)을 했을 때만 온다.",
+        "properties": {
+          "intent": {
+            "enum": [
+              "why",
+              "term",
+              "off_topic"
+            ],
+            "title": "Intent",
+            "type": "string"
+          },
+          "review": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review"
+          },
+          "sources": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AssistSource"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "terms": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/TermView"
+            },
+            "title": "Terms",
+            "type": "array"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "intent",
+          "text"
+        ],
+        "title": "AssistView",
+        "type": "object"
+      },
       "Board": {
         "description": "판정 보드(1.2절).",
         "properties": {
@@ -193,6 +290,11 @@
           },
           "editable": {
             "title": "Editable",
+            "type": "boolean"
+          },
+          "hedged": {
+            "default": false,
+            "title": "Hedged",
             "type": "boolean"
           },
           "key": {
@@ -1257,8 +1359,18 @@
         "type": "object"
       },
       "ConversationItem": {
-        "description": "대화 기록 한 줄(docs/ui/ui-contract.md 2절). 새로고침해도 대화를 다시 그린다.\n\n- 사용자 말: role user, text = 말한 문장(건 메모 포함, memo true)\n- 버튼 답: role user, text = 고른 선택지 라벨, quick_reply = 보낸 값\n- 서류 업로드: role user, text = \"서류를 올렸어요: 파일명\", document_id\n- AI 말: role assistant, branch, question_key",
+        "description": "대화 기록 한 줄(docs/ui/ui-contract.md 2절). 새로고침해도 대화를 다시 그린다.\n\n- 사용자 말: role user, text = 말한 문장(건 메모 포함, memo true)\n- 버튼 답: role user, text = 고른 선택지 라벨, quick_reply = 보낸 값\n- 서류 업로드: role user, text = \"서류를 올렸어요: 파일명\", document_id\n- AI 말: role assistant, branch, question_key, assist(보충 설명이 있던 턴만)",
         "properties": {
+          "assist": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AssistView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "at": {
             "anyOf": [
               {
@@ -1755,6 +1867,99 @@
         "title": "FacilityOption",
         "type": "object"
       },
+      "GraphBand": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "priority": {
+            "title": "Priority",
+            "type": "integer"
+          },
+          "rules": {
+            "items": {
+              "$ref": "#/components/schemas/GraphRule"
+            },
+            "title": "Rules",
+            "type": "array"
+          }
+        },
+        "required": [
+          "priority",
+          "label",
+          "rules"
+        ],
+        "title": "GraphBand",
+        "type": "object"
+      },
+      "GraphRule": {
+        "properties": {
+          "conditions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Conditions",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "outcomes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Outcomes",
+            "type": "array"
+          },
+          "plain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plain"
+          },
+          "review": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review"
+          },
+          "source_rule": {
+            "title": "Source Rule",
+            "type": "string"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "required": [
+          "id",
+          "source_rule",
+          "conditions",
+          "outcomes"
+        ],
+        "title": "GraphRule",
+        "type": "object"
+      },
       "MessageIn": {
         "description": "자유 진술(text) 또는 선택지 버튼(quick_reply) 중 하나.",
         "properties": {
@@ -1827,6 +2032,187 @@
           "label"
         ],
         "title": "OptionView",
+        "type": "object"
+      },
+      "OvGroup": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "materials": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Materials",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "materials"
+        ],
+        "title": "OvGroup",
+        "type": "object"
+      },
+      "OvLaw": {
+        "properties": {
+          "common": {
+            "title": "Common",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "materials": {
+            "title": "Materials",
+            "type": "integer"
+          },
+          "rules": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rules",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "common",
+          "materials",
+          "rules"
+        ],
+        "title": "OvLaw",
+        "type": "object"
+      },
+      "OvStage": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "rules": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rules",
+            "type": "array"
+          },
+          "stop": {
+            "title": "Stop",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "stop",
+          "rules"
+        ],
+        "title": "OvStage",
+        "type": "object"
+      },
+      "Overview": {
+        "properties": {
+          "groups": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/OvGroup"
+            },
+            "title": "Groups",
+            "type": "array"
+          },
+          "laws": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/OvLaw"
+            },
+            "title": "Laws",
+            "type": "array"
+          },
+          "matrix": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "type": "object"
+            },
+            "default": {},
+            "title": "Matrix",
+            "type": "object"
+          },
+          "mermaid": {
+            "title": "Mermaid",
+            "type": "string"
+          },
+          "nodes": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/OverviewNode"
+            },
+            "title": "Nodes",
+            "type": "object"
+          },
+          "stages": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/OvStage"
+            },
+            "title": "Stages",
+            "type": "array"
+          },
+          "stats": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Stats",
+            "type": "object"
+          }
+        },
+        "required": [
+          "mermaid",
+          "nodes",
+          "stats"
+        ],
+        "title": "Overview",
+        "type": "object"
+      },
+      "OverviewNode": {
+        "properties": {
+          "detail": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Detail",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "title": "OverviewNode",
         "type": "object"
       },
       "PagingInfo": {
@@ -1963,6 +2349,54 @@
         "title": "Progress",
         "type": "object"
       },
+      "QuestionGuideView": {
+        "description": "질문 카드에 함께 보일 안내(knowledge/question_guide.yaml, 사람이 쓴 고정 문구).\n\n처음 쓰는 사람이 카드만 보고 답할 수 있게: 배경(말의 뜻) · 왜 묻는지 · 확인 방법 · 모를 때.",
+        "properties": {
+          "actions": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Actions",
+            "type": "array"
+          },
+          "background": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Background"
+          },
+          "if_unknown": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "If Unknown"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "title": "QuestionGuideView",
+        "type": "object"
+      },
       "QuestionItem": {
         "properties": {
           "key": {
@@ -2009,6 +2443,16 @@
             },
             "title": "Facts",
             "type": "array"
+          },
+          "guide": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/QuestionGuideView"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "help": {
             "anyOf": [
@@ -2350,6 +2794,79 @@
         "title": "RevokeIn",
         "type": "object"
       },
+      "TableGraph": {
+        "properties": {
+          "bands": {
+            "items": {
+              "$ref": "#/components/schemas/GraphBand"
+            },
+            "title": "Bands",
+            "type": "array"
+          },
+          "mermaid": {
+            "title": "Mermaid",
+            "type": "string"
+          },
+          "table_id": {
+            "title": "Table Id",
+            "type": "string"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "table_id",
+          "title",
+          "version",
+          "bands",
+          "mermaid"
+        ],
+        "title": "TableGraph",
+        "type": "object"
+      },
+      "TableItem": {
+        "properties": {
+          "rules": {
+            "title": "Rules",
+            "type": "integer"
+          },
+          "table_id": {
+            "title": "Table Id",
+            "type": "string"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "required": [
+          "table_id",
+          "title",
+          "rules"
+        ],
+        "title": "TableItem",
+        "type": "object"
+      },
       "TermView": {
         "description": "질문 글에 나온 전문용어의 쉬운 설명(knowledge/glossary.yaml, 사람이 쓴 고정 설명).",
         "properties": {
@@ -2545,6 +3062,16 @@
       },
       "TurnResponse": {
         "properties": {
+          "assist": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AssistView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "branch": {
             "title": "Branch",
             "type": "string"
@@ -4616,6 +5143,205 @@
         "summary": "Get Profile Options",
         "tags": [
           "companies"
+        ]
+      }
+    },
+    "/dev/rules/overview": {
+      "get": {
+        "description": "전체 규칙 구조 한 장(공통 단계 → 소재 분류 → 지정폐기물 법 조항 → 결론).",
+        "operationId": "overview_dev_rules_overview_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Overview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Overview",
+        "tags": [
+          "dev"
+        ]
+      }
+    },
+    "/dev/rules/tables": {
+      "get": {
+        "operationId": "list_tables_dev_rules_tables_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TableItem"
+                  },
+                  "title": "Response List Tables Dev Rules Tables Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "List Tables",
+        "tags": [
+          "dev"
+        ]
+      }
+    },
+    "/dev/rules/tables/{table_id}": {
+      "get": {
+        "operationId": "table_graph_dev_rules_tables__table_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "table_id",
+            "required": true,
+            "schema": {
+              "title": "Table Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableGraph"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "AUTH_REQUIRED·COMPANY_REQUIRED"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "CASE_NOT_FOUND(다른 기업의 건 포함)"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "상태 위반·확정 불가·코드 불일치·동시 수정"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "VALIDATION_ERROR(details.errors)"
+          }
+        },
+        "summary": "Table Graph",
+        "tags": [
+          "dev"
         ]
       }
     },

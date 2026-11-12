@@ -500,6 +500,7 @@ def parse_groups(raw: Any) -> list[QuestionGroup]:
                 expand_label=g.get("expand_label", "해당하는 게 있어요 / 잘 모르겠어요"),
                 help=g.get("help"),
                 ask_cost=float(g.get("ask_cost", 1)),
+                item_labels=tuple((g.get("item_labels") or {}).items()),
             )
         )
     return out
@@ -626,6 +627,12 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
 
     glossary_path = data_dir / GLOSSARY_FILE
     glossary = parse_glossary(_read_yaml(glossary_path)) if glossary_path.exists() else ()
+    notes_path = data_dir / "rule_notes.yaml"
+    notes = (_read_yaml(notes_path) or {}).get("rules") or {} if notes_path.exists() else {}
+    skill_path = data_dir / "skills" / "interviewer.md"
+    skill = skill_path.read_text(encoding="utf-8") if skill_path.exists() else None
+    guide_path = data_dir / "question_guide.yaml"
+    guide = (_read_yaml(guide_path) or {}) if guide_path.exists() else {}
     return KnowledgeBase(
         catalog=catalog,
         tables=tuple(tables),
@@ -634,4 +641,11 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
         warnings=tuple(warnings),
         guidance=guidance,
         glossary=glossary,
+        rule_notes={str(k): dict(v) for k, v in notes.items()},
+        skill_text=skill,
+        question_guide={
+            "facts": dict(guide.get("facts") or {}),
+            "topics": dict(guide.get("topics") or {}),
+            "groups": dict(guide.get("groups") or {}),  # 묶음 질문 카드 안내
+        },
     )

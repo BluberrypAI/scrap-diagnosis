@@ -49,6 +49,12 @@ class Settings(BaseSettings):
     allow_document_llm: bool = False  # 서류 원문을 AI로 보내도 되는지. 기본 차단
     trace_store_prompts: bool = True  # False면 Trace에 가린 프롬프트도 남기지 않고 해시·길이만
 
+    # 보충 설명의 마지막 수단: 준비된 설명 자료가 없을 때만 웹 검색
+    # (기본 꺼짐, app/agent/web_search.py)
+    web_search_provider: Literal["none", "naver"] = "none"
+    naver_client_id: str | None = None
+    naver_client_secret: str | None = None
+
     @property
     def llm_enabled(self) -> bool:
         return self.llm_provider == "azure" and all(

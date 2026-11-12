@@ -37,6 +37,7 @@ FACT_DEFAULTS = {
     "range": None,
     "status": "CLAIMED",
     "note": None,
+    "certainty": "sure",
 }
 
 
@@ -60,11 +61,15 @@ def normalize_extract(e: dict | None) -> dict:
     ga = e.get("group_answer")
     if ga and "quote" not in ga:
         ga = {**ga, "quote": ""}
+    if ga and "certainty" not in ga:
+        ga = {**ga, "certainty": "sure"}
     return {
         "facts": facts,
         "group_answer": ga,
         "user_code_claim": e.get("user_code_claim"),
         "user_question": e.get("user_question"),
+        "question_kind": e.get("question_kind"),
+        "about": e.get("about") or [],
         "evidence_refused": bool(e.get("evidence_refused", False)),
     }
 

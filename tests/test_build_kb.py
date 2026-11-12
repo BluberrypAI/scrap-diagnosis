@@ -31,7 +31,7 @@ def test_every_rule_points_to_its_source_rule(real_kb):
     rules = [r for t in real_kb.tables for r in t.rules]
     assert rules and all(r.source_rule for r in rules)
     oil = [r for r in rules if r.source_rule == "S3-6-OIL-5PCT"]
-    assert len({r.rule_id.split(":")[0] for r in oil}) == 87  # 원본 1개 → 소재 테이블 87개
+    assert len({r.rule_id.split(":")[0] for r in oil}) == 91  # 원본 1개 → 소재 테이블 91개
     assert {(b.source_id, b.location) for b in oil[0].basis} >= {("DEC-A1", "별표 1 제6호")}
 
 

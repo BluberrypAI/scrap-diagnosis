@@ -1,7 +1,7 @@
 # 규칙 빌드 보고서
 
-- 원본: `knowledge/` (58812f75). 기존 엔진 resource_engine `2f1355a`의 rules/에서 옮겨 왔다.
-- 소재 테이블: 97개, 시행일 2026-10-02
+- 원본: `knowledge/` (937eea79). 기존 엔진 resource_engine `2f1355a`의 rules/에서 옮겨 왔다.
+- 소재 테이블: 101개, 시행일 2026-10-02
 - 전문가 검토(`knowledge/reviews.yaml`): 생성 규칙 0개가 `VERIFIED`, 나머지는 `UNVERIFIED`다.
 
 ## 우선순위 대역
@@ -28,8 +28,9 @@
 - solvent_paint 용제·페인트: 소재 5개
 - wood_paper_fiber 목재·종이·섬유·유리: 소재 9개
 - catalyst_adsorbent 촉매·흡착제: 소재 6개
-- product 제품·복합물: 소재 10개
+- product 제품·복합물: 소재 13개
 - special 여러 소재가 섞여 나누기 어려운 것: 소재 1개
+- unlisted_family 목록에 없는 폐기물(별표 4 계열에서 고르기): 소재 1개
 
 ## 변환하지 않은 기능
 - 결정 카드(해석 선택, residue_choice 등): 해석 필요 규칙은 판정 불가로 안내한다.
@@ -44,7 +45,7 @@
 - 회귀 비교 결과는 regression/summary.md, 허용 기준은 tests/test_legacy_regression.py.
 - 시험 수치 조건은 `min_status: EVIDENCED`다. 지정 판정에는 성적서가 필요하고, 기준 미만 진술로는 지정 후보를 지울 수 있다.
 
-## 일반 코드 대신 안내로 끝나는 소재 (26)
+## 일반 코드 대신 안내로 끝나는 소재 (29)
 - sludge_ww_unknown: CODE_NEEDS_TEST
 - sludge_proc_unknown: CODE_NEEDS_TEST
 - lube_oil: NO_GENERAL_CODE
@@ -70,6 +71,9 @@
 - paint_oil: NO_GENERAL_CODE
 - paint_water: NO_GENERAL_CODE
 - lacquer: NO_GENERAL_CODE
+- battery_lead_acid: NO_GENERAL_CODE
+- battery_alkaline: NO_GENERAL_CODE
+- battery_scrap: NO_GENERAL_CODE
 - mixed_inseparable: NO_MIXTURE_RULE
 
 ## 번호 범위 대응이 없는 지정 규칙 (0)
@@ -169,10 +173,14 @@
 - eee_industrial: 지정 4규칙/16코드, 해석 6, 일반 1
 - tire_auto: 지정 5규칙/17코드, 해석 6, 일반 1
 - solar_panel: 지정 4규칙/16코드, 해석 6, 일반 1
-- battery_primary: 지정 4규칙/16코드, 해석 1, 일반 1
-- battery_ev: 지정 4규칙/16코드, 해석 1, 일반 1
-- battery_drive: 지정 4규칙/16코드, 해석 1, 일반 1
-- battery_cathode: 지정 4규칙/16코드, 해석 1, 일반 1
-- battery_fuel_cell: 지정 4규칙/16코드, 해석 1, 일반 1
-- battery_secondary_other: 지정 4규칙/16코드, 해석 1, 일반 1
+- battery_primary: 지정 4규칙/16코드, 해석 0, 일반 1
+- battery_ev: 지정 4규칙/16코드, 해석 4, 일반 1
+- battery_drive: 지정 4규칙/16코드, 해석 4, 일반 1
+- battery_cathode: 지정 4규칙/16코드, 해석 0, 일반 1
+- battery_fuel_cell: 지정 4규칙/16코드, 해석 0, 일반 1
+- battery_lead_acid: 지정 4규칙/16코드, 해석 2, 일반 NO_GENERAL_CODE
+- battery_alkaline: 지정 4규칙/16코드, 해석 2, 일반 NO_GENERAL_CODE
+- battery_scrap: 지정 4규칙/16코드, 해석 2, 일반 NO_GENERAL_CODE
+- battery_secondary_other: 지정 4규칙/16코드, 해석 4, 일반 1
 - mixed_inseparable: 지정 4규칙/16코드, 해석 6, 일반 NO_MIXTURE_RULE
+- unlisted_other: 지정 4규칙/16코드, 해석 6, 일반 171

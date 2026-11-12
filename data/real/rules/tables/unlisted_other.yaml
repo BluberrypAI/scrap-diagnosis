@@ -1,0 +1,5414 @@
+# 자동 생성: tools/build_kb.py (knowledge 937eea79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+table_id: unlisted_other
+title: 목록에 없는 폐기물(별표 4 계열에서 고르기)
+version: 2026.11.0+kb-937eea79
+effective_from: '2026-10-02'
+hit_policy: PRIORITY
+applies_when:
+  fact: material
+  op: eq
+  value: unlisted_other
+includes:
+- ../common/scope.yaml
+- ../common/business.yaml
+rules:
+- rule_id: unlisted_other:S3-6-OIL-5PCT:06-01-01
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - &id001
+      fact: oil_presence
+      op: eq
+      value: present
+    - &id002
+      fact: oil_content_pct
+      op: gte
+      value: 5
+      min_status: EVIDENCED
+    - &id003
+      not:
+        any:
+        - all:
+          - fact: physical_state
+            op: eq
+            value: liquid
+          - fact: pcb_mg_l
+            op: gte
+            value: 2
+            min_status: EVIDENCED
+        - all:
+          - fact: physical_state
+            op: in
+            value: &id004
+            - solid
+            - semisolid
+          - fact: pcb_leach_mg_l
+            op: gte
+            value: 0.003
+            min_status: EVIDENCED
+    - fact: annex4_code
+      op: eq
+      value: 06-01-01
+  then:
+    code: 06-01-01
+    category: DESIGNATED
+    name: 폐윤활유(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조에 따른 재활용의무 대상 제품·포장재인 기어유 및 내연 기관용 윤활유를 말한다)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-01
+    excerpt: 06-01-01 폐윤활유(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조에 따른 재활용의무 대상 제품·포장재인 기어유 및 내연 기관용 윤활유를 말한다)
+    source_id: RULE-A4
+    location: 06-01-01
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-6-OIL-5PCT:06-01-02
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-01-02
+  then:
+    code: 06-01-02
+    category: DESIGNATED
+    name: 폐연마유·비수용성폐절삭유·폐열처리유(금속가공과정에서 발 생된 것을 말한다)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-02
+    excerpt: 06-01-02 폐연마유·비수용성폐절삭유·폐열처리유(금속가공과정에서 발 생된 것을 말한다)
+    source_id: RULE-A4
+    location: 06-01-02
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-6-OIL-5PCT:06-01-03
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-01-03
+  then:
+    code: 06-01-03
+    category: DESIGNATED
+    name: 폐기계유·폐작동유(공업용 기계유·냉동기유·터어빈유·베어링윤 활유·압축기유·유압작동유·열매체유 및 프로세스유 등을 말한 다)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-03
+    excerpt: 06-01-03 폐기계유·폐작동유(공업용 기계유·냉동기유·터어빈유·베어링윤 활유·압축기유·유압작동유·열매체유 및 프로세스유 등을 말한 다)
+    source_id: RULE-A4
+    location: 06-01-03
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-6-OIL-5PCT:06-01-04
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-01-04
+  then:
+    code: 06-01-04
+    category: DESIGNATED
+    name: 폐연료유
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-04
+    excerpt: 06-01-04 폐연료유
+    source_id: RULE-A4
+    location: 06-01-04
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-6-OIL-5PCT:06-01-05
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-01-05
+  then:
+    code: 06-01-05
+    category: DESIGNATED
+    name: 폐오일필터
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-05
+    excerpt: 06-01-05 폐오일필터
+    source_id: RULE-A4
+    location: 06-01-05
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-6-OIL-5PCT:06-01-06
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-01-06
+  then:
+    code: 06-01-06
+    category: DESIGNATED
+    name: 기름함유 폐전선·폐케이블
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-06
+    excerpt: 06-01-06 기름함유 폐전선·폐케이블
+    source_id: RULE-A4
+    location: 06-01-06
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-6-OIL-5PCT:06-01-07
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-01-07
+  then:
+    code: 06-01-07
+    category: DESIGNATED
+    name: 폐절연유(폴리클로리네이티드비페닐 함유 폐기물을 제외한다)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-07
+    excerpt: 06-01-07 폐절연유(폴리클로리네이티드비페닐 함유 폐기물을 제외한다)
+    source_id: RULE-A4
+    location: 06-01-07
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-6-OIL-5PCT:06-01-99
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-01-99
+  then:
+    code: 06-01-99
+    category: DESIGNATED
+    name: 그 밖의 폐광물유[아스팔트유·그리스(grease)·방청유 및 수용 성절삭유, 20퍼센트 이상의 이물질이 함유된 폐유, 고체상태의 폐유 등을 말한다]
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-99
+    excerpt: 06-01-99 그 밖의 폐광물유[아스팔트유·그리스(grease)·방청유 및 수용 성절삭유, 20퍼센트 이상의 이물질이 함유된 폐유, 고체상태의 폐유 등을 말한다]
+    source_id: RULE-A4
+    location: 06-01-99
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-6-OIL-5PCT:06-02-00
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-02-00
+  then:
+    code: 06-02-00
+    category: DESIGNATED
+    name: 폐동식물유
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-02-00
+    excerpt: 06-02-00 폐동식물유
+    source_id: RULE-A4
+    location: 06-02-00
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-6-OIL-5PCT:06-03-00
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-03-00
+  then:
+    code: 06-03-00
+    category: DESIGNATED
+    name: 그 밖의 폐유
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-03-00
+    excerpt: 06-03-00 그 밖의 폐유
+    source_id: RULE-A4
+    location: 06-03-00
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-8GA-PCB-LIQUID:08-03-00
+  source_rule: S3-8GA-PCB-LIQUID
+  priority: 500
+  when:
+    all:
+    - fact: physical_state
+      op: eq
+      value: liquid
+    - fact: pcb_mg_l
+      op: gte
+      value: 2
+      min_status: EVIDENCED
+    - fact: annex4_code
+      op: eq
+      value: 08-03-00
+  then:
+    code: 08-03-00
+    category: DESIGNATED
+    name: 그 밖의 폴리클로리네이티드비페닐을 함유한 액상의 것
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호가목
+    source_id: DEC-A1
+    location: 별표 1 제8호가목
+    excerpt: 액체상태의 것(1리터당 2밀리그램 이상 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호
+    source_id: DEC-A1
+    location: 별표 1 제8호
+    excerpt: 폴리클로리네이티드비페닐 함유 폐기물
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 08-03-00
+    excerpt: 08-03-00 그 밖의 폴리클로리네이티드비페닐을 함유한 액상의 것
+    source_id: RULE-A4
+    location: 08-03-00
+  review_units:
+  - S3-8GA-PCB-LIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-8NA-PCB-NONLIQUID:08-04-00
+  source_rule: S3-8NA-PCB-NONLIQUID
+  priority: 500
+  when:
+    all:
+    - fact: physical_state
+      op: in
+      value: *id004
+    - fact: pcb_leach_mg_l
+      op: gte
+      value: 0.003
+      min_status: EVIDENCED
+    - fact: annex4_code
+      op: eq
+      value: 08-04-00
+  then:
+    code: 08-04-00
+    category: DESIGNATED
+    name: 그 밖의 폴리클로리네이티드비페닐을 함유한 액상이 아닌 것
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호나목
+    source_id: DEC-A1
+    location: 별표 1 제8호나목
+    excerpt: 액체상태 외의 것(용출액 1리터당 0.003밀리그램 이상 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호
+    source_id: DEC-A1
+    location: 별표 1 제8호
+    excerpt: 폴리클로리네이티드비페닐 함유 폐기물
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 08-04-00
+    excerpt: 08-04-00 그 밖의 폴리클로리네이티드비페닐을 함유한 액상이 아닌 것
+    source_id: RULE-A4
+    location: 08-04-00
+  review_units:
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-9-TOXIC:09-01-00
+  source_rule: S3-9-TOXIC
+  priority: 500
+  when:
+    all:
+    - &id005
+      fact: toxic_chemical_discard
+      op: eq
+      value: true
+    - &id006
+      not:
+        any:
+        - all:
+          - fact: physical_state
+            op: eq
+            value: liquid
+          - fact: pcb_mg_l
+            op: gte
+            value: 2
+            min_status: EVIDENCED
+        - all:
+          - fact: physical_state
+            op: in
+            value: *id004
+          - fact: pcb_leach_mg_l
+            op: gte
+            value: 0.003
+            min_status: EVIDENCED
+    - fact: annex4_code
+      op: eq
+      value: 09-01-00
+  then:
+    code: 09-01-00
+    category: DESIGNATED
+    name: 「화학물질관리법」 제2조제5호에 따른 금지물질
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
+    source_id: DEC-A1
+    location: 별표 1 제9호
+    excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-01-00
+    excerpt: 09-01-00 「화학물질관리법」 제2조제5호에 따른 금지물질
+    source_id: RULE-A4
+    location: 09-01-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-9-TOXIC:09-02-00
+  source_rule: S3-9-TOXIC
+  priority: 500
+  when:
+    all:
+    - *id005
+    - *id006
+    - fact: annex4_code
+      op: eq
+      value: 09-02-00
+  then:
+    code: 09-02-00
+    category: DESIGNATED
+    name: 연구·검사용 폐시약
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
+    source_id: DEC-A1
+    location: 별표 1 제9호
+    excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-02-00
+    excerpt: 09-02-00 연구·검사용 폐시약
+    source_id: RULE-A4
+    location: 09-02-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-9-TOXIC:09-03-00
+  source_rule: S3-9-TOXIC
+  priority: 500
+  when:
+    all:
+    - *id005
+    - *id006
+    - fact: annex4_code
+      op: eq
+      value: 09-03-00
+  then:
+    code: 09-03-00
+    category: DESIGNATED
+    name: 「화학물질관리법」 제2조제7호에 따른 유해화학물질
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
+    source_id: DEC-A1
+    location: 별표 1 제9호
+    excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-03-00
+    excerpt: 09-03-00 「화학물질관리법」 제2조제7호에 따른 유해화학물질
+    source_id: RULE-A4
+    location: 09-03-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-9-TOXIC:09-04-00
+  source_rule: S3-9-TOXIC
+  priority: 500
+  when:
+    all:
+    - *id005
+    - *id006
+    - fact: annex4_code
+      op: eq
+      value: 09-04-00
+  then:
+    code: 09-04-00
+    category: DESIGNATED
+    name: 「화학물질관리법」 제2조제3호 및 제4호에 따른 허가물질 및 제한물질
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
+    source_id: DEC-A1
+    location: 별표 1 제9호
+    excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-04-00
+    excerpt: 09-04-00 「화학물질관리법」 제2조제3호 및 제4호에 따른 허가물질 및 제한물질
+    source_id: RULE-A4
+    location: 09-04-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-RESIDUE-WASTE_OIL
+  source_rule: S3-RESIDUE-WASTE_OIL
+  priority: 300
+  when:
+    all:
+    - fact: designated_residue
+      op: eq
+      value: true
+    - fact: residue_kind
+      op: eq
+      value: waste_oil
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 폐유가 남은 용기·물건
+  basis:
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    source_id: QA-MOE25
+    location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    excerpt: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 같은 사례
+    source_id: QA-MOE25
+    location: 같은 사례
+    excerpt: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+  review_units:
+  - S3-RESIDUE-WASTE_OIL
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-RESIDUE-ORGANIC_SOLVENT
+  source_rule: S3-RESIDUE-ORGANIC_SOLVENT
+  priority: 300
+  when:
+    all:
+    - fact: designated_residue
+      op: eq
+      value: true
+    - fact: residue_kind
+      op: eq
+      value: organic_solvent
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 폐유기용제가 남은 용기·물건
+  basis:
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    source_id: QA-MOE25
+    location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    excerpt: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 같은 사례
+    source_id: QA-MOE25
+    location: 같은 사례
+    excerpt: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+  review_units:
+  - S3-RESIDUE-ORGANIC_SOLVENT
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-RESIDUE-ACID
+  source_rule: S3-RESIDUE-ACID
+  priority: 300
+  when:
+    all:
+    - fact: designated_residue
+      op: eq
+      value: true
+    - fact: residue_kind
+      op: eq
+      value: acid
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 폐산이 남은 용기·물건
+  basis:
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    source_id: QA-MOE25
+    location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    excerpt: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 같은 사례
+    source_id: QA-MOE25
+    location: 같은 사례
+    excerpt: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+  review_units:
+  - S3-RESIDUE-ACID
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-RESIDUE-ALKALI
+  source_rule: S3-RESIDUE-ALKALI
+  priority: 300
+  when:
+    all:
+    - fact: designated_residue
+      op: eq
+      value: true
+    - fact: residue_kind
+      op: eq
+      value: alkali
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 폐알칼리가 남은 용기·물건
+  basis:
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    source_id: QA-MOE25
+    location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    excerpt: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 같은 사례
+    source_id: QA-MOE25
+    location: 같은 사례
+    excerpt: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+  review_units:
+  - S3-RESIDUE-ALKALI
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-RESIDUE-PAINT
+  source_rule: S3-RESIDUE-PAINT
+  priority: 300
+  when:
+    all:
+    - fact: designated_residue
+      op: eq
+      value: true
+    - fact: residue_kind
+      op: eq
+      value: paint
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 폐페인트가 남은 용기·물건
+  basis:
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    source_id: QA-MOE25
+    location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    excerpt: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 같은 사례
+    source_id: QA-MOE25
+    location: 같은 사례
+    excerpt: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+  review_units:
+  - S3-RESIDUE-PAINT
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:S3-RESIDUE-TOXIC_CHEMICAL
+  source_rule: S3-RESIDUE-TOXIC_CHEMICAL
+  priority: 300
+  when:
+    all:
+    - fact: designated_residue
+      op: eq
+      value: true
+    - fact: residue_kind
+      op: eq
+      value: toxic_chemical
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 유해화학물질이 남은 용기·물건
+  basis:
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    source_id: QA-MOE25
+    location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    excerpt: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 같은 사례
+    source_id: QA-MOE25
+    location: 같은 사례
+    excerpt: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+  review_units:
+  - S3-RESIDUE-TOXIC_CHEMICAL
+  - material:unlisted_other
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-01-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-01
+    - fact: annex4_code
+      op: eq
+      value: 51-01-01
+  then:
+    code: 51-01-01
+    category: GENERAL
+    name: 정수처리오니
+  basis:
+  - &id007
+    type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1(지정폐기물의 종류)
+    source_id: DEC-A1
+    location: 별표 1(지정폐기물의 종류)
+    excerpt: 지정폐기물의 종류(제3조 관련)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-01-01
+    excerpt: 51-01-01 정수처리오니
+    source_id: RULE-A4
+    location: 51-01-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-01-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-01
+    - fact: annex4_code
+      op: eq
+      value: 51-01-02
+  then:
+    code: 51-01-02
+    category: GENERAL
+    name: 하수처리오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-01-02
+    excerpt: 51-01-02 하수처리오니
+    source_id: RULE-A4
+    location: 51-01-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-01-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-01
+    - fact: annex4_code
+      op: eq
+      value: 51-01-03
+  then:
+    code: 51-01-03
+    category: GENERAL
+    name: 분뇨처리오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-01-03
+    excerpt: 51-01-03 분뇨처리오니
+    source_id: RULE-A4
+    location: 51-01-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-01-04
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-01
+    - fact: annex4_code
+      op: eq
+      value: 51-01-04
+  then:
+    code: 51-01-04
+    category: GENERAL
+    name: 가축분뇨처리오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-01-04
+    excerpt: 51-01-04 가축분뇨처리오니
+    source_id: RULE-A4
+    location: 51-01-04
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-01-05
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-01
+    - fact: annex4_code
+      op: eq
+      value: 51-01-05
+  then:
+    code: 51-01-05
+    category: GENERAL
+    name: 펄프·제지공정오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-01-05
+    excerpt: 51-01-05 펄프·제지공정오니
+    source_id: RULE-A4
+    location: 51-01-05
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-01-06
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-01
+    - fact: annex4_code
+      op: eq
+      value: 51-01-06
+  then:
+    code: 51-01-06
+    category: GENERAL
+    name: 그 밖의 공정오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-01-06
+    excerpt: 51-01-06 그 밖의 공정오니
+    source_id: RULE-A4
+    location: 51-01-06
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-01-07
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-01
+    - fact: annex4_code
+      op: eq
+      value: 51-01-07
+  then:
+    code: 51-01-07
+    category: GENERAL
+    name: 펄프·제지폐수처리오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-01-07
+    excerpt: 51-01-07 펄프·제지폐수처리오니
+    source_id: RULE-A4
+    location: 51-01-07
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-01-08
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-01
+    - fact: annex4_code
+      op: eq
+      value: 51-01-08
+  then:
+    code: 51-01-08
+    category: GENERAL
+    name: 그 밖의 폐수처리오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-01-08
+    excerpt: 51-01-08 그 밖의 폐수처리오니
+    source_id: RULE-A4
+    location: 51-01-08
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-01-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-01
+    - fact: annex4_code
+      op: eq
+      value: 51-01-99
+  then:
+    code: 51-01-99
+    category: GENERAL
+    name: 그 밖의 유기성오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-01-99
+    excerpt: 51-01-99 그 밖의 유기성오니
+    source_id: RULE-A4
+    location: 51-01-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-02-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-02
+    - fact: annex4_code
+      op: eq
+      value: 51-02-01
+  then:
+    code: 51-02-01
+    category: GENERAL
+    name: 폐수처리오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-01
+    excerpt: 51-02-01 폐수처리오니
+    source_id: RULE-A4
+    location: 51-02-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-02-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-02
+    - fact: annex4_code
+      op: eq
+      value: 51-02-02
+  then:
+    code: 51-02-02
+    category: GENERAL
+    name: 정수처리오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-02
+    excerpt: 51-02-02 정수처리오니
+    source_id: RULE-A4
+    location: 51-02-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-02-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-02
+    - fact: annex4_code
+      op: eq
+      value: 51-02-03
+  then:
+    code: 51-02-03
+    category: GENERAL
+    name: 하수처리오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-03
+    excerpt: 51-02-03 하수처리오니
+    source_id: RULE-A4
+    location: 51-02-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-02-04
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-02
+    - fact: annex4_code
+      op: eq
+      value: 51-02-04
+  then:
+    code: 51-02-04
+    category: GENERAL
+    name: 하수준설토
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-04
+    excerpt: 51-02-04 하수준설토
+    source_id: RULE-A4
+    location: 51-02-04
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-02-05
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-02
+    - fact: annex4_code
+      op: eq
+      value: 51-02-05
+  then:
+    code: 51-02-05
+    category: GENERAL
+    name: 건설오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-05
+    excerpt: 51-02-05 건설오니
+    source_id: RULE-A4
+    location: 51-02-05
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-02-06
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-02
+    - fact: annex4_code
+      op: eq
+      value: 51-02-06
+  then:
+    code: 51-02-06
+    category: GENERAL
+    name: 석재·골재폐수처리오니(석재·골재 생산 시 발생한 폐수를 처리하 는 과정에서 발생한 오니로 한정한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-06
+    excerpt: 51-02-06 석재·골재폐수처리오니(석재·골재 생산 시 발생한 폐수를 처리하 는 과정에서 발생한 오니로 한정한다)
+    source_id: RULE-A4
+    location: 51-02-06
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-02-07
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-02
+    - fact: annex4_code
+      op: eq
+      value: 51-02-07
+  then:
+    code: 51-02-07
+    category: GENERAL
+    name: 유리식각공정오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-07
+    excerpt: 51-02-07 유리식각공정오니
+    source_id: RULE-A4
+    location: 51-02-07
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-02-08
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-02
+    - fact: annex4_code
+      op: eq
+      value: 51-02-08
+  then:
+    code: 51-02-08
+    category: GENERAL
+    name: 실리콘공정오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-08
+    excerpt: 51-02-08 실리콘공정오니
+    source_id: RULE-A4
+    location: 51-02-08
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-02-09
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-02
+    - fact: annex4_code
+      op: eq
+      value: 51-02-09
+  then:
+    code: 51-02-09
+    category: GENERAL
+    name: 보크사이트잔재물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-09
+    excerpt: 51-02-09 보크사이트잔재물
+    source_id: RULE-A4
+    location: 51-02-09
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-02-10
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-02
+    - fact: annex4_code
+      op: eq
+      value: 51-02-10
+  then:
+    code: 51-02-10
+    category: GENERAL
+    name: 영농폐기물(농업활동 과정에서 배출된 농업용 폐플라스틱 필름 ㆍ시트류에 한정한다) 폐수처리오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-10
+    excerpt: 51-02-10 영농폐기물(농업활동 과정에서 배출된 농업용 폐플라스틱 필름 ㆍ시트류에 한정한다) 폐수처리오니
+    source_id: RULE-A4
+    location: 51-02-10
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-02-11
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-02
+    - fact: annex4_code
+      op: eq
+      value: 51-02-11
+  then:
+    code: 51-02-11
+    category: GENERAL
+    name: 영농폐기물(농업활동 과정에서 배출된 농업용 폐플라스틱 필름 ㆍ시트류에 한정한다) 공정오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-11
+    excerpt: 51-02-11 영농폐기물(농업활동 과정에서 배출된 농업용 폐플라스틱 필름 ㆍ시트류에 한정한다) 공정오니
+    source_id: RULE-A4
+    location: 51-02-11
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-02-19
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-02
+    - fact: annex4_code
+      op: eq
+      value: 51-02-19
+  then:
+    code: 51-02-19
+    category: GENERAL
+    name: 그 밖의 공정오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-19
+    excerpt: 51-02-19 그 밖의 공정오니
+    source_id: RULE-A4
+    location: 51-02-19
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-02-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-02
+    - fact: annex4_code
+      op: eq
+      value: 51-02-99
+  then:
+    code: 51-02-99
+    category: GENERAL
+    name: 그 밖의 무기성오니
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-99
+    excerpt: 51-02-99 그 밖의 무기성오니
+    source_id: RULE-A4
+    location: 51-02-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-03-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-03
+    - fact: annex4_code
+      op: eq
+      value: 51-03-01
+  then:
+    code: 51-03-01
+    category: GENERAL
+    name: 폐합성수지류(폐염화비닐수지류는 제외한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-03-01
+    excerpt: 51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)
+    source_id: RULE-A4
+    location: 51-03-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-03-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-03
+    - fact: annex4_code
+      op: eq
+      value: 51-03-02
+  then:
+    code: 51-03-02
+    category: GENERAL
+    name: 폐합성고무류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-03-02
+    excerpt: 51-03-02 폐합성고무류
+    source_id: RULE-A4
+    location: 51-03-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-03-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-03
+    - fact: annex4_code
+      op: eq
+      value: 51-03-03
+  then:
+    code: 51-03-03
+    category: GENERAL
+    name: 폐폴리염화비닐수지류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-03-03
+    excerpt: 51-03-03 폐폴리염화비닐수지류
+    source_id: RULE-A4
+    location: 51-03-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-03-04
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-03
+    - fact: annex4_code
+      op: eq
+      value: 51-03-04
+  then:
+    code: 51-03-04
+    category: GENERAL
+    name: 폐폴리우레탄폼류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-03-04
+    excerpt: 51-03-04 폐폴리우레탄폼류
+    source_id: RULE-A4
+    location: 51-03-04
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-03-05
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-03
+    - fact: annex4_code
+      op: eq
+      value: 51-03-05
+  then:
+    code: 51-03-05
+    category: GENERAL
+    name: 양식용폐부자
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-03-05
+    excerpt: 51-03-05 양식용폐부자
+    source_id: RULE-A4
+    location: 51-03-05
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-03-06
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-03
+    - fact: annex4_code
+      op: eq
+      value: 51-03-06
+  then:
+    code: 51-03-06
+    category: GENERAL
+    name: 폐발포합성수지
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-03-06
+    excerpt: 51-03-06 폐발포합성수지
+    source_id: RULE-A4
+    location: 51-03-06
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-03-07
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-03
+    - fact: annex4_code
+      op: eq
+      value: 51-03-07
+  then:
+    code: 51-03-07
+    category: GENERAL
+    name: 플라스틱폐포장재
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-03-07
+    excerpt: 51-03-07 플라스틱폐포장재
+    source_id: RULE-A4
+    location: 51-03-07
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-03-08
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-03
+    - fact: annex4_code
+      op: eq
+      value: 51-03-08
+  then:
+    code: 51-03-08
+    category: GENERAL
+    name: 폐어망
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-03-08
+    excerpt: 51-03-08 폐어망
+    source_id: RULE-A4
+    location: 51-03-08
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-03-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-03
+    - fact: annex4_code
+      op: eq
+      value: 51-03-99
+  then:
+    code: 51-03-99
+    category: GENERAL
+    name: 그 밖의 폐합성고분자화합물(합성수지류로 피복된 폐전선을 포 함한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-03-99
+    excerpt: 51-03-99 그 밖의 폐합성고분자화합물(합성수지류로 피복된 폐전선을 포 함한다)
+    source_id: RULE-A4
+    location: 51-03-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-04-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-04
+    - fact: annex4_code
+      op: eq
+      value: 51-04-01
+  then:
+    code: 51-04-01
+    category: GENERAL
+    name: 고로슬래그
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-04-01
+    excerpt: 51-04-01 고로슬래그
+    source_id: RULE-A4
+    location: 51-04-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-04-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-04
+    - fact: annex4_code
+      op: eq
+      value: 51-04-02
+  then:
+    code: 51-04-02
+    category: GENERAL
+    name: 제강슬래그
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-04-02
+    excerpt: 51-04-02 제강슬래그
+    source_id: RULE-A4
+    location: 51-04-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-04-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-04
+    - fact: annex4_code
+      op: eq
+      value: 51-04-03
+  then:
+    code: 51-04-03
+    category: GENERAL
+    name: 비철금속제련공정광재
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-04-03
+    excerpt: 51-04-03 비철금속제련공정광재
+    source_id: RULE-A4
+    location: 51-04-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-04-04
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-04
+    - fact: annex4_code
+      op: eq
+      value: 51-04-04
+  then:
+    code: 51-04-04
+    category: GENERAL
+    name: 선광공정광재(기후에너지환경부장관이 정하는 방법에 따라 관리 되는 것은 제외한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-04-04
+    excerpt: 51-04-04 선광공정광재(기후에너지환경부장관이 정하는 방법에 따라 관리 되는 것은 제외한다)
+    source_id: RULE-A4
+    location: 51-04-04
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-04-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-04
+    - fact: annex4_code
+      op: eq
+      value: 51-04-99
+  then:
+    code: 51-04-99
+    category: GENERAL
+    name: 그 밖의 광재류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-04-99
+    excerpt: 51-04-99 그 밖의 광재류
+    source_id: RULE-A4
+    location: 51-04-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-05-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-05
+    - fact: annex4_code
+      op: eq
+      value: 51-05-01
+  then:
+    code: 51-05-01
+    category: GENERAL
+    name: 제철공정분진
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-05-01
+    excerpt: 51-05-01 제철공정분진
+    source_id: RULE-A4
+    location: 51-05-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-05-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-05
+    - fact: annex4_code
+      op: eq
+      value: 51-05-02
+  then:
+    code: 51-05-02
+    category: GENERAL
+    name: 시멘트제조공정분진
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-05-02
+    excerpt: 51-05-02 시멘트제조공정분진
+    source_id: RULE-A4
+    location: 51-05-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-05-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-05
+    - fact: annex4_code
+      op: eq
+      value: 51-05-03
+  then:
+    code: 51-05-03
+    category: GENERAL
+    name: 발전시설분진
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-05-03
+    excerpt: 51-05-03 발전시설분진
+    source_id: RULE-A4
+    location: 51-05-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-05-04
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-05
+    - fact: annex4_code
+      op: eq
+      value: 51-05-04
+  then:
+    code: 51-05-04
+    category: GENERAL
+    name: 폐실리카 퓸(규소철 제조과정에서 발생된 분진을 말한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-05-04
+    excerpt: 51-05-04 폐실리카 퓸(규소철 제조과정에서 발생된 분진을 말한다)
+    source_id: RULE-A4
+    location: 51-05-04
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-05-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-05
+    - fact: annex4_code
+      op: eq
+      value: 51-05-99
+  then:
+    code: 51-05-99
+    category: GENERAL
+    name: 그 밖의 분진
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-05-99
+    excerpt: 51-05-99 그 밖의 분진
+    source_id: RULE-A4
+    location: 51-05-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-06-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-06
+    - fact: annex4_code
+      op: eq
+      value: 51-06-01
+  then:
+    code: 51-06-01
+    category: GENERAL
+    name: 점토점결폐주물사
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-06-01
+    excerpt: 51-06-01 점토점결폐주물사
+    source_id: RULE-A4
+    location: 51-06-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-06-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-06
+    - fact: annex4_code
+      op: eq
+      value: 51-06-02
+  then:
+    code: 51-06-02
+    category: GENERAL
+    name: 화학점결폐주물사
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-06-02
+    excerpt: 51-06-02 화학점결폐주물사
+    source_id: RULE-A4
+    location: 51-06-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-06-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-06
+    - fact: annex4_code
+      op: eq
+      value: 51-06-03
+  then:
+    code: 51-06-03
+    category: GENERAL
+    name: 샌드블라스트폐사
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-06-03
+    excerpt: 51-06-03 샌드블라스트폐사
+    source_id: RULE-A4
+    location: 51-06-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-06-04
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-06
+    - fact: annex4_code
+      op: eq
+      value: 51-06-04
+  then:
+    code: 51-06-04
+    category: GENERAL
+    name: 폐여과사
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-06-04
+    excerpt: 51-06-04 폐여과사
+    source_id: RULE-A4
+    location: 51-06-04
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-06-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-06
+    - fact: annex4_code
+      op: eq
+      value: 51-06-99
+  then:
+    code: 51-06-99
+    category: GENERAL
+    name: 그 밖의 폐사
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-06-99
+    excerpt: 51-06-99 그 밖의 폐사
+    source_id: RULE-A4
+    location: 51-06-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-07-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-07
+    - fact: annex4_code
+      op: eq
+      value: 51-07-01
+  then:
+    code: 51-07-01
+    category: GENERAL
+    name: 폐내화물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-07-01
+    excerpt: 51-07-01 폐내화물
+    source_id: RULE-A4
+    location: 51-07-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-07-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-07
+    - fact: annex4_code
+      op: eq
+      value: 51-07-02
+  then:
+    code: 51-07-02
+    category: GENERAL
+    name: 폐도자기조각
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-07-02
+    excerpt: 51-07-02 폐도자기조각
+    source_id: RULE-A4
+    location: 51-07-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-08-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-08
+    - fact: annex4_code
+      op: eq
+      value: 51-08-01
+  then:
+    code: 51-08-01
+    category: GENERAL
+    name: 생활폐기물 소각시설 비산재
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-08-01
+    excerpt: 51-08-01 생활폐기물 소각시설 비산재
+    source_id: RULE-A4
+    location: 51-08-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-08-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-08
+    - fact: annex4_code
+      op: eq
+      value: 51-08-02
+  then:
+    code: 51-08-02
+    category: GENERAL
+    name: 사업장폐기물 소각시설 비산재
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-08-02
+    excerpt: 51-08-02 사업장폐기물 소각시설 비산재
+    source_id: RULE-A4
+    location: 51-08-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-08-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-08
+    - fact: annex4_code
+      op: eq
+      value: 51-08-03
+  then:
+    code: 51-08-03
+    category: GENERAL
+    name: 생활폐기물 소각시설 바닥재
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-08-03
+    excerpt: 51-08-03 생활폐기물 소각시설 바닥재
+    source_id: RULE-A4
+    location: 51-08-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-08-04
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-08
+    - fact: annex4_code
+      op: eq
+      value: 51-08-04
+  then:
+    code: 51-08-04
+    category: GENERAL
+    name: 사업장폐기물 소각시설 바닥재
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-08-04
+    excerpt: 51-08-04 사업장폐기물 소각시설 바닥재
+    source_id: RULE-A4
+    location: 51-08-04
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-08-05
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-08
+    - fact: annex4_code
+      op: eq
+      value: 51-08-05
+  then:
+    code: 51-08-05
+    category: GENERAL
+    name: 생활폐기물 소각시설 소각재(바닥재와 비산재가 혼합된 경우를 말한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-08-05
+    excerpt: 51-08-05 생활폐기물 소각시설 소각재(바닥재와 비산재가 혼합된 경우를 말한다)
+    source_id: RULE-A4
+    location: 51-08-05
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-08-06
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-08
+    - fact: annex4_code
+      op: eq
+      value: 51-08-06
+  then:
+    code: 51-08-06
+    category: GENERAL
+    name: 사업장폐기물 소각시설 소각재(바닥재와 비산재가 혼합된 경우 를 말한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-08-06
+    excerpt: 51-08-06 사업장폐기물 소각시설 소각재(바닥재와 비산재가 혼합된 경우 를 말한다)
+    source_id: RULE-A4
+    location: 51-08-06
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-09-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-09
+    - fact: annex4_code
+      op: eq
+      value: 51-09-01
+  then:
+    code: 51-09-01
+    category: GENERAL
+    name: 안정화 처리물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-09-01
+    excerpt: 51-09-01 안정화 처리물
+    source_id: RULE-A4
+    location: 51-09-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-09-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-09
+    - fact: annex4_code
+      op: eq
+      value: 51-09-02
+  then:
+    code: 51-09-02
+    category: GENERAL
+    name: 시멘트고형화 처리물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-09-02
+    excerpt: 51-09-02 시멘트고형화 처리물
+    source_id: RULE-A4
+    location: 51-09-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-09-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-09
+    - fact: annex4_code
+      op: eq
+      value: 51-09-03
+  then:
+    code: 51-09-03
+    category: GENERAL
+    name: 고화 처리물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-09-03
+    excerpt: 51-09-03 고화 처리물
+    source_id: RULE-A4
+    location: 51-09-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-09-04
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-09
+    - fact: annex4_code
+      op: eq
+      value: 51-09-04
+  then:
+    code: 51-09-04
+    category: GENERAL
+    name: 킬레이트(Chelate) 처리물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-09-04
+    excerpt: 51-09-04 킬레이트(Chelate) 처리물
+    source_id: RULE-A4
+    location: 51-09-04
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-09-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-09
+    - fact: annex4_code
+      op: eq
+      value: 51-09-99
+  then:
+    code: 51-09-99
+    category: GENERAL
+    name: 그 밖의 고형화·고화 처리물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-09-99
+    excerpt: 51-09-99 그 밖의 고형화·고화 처리물
+    source_id: RULE-A4
+    location: 51-09-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-10-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-10
+    - fact: annex4_code
+      op: eq
+      value: 51-10-01
+  then:
+    code: 51-10-01
+    category: GENERAL
+    name: 금속성폐촉매
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-10-01
+    excerpt: 51-10-01 금속성폐촉매
+    source_id: RULE-A4
+    location: 51-10-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-10-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-10
+    - fact: annex4_code
+      op: eq
+      value: 51-10-02
+  then:
+    code: 51-10-02
+    category: GENERAL
+    name: 폐이온교환수지
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-10-02
+    excerpt: 51-10-02 폐이온교환수지
+    source_id: RULE-A4
+    location: 51-10-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-10-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-10
+    - fact: annex4_code
+      op: eq
+      value: 51-10-03
+  then:
+    code: 51-10-03
+    category: GENERAL
+    name: 폐멤브레인수지
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-10-03
+    excerpt: 51-10-03 폐멤브레인수지
+    source_id: RULE-A4
+    location: 51-10-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-10-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-10
+    - fact: annex4_code
+      op: eq
+      value: 51-10-99
+  then:
+    code: 51-10-99
+    category: GENERAL
+    name: 그 밖의 폐촉매
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-10-99
+    excerpt: 51-10-99 그 밖의 폐촉매
+    source_id: RULE-A4
+    location: 51-10-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-11-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-11
+    - fact: annex4_code
+      op: eq
+      value: 51-11-01
+  then:
+    code: 51-11-01
+    category: GENERAL
+    name: 폐흡착제
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-11-01
+    excerpt: 51-11-01 폐흡착제
+    source_id: RULE-A4
+    location: 51-11-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-11-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-11
+    - fact: annex4_code
+      op: eq
+      value: 51-11-02
+  then:
+    code: 51-11-02
+    category: GENERAL
+    name: 폐흡수제
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-11-02
+    excerpt: 51-11-02 폐흡수제
+    source_id: RULE-A4
+    location: 51-11-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-11-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-11
+    - fact: annex4_code
+      op: eq
+      value: 51-11-03
+  then:
+    code: 51-11-03
+    category: GENERAL
+    name: 폐활성탄
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-11-03
+    excerpt: 51-11-03 폐활성탄
+    source_id: RULE-A4
+    location: 51-11-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-12-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-12
+    - fact: annex4_code
+      op: eq
+      value: 51-12-01
+  then:
+    code: 51-12-01
+    category: GENERAL
+    name: 폐석고
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-12-01
+    excerpt: 51-12-01 폐석고
+    source_id: RULE-A4
+    location: 51-12-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-12-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-12
+    - fact: annex4_code
+      op: eq
+      value: 51-12-02
+  then:
+    code: 51-12-02
+    category: GENERAL
+    name: 폐석회
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-12-02
+    excerpt: 51-12-02 폐석회
+    source_id: RULE-A4
+    location: 51-12-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-13-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-13
+    - fact: annex4_code
+      op: eq
+      value: 51-13-01
+  then:
+    code: 51-13-01
+    category: GENERAL
+    name: 연탄재
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-13-01
+    excerpt: 51-13-01 연탄재
+    source_id: RULE-A4
+    location: 51-13-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-13-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-13
+    - fact: annex4_code
+      op: eq
+      value: 51-13-02
+  then:
+    code: 51-13-02
+    category: GENERAL
+    name: 액체연료연소재
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-13-02
+    excerpt: 51-13-02 액체연료연소재
+    source_id: RULE-A4
+    location: 51-13-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-13-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-13
+    - fact: annex4_code
+      op: eq
+      value: 51-13-03
+  then:
+    code: 51-13-03
+    category: GENERAL
+    name: 석탄재
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-13-03
+    excerpt: 51-13-03 석탄재
+    source_id: RULE-A4
+    location: 51-13-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-13-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-13
+    - fact: annex4_code
+      op: eq
+      value: 51-13-99
+  then:
+    code: 51-13-99
+    category: GENERAL
+    name: 그 밖의 연소잔재물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-13-99
+    excerpt: 51-13-99 그 밖의 연소잔재물
+    source_id: RULE-A4
+    location: 51-13-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-14-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-14
+    - fact: annex4_code
+      op: eq
+      value: 51-14-01
+  then:
+    code: 51-14-01
+    category: GENERAL
+    name: 폐석분토사(석재·골재생산 과정에서 발생한 응집 미립분을 포함 한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-14-01
+    excerpt: 51-14-01 폐석분토사(석재·골재생산 과정에서 발생한 응집 미립분을 포함 한다)
+    source_id: RULE-A4
+    location: 51-14-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-14-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-14
+    - fact: annex4_code
+      op: eq
+      value: 51-14-02
+  then:
+    code: 51-14-02
+    category: GENERAL
+    name: 폐석재
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-14-02
+    excerpt: 51-14-02 폐석재
+    source_id: RULE-A4
+    location: 51-14-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-15-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-15
+    - fact: annex4_code
+      op: eq
+      value: 51-15-01
+  then:
+    code: 51-15-01
+    category: GENERAL
+    name: 자동차 폐타이어
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-15-01
+    excerpt: 51-15-01 자동차 폐타이어
+    source_id: RULE-A4
+    location: 51-15-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-15-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-15
+    - fact: annex4_code
+      op: eq
+      value: 51-15-02
+  then:
+    code: 51-15-02
+    category: GENERAL
+    name: 그 밖의 폐타이어
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-15-02
+    excerpt: 51-15-02 그 밖의 폐타이어
+    source_id: RULE-A4
+    location: 51-15-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-16-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-16
+    - fact: annex4_code
+      op: eq
+      value: 51-16-00
+  then:
+    code: 51-16-00
+    category: GENERAL
+    name: 폐식용유(식용을 목적으로 식품 재료와 원료를 제조·조리·가공하거 나 식용유를 유통·사용 또는 음식물류 폐기물을 처리하는 과정에서 발생하는 기름을 말한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-16-00
+    excerpt: 51-16-00 폐식용유(식용을 목적으로 식품 재료와 원료를 제조·조리·가공하거 나 식용유를 유통·사용 또는 음식물류 폐기물을 처리하는 과정에서 발생하는 기름을 말한다)
+    source_id: RULE-A4
+    location: 51-16-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-01
+  then:
+    code: 51-17-01
+    category: GENERAL
+    name: 동물사체
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-01
+    excerpt: 51-17-01 동물사체
+    source_id: RULE-A4
+    location: 51-17-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-02
+  then:
+    code: 51-17-02
+    category: GENERAL
+    name: 축산물가공잔재물(동물성 유지류는 제외한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-02
+    excerpt: 51-17-02 축산물가공잔재물(동물성 유지류는 제외한다)
+    source_id: RULE-A4
+    location: 51-17-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-03
+  then:
+    code: 51-17-03
+    category: GENERAL
+    name: 수산물가공잔재물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-03
+    excerpt: 51-17-03 수산물가공잔재물
+    source_id: RULE-A4
+    location: 51-17-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-04
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-04
+  then:
+    code: 51-17-04
+    category: GENERAL
+    name: 폐패각
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-04
+    excerpt: 51-17-04 폐패각
+    source_id: RULE-A4
+    location: 51-17-04
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-05
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-05
+  then:
+    code: 51-17-05
+    category: GENERAL
+    name: 폐모피류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-05
+    excerpt: 51-17-05 폐모피류
+    source_id: RULE-A4
+    location: 51-17-05
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-06
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-06
+  then:
+    code: 51-17-06
+    category: GENERAL
+    name: 피혁 및 피혁가공잔재물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-06
+    excerpt: 51-17-06 피혁 및 피혁가공잔재물
+    source_id: RULE-A4
+    location: 51-17-06
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-07
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-07
+  then:
+    code: 51-17-07
+    category: GENERAL
+    name: 동물털
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-07
+    excerpt: 51-17-07 동물털
+    source_id: RULE-A4
+    location: 51-17-07
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-08
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-08
+  then:
+    code: 51-17-08
+    category: GENERAL
+    name: 동물성유지류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-08
+    excerpt: 51-17-08 동물성유지류
+    source_id: RULE-A4
+    location: 51-17-08
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-19
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-19
+  then:
+    code: 51-17-19
+    category: GENERAL
+    name: 그 밖의 동물성잔재물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-19
+    excerpt: 51-17-19 그 밖의 동물성잔재물
+    source_id: RULE-A4
+    location: 51-17-19
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-21
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-21
+  then:
+    code: 51-17-21
+    category: GENERAL
+    name: 주정박
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-21
+    excerpt: 51-17-21 주정박
+    source_id: RULE-A4
+    location: 51-17-21
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-22
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-22
+  then:
+    code: 51-17-22
+    category: GENERAL
+    name: 맥주박
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-22
+    excerpt: 51-17-22 맥주박
+    source_id: RULE-A4
+    location: 51-17-22
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-23
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-23
+  then:
+    code: 51-17-23
+    category: GENERAL
+    name: 유박유잔재물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-23
+    excerpt: 51-17-23 유박유잔재물
+    source_id: RULE-A4
+    location: 51-17-23
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-24
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-24
+  then:
+    code: 51-17-24
+    category: GENERAL
+    name: 초본류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-24
+    excerpt: 51-17-24 초본류
+    source_id: RULE-A4
+    location: 51-17-24
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-25
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-25
+  then:
+    code: 51-17-25
+    category: GENERAL
+    name: 커피찌꺼기
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-25
+    excerpt: 51-17-25 커피찌꺼기
+    source_id: RULE-A4
+    location: 51-17-25
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-26
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-26
+  then:
+    code: 51-17-26
+    category: GENERAL
+    name: 버섯폐배지
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-26
+    excerpt: 51-17-26 버섯폐배지
+    source_id: RULE-A4
+    location: 51-17-26
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-27
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-27
+  then:
+    code: 51-17-27
+    category: GENERAL
+    name: 과채류(「사료관리법」 제2조제2호에 따른 단미사료에 해당하 는 것으로 한정한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-27
+    excerpt: 51-17-27 과채류(「사료관리법」 제2조제2호에 따른 단미사료에 해당하 는 것으로 한정한다)
+    source_id: RULE-A4
+    location: 51-17-27
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-29
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-29
+  then:
+    code: 51-17-29
+    category: GENERAL
+    name: 그 밖의 식물성잔재물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-29
+    excerpt: 51-17-29 그 밖의 식물성잔재물
+    source_id: RULE-A4
+    location: 51-17-29
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-30
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-30
+  then:
+    code: 51-17-30
+    category: GENERAL
+    name: 식재료 및 조리부산물(제18조제1항제1호에 따른 배출자 중 식 품제조ㆍ가공업체 및 같은 항 제3호에 따른 배출자 중 집단급 식소에서 발생한 것으로 한정한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-30
+    excerpt: 51-17-30 식재료 및 조리부산물(제18조제1항제1호에 따른 배출자 중 식 품제조ㆍ가공업체 및 같은 항 제3호에 따른 배출자 중 집단급 식소에서 발생한 것으로 한정한다)
+    source_id: RULE-A4
+    location: 51-17-30
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-17-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-17
+    - fact: annex4_code
+      op: eq
+      value: 51-17-99
+  then:
+    code: 51-17-99
+    category: GENERAL
+    name: 그 밖의 동·식물성잔재물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-17-99
+    excerpt: 51-17-99 그 밖의 동·식물성잔재물
+    source_id: RULE-A4
+    location: 51-17-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-18-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-18
+    - fact: annex4_code
+      op: eq
+      value: 51-18-01
+  then:
+    code: 51-18-01
+    category: GENERAL
+    name: 가정용폐전기전자제품
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-18-01
+    excerpt: 51-18-01 가정용폐전기전자제품
+    source_id: RULE-A4
+    location: 51-18-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-18-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-18
+    - fact: annex4_code
+      op: eq
+      value: 51-18-02
+  then:
+    code: 51-18-02
+    category: GENERAL
+    name: 산업용폐전기전자제품
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-18-02
+    excerpt: 51-18-02 산업용폐전기전자제품
+    source_id: RULE-A4
+    location: 51-18-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-18-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-18
+    - fact: annex4_code
+      op: eq
+      value: 51-18-03
+  then:
+    code: 51-18-03
+    category: GENERAL
+    name: 프린트토너 및 카트리지폐부속품
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-18-03
+    excerpt: 51-18-03 프린트토너 및 카트리지폐부속품
+    source_id: RULE-A4
+    location: 51-18-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-18-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-18
+    - fact: annex4_code
+      op: eq
+      value: 51-18-99
+  then:
+    code: 51-18-99
+    category: GENERAL
+    name: 그 밖의 폐전기전자제품류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-18-99
+    excerpt: 51-18-99 그 밖의 폐전기전자제품류
+    source_id: RULE-A4
+    location: 51-18-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-19-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-19
+    - fact: annex4_code
+      op: eq
+      value: 51-19-00
+  then:
+    code: 51-19-00
+    category: GENERAL
+    name: 왕겨 및 쌀겨(「사료관리법」에 따른 사료로 사용하는 경우는 제외한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-19-00
+    excerpt: 51-19-00 왕겨 및 쌀겨(「사료관리법」에 따른 사료로 사용하는 경우는 제외한다)
+    source_id: RULE-A4
+    location: 51-19-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-20-21
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-20
+    - fact: annex4_code
+      op: eq
+      value: 51-20-21
+  then:
+    code: 51-20-21
+    category: GENERAL
+    name: 임목폐목재(건설공사ㆍ산지개간 등의 과정에서 발생된 나무뿌리 ㆍ가지ㆍ줄기 등을 말한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-20-21
+    excerpt: 51-20-21 임목폐목재(건설공사ㆍ산지개간 등의 과정에서 발생된 나무뿌리 ㆍ가지ㆍ줄기 등을 말한다)
+    source_id: RULE-A4
+    location: 51-20-21
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-20-22
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-20
+    - fact: annex4_code
+      op: eq
+      value: 51-20-22
+  then:
+    code: 51-20-22
+    category: GENERAL
+    name: 제재부산물(원목 가공과정에서 발생되는 나무 껍질ㆍ톱밥ㆍ대패 밥 등을 말한다), 목재가공공장 부산물(원목상태의 깨끗한 목재부 산물 및 분진을 말한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-20-22
+    excerpt: 51-20-22 제재부산물(원목 가공과정에서 발생되는 나무 껍질ㆍ톱밥ㆍ대패 밥 등을 말한다), 목재가공공장 부산물(원목상태의 깨끗한 목재부 산물 및 분진을 말한다)
+    source_id: RULE-A4
+    location: 51-20-22
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-20-23
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-20
+    - fact: annex4_code
+      op: eq
+      value: 51-20-23
+  then:
+    code: 51-20-23
+    category: GENERAL
+    name: 폐도장목ㆍ폐목재포장재ㆍ폐전선드럼ㆍ건설현장 폐목재(원목상 태의 깨끗한 목재를 말한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-20-23
+    excerpt: 51-20-23 폐도장목ㆍ폐목재포장재ㆍ폐전선드럼ㆍ건설현장 폐목재(원목상 태의 깨끗한 목재를 말한다)
+    source_id: RULE-A4
+    location: 51-20-23
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-20-24
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-20
+    - fact: annex4_code
+      op: eq
+      value: 51-20-24
+  then:
+    code: 51-20-24
+    category: GENERAL
+    name: 접착제ㆍ페인트ㆍ기름ㆍ콘크리트 등의 물질이 사용된 폐목재(목 재부산물 및 분진을 포함한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-20-24
+    excerpt: 51-20-24 접착제ㆍ페인트ㆍ기름ㆍ콘크리트 등의 물질이 사용된 폐목재(목 재부산물 및 분진을 포함한다)
+    source_id: RULE-A4
+    location: 51-20-24
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-20-25
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-20
+    - fact: annex4_code
+      op: eq
+      value: 51-20-25
+  then:
+    code: 51-20-25
+    category: GENERAL
+    name: 할로겐족 유기화합물 또는 방부제가 사용된 폐목재(목재부산물 및 분진을 포함한다) 및 건설현장의 실외목재구조물에서 발생되는 폐목재, 폐선박 및 차량에서 나오는 목재, 건축물 화재현장에서
+      발 생한 폐목재, 냉각탑, 산업용 바닥재 등에 사용된 폐목재
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-20-25
+    excerpt: 51-20-25 할로겐족 유기화합물 또는 방부제가 사용된 폐목재(목재부산물 및 분진을 포함한다) 및 건설현장의 실외목재구조물에서 발생되는 폐목재, 폐선박 및 차량에서 나오는 목재,
+      건축물 화재현장에서 발 생한 폐목재, 냉각탑, 산업용 바닥재 등에 사용된 폐목재
+    source_id: RULE-A4
+    location: 51-20-25
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-20-26
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-20
+    - fact: annex4_code
+      op: eq
+      value: 51-20-26
+  then:
+    code: 51-20-26
+    category: GENERAL
+    name: 폐철도목재받침목
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-20-26
+    excerpt: 51-20-26 폐철도목재받침목
+    source_id: RULE-A4
+    location: 51-20-26
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-20-27
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-20
+    - fact: annex4_code
+      op: eq
+      value: 51-20-27
+  then:
+    code: 51-20-27
+    category: GENERAL
+    name: 폐가구류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-20-27
+    excerpt: 51-20-27 폐가구류
+    source_id: RULE-A4
+    location: 51-20-27
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-20-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-20
+    - fact: annex4_code
+      op: eq
+      value: 51-20-99
+  then:
+    code: 51-20-99
+    category: GENERAL
+    name: 그 밖의 폐목재류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-20-99
+    excerpt: 51-20-99 그 밖의 폐목재류
+    source_id: RULE-A4
+    location: 51-20-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-21-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-21
+    - fact: annex4_code
+      op: eq
+      value: 51-21-01
+  then:
+    code: 51-21-01
+    category: GENERAL
+    name: 폐토사
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-21-01
+    excerpt: 51-21-01 폐토사
+    source_id: RULE-A4
+    location: 51-21-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-21-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-21
+    - fact: annex4_code
+      op: eq
+      value: 51-21-02
+  then:
+    code: 51-21-02
+    category: GENERAL
+    name: 건설폐토석
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-21-02
+    excerpt: 51-21-02 건설폐토석
+    source_id: RULE-A4
+    location: 51-21-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-21-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-21
+    - fact: annex4_code
+      op: eq
+      value: 51-21-03
+  then:
+    code: 51-21-03
+    category: GENERAL
+    name: 오염하천·오염해양 준설토
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-21-03
+    excerpt: 51-21-03 오염하천·오염해양 준설토
+    source_id: RULE-A4
+    location: 51-21-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-22-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-22
+    - fact: annex4_code
+      op: eq
+      value: 51-22-01
+  then:
+    code: 51-22-01
+    category: GENERAL
+    name: 폐콘크리트
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-22-01
+    excerpt: 51-22-01 폐콘크리트
+    source_id: RULE-A4
+    location: 51-22-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-22-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-22
+    - fact: annex4_code
+      op: eq
+      value: 51-22-02
+  then:
+    code: 51-22-02
+    category: GENERAL
+    name: 폐철도콘크리트받침목
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-22-02
+    excerpt: 51-22-02 폐철도콘크리트받침목
+    source_id: RULE-A4
+    location: 51-22-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-23-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-23
+    - fact: annex4_code
+      op: eq
+      value: 51-23-00
+  then:
+    code: 51-23-00
+    category: GENERAL
+    name: 폐아스팔트콘크리트
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-23-00
+    excerpt: 51-23-00 폐아스팔트콘크리트
+    source_id: RULE-A4
+    location: 51-23-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-24-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-24
+    - fact: annex4_code
+      op: eq
+      value: 51-24-00
+  then:
+    code: 51-24-00
+    category: GENERAL
+    name: 폐벽돌
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-24-00
+    excerpt: 51-24-00 폐벽돌
+    source_id: RULE-A4
+    location: 51-24-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-25-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-25
+    - fact: annex4_code
+      op: eq
+      value: 51-25-00
+  then:
+    code: 51-25-00
+    category: GENERAL
+    name: 폐블록
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-25-00
+    excerpt: 51-25-00 폐블록
+    source_id: RULE-A4
+    location: 51-25-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-26-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-26
+    - fact: annex4_code
+      op: eq
+      value: 51-26-00
+  then:
+    code: 51-26-00
+    category: GENERAL
+    name: 폐기와
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-26-00
+    excerpt: 51-26-00 폐기와
+    source_id: RULE-A4
+    location: 51-26-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-27-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-27
+    - fact: annex4_code
+      op: eq
+      value: 51-27-01
+  then:
+    code: 51-27-01
+    category: GENERAL
+    name: 폐천연섬유
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-27-01
+    excerpt: 51-27-01 폐천연섬유
+    source_id: RULE-A4
+    location: 51-27-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-27-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-27
+    - fact: annex4_code
+      op: eq
+      value: 51-27-02
+  then:
+    code: 51-27-02
+    category: GENERAL
+    name: 폐합성섬유
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-27-02
+    excerpt: 51-27-02 폐합성섬유
+    source_id: RULE-A4
+    location: 51-27-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-27-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-27
+    - fact: annex4_code
+      op: eq
+      value: 51-27-03
+  then:
+    code: 51-27-03
+    category: GENERAL
+    name: 폐의류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-27-03
+    excerpt: 51-27-03 폐의류
+    source_id: RULE-A4
+    location: 51-27-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-27-04
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-27
+    - fact: annex4_code
+      op: eq
+      value: 51-27-04
+  then:
+    code: 51-27-04
+    category: GENERAL
+    name: 의료기관 일회용기저귀(별표 3에 따른 의료기관 및 시험ㆍ검사 기관 등에서 발생한 것을 말하며, 같은 표 제14호에 따른 노인요 양시설에서 발생한 것과 영 별표 2에 따른 의료폐기물에
+      해당하 는 것은 제외한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-27-04
+    excerpt: 51-27-04 의료기관 일회용기저귀(별표 3에 따른 의료기관 및 시험ㆍ검사 기관 등에서 발생한 것을 말하며, 같은 표 제14호에 따른 노인요 양시설에서 발생한 것과 영 별표 2에
+      따른 의료폐기물에 해당하 는 것은 제외한다)
+    source_id: RULE-A4
+    location: 51-27-04
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-27-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-27
+    - fact: annex4_code
+      op: eq
+      value: 51-27-99
+  then:
+    code: 51-27-99
+    category: GENERAL
+    name: 그 밖의 폐섬유
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-27-99
+    excerpt: 51-27-99 그 밖의 폐섬유
+    source_id: RULE-A4
+    location: 51-27-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-28-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-28
+    - fact: annex4_code
+      op: eq
+      value: 51-28-01
+  then:
+    code: 51-28-01
+    category: GENERAL
+    name: 폐종이팩(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제 18조제1호에 해당하는 것을 말한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-28-01
+    excerpt: 51-28-01 폐종이팩(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제 18조제1호에 해당하는 것을 말한다)
+    source_id: RULE-A4
+    location: 51-28-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-28-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-28
+    - fact: annex4_code
+      op: eq
+      value: 51-28-02
+  then:
+    code: 51-28-02
+    category: GENERAL
+    name: 폐종이류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-28-02
+    excerpt: 51-28-02 폐종이류
+    source_id: RULE-A4
+    location: 51-28-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-28-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-28
+    - fact: annex4_code
+      op: eq
+      value: 51-28-03
+  then:
+    code: 51-28-03
+    category: GENERAL
+    name: 폐벽지
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-28-03
+    excerpt: 51-28-03 폐벽지
+    source_id: RULE-A4
+    location: 51-28-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-29-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-29
+    - fact: annex4_code
+      op: eq
+      value: 51-29-01
+  then:
+    code: 51-29-01
+    category: GENERAL
+    name: 고철
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-29-01
+    excerpt: 51-29-01 고철
+    source_id: RULE-A4
+    location: 51-29-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-29-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-29
+    - fact: annex4_code
+      op: eq
+      value: 51-29-02
+  then:
+    code: 51-29-02
+    category: GENERAL
+    name: 비철금속
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-29-02
+    excerpt: 51-29-02 비철금속
+    source_id: RULE-A4
+    location: 51-29-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-29-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-29
+    - fact: annex4_code
+      op: eq
+      value: 51-29-03
+  then:
+    code: 51-29-03
+    category: GENERAL
+    name: 폐금속캔류(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조제1호에 해당하는 것을 말한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-29-03
+    excerpt: 51-29-03 폐금속캔류(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조제1호에 해당하는 것을 말한다)
+    source_id: RULE-A4
+    location: 51-29-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-29-04
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-29
+    - fact: annex4_code
+      op: eq
+      value: 51-29-04
+  then:
+    code: 51-29-04
+    category: GENERAL
+    name: 폐금속용기류(폐금속캔류는 제외한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-29-04
+    excerpt: 51-29-04 폐금속용기류(폐금속캔류는 제외한다)
+    source_id: RULE-A4
+    location: 51-29-04
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-29-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-29
+    - fact: annex4_code
+      op: eq
+      value: 51-29-99
+  then:
+    code: 51-29-99
+    category: GENERAL
+    name: 그 밖의 폐금속류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-29-99
+    excerpt: 51-29-99 그 밖의 폐금속류
+    source_id: RULE-A4
+    location: 51-29-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-30-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-30
+    - fact: annex4_code
+      op: eq
+      value: 51-30-01
+  then:
+    code: 51-30-01
+    category: GENERAL
+    name: 폐유리
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-30-01
+    excerpt: 51-30-01 폐유리
+    source_id: RULE-A4
+    location: 51-30-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-30-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-30
+    - fact: annex4_code
+      op: eq
+      value: 51-30-02
+  then:
+    code: 51-30-02
+    category: GENERAL
+    name: 폐유리병류(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조제1호에 해당하는 것을 말한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-30-02
+    excerpt: 51-30-02 폐유리병류(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조제1호에 해당하는 것을 말한다)
+    source_id: RULE-A4
+    location: 51-30-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-30-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-30
+    - fact: annex4_code
+      op: eq
+      value: 51-30-03
+  then:
+    code: 51-30-03
+    category: GENERAL
+    name: 폐스마트유리
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-30-03
+    excerpt: 51-30-03 폐스마트유리
+    source_id: RULE-A4
+    location: 51-30-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-30-04
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-30
+    - fact: annex4_code
+      op: eq
+      value: 51-30-04
+  then:
+    code: 51-30-04
+    category: GENERAL
+    name: 폐유리섬유
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-30-04
+    excerpt: 51-30-04 폐유리섬유
+    source_id: RULE-A4
+    location: 51-30-04
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-30-05
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-30
+    - fact: annex4_code
+      op: eq
+      value: 51-30-05
+  then:
+    code: 51-30-05
+    category: GENERAL
+    name: 수은함유폐기물 처리잔재물[수은함유폐기물을 처리하는 과정에 서 발생되는 것과 폐형광등을 재활용하는 과정에서 발생되는 것 을 포함하되, 폐기물공정시험기준에 따른 용출시험 결과 용출액 1
+      리터당 0.005밀리그램 미만의 수은 및 그 화합물이 함유된 것으 로 한정한다(이하 "수은폐기물이 아닌 수은함유폐기물 처리잔재 물"이라 한다)]
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-30-05
+    excerpt: 51-30-05 수은함유폐기물 처리잔재물[수은함유폐기물을 처리하는 과정에 서 발생되는 것과 폐형광등을 재활용하는 과정에서 발생되는 것 을 포함하되, 폐기물공정시험기준에 따른 용출시험
+      결과 용출액 1 리터당 0.005밀리그램 미만의 수은 및 그 화합물이 함유된 것으 로 한정한다(이하 "수은폐기물이 아닌 수은함유폐기물 처리잔재 물"이라 한다)]
+    source_id: RULE-A4
+    location: 51-30-05
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-30-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-30
+    - fact: annex4_code
+      op: eq
+      value: 51-30-99
+  then:
+    code: 51-30-99
+    category: GENERAL
+    name: 그 밖의 폐유리
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-30-99
+    excerpt: 51-30-99 그 밖의 폐유리
+    source_id: RULE-A4
+    location: 51-30-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-31-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-31
+    - fact: annex4_code
+      op: eq
+      value: 51-31-00
+  then:
+    code: 51-31-00
+    category: GENERAL
+    name: 폐타일
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-31-00
+    excerpt: 51-31-00 폐타일
+    source_id: RULE-A4
+    location: 51-31-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-32-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-32
+    - fact: annex4_code
+      op: eq
+      value: 51-32-00
+  then:
+    code: 51-32-00
+    category: GENERAL
+    name: 폐보드류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-32-00
+    excerpt: 51-32-00 폐보드류
+    source_id: RULE-A4
+    location: 51-32-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-33-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-33
+    - fact: annex4_code
+      op: eq
+      value: 51-33-00
+  then:
+    code: 51-33-00
+    category: GENERAL
+    name: 폐판넬
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-33-00
+    excerpt: 51-33-00 폐판넬
+    source_id: RULE-A4
+    location: 51-33-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-35-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-35
+    - fact: annex4_code
+      op: eq
+      value: 51-35-00
+  then:
+    code: 51-35-00
+    category: GENERAL
+    name: 폐전주(폐애자, 폐근가 및 폐합성수지제 덮개류 등을 포함한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-35-00
+    excerpt: 51-35-00 폐전주(폐애자, 폐근가 및 폐합성수지제 덮개류 등을 포함한다)
+    source_id: RULE-A4
+    location: 51-35-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-36-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-36
+    - fact: annex4_code
+      op: eq
+      value: 51-36-01
+  then:
+    code: 51-36-01
+    category: GENERAL
+    name: 이산화탄소스트림
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-36-01
+    excerpt: 51-36-01 이산화탄소스트림
+    source_id: RULE-A4
+    location: 51-36-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-36-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-36
+    - fact: annex4_code
+      op: eq
+      value: 51-36-02
+  then:
+    code: 51-36-02
+    category: GENERAL
+    name: 이산화탄소전환탄산화물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-36-02
+    excerpt: 51-36-02 이산화탄소전환탄산화물
+    source_id: RULE-A4
+    location: 51-36-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-37-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-37
+    - fact: annex4_code
+      op: eq
+      value: 51-37-01
+  then:
+    code: 51-37-01
+    category: GENERAL
+    name: 가전제품회수폐냉매물질
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-37-01
+    excerpt: 51-37-01 가전제품회수폐냉매물질
+    source_id: RULE-A4
+    location: 51-37-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-37-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-37
+    - fact: annex4_code
+      op: eq
+      value: 51-37-02
+  then:
+    code: 51-37-02
+    category: GENERAL
+    name: 자동차회수폐냉매물질
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-37-02
+    excerpt: 51-37-02 자동차회수폐냉매물질
+    source_id: RULE-A4
+    location: 51-37-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-37-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-37
+    - fact: annex4_code
+      op: eq
+      value: 51-37-03
+  then:
+    code: 51-37-03
+    category: GENERAL
+    name: 공조기회수폐냉매물질
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-37-03
+    excerpt: 51-37-03 공조기회수폐냉매물질
+    source_id: RULE-A4
+    location: 51-37-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-37-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-37
+    - fact: annex4_code
+      op: eq
+      value: 51-37-99
+  then:
+    code: 51-37-99
+    category: GENERAL
+    name: 그 밖의 폐냉매물질
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-37-99
+    excerpt: 51-37-99 그 밖의 폐냉매물질
+    source_id: RULE-A4
+    location: 51-37-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-38-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-38
+    - fact: annex4_code
+      op: eq
+      value: 51-38-01
+  then:
+    code: 51-38-01
+    category: GENERAL
+    name: 음식물류폐기물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-38-01
+    excerpt: 51-38-01 음식물류폐기물
+    source_id: RULE-A4
+    location: 51-38-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-38-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-38
+    - fact: annex4_code
+      op: eq
+      value: 51-38-02
+  then:
+    code: 51-38-02
+    category: GENERAL
+    name: 중간가공음식물류폐기물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-38-02
+    excerpt: 51-38-02 중간가공음식물류폐기물
+    source_id: RULE-A4
+    location: 51-38-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-38-03
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-38
+    - fact: annex4_code
+      op: eq
+      value: 51-38-03
+  then:
+    code: 51-38-03
+    category: GENERAL
+    name: 음식물류폐기물처리잔재물(액상의 경우만 해당한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-38-03
+    excerpt: 51-38-03 음식물류폐기물처리잔재물(액상의 경우만 해당한다)
+    source_id: RULE-A4
+    location: 51-38-03
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-38-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-38
+    - fact: annex4_code
+      op: eq
+      value: 51-38-99
+  then:
+    code: 51-38-99
+    category: GENERAL
+    name: 그 밖의 음식물류폐기물처리잔재물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-38-99
+    excerpt: 51-38-99 그 밖의 음식물류폐기물처리잔재물
+    source_id: RULE-A4
+    location: 51-38-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-39-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-39
+    - fact: annex4_code
+      op: eq
+      value: 51-39-00
+  then:
+    code: 51-39-00
+    category: GENERAL
+    name: 폐사료
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-39-00
+    excerpt: 51-39-00 폐사료
+    source_id: RULE-A4
+    location: 51-39-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-40-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-40
+    - fact: annex4_code
+      op: eq
+      value: 51-40-01
+  then:
+    code: 51-40-01
+    category: GENERAL
+    name: 폐분말소화기
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-40-01
+    excerpt: 51-40-01 폐분말소화기
+    source_id: RULE-A4
+    location: 51-40-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-40-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-40
+    - fact: annex4_code
+      op: eq
+      value: 51-40-99
+  then:
+    code: 51-40-99
+    category: GENERAL
+    name: 그 밖의 폐소화기
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-40-99
+    excerpt: 51-40-99 그 밖의 폐소화기
+    source_id: RULE-A4
+    location: 51-40-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-41-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-41
+    - fact: annex4_code
+      op: eq
+      value: 51-41-01
+  then:
+    code: 51-41-01
+    category: GENERAL
+    name: 폐일차전지
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-41-01
+    excerpt: 51-41-01 폐일차전지
+    source_id: RULE-A4
+    location: 51-41-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-41-04
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-41
+    - fact: annex4_code
+      op: eq
+      value: 51-41-04
+  then:
+    code: 51-41-04
+    category: GENERAL
+    name: 폐태양전지ㆍ전자기기페이스트ㆍ태양광 폐패널
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-41-04
+    excerpt: 51-41-04 폐태양전지ㆍ전자기기페이스트ㆍ태양광 폐패널
+    source_id: RULE-A4
+    location: 51-41-04
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-41-05
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-41
+    - fact: annex4_code
+      op: eq
+      value: 51-41-05
+  then:
+    code: 51-41-05
+    category: GENERAL
+    name: 전기자동차 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험 이 있는 것은 제외한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-41-05
+    excerpt: 51-41-05 전기자동차 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험 이 있는 것은 제외한다)
+    source_id: RULE-A4
+    location: 51-41-05
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-41-06
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-41
+    - fact: annex4_code
+      op: eq
+      value: 51-41-06
+  then:
+    code: 51-41-06
+    category: GENERAL
+    name: 구동용 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험이 있 는 것은 제외한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-41-06
+    excerpt: 51-41-06 구동용 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험이 있 는 것은 제외한다)
+    source_id: RULE-A4
+    location: 51-41-06
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-41-07
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-41
+    - fact: annex4_code
+      op: eq
+      value: 51-41-07
+  then:
+    code: 51-41-07
+    category: GENERAL
+    name: 폐양극활물질(양극재 또는 전구체 제조공정에서 발생하는 것을 포함한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-41-07
+    excerpt: 51-41-07 폐양극활물질(양극재 또는 전구체 제조공정에서 발생하는 것을 포함한다)
+    source_id: RULE-A4
+    location: 51-41-07
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-41-08
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-41
+    - fact: annex4_code
+      op: eq
+      value: 51-41-08
+  then:
+    code: 51-41-08
+    category: GENERAL
+    name: 폐연료전지
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-41-08
+    excerpt: 51-41-08 폐연료전지
+    source_id: RULE-A4
+    location: 51-41-08
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-41-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-41
+    - fact: annex4_code
+      op: eq
+      value: 51-41-99
+  then:
+    code: 51-41-99
+    category: GENERAL
+    name: 그 밖의 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험이 있 는 것은 제외한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-41-99
+    excerpt: 51-41-99 그 밖의 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험이 있 는 것은 제외한다)
+    source_id: RULE-A4
+    location: 51-41-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-42-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-42
+    - fact: annex4_code
+      op: eq
+      value: 51-42-00
+  then:
+    code: 51-42-00
+    category: GENERAL
+    name: 폐의약품류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-42-00
+    excerpt: 51-42-00 폐의약품류
+    source_id: RULE-A4
+    location: 51-42-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-43-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-43
+    - fact: annex4_code
+      op: eq
+      value: 51-43-00
+  then:
+    code: 51-43-00
+    category: GENERAL
+    name: 폐흑연가루
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-43-00
+    excerpt: 51-43-00 폐흑연가루
+    source_id: RULE-A4
+    location: 51-43-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-44-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-44
+    - fact: annex4_code
+      op: eq
+      value: 51-44-00
+  then:
+    code: 51-44-00
+    category: GENERAL
+    name: 나노폐기물(나노물질을 제조·가공하는 과정에서 발생된 분진을 말 한다)
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-44-00
+    excerpt: 51-44-00 나노폐기물(나노물질을 제조·가공하는 과정에서 발생된 분진을 말 한다)
+    source_id: RULE-A4
+    location: 51-44-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-45-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-45
+    - fact: annex4_code
+      op: eq
+      value: 51-45-01
+  then:
+    code: 51-45-01
+    category: GENERAL
+    name: 폐차파쇄잔재물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-45-01
+    excerpt: 51-45-01 폐차파쇄잔재물
+    source_id: RULE-A4
+    location: 51-45-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-45-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-45
+    - fact: annex4_code
+      op: eq
+      value: 51-45-02
+  then:
+    code: 51-45-02
+    category: GENERAL
+    name: 폐차부품류
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-45-02
+    excerpt: 51-45-02 폐차부품류
+    source_id: RULE-A4
+    location: 51-45-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-45-99
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-45
+    - fact: annex4_code
+      op: eq
+      value: 51-45-99
+  then:
+    code: 51-45-99
+    category: GENERAL
+    name: 그 밖의 폐차발생폐기물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-45-99
+    excerpt: 51-45-99 그 밖의 폐차발생폐기물
+    source_id: RULE-A4
+    location: 51-45-99
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-46-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-46
+    - fact: annex4_code
+      op: eq
+      value: 51-46-00
+  then:
+    code: 51-46-00
+    category: GENERAL
+    name: 의료폐기물 멸균분쇄잔재물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-46-00
+    excerpt: 51-46-00 의료폐기물 멸균분쇄잔재물
+    source_id: RULE-A4
+    location: 51-46-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-47-01
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-47
+    - fact: annex4_code
+      op: eq
+      value: 51-47-01
+  then:
+    code: 51-47-01
+    category: GENERAL
+    name: 폐형광등
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-47-01
+    excerpt: 51-47-01 폐형광등
+    source_id: RULE-A4
+    location: 51-47-01
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-47-02
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-47
+    - fact: annex4_code
+      op: eq
+      value: 51-47-02
+  then:
+    code: 51-47-02
+    category: GENERAL
+    name: 폐발광다이오드조명
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-47-02
+    excerpt: 51-47-02 폐발광다이오드조명
+    source_id: RULE-A4
+    location: 51-47-02
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED
+- rule_id: unlisted_other:GENERAL:51-99-00
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    all:
+    - fact: general_group
+      op: eq
+      value: 51-99
+    - fact: annex4_code
+      op: eq
+      value: 51-99-00
+  then:
+    code: 51-99-00
+    category: GENERAL
+    name: 그 밖의 폐기물
+  basis:
+  - *id007
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-99-00
+    excerpt: 51-99-00 그 밖의 폐기물
+    source_id: RULE-A4
+    location: 51-99-00
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:unlisted_other
+  - code_map
+  review: UNVERIFIED

@@ -19,11 +19,12 @@ from typing import Any, Literal
 
 from pydantic import BaseModel
 
+from app.agent.assist import INTENTS, build_context, to_view
 from app.agent.extractor import extract
 from app.agent.guard import ExtractionResult, norm
 from app.agent.llm_client import LLMCall, LLMClient
 from app.agent.responder import respond
-from app.agent.router import Branch, EngineStep, SessionState, run_engine
+from app.agent.router import SUB_CONFIRM_GUESS, Branch, EngineStep, SessionState, run_engine
 from app.agent.templates import RETRACT_REPLY_LABEL
 from app.domain.clock import seoul_today, utcnow
 from app.domain.facts import Fact, FactStatus, FactStore, retract_fact
@@ -48,6 +49,22 @@ class QuickReply(BaseModel):
     key: str  # fact key 또는 group_id
     kind: Literal["value", "unknown", "none_all", "expand", "retract"] = "value"
     value: Any = None
+
+
+def _default_web_search():  # noqa: ANN202
+    from app.agent.web_search import get_web_search
+    from app.config import get_settings
+
+    return get_web_search(get_settings())
+
+
+def _skill_hash(text: str | None) -> str | None:
+    """어떤 스킬 지침으로 설명했는지 Trace에 남기는 짧은 해시."""
+    if not text:
+        return None
+    import hashlib
+
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
 
 
 def _now_iso() -> str:
@@ -88,6 +105,9 @@ class DiagnosisSession:
         self.as_of = as_of or seoul_today()  # 법 기준일: 대화를 시작한 Asia/Seoul 날짜
         self.max_questions = max_questions
         self.prompt_version = prompt_version
+        # 보충 설명의 마지막 수단(준비된 자료가 없을 때만). 설정이 없으면 None
+        # (app/agent/web_search.py)
+        self.web_search = _default_web_search() if responder_llm is not None else None
         self.store = FactStore()
         self.state = SessionState()
         self.messages: list[dict] = []
@@ -118,6 +138,7 @@ class DiagnosisSession:
                 "expanded_groups": sorted(self.state.expanded_groups),
                 "focus_codes": sorted(self.state.focus_codes),
                 "evidence_refused": self.state.evidence_refused,
+                "guess_checked": sorted(self.state.guess_checked),
             },
             "last_question": (
                 self.last_question.model_dump(mode="json") if self.last_question else None
@@ -171,6 +192,7 @@ class DiagnosisSession:
             expanded_groups=set(st.get("expanded_groups", ())),
             focus_codes=set(st.get("focus_codes", ())),
             evidence_refused=st.get("evidence_refused", False),
+            guess_checked=set(st.get("guess_checked", ())),
         )
         lq = state.get("last_question")
         s.last_question = QuestionChoice.model_validate(lq) if lq else None
@@ -185,6 +207,7 @@ class DiagnosisSession:
             expanded_groups=set(self.state.expanded_groups),
             focus_codes=set(self.state.focus_codes),
             evidence_refused=self.state.evidence_refused,
+            guess_checked=set(self.state.guess_checked),
         )
         return run_engine(
             self.kb, self.store.copy(), state, self.as_of, max_questions=self.max_questions
@@ -224,6 +247,8 @@ class DiagnosisSession:
         extraction: ExtractionResult | None = None
         appended: list[Fact] = []
         user_question = None
+        intent = None
+        prev_question = self.last_question  # 답과 "왜?"가 함께 오면 이 질문을 설명한다
         if text:
             self.messages.append(
                 {"role": "user", "id": turn_id, "text": text, "memo": _is_memo, "at": _now_iso()}
@@ -247,6 +272,8 @@ class DiagnosisSession:
             extraction, calls = self._extract(text, turn_id)
             appended = self._apply_extraction(extraction)
             user_question = extraction.user_question
+            if extraction.question_kind in INTENTS:
+                intent = extraction.question_kind
 
         step = run_engine(
             self.kb,
@@ -255,6 +282,21 @@ class DiagnosisSession:
             self.as_of,
             max_questions=self.max_questions,
             user_question=user_question,
+        )
+        # 보충 설명: 엔진 평가가 끝난 뒤 그 결과를 설명할 자료만 모은다(판정 무관)
+        assist_ctx = (
+            build_context(
+                self.kb,
+                step,
+                self.rule_index,
+                intent,
+                user_question,
+                answered_question=prev_question if appended else None,
+                web=self.web_search,
+                about=extraction.about if extraction else None,
+            )
+            if intent
+            else None
         )
         # 입력이 AI 전송 정책으로 막힌 턴은 응답도 템플릿으로 한다
         blocked = extraction.llm_blocked if extraction else None
@@ -265,12 +307,17 @@ class DiagnosisSession:
             self.rule_index,
             prompt_version=self.prompt_version,
             user_question=user_question,
+            assist=assist_ctx,
         )
         calls += rcalls
+        assist_view = to_view(assist_ctx, out.assist_text or "") if assist_ctx is not None else None
         if blocked and not out.llm_blocked:
             out.llm_blocked = blocked
 
         d = step.decision
+        if d.sub_branch == SUB_CONFIRM_GUESS and d.question is not None:
+            # 추측 답변 확인은 사실마다 한 번만(묶음이면 구성 사실 모두)
+            self.state.guess_checked.update(d.question.facts or [d.question.key])
         if d.branch == Branch.ASK_FACT and d.question is not None:
             self.state.questions_asked += 1
             self.last_question = d.question
@@ -284,6 +331,7 @@ class DiagnosisSession:
                 "role": "assistant",
                 "id": turn_id,
                 "text": out.message,
+                **({"assist": assist_view.model_dump(mode="json")} if assist_view else {}),
                 "branch": d.branch.value,
                 "question_key": q.key if q is not None else None,
                 "at": _now_iso(),
@@ -307,6 +355,7 @@ class DiagnosisSession:
                 max_questions=self.max_questions,
             ),
             case_status=self.case_status,
+            assist=assist_view,
         )
         self.traces.append(
             TraceTurn(
@@ -332,6 +381,21 @@ class DiagnosisSession:
                 responder={
                     "used_template": out.used_template,
                     "problems": out.problems,
+                    **(
+                        {
+                            "assist_intent": intent,
+                            "assist_cited_ids": out.assist_cited_ids,
+                            # 준비된 자료로 답했나(아니면 설명 자료 보강 대상), 웹 검색을 썼나
+                            "assist_matched": assist_ctx.matched,
+                            "assist_web": assist_ctx.web_used,
+                            "skill_hash": _skill_hash(self.kb.skill_text),
+                            # 보충 설명용으로 엔진이 찾은 자료 전체(개발자 화면 '찾은 자료만')
+                            "assist_found": assist_ctx.payload(),
+                            "assist_used_template": out.used_template,
+                        }
+                        if assist_view
+                        else {}
+                    ),
                     **({"llm_blocked": out.llm_blocked} if out.llm_blocked else {}),
                 },
                 response=resp.model_dump(mode="json"),
@@ -396,6 +460,7 @@ class DiagnosisSession:
                 ex.group_answer["group_id"],
                 ex.group_answer["choice"],
                 ex.facts[0].source_ref if ex.facts else "group",
+                hedged=bool(ex.group_answer.get("hedged")),
             )
         if ex.user_code_claim:
             if ex.user_code_claim in self.kb.codes:
@@ -404,18 +469,28 @@ class DiagnosisSession:
             self.state.evidence_refused = True
         return appended
 
-    def _apply_group(self, group_id: str, choice: str, ref: str) -> list[Fact]:
+    def _apply_group(
+        self, group_id: str, choice: str, ref: str, *, hedged: bool = False
+    ) -> list[Fact]:
+        lq = self.last_question
+        confirming = bool(lq and lq.key == group_id and lq.reason == "CONFIRM_GUESS")
         if choice == "expand":
             self.state.expanded_groups.add(group_id)
+            if confirming:  # 추측 확인에서 "해당 있음/모름" → 추측 답을 거두고 하나씩 묻는다
+                undo = [retract_fact(k, source_ref=ref) for k in lq.facts]
+                self.store.extend(undo)
+                return undo
             return []
-        members = (
-            self.last_question.facts
-            if (self.last_question and self.last_question.key == group_id)
-            else list(self.kb.group(group_id).facts)
-        )
+        members = lq.facts if (lq and lq.key == group_id) else list(self.kb.group(group_id).facts)
         effective = self.store.effective()
-        open_members = [k for k in members if not (k in effective and effective[k].is_known)]
+        open_members = [
+            k
+            for k in members
+            if confirming or not (k in effective and effective[k].is_known)  # 확인이면 다시 기록
+        ]
         facts = group_none_answer(self.kb, group_id, open_members, source_ref=ref)
+        if hedged:  # "아마 다 해당 없을걸요" → 추측 답변으로 표시
+            facts = [f.model_copy(update={"hedged": True}) for f in facts]
         self.store.extend(facts)
         return facts
 

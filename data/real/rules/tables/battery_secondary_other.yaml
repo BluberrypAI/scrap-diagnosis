@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge 58812f75). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge 937eea79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: battery_secondary_other
 title: 그 밖의 폐이차전지
-version: 2026.11.0+kb-58812f75
+version: 2026.11.0+kb-937eea79
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -598,13 +598,83 @@ rules:
   - code_map
   - material:battery_secondary_other
   review: UNVERIFIED
+- rule_id: battery_secondary_other:S3-BATTERY-LEAD-ACID
+  source_rule: S3-BATTERY-LEAD-ACID
+  priority: 300
+  when:
+    fact: battery_type
+    op: eq
+    value: lead_acid
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 황산이 포함된 폐이차전지
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 별표 4 제1호 03-10-01
+    source_id: RULE-A4
+    location: 별표 4 제1호 03-10-01
+    excerpt: 03-10-01 황산이 포함된 폐이차전지
+  review_units:
+  - S3-BATTERY-LEAD-ACID
+  - material:battery_secondary_other
+  review: UNVERIFIED
+- rule_id: battery_secondary_other:S3-BATTERY-ALKALINE
+  source_rule: S3-BATTERY-ALKALINE
+  priority: 300
+  when:
+    fact: battery_type
+    op: eq
+    value: alkaline
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 알칼리가 포함된 폐이차전지
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 별표 4 제1호 03-10-02
+    source_id: RULE-A4
+    location: 별표 4 제1호 03-10-02
+    excerpt: 03-10-02 알칼리가 포함된 폐이차전지
+  review_units:
+  - S3-BATTERY-ALKALINE
+  - material:battery_secondary_other
+  review: UNVERIFIED
+- rule_id: battery_secondary_other:S3-BATTERY-SCRAP
+  source_rule: S3-BATTERY-SCRAP
+  priority: 300
+  when:
+    fact: battery_type
+    op: eq
+    value: scrap
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 이차전지 스크랩
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 별표 4 제1호 03-10-04
+    source_id: RULE-A4
+    location: 별표 4 제1호 03-10-04
+    excerpt: 03-10-04 이차전지 스크랩
+  review_units:
+  - S3-BATTERY-SCRAP
+  - material:battery_secondary_other
+  review: UNVERIFIED
 - rule_id: battery_secondary_other:S3-BATTERY-DAMAGED
   source_rule: S3-BATTERY-DAMAGED
   priority: 300
   when:
-    fact: battery_damaged
-    op: eq
-    value: true
+    all:
+    - fact: battery_type
+      op: ne
+      value: not_secondary
+    - fact: battery_damaged
+      op: eq
+      value: true
   then:
     code: null
     category: NEEDS_INTERPRETATION

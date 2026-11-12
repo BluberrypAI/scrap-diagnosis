@@ -6,16 +6,18 @@
 {
   "rows": 4281,
   "verdicts": {
-    "MATCH": 2884,
+    "MATCH": 2863,
     "FEWER_CHOICES": 1361,
-    "DIFF": 36
+    "DIFF": 57
   },
   "by_kind": {
-    "CODE/MATCH": 2332,
+    "CODE/DIFF": 15,
+    "CODE/MATCH": 2317,
     "CODE_CHOICE/DIFF": 36,
     "CODE_CHOICE/FEWER_CHOICES": 1361,
     "CODE_CHOICE/MATCH": 319,
-    "STOP/MATCH": 233
+    "STOP/DIFF": 6,
+    "STOP/MATCH": 227
   },
   "extra_questions": {
     "0": 4083,
@@ -24,7 +26,7 @@
 }
 ```
 
-## 다른 행 (36)
+## 다른 행 (57)
 - hcl#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
 - hcl#5 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 2.04, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
 - hcl#7 {"oil_presence": "none", "toxic_chemical_discard": true, "pcb_possible": false, "ph": 1.96} → 기대 번호 선택(6) / 결과 FINAL_REVIEW 02-01-01
@@ -61,6 +63,27 @@
 - alkali_other#3 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 12.25, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
 - alkali_other#8 {"oil_presence": "none", "toxic_chemical_discard": true, "pcb_possible": false, "ph": 12.75} → 기대 번호 선택(5) / 결과 FINAL_REVIEW 02-02-99
 - alkali_other#9 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 12.25, "oil_content_pct": 4.9} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
+- battery_primary#11 {"battery_damaged": true} → 기대 INTERPRETATION_NEEDED / 결과 FINAL_REVIEW 51-41-01
+- battery_ev#1 {"battery_damaged": false, "oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false} → 기대 51-41-05 / 결과 ASK_FACT battery_type(6)
+- battery_ev#2 {"battery_damaged": false, "oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "solid", "pcb_leach_mg_l": 0.002} → 기대 51-41-05 / 결과 ASK_FACT battery_type(6)
+- battery_ev#4 {"battery_damaged": false, "oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "liquid", "pcb_mg_l": 1.96} → 기대 51-41-05 / 결과 ASK_FACT battery_type(6)
+- battery_ev#6 {"battery_damaged": false, "oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "semisolid", "pcb_leach_mg_l": 0.002} → 기대 51-41-05 / 결과 ASK_FACT battery_type(6)
+- battery_ev#9 {"battery_damaged": false, "oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "oil_content_pct": 4.9} → 기대 51-41-05 / 결과 ASK_FACT battery_type(6)
+- battery_ev#11 {"battery_damaged": true} → 기대 INTERPRETATION_NEEDED / 결과 ASK_FACT battery_type(6)
+- battery_drive#1 {"battery_damaged": false, "oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false} → 기대 51-41-06 / 결과 ASK_FACT battery_type(6)
+- battery_drive#2 {"battery_damaged": false, "oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "solid", "pcb_leach_mg_l": 0.002} → 기대 51-41-06 / 결과 ASK_FACT battery_type(6)
+- battery_drive#4 {"battery_damaged": false, "oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "liquid", "pcb_mg_l": 1.96} → 기대 51-41-06 / 결과 ASK_FACT battery_type(6)
+- battery_drive#6 {"battery_damaged": false, "oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "semisolid", "pcb_leach_mg_l": 0.002} → 기대 51-41-06 / 결과 ASK_FACT battery_type(6)
+- battery_drive#9 {"battery_damaged": false, "oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "oil_content_pct": 4.9} → 기대 51-41-06 / 결과 ASK_FACT battery_type(6)
+- battery_drive#11 {"battery_damaged": true} → 기대 INTERPRETATION_NEEDED / 결과 ASK_FACT battery_type(6)
+- battery_cathode#11 {"battery_damaged": true} → 기대 INTERPRETATION_NEEDED / 결과 FINAL_REVIEW 51-41-07
+- battery_fuel_cell#11 {"battery_damaged": true} → 기대 INTERPRETATION_NEEDED / 결과 FINAL_REVIEW 51-41-08
+- battery_secondary_other#1 {"battery_damaged": false, "oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false} → 기대 51-41-99 / 결과 ASK_FACT battery_type(6)
+- battery_secondary_other#2 {"battery_damaged": false, "oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "solid", "pcb_leach_mg_l": 0.002} → 기대 51-41-99 / 결과 ASK_FACT battery_type(6)
+- battery_secondary_other#4 {"battery_damaged": false, "oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "liquid", "pcb_mg_l": 1.96} → 기대 51-41-99 / 결과 ASK_FACT battery_type(6)
+- battery_secondary_other#6 {"battery_damaged": false, "oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "semisolid", "pcb_leach_mg_l": 0.002} → 기대 51-41-99 / 결과 ASK_FACT battery_type(6)
+- battery_secondary_other#9 {"battery_damaged": false, "oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "oil_content_pct": 4.9} → 기대 51-41-99 / 결과 ASK_FACT battery_type(6)
+- battery_secondary_other#11 {"battery_damaged": true} → 기대 INTERPRETATION_NEEDED / 결과 ASK_FACT battery_type(6)
 
 ## 선택지가 기존보다 적은 행 (1361) — 앞 30개
 - pp#14 {"physical_state": "liquid", "oil_presence": "none", "pcb_possible": false, "toxic_chemical_discard": true} → 기대 선택지 14개 / 결과 5개

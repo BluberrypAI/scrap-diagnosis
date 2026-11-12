@@ -150,7 +150,10 @@ POST /cases/C1/diagnosis/messages {"quick_reply": {"key": "material", "kind": "r
 ### 5.5 용어 설명과 추정 안내 (2026-11-09 추가)
 
 - `ui.question.terms`: 질문 글에 나온 전문용어의 쉬운 설명 `[{term, plain, example}]`(`knowledge/glossary.yaml`, 사람이 쓴 고정 설명).
+- `ui.question.guide`(2026-11-11 추가): 질문 카드에 함께 보일 고정 안내 `{background, reason, actions[], if_unknown}`(배경·왜 묻나요·이렇게 확인하세요·모를 때, `knowledge/question_guide.yaml`). 자료가 없으면 `null`. 자세한 표시 방법은 `docs/ui/ui-contract.md` 1.1절.
 - `ui.result.assumptions`, `handoff.assumptions`: 시험·서류가 아니라 사용자 답(대리 질문)에서 추정한 사실의 안내 문장 목록. 비었으면 `[]`.
+- 추측 답변("아마 ~일걸", "대충 ~ 정도"): 추출 AI가 확신 정도를 함께 표시하고, 추측한 값은 판정 보드 사실에 `hedged: true`·`source_label` "… · 추측"으로, 결과 `assumptions`에 "사용자가 추측으로 답한 값"으로 보인다. 지정폐기물 가능성을 지우는 추측(오염 확인 묶음의 '해당 없음', 말로 답한 수치)은 결론이 나도 확정 전에 한 번 다시 묻는다(`sub_branch: "CONFIRM_GUESS"`, 같은 질문 카드). 버튼으로 다시 답하면 추측 표시가 풀린다.
+- `assist`(턴 응답, 추가 필드): 사용자가 "왜?"(`why`), "뭐예요?"(`term`)라고 묻거나 문진 밖 요청(`off_topic`)을 했을 때만 오는 보충 설명 `{intent, text, sources[{id, type, ref, excerpt}], terms[], review}`. 평범한 답변 턴에는 `null`. 사실을 기록하지 않으므로 `branch`·질문 카드·판정이 직전과 같다(답과 질문이 섞이면 답은 평소처럼 기록). 서버는 가공 없이 화면에 넘긴다. 설계: `docs/design/agent-skill-harness.md`.
 
 ## 6. 질문 카드 `ui.question.input` 규칙
 

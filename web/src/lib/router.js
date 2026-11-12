@@ -23,6 +23,8 @@ const ROUTES = [
   { name: 'dev-company', re: /^\/dev\/company$/ },
   { name: 'new-case', re: /^\/cases\/new$/ },
   { name: 'history', re: /^\/cases\/([^/]+)\/history$/, keys: ['id'] },
+  { name: 'dev-trace', re: /^\/cases\/([^/]+)\/dev$/, keys: ['id'] },
+  { name: 'dev-rules', re: /^\/dev\/rules$/ },
   { name: 'case', re: /^\/cases\/([^/]+)$/, keys: ['id'] },
   { name: 'cases', re: /^\/(cases)?$/ },
 ];

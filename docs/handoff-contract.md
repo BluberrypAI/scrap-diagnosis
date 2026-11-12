@@ -48,6 +48,7 @@
 
 - `inputs`(추가 필드, 기존 필드는 그대로): 서버가 보낸 기업 정보 입력의 요약이다. `company_profile_version`은 서버가 건 생성·문진 답변에 보낸 기업 정보 버전(없으면 null), `confirmed_profile_keys`는 서버가 사용자 확인을 거쳐 보낸 값(`source_type = PROFILE_CONFIRMED`) 중 유효한 사실 키다. 판정 버전(Verdict)에도 같은 `company_profile_version`이 남는다. 이 필드가 없는 이전 객체는 `inputs`가 없다.
 - `facts[].source_type`에 `PROFILE_CONFIRMED`가 더해졌다(서버가 확인한 기업 정보).
+- `assumptions`에는 사용자가 추측으로 답한 값("아마 ~일걸")의 안내도 들어간다(2026-11-11).
 - `assumptions`(추가 필드, 없으면 `[]`): 시험·서류가 아니라 사용자 답(대리 질문)에서 추정한 사실의 안내 문장이다. 경로추천 AI는 이 목록이 비어 있지 않으면 처리 업체 안내 때 "시험으로 확인하지 않은 항목"으로 함께 알린다. 같은 사실은 `facts`에 `source_type: DERIVED`로도 있다.
 
 ## result_type / outcome → route_guidance.action

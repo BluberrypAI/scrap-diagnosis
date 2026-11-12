@@ -35,9 +35,12 @@
     "requested_documents": [{"evidence_type": "TEST_REPORT", "label": "시험성적서"}],
     "can_confirm": false,
     "result": {"result_type": "WASTE_CODE | NO_CODE", "code": "51-03-01", "conclusion": "…"}
-  }
+  },
+  "assist": null
 }
 ```
+
+`assist`는 사용자가 "왜?", "뭐예요?"라고 묻거나 문진 밖 요청을 했을 때만 오는 보충 설명입니다(`{intent, text, sources, terms, review}`). 판정은 바뀌지 않고, 서버는 그대로 화면에 넘기면 됩니다.
 
 `branch`가 화면을 정합니다: `ASK_FACT` 질문 카드, `REQUEST_EVIDENCE` 서류 요청, `RESOLVE_CONFLICT` 말과 서류 값이 다름, `FINAL_REVIEW` 결과 + 확정 버튼, `UNSUPPORTED` 판정 불가.
 

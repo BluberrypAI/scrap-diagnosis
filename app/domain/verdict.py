@@ -113,6 +113,44 @@ class TermView(BaseModel):
     example: str | None = None
 
 
+class AssistSource(BaseModel):
+    """보충 설명의 근거(법령·질의회신 등)."""
+
+    id: str
+    type: str
+    ref: str
+    excerpt: str | None = None
+    url: str | None = None  # type WEB(웹 검색 참고)일 때 출처 주소
+
+
+class AssistView(BaseModel):
+    """보충 설명 말풍선. 질문 카드와 별도이며 판정에 쓰지 않는다.
+
+    설계: docs/design/agent-skill-harness.md.
+
+
+    사용자가 "왜?"(why), "뭐예요?"(term)라고 묻거나 문진 밖 요청(off_topic)을 했을 때만 온다.
+    """
+
+    intent: Literal["why", "term", "off_topic"]
+    text: str
+    sources: list[AssistSource] = []
+    terms: list[TermView] = []
+    review: str | None = None  # 근거 규칙이 검토 전이면 UNVERIFIED("검토 전 규칙 · 참고용")
+
+
+class QuestionGuideView(BaseModel):
+    """질문 카드에 함께 보일 안내(knowledge/question_guide.yaml, 사람이 쓴 고정 문구).
+
+    처음 쓰는 사람이 카드만 보고 답할 수 있게: 배경(말의 뜻) · 왜 묻는지 · 확인 방법 · 모를 때.
+    """
+
+    background: str | None = None
+    reason: str | None = None
+    actions: list[str] = []  # "이렇게 확인하세요" 단계
+    if_unknown: str | None = None
+
+
 class QuestionView(_DictAccess, BaseModel):
     """지금 질문 카드(1.1절). key·unit·facts·options는 M4부터 있던 필드다."""
 
@@ -129,6 +167,23 @@ class QuestionView(_DictAccess, BaseModel):
     items: list[QuestionItem] = []  # group: 이번에 묻는 항목
     answered_items: list[AnsweredItem] = []  # group: 같은 묶음에서 이미 답한 항목
     terms: list[TermView] = []  # 질문 글(제목·도움말·선택지·항목)에 나온 용어 설명
+    guide: QuestionGuideView | None = None  # 배경·왜 묻나요·이렇게 확인하세요(없으면 null)
+
+
+def question_guide_view(kb: KnowledgeBase, unit: str, key: str) -> QuestionGuideView | None:
+    """질문 안내 자료에서 카드용 안내를 만든다. 묶음은 groups, 사실은 facts 항목."""
+    section = "groups" if unit == "group" else "facts"
+    g = (kb.question_guide.get(section) or {}).get(key) or {}
+    actions = [str(x).strip() for x in g.get("how_to_check") or [] if str(x).strip()]
+    view = QuestionGuideView(
+        background=(g.get("background") or "").strip() or None,
+        reason=(g.get("reason") or "").strip() or None,
+        actions=actions,
+        if_unknown=(g.get("if_unknown") or "").strip() or None,
+    )
+    if not (view.background or view.reason or view.actions or view.if_unknown):
+        return None
+    return view
 
 
 class EditView(BaseModel):
@@ -153,6 +208,7 @@ class BoardFact(BaseModel):
     recorded_at: str | None = None  # ISO 8601, Asia/Seoul
     editable: bool
     edit: EditView | None = None  # editable일 때만
+    hedged: bool = False  # 사용자가 추측으로 답함("아마 ~일걸"). source_label에도 "· 추측"을 붙인다
 
 
 class PendingItem(BaseModel):
@@ -250,6 +306,7 @@ class TurnResponse(BaseModel):
     verdict: Verdict
     ui: UI
     case_status: str
+    assist: AssistView | None = None  # 보충 설명(추가 필드). 평범한 답변 턴에는 null
 
 
 def _value_text(kb: KnowledgeBase, c: Cond) -> str:
@@ -387,7 +444,10 @@ def question_view(kb: KnowledgeBase, q: QuestionChoice, effective: dict[str, Fac
     value_type = None
     if q.unit == "group":
         g = kb.group(q.key)
-        items = [QuestionItem(key=k, label=fact_label(kb, k)) for k in q.facts]
+        items = [
+            QuestionItem(key=k, label=(g.item_label(k) if g else None) or fact_label(kb, k))
+            for k in q.facts
+        ]
         for k in g.facts if g else ():
             f = effective.get(k)
             if k in q.facts or f is None or not f.is_known:
@@ -401,10 +461,12 @@ def question_view(kb: KnowledgeBase, q: QuestionChoice, effective: dict[str, Fac
         value_type = kb.catalog[q.key].type
     from app.rules.glossary import find_terms  # 순환 import 방지
 
+    guide = question_guide_view(kb, q.unit, q.key)
     found = find_terms(
         kb.glossary,
         q.question_hint,
         q.help,
+        guide.background if guide else None,
         *(o.label for o in options),
         *(i.label for i in items),
     )
@@ -423,6 +485,7 @@ def question_view(kb: KnowledgeBase, q: QuestionChoice, effective: dict[str, Fac
         items=items,
         answered_items=answered,
         terms=terms,
+        guide=guide,
     )
 
 
@@ -457,12 +520,14 @@ def board_fact(kb: KnowledgeBase, f: Fact) -> BoardFact:
         value_label=value_label(kb, f.key, f.value),
         status=f.status.value,
         source_type=f.source_type,
-        source_label=templates.SOURCE_LABEL.get(f.source_type, f.source_type),
+        source_label=templates.SOURCE_LABEL.get(f.source_type, f.source_type)
+        + (" · 추측" if f.hedged else ""),
         document_id=(document_id_of(f.source_ref) or None) if f.source_type == "DOCUMENT" else None,
         quote=f.quote,
         recorded_at=seoul_iso(f.recorded_at) if isinstance(f.recorded_at, datetime) else None,
         editable=editable,
         edit=edit_view(kb.catalog[f.key]) if editable else None,
+        hedged=f.hedged,
     )
 
 

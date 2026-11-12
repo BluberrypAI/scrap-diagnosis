@@ -35,6 +35,7 @@
 | `answered_items` | group: 같은 묶음에서 이미 답한 항목. 비었으면 [] |
 | `result.assumptions` | 결과 카드: 시험·서류가 아니라 사용자 답에서 추정한 사실의 안내 문장 목록(예: PCB 관련 없음 → 기준 미만 추정). 비었으면 []. 화면은 결론 아래에 눈에 띄게 보여 준다 |
 | `terms` | 질문 글에 나온 전문용어의 쉬운 설명 `[{term, plain, example}]`(knowledge/glossary.yaml, 사람이 쓴 고정 설명). 비었으면 []. 화면은 "용어 설명" 접기 등으로 보여 주면 된다 |
+| `guide` | (2026-11-11 추가) 처음 쓰는 사람이 카드만 보고 답할 수 있게 하는 고정 안내 `{background, reason, actions[], if_unknown}`. `background` 말의 뜻·상황, `reason` 왜 묻는지(답에 따라 무엇이 달라지는지), `actions` "이렇게 확인하세요" 단계(볼 서류·항목·검색할 곳), `if_unknown` 모를 때 안내. 사람이 쓴 문구(knowledge/question_guide.yaml)라 판정에 쓰지 않는다. 자료가 없으면 null. 화면은 제목 아래 배경·이유를, 선택지 아래 확인 단계를 접지 않고 보여 준다. `actions`가 있으면 `help`(한 줄 도움말)는 감춰도 된다 |
 
 `input`이 `material_group`/`material`인 기준: 질문 key가 카탈로그의 상위 분류(다른 사실의 `parent`)면 `material_group`, `parent`가 있는 사실이면 `material`.
 
@@ -82,13 +83,26 @@ NO_CANDIDATE 충돌은 `fact`에 원인 사실 목록의 첫 키, `facts`에 전
 ```
 코드 없는 결론은 `result_type: "NO_CODE"`, `code: null`, `outcome`, `conclusion`(OUTCOME_TEXT)을 채운다.
 
+## 1.6 추측 답변 (2026-11-11 추가)
+추측 답변("아마 ~일걸", "대충 ~ 정도"): 추출 AI가 확신 정도를 함께 표시하고, 추측한 값은 판정 보드 사실에 `hedged: true`·`source_label` "… · 추측"으로, 결과 `assumptions`에 "사용자가 추측으로 답한 값"으로 보인다. 지정폐기물 가능성을 지우는 추측(오염 확인 묶음의 '해당 없음', 말로 답한 수치)은 결론이 나도 확정 전에 한 번 다시 묻는다(`sub_branch: "CONFIRM_GUESS"`, 같은 질문 카드). 버튼으로 다시 답하면 추측 표시가 풀린다. 화면은 보드에서 추측 값을 구분해 보여 주고, `CONFIRM_GUESS` 질문은 평소 질문 카드처럼 그린다.
+
+## 1.5 보충 설명: 턴 응답의 `assist` (2026-11-11 추가)
+사용자가 "왜 물어봐요?", "용출이 뭐예요?"처럼 묻거나 문진 밖 요청을 하면 온다. 평범한 턴에는 `null`이다.
+```json
+"assist": {"intent": "why", "text": "이 답에 따라 적용되는 법 규칙이 달라져서 여쭤봐요. …",
+           "sources": [{"id": "S1", "type": "LAW", "ref": "폐기물관리법 시행령 별표 1 …", "excerpt": "…"}],
+           "terms": [{"term": "용출", "plain": "…", "example": null}], "review": "UNVERIFIED"}
+```
+- 화면: `text`는 AI 말풍선(질문 말풍선 앞), `sources`는 "근거 보기" 접기, `terms`는 "용어 설명" 접기. `review`가 `UNVERIFIED`면 "검토 전 규칙 · 참고용"을 붙인다.
+- 판정에 쓰지 않는다. 질문 카드·판정 보드는 직전과 같다(참조 화면 `web/src/components/AssistBubble.jsx`).
+
 ## 2. 대화 기록: `GET /cases/{id}` 의 `conversation`
 `CaseDetail`에 `conversation[]`을 추가한다. 새로고침하거나 다시 들어왔을 때 대화를 다시 그리기 위해서다.
 ```json
 [{"turn_id": "…", "role": "user", "text": "PP 사출 스크랩이에요", "quick_reply": null, "at": "…+09:00"},
  {"turn_id": "…", "role": "assistant", "text": "…", "branch": "ASK_FACT", "question_key": "contamination_screen", "at": "…"}]
 ```
-버튼 답은 `role: "user"`, `text`는 고른 선택지 라벨, `quick_reply`는 보낸 값으로 기록한다. 마지막 턴의 카드는 `latest_turn`으로 그린다(과거 카드는 다시 그리지 않고 읽기 전용 요약만).
+버튼 답은 `role: "user"`, `text`는 고른 선택지 라벨, `quick_reply`는 보낸 값으로 기록한다. 보충 설명이 있던 AI 말에는 `assist`(턴 응답의 `assist`와 같은 모양)가 붙는다. 마지막 턴의 카드는 `latest_turn`으로 그린다(과거 카드는 다시 그리지 않고 읽기 전용 요약만).
 
 ## 3. 건 목록 카드: `CaseOut.summary`
 ```json

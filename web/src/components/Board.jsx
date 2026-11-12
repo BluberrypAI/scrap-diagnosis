@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PENDING_REASON } from '../lib/labels.js';
 import { formatValue } from '../lib/format.js';
+import { getCatalog } from '../api/normalize.js';
 
 function FactRow({ f, locked, onReply }) {
   const [editing, setEditing] = useState(false);
@@ -46,20 +47,51 @@ function FactRow({ f, locked, onReply }) {
   );
 }
 
+/** 아직 값이 없는 항목: 값 자리를 비워 두고 왜 비었는지만 표시한다 */
+function PendingRow({ x }) {
+  return (
+    <li className="board-fact is-pending">
+      <div>
+        <span className="muted">{x.label}</span>
+        <strong className="muted">—</strong>
+        <span className="wd-chip">{PENDING_REASON[x.reason] || x.reason}</span>
+      </div>
+    </li>
+  );
+}
+
+/**
+ * 확인된 사실(board.facts)과 확인이 필요한 항목(board.pending)을 한 목록으로 합친다.
+ * 순서는 사실 카탈로그 순서(문진 흐름: 소재 → 대상 여부 → 사업장 → 상태·함량)라 값이 차도 자리가 바뀌지 않는다.
+ */
+function mergeRows(board) {
+  const order = Object.keys(getCatalog());
+  const rank = (k) => {
+    const i = order.indexOf(k);
+    return i < 0 ? order.length : i;
+  };
+  const known = new Set(board.facts.map((f) => f.key));
+  return [
+    ...board.facts.map((f) => ({ key: f.key, fact: f })),
+    ...board.pending.filter((x) => !known.has(x.key)).map((x) => ({ key: x.key, pending: x })),
+  ].sort((a, b) => rank(a.key) - rank(b.key));
+}
+
 /** 판정 보드(ui.board). 고치기·되돌리기는 onReply(quick_reply, 라벨)로 보낸다 */
 export default function Board({ board, locked, onReply }) {
   const p = board.progress;
+  const rows = mergeRows(board);
   return (
     <aside className="board wd-card" aria-label="판정 보드">
       <h3>판정 보드</h3>
       {p && <p className="muted">질문 {p.questions_asked}/{p.max_questions}</p>}
-      <h4>확인된 사실</h4>
-      {board.facts.length === 0 ? <p className="muted">아직 없어요</p> : (
-        <ul className="plain">{board.facts.map((f) => <FactRow key={f.key} f={f} locked={locked} onReply={onReply} />)}</ul>
-      )}
-      <h4>확인이 필요한 항목</h4>
-      {board.pending.length === 0 ? <p className="muted">없어요</p> : (
-        <ul className="plain">{board.pending.map((x) => <li key={x.key}>○ {x.label} <span className="muted">({PENDING_REASON[x.reason] || x.reason})</span></li>)}</ul>
+      <h4>문진 항목 <span className="muted">(확인 {board.facts.length} / 전체 {rows.length})</span></h4>
+      {rows.length === 0 ? <p className="muted">아직 없어요</p> : (
+        <ul className="plain">
+          {rows.map((r) => (r.fact
+            ? <FactRow key={r.key} f={r.fact} locked={locked} onReply={onReply} />
+            : <PendingRow key={r.key} x={r.pending} />))}
+        </ul>
       )}
       <h4>남은 후보 {board.candidates_count}개</h4>
       <ul className="plain">{board.top_candidates.map((c, i) => <li key={i}><strong>{c.code}</strong> {c.name}</li>)}</ul>

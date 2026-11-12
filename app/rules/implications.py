@@ -113,7 +113,20 @@ def assumption_notes(kb: KnowledgeBase, facts: dict[str, Fact]) -> list[str]:
     보수 관계(complement)로 계산한 값은 같은 시험의 값이라 여기에 넣지 않는다.
     """
     notes: list[str] = []
+    parents = {fd.parent for fd in kb.catalog.values() if fd.parent}
     for key, f in sorted(facts.items()):
+        if f.hedged and f.is_known and key in parents:
+            continue  # 상위 분류(소재 분류)는 세부 값(소재) 안내로 충분
+        if f.hedged and f.is_known:  # 사용자가 추측으로 답한 값("아마 ~일걸")
+            fd = kb.catalog.get(key)
+            label = (fd.label or key) if fd else key
+            shown = fd.value_labels.get(str(f.value), str(f.value)) if fd else str(f.value)
+            if fd and fd.type == "bool":
+                shown = "예" if f.value else "아니오"
+            notes.append(
+                f"{label}: 사용자가 추측으로 답한 값('{shown}')입니다. 확실하지 않으면 확인하세요."
+            )
+            continue
         if f.source_type != "DERIVED" or not (f.source_ref or "").startswith("implies:"):
             continue
         src = f.source_ref.split(":", 1)[1]

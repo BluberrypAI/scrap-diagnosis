@@ -19,6 +19,7 @@ from app.agent.redact import (
 )
 from app.config import Settings, get_settings
 from app.domain.facts import Fact
+from app.rules.guide_index import guide_index
 from app.rules.model import FactDef, KnowledgeBase
 from app.rules.selector import QuestionChoice
 
@@ -54,6 +55,7 @@ EXTRACTION_SCHEMA: dict[str, Any] = {
                     },
                     "note": {"type": ["string", "null"]},
                     "quote": {"type": "string"},
+                    "certainty": {"type": "string", "enum": ["sure", "guess"]},
                 },
                 "required": [
                     "key",
@@ -64,6 +66,7 @@ EXTRACTION_SCHEMA: dict[str, Any] = {
                     "status",
                     "note",
                     "quote",
+                    "certainty",
                 ],
                 "additionalProperties": False,
             },
@@ -74,15 +77,26 @@ EXTRACTION_SCHEMA: dict[str, Any] = {
                 "group_id": {"type": "string"},
                 "choice": {"type": "string", "enum": ["none_all", "expand"]},
                 "quote": {"type": "string"},
+                "certainty": {"type": "string", "enum": ["sure", "guess"]},
             },
-            "required": ["group_id", "choice", "quote"],
+            "required": ["group_id", "choice", "quote", "certainty"],
             "additionalProperties": False,
         },
         "user_code_claim": {"type": ["string", "null"]},
         "user_question": {"type": ["string", "null"]},
+        "question_kind": {"type": ["string", "null"], "enum": ["why", "term", "off_topic", None]},
+        "about": {"type": "array", "items": {"type": "string"}},
         "evidence_refused": {"type": "boolean"},
     },
-    "required": ["facts", "group_answer", "user_code_claim", "user_question", "evidence_refused"],
+    "required": [
+        "facts",
+        "group_answer",
+        "user_code_claim",
+        "user_question",
+        "question_kind",
+        "about",
+        "evidence_refused",
+    ],
     "additionalProperties": False,
 }
 
@@ -110,8 +124,19 @@ EXTRACT_SYSTEM = """너는 사업장 폐기물 문진의 '사실 추출기'다. 
      group_answer.choice = "none_all"이다. 이때 구성 사실을 facts로 하나씩 나누어 내지 마라.
    - "있어요/하나 있어요/잘 모르겠어요" → group_answer.choice = "expand" (구체적으로 말한 사실은 facts에도 넣는다)
 7. quote에는 근거가 된 사용자 발화 원문 일부를 그대로 복사한다(바꾸어 쓰지 마라).
+   certainty: 사용자가 확신하면 "sure", 추측으로 말하면 "guess"다("아마", "~일걸요", "~것 같아요",
+   "대충", "~정도", "글쎄요"). 추측이어도 말한 값은 그대로 뽑는다("아마 PP일걸요" → material=pp, guess).
+   "모르겠어요"는 추측이 아니라 DECLARED_UNKNOWN이다. 묶음 답(group_answer)에도 같은 기준으로 쓴다.
 8. 사용자가 분류번호(예: 51-03-01)를 말하면 user_code_claim에 그 번호를 그대로 쓴다. 그 번호를 사실로 넣지 마라.
-9. 사용자가 무언가를 물으면(예: "왜 기름이 중요해?") user_question에 그 질문을 쓴다.
+9. 사용자가 무언가를 물으면(예: "왜 기름이 중요해?") user_question에 그 질문을 쓰고, question_kind를 고른다.
+   - "why": '왜' 그걸 묻는지, '왜' 그런 결과인지 묻는 말(예: "왜 기름을 물어봐요?", "왜 지정폐기물이에요?")
+   - "term": 용어·질문·선택지의 뜻, 무엇이 해당하는지, 어떻게 확인하는지 묻는 말
+     (예: "용출이 뭐예요?", "어떤 기름이 해당돼요?", "우리 변압기가 PCB인지 어떻게 알아요?")
+   - "off_topic": 폐기물 분류 문진과 상관없는 요청(예: 업체 추천, 비용, 날씨)
+   - 질문이 없으면 user_question과 question_kind는 null이다. 답과 질문이 섞이면 답은 facts에, 질문은 여기에 쓴다.
+   - 질문이 있으면 '설명 자료 목록'에서 그 질문과 뜻이 관련된 자료의 id를 about에 최대 3개 고른다.
+     단어가 같지 않아도 뜻으로 고른다(예: "옛날 변압기에 든 독한 기름" → topic:PCB). 목록에 없는 id는 쓰지 마라.
+     질문이 없거나 관련 자료가 없으면 빈 배열이다.
 10. 서류·시험성적서가 없다거나 구할 수 없다고 하면 evidence_refused = true.
 11. 뽑을 것이 없으면 facts는 빈 배열이다.
 12. 상위 분류가 있는 사실('사실 목록'에서 parent가 적힌 사실. 예: 소재 material의 parent는
@@ -119,7 +144,10 @@ EXTRACT_SYSTEM = """너는 사업장 폐기물 문진의 '사실 추출기'다. 
    - 폐기물의 종류를 말하면 상위 분류 사실을 뽑는다(values와 aliases 참고).
      예: "폐유기용제", "폐알칼리", "폐유", "분진", "오니", "폐축전지".
    - 세부 값(예: "PP", "폐황산", "시너")을 분명히 말했으면 세부 사실도 함께 뽑는다.
-   - 큰 분류만 말했으면 세부 사실은 비운다. 큰 분류만 듣고 세부 값을 짐작하지 마라."""
+   - 큰 분류만 말했으면 세부 사실은 비운다. 큰 분류만 듣고 세부 값을 짐작하지 마라.
+13. 사용자가 말한 폐기물이 소재 목록 어디에도 맞지 않고 분명하면(예: 폐콘크리트, 음식물찌꺼기, 폐형광등,
+   오염토) material_group=unlisted_family, material=unlisted_other로 두고, general_group(별표 4 일반 계열)에서
+   분명히 맞는 계열이 있으면 그것도 뽑는다(예: "폐콘크리트" → 51-22). 애매하면 general_group은 비운다."""
 
 
 def catalog_view(kb: KnowledgeBase, last_question: QuestionChoice | None) -> list[dict]:
@@ -197,6 +225,8 @@ def build_user_prompt(
         "직전 질문": _question_view(last_question),
         "최근 대화": recent[-6:],
         "사용자 발화": text,
+        # 사용자가 질문하면 관련 자료 id를 고르는 데 쓴다(app/rules/guide_index.py)
+        "설명 자료 목록": guide_index(kb),
     }
     if feedback:
         payload["이전 출력의 오류(고쳐서 다시 내라)"] = feedback

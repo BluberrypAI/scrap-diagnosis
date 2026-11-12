@@ -51,6 +51,8 @@ SOURCE_FILES = (
     "reviews.yaml",
     "definitions.yaml",
     "glossary.yaml",
+    "skills/interviewer.md",
+    "question_guide.yaml",
 )
 # 빌드가 쓰는 파일(data/real/ 기준). --check는 이것만 비교한다.
 # regression/(기존 엔진 판정표 기준)과 scenarios/(시뮬레이터 시나리오)는 빌드하지 않는다.
@@ -61,6 +63,9 @@ GENERATED_FILES = (
     "sources.yaml",
     "outcome_guidance.yaml",
     "glossary.yaml",
+    "rule_notes.yaml",
+    "skills/interviewer.md",
+    "question_guide.yaml",
     "conversion_report.md",
     "rules/common/scope.yaml",
     "rules/common/business.yaml",
@@ -208,6 +213,7 @@ class Converter:
         self.materials: dict[str, dict] = m["materials"]
         self.groups_meta = m.get("groups") or {}
         a4 = read(src / "annex4_codes.yaml")
+        self.a4_groups: list[dict] = a4.get("groups") or []
         self.codes: list[dict] = a4["codes"]
         self.code_index = {c["id"]: c for c in self.codes}
         self.s4 = read(src / "code_map.yaml")
@@ -421,8 +427,16 @@ class Converter:
             return [], "NO_MIXTURE_RULE"
         if mat.get("code_needs_test"):
             return [], "CODE_NEEDS_TEST"
-        prefixes = (mat.get("codes") or {}).get("GENERAL") or self.s4["general_by_kind"].get(
-            mat.get("waste_kind"), []
+        if mat.get("designated_only"):  # 별표 4에 지정 번호만 있는 소재(예: 납축전지 03-10-01)
+            return [], "NO_GENERAL_CODE"
+        if mat.get("general_by_family"):  # 목록에 없는 폐기물: 별표 4 일반 번호 전체(계열로 좁힘)
+            prefixes = ["51-"]
+        else:
+            prefixes = []
+        prefixes = (
+            prefixes
+            or (mat.get("codes") or {}).get("GENERAL")
+            or self.s4["general_by_kind"].get(mat.get("waste_kind"), [])
         )
         if not prefixes:
             return [], "NO_GENERAL_CODE"
@@ -564,6 +578,14 @@ class Converter:
                     when = {"fact": "annex4_code", "op": "eq", "value": code}
                     rid = f"{rid}:{code}"
                     self.used_facts.add("annex4_code")
+                if mat.get("general_by_family"):  # 계열(예: 51-22 폐콘크리트)을 먼저 고르게 한다
+                    when = {
+                        "all": [
+                            {"fact": "general_group", "op": "eq", "value": code[:5]},
+                            {"fact": "annex4_code", "op": "eq", "value": code},
+                        ]
+                    }
+                    self.used_facts.add("general_group")
                 rules.append(
                     {
                         "rule_id": rid,
@@ -697,6 +719,31 @@ class Converter:
                 item["help"] = h
             item.update(ov.get(fid) or {})
             out.append(item)
+        if "general_group" in self.used_facts:
+            f = self.facts["general_group"]
+            # 계열 = 일반 번호의 앞 5자리(51-22 등). 별표 4에 계열 행이 없으면 첫 번호의 명칭을 쓴다
+            names = {
+                g["id"]: g["name"]
+                for g in self.a4_groups
+                if g.get("section") == "GENERAL" and g.get("level") == "group"
+            }
+            families: dict[str, str] = {}
+            for c in self.codes:
+                if c["section"] == "GENERAL" and c["id"] not in self.excluded:
+                    fam = c["id"][:5]
+                    families.setdefault(fam, names.get(fam) or c["name"])
+            out.append(
+                {
+                    "key": "general_group",
+                    "label": f.get("label"),
+                    "type": "enum",
+                    "values": {k: f"{k} {v}" for k, v in families.items()},
+                    "ask_cost": 1,
+                    "legal_priority": 1,
+                    "question_hint": f.get("question") or f.get("label"),
+                    **({"help": self.help_text(f)} if self.help_text(f) else {}),
+                }
+            )
         designated_or_general = [
             c
             for c in self.codes
@@ -714,9 +761,14 @@ class Converter:
                 "internal": True,
                 "ask_cost": 1,
                 "legal_priority": 1,
-                "question_hint": "시행규칙 별표 4의 세부분류 중 이 폐기물에 해당하는 번호",
-                "help": "기존 배출자신고서나 처리 계약서의 분류번호와 명칭을 대조하세요. "
-                "'그 밖의' 번호는 같은 분류의 다른 번호에 해당하지 않을 때만 고릅니다.",
+                # 질문 문구는 facts.yaml의 code 항목(사람이 고치는 원본)에서 가져온다
+                "question_hint": (self.facts.get("code") or {}).get("question")
+                or "이 폐기물에 해당하는 분류번호(시행규칙 별표 4)를 골라 주세요.",
+                "help": (
+                    (self.help_text(self.facts["code"]) if "code" in self.facts else None)
+                    or "기존 배출자신고서나 처리 계약서의 분류번호와 명칭을 대조하세요."
+                )
+                + " '그 밖의' 번호는 같은 분류의 다른 번호에 해당하지 않을 때만 고릅니다.",
             }
         )
         return out
@@ -762,8 +814,23 @@ class Converter:
         shutil.copyfile(self.src / "outcome_guidance.yaml", out / "outcome_guidance.yaml")
         # 용어집도 사람이 쓴 그대로 옮긴다(판정 무관, 질문 카드 terms)
         shutil.copyfile(self.src / "glossary.yaml", out / "glossary.yaml")
+        # 문진 설명용(판정 무관): 원본 규칙의 쉬운 설명, 문진 진행 AI 지침
+        # (docs/design/agent-skill-harness.md)
+        dump(out / "rule_notes.yaml", self.rule_notes(), hdr)
+        (out / "skills").mkdir(exist_ok=True)
+        shutil.copyfile(self.src / "skills" / "interviewer.md", out / "skills" / "interviewer.md")
+        shutil.copyfile(self.src / "question_guide.yaml", out / "question_guide.yaml")
         self.write_report(out, n)
         print(f"테이블 {n}개, 사실 {len(self.used_facts)}개 → {out}")
+
+    def rule_notes(self) -> dict:
+        """원본 규칙 ID → 제목·쉬운 설명. 생성 규칙의 source_rule로 찾는다(설명 전용)."""
+        notes: dict[str, dict] = {}
+        for r in [*self.base_rules, *self.s3]:
+            item = {k: r[k] for k in ("title", "plain") if r.get(k)}
+            if item:
+                notes[r["id"]] = item
+        return {"rules": notes}
 
     def write_report(self, out: Path, n: int) -> None:
         lines = [

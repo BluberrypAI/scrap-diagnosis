@@ -75,6 +75,10 @@ class Fact(BaseModel):
     retracted: bool = False
     # 서류 효력 해제 표시 행(status UNKNOWN). 같은 키·출처의 앞선 EVIDENCED를 평가에서 뺀다.
     revoked: bool = False
+    # 사용자가 추측으로 답함("아마 ~일걸", "대충 ~ 정도"). 판정에는 그대로 쓰되
+    # 보드·결과에 표시하고,
+    # 지정폐기물 가능성을 지우는 추측은 확정 전에 한 번 다시 묻는다(app/agent/router.py).
+    hedged: bool = False
 
     @property
     def is_known(self) -> bool:

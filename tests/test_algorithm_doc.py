@@ -43,7 +43,7 @@ def test_pp_walkthrough_matches_doc(real_kb):
         "scope_screen",
         "physical_state",
     ]
-    assert live == [134, 134, 21, 5, 2, 1]
+    assert live == [243, 243, 21, 5, 2, 1]
     assert step.decision.branch == Branch.FINAL_REVIEW
     assert step.evaluation.decided.code == "51-03-01"
 
@@ -51,4 +51,4 @@ def test_pp_walkthrough_matches_doc(real_kb):
     e = gains["contamination_screen"]
     assert e.gain == pytest.approx(0.972, abs=1e-3)
     assert e.score == pytest.approx(2.917, abs=1e-3)
-    assert e.outcomes == {"모두 해당 없음": 5, "해당하는 게 있어요 / 잘 모르겠어요": 21}
+    assert e.outcomes == {"하나도 해당 없어요": 5, "해당하거나 잘 모르겠어요": 21}

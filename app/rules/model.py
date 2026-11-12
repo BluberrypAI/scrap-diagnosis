@@ -177,6 +177,11 @@ class QuestionGroup:
     expand_label: str = "해당하는 게 있어요 / 잘 모르겠어요"
     help: str | None = None
     ask_cost: float = 1.0
+    # 묶음 카드에 보이는 항목 문구((사실 키, 문구) 쌍). 없으면 사실의 label을 쓴다
+    item_labels: tuple[tuple[str, str], ...] = ()
+
+    def item_label(self, key: str) -> str | None:
+        return dict(self.item_labels).get(key)
 
 
 # ---- 코드표 ------------------------------------------------------------------------------
@@ -219,6 +224,13 @@ class KnowledgeBase:
     # (result_type, outcome) → 안내. load_kb는 outcome_guidance.yaml을 반드시 읽는다.
     guidance: dict[tuple[str, str | None], RouteGuidance] = field(default_factory=dict)
     glossary: tuple[Any, ...] = ()  # app.rules.glossary.GlossaryEntry (용어 쉬운 설명, 판정 무관)
+    # 문진 설명용(판정 무관, docs/design/agent-skill-harness.md)
+    rule_notes: dict[str, dict[str, str]] = field(
+        default_factory=dict
+    )  # 원본 규칙 ID → 제목·쉬운 설명
+    skill_text: str | None = None  # 문진 진행 AI 지침(knowledge/skills/interviewer.md)
+    # 질문 안내(knowledge/question_guide.yaml): {"facts": {...}, "topics": {...}, "groups": {...}}
+    question_guide: dict[str, Any] = field(default_factory=dict)
 
     def tables_as_of(self, as_of: date) -> tuple[Table, ...]:
         return tuple(t for t in self.tables if t.is_effective(as_of))

@@ -25,11 +25,14 @@ from app.rules.evaluator import EvaluationResult, UnknownFact, evaluate
 from app.rules.implications import apply_implications
 from app.rules.model import KnowledgeBase
 from app.rules.selector import (
+    UNKNOWN_LABEL,
     QuestionChoice,
     SelectionContext,
+    ValueOption,
     implied_child,
     referenced_values,
     select_question,
+    value_domain,
 )
 
 DEFAULT_MAX_QUESTIONS = 12
@@ -44,6 +47,9 @@ class Branch(StrEnum):
 
 
 SUB_ANSWER_USER_QUESTION = "ANSWER_USER_QUESTION"
+SUB_CONFIRM_GUESS = "CONFIRM_GUESS"  # 추측 답변을 확정 전에 한 번 다시 묻는 질문
+# 지정폐기물 가능성을 지우는 답이 추측이면 확정 전에 다시 묻는 묶음(오염 확인)
+RISKY_GUESS_GROUPS = ("contamination_screen",)
 
 
 class RequestedDocument(BaseModel):
@@ -71,6 +77,7 @@ class SessionState:
     expanded_groups: set[str] = field(default_factory=set)
     focus_codes: set[str] = field(default_factory=set)
     evidence_refused: bool = False
+    guess_checked: set[str] = field(default_factory=set)  # 추측 답변을 다시 물어 본 사실
 
     def selection_context(self) -> SelectionContext:
         return SelectionContext(
@@ -115,6 +122,71 @@ def blocking_view(kb: KnowledgeBase, ev: EvaluationResult, facts: dict[str, Fact
         missing = [u for u in missing if not kb.catalog[u.key].ask_last]
     evidence = [u for u in ev.blocking_facts if u.reason == "NEEDS_EVIDENCE"] + deferred
     return BlockingView(askable=missing, evidence=evidence, deferred_keys=deferred_keys)
+
+
+def risky_guesses(kb: KnowledgeBase, facts: dict[str, Fact], state: SessionState) -> list[str]:
+    """추측으로 답했고 지정폐기물 가능성을 지울 수 있는 사실(아직 다시 묻지 않은 것).
+
+    - 오염 확인 묶음의 '해당 없음' 답(기름 없음, PCB 무관, 유해화학물질 아님, 잔류물 없음)
+    - 말로 답한 수치(기준 미만 추측 수치가 지정 기준을 지울 수 있음)
+    """
+    screen = {k for g in RISKY_GUESS_GROUPS if (grp := kb.group(g)) for k in grp.facts}
+    out = []
+    for k, f in sorted(facts.items()):
+        if not f.hedged or not f.is_known or k in state.guess_checked:
+            continue
+        fd = kb.catalog.get(k)
+        if fd is None:
+            continue
+        none_answer = k in screen and f.value == fd.none_value
+        claimed_number = fd.type == "number" and f.status == FactStatus.CLAIMED
+        if none_answer or claimed_number:
+            out.append(k)
+    return out
+
+
+def confirm_guess_question(
+    kb: KnowledgeBase, ev: EvaluationResult, facts: dict[str, Fact], state: SessionState
+) -> QuestionChoice | None:
+    """추측 답변 확인 질문: 같은 사실을 선택지로 다시 묻는다(버튼으로 답하면 추측 표시가 풀린다)."""
+    keys = risky_guesses(kb, facts, state)
+    if not keys:
+        return None
+    # 묶음 질문에 추측으로 답한 항목은 묶음으로 한 번에 다시 묻는다(항목마다 따로 묻지 않음)
+    for gid in RISKY_GUESS_GROUPS:
+        g = kb.group(gid)
+        members = [k for k in keys if g and k in g.facts]
+        if g and members:
+            return QuestionChoice(
+                unit="group",
+                key=g.group_id,
+                facts=members,
+                reason="CONFIRM_GUESS",
+                question_hint=f"{g.title} (앞에서 추측으로 답하셨어요. 확실한지 다시 골라 주세요)",
+                help=g.help,
+                value_options=[
+                    ValueOption(
+                        label=g.none_label,
+                        value={k: kb.catalog[k].none_value for k in members},
+                        kind="none_all",
+                    ),
+                    ValueOption(label=g.expand_label, kind="expand"),
+                ],
+                score_breakdown=[],
+            )
+    fd = kb.catalog[keys[0]]
+    domain = value_domain(kb, fd, ev, facts)
+    return QuestionChoice(
+        unit="fact",
+        key=fd.key,
+        facts=[fd.key],
+        reason="CONFIRM_GUESS",
+        question_hint=f"{fd.question_hint} (앞에서 추측으로 답하셨어요. 확실한 답을 골라 주세요)",
+        help=fd.help,
+        value_options=[opt for opt, _ in domain]
+        + [ValueOption(label=UNKNOWN_LABEL, kind="unknown")],
+        score_breakdown=[],
+    )
 
 
 def route(
@@ -206,6 +278,19 @@ def route(
             ],
             next_status="NEEDS_INFO",
         )
+
+    # 4.5 추측 답변 확인: 지정폐기물 가능성을 지우는 추측("아마 기름 없을걸요")은
+    #     확정 전에 한 번 묻는다
+    if decided:
+        q = confirm_guess_question(kb, ev, facts, state)
+        if q is not None:
+            return RouteDecision(
+                branch=Branch.ASK_FACT,
+                rank=3,
+                sub_branch=SUB_CONFIRM_GUESS,
+                question=q,
+                reason=f"'{q.key}'를 추측으로 답함 → 확정 전에 한 번 확인",
+            )
 
     # 5. 확정 검토. 코드 없는 결론(폐기물 아님·적용 제외·해석 필요 등)도 규칙 엔진이 낸 결론이라
     #    확정할 수 있다(result_type NO_CODE, docs/handoff-contract.md).
