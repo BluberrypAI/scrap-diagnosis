@@ -7,7 +7,7 @@ import { navigate } from '../lib/router.js';
 import { QuestionBody, QuestionOptions } from '../components/QuestionCard.jsx';
 import berry from '../assets/berry.png';
 import Board from '../components/Board.jsx';
-import { AutoReadNotes, autoReadNoteRows, ConflictCard, EvidenceCard, FinalCard, PendingReview, UnsupportedCard } from '../components/BranchCards.jsx';
+import { AutoReadNotes, autoReadNoteRows, unreadReasons, ConflictCard, EvidenceCard, FinalCard, PendingReview, UnsupportedCard } from '../components/BranchCards.jsx';
 import AssistBubble from '../components/AssistBubble.jsx';
 import BerrySpeech from '../components/BerrySpeech.jsx';
 import { DEV_TOOLS } from '../lib/devtools.js';
@@ -184,16 +184,17 @@ export default function CasePage({ id }) {
   // 서류 카드: 엔진이 서류를 요청했을 때, 또는 사용자가 '서류 올리기'를 눌렀을 때
   const showEvidence = (turn.branch === 'REQUEST_EVIDENCE' && turn.ui.requested_documents.length > 0) || upload;
   const readDocs = docs.filter((d) => d.extracted_facts?.table_read);
+  const unread = unreadReasons(readDocs);
   const readLabels = Object.fromEntries(readDocs.flatMap((d) => (d.extracted_facts.table_read.items || []).map((i) => [i.key, factLabel(i.key) || i.key])));
   // 질문이 아닌 단계(판정 확인·서류 요청·값 충돌·판정 불가)는 베리 말풍선 안에 카드로 넣는다
   let card = null;
   let asking = false; // 질문 중: 질문 내용은 베리 말풍선, 선택지는 입력창 바로 위
   if (!confirmed) {
     if (turn.branch === 'FINAL_REVIEW') card = <FinalCard turn={turn} busy={busy} onConfirm={confirm} onRecheck={() => composer.current?.focus()} />;
-    else if (turn.branch === 'UNSUPPORTED') card = <UnsupportedCard message={turn.message} pending={turn.ui.board.pending} />;
+    else if (turn.branch === 'UNSUPPORTED') card = <UnsupportedCard key={turn.turn_id} message={turn.message} pending={turn.ui.board.pending} unread={unread} disabled={busy} onValues={(v) => sendFile(null, v)} />;
     else if (turn.branch === 'RESOLVE_CONFLICT' && turn.ui.conflicts.length) card = <ConflictCard conflicts={turn.ui.conflicts} disabled={busy} onReply={sendReply} onAction={onAction} />;
     else if (q && !showEvidence) asking = true;
-    if (showEvidence) card = <EvidenceCard docs={turn.ui.requested_documents} disabled={busy} onUpload={sendFile} onText={sendText} onClose={upload ? () => setUpload(false) : null} />;
+    if (showEvidence) card = <EvidenceCard docs={turn.ui.requested_documents} disabled={busy} onUpload={sendFile} onText={sendText} onClose={upload ? () => setUpload(false) : null} unread={unread} />;
   } else if (turn.ui.result) card = <FinalCard turn={turn} confirmed handoff={handoff} />;
 
   // 베리 머리 위 말풍선: 처리 중이면 하는 일, 아니면 지금 단계 안내
@@ -207,7 +208,10 @@ export default function CasePage({ id }) {
   }
   else if (asking) speech = { mode: 'idle', text: '아래에서 고르거나 편하게 말씀해 주세요' };
   else if (turn.branch === 'FINAL_REVIEW') speech = { mode: 'idle', text: '결과를 보고 맞으면 확정해 주세요' };
-  else if (showEvidence) speech = { mode: 'idle', text: '서류를 올려 주시면 값을 읽어 볼게요' };
+  else if (showEvidence && Object.keys(unread).some((k) => turn.ui.requested_documents.some((d) => (d.facts || []).includes(k)))) {
+    speech = { mode: 'idle', text: '성적서에서 못 읽은 값이 있어요. 칸에 직접 적어 주세요' };
+  } else if (showEvidence) speech = { mode: 'idle', text: '서류를 올려 주시면 값을 읽어 볼게요' };
+  else if (turn.branch === 'UNSUPPORTED') speech = { mode: 'idle', text: '남은 값을 적거나 편하게 말씀해 주시면 이어서 할게요' };
   else speech = { mode: 'idle', text: '폐기물 문진을 도와드려요' };
 
   /** 베리의 말: 질문이면 질문 내용, 아니면 AI가 쓴 문장 */

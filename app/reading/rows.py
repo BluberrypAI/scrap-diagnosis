@@ -141,7 +141,11 @@ def candidate_items(info: RowInfo, unit_raw: str | None) -> tuple[list[TestItem]
             out.append(it)
             continue
         if unit_raw is None:
-            notes.append(f"{it.label}: 용출·함량 구분과 단위를 모두 확인하지 못함")
+            # 항목 이름 칸의 괄호 표기(예: '카드뮴(mg/mL)')를 메모에 남겨 사람이 원인을 알게 한다
+            hint = re.search(r"\(([^)]*)\)", info.item_text or "")
+            raw = hint.group(1).strip() if hint else ""
+            shown = f" (원문 표기 '{raw}')" if raw else ""
+            notes.append(f"{it.label}: 용출·함량 구분과 단위를 모두 확인하지 못함{shown}")
             out.append(it)
             continue
         if unit_rule(unit_raw, it.unit) is not None and not _ambiguous_unit(unit_raw):

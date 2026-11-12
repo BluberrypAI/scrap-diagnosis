@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import QuestionCard from '../components/QuestionCard.jsx';
 import Board from '../components/Board.jsx';
-import { AutoReadNotes, EvidenceCard, PendingReview, toDocumentValue } from '../components/BranchCards.jsx';
+import { AutoReadNotes, EvidenceCard, PendingReview, toDocumentValue, UnsupportedCard, unreadReasons } from '../components/BranchCards.jsx';
 import { normalizeQuestion, setCatalog } from '../api/normalize.js';
 
 const q = (o) => normalizeQuestion({ unit: 'fact', facts: [o.key], text: '질문', ...o });
@@ -120,5 +120,38 @@ describe('서류 값 직접 적기', () => {
     expect(() => toDocumentValue({ key: 'n', label: '납', type: 'number' }, { mode: 'eq', value: '불검출' })).toThrow(/숫자만/);
     expect(toDocumentValue({ key: 'n', type: 'number' }, { mode: 'eq', value: '' })).toBeNull();
     expect(toDocumentValue({ key: 'b', type: 'bool' }, { value: 'false' })).toBe(false);
+  });
+});
+
+describe('판정 불가에서 이어 가기', () => {
+  const cat = [
+    { key: 'leach_cd', label: '카드뮴 용출 농도', type: 'number', unit: 'mg/L', parent: null, values: [] },
+    { key: 'annex4_code', label: '별표 4 분류번호', type: 'enum', unit: null, parent: null, values: [] },
+  ];
+  const docs = [{ id: 'd1', extracted_facts: { table_read: { items: [
+    { key: 'leach_pb', status: 'FOUND' },
+    { key: 'leach_cd', status: 'AMBIGUOUS', note: "카드뮴 용출: 용출·함량 구분과 단위를 모두 확인하지 못함 (원문 표기 'mg/mL')" },
+  ] } } }];
+
+  it('못 읽은 이유를 보이고, 남은 값을 칸에 적어 보낸다', async () => {
+    setCatalog(cat);
+    const onValues = vi.fn();
+    const pending = [{ key: 'annex4_code', label: '별표 4 분류번호' }, { key: 'leach_cd', label: '카드뮴 용출 농도' }];
+    render(<UnsupportedCard message="지금 자료로는 정할 수 없습니다." pending={pending} unread={unreadReasons(docs)} onValues={onValues} />);
+    expect(screen.getAllByText(/원문 표기 'mg\/mL'/).length).toBeGreaterThan(0);
+    // 못 읽은 값이 있으면 칸이 바로 열려 있다. 고르는 항목(별표 4 번호)은 칸으로 받지 않는다
+    expect(screen.queryByLabelText('별표 4 분류번호')).toBeNull();
+    await userEvent.selectOptions(screen.getByLabelText('카드뮴 용출 농도 값 모양'), 'lt');
+    await userEvent.type(screen.getByLabelText('카드뮴 용출 농도'), '0.3');
+    await userEvent.click(screen.getByRole('button', { name: '값 보내기' }));
+    expect(onValues).toHaveBeenCalledWith({ leach_cd: { hi: 0.3, hi_inc: false } });
+  });
+
+  it('못 읽은 값이 없으면 "서류 값 적기"로 칸을 연다', async () => {
+    setCatalog(cat);
+    render(<UnsupportedCard message="m" pending={[{ key: 'leach_cd', label: '카드뮴 용출 농도' }]} onValues={vi.fn()} />);
+    expect(screen.queryByLabelText('카드뮴 용출 농도')).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: '서류 값 적기' }));
+    expect(screen.getByLabelText('카드뮴 용출 농도')).toBeInTheDocument();
   });
 });

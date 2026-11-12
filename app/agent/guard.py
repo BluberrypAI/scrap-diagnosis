@@ -239,8 +239,19 @@ def validate_extraction(
         res.question_kind = kind
         if not res.user_question:  # 질문 문장을 비웠으면 발화 전체를 질문으로 본다
             res.user_question = text.strip()[:200]
-    res.evidence_refused = bool(raw.get("evidence_refused"))
+    if raw.get("evidence_refused"):
+        # 서류가 없다는 말이 실제로 있을 때만 받는다. AI가 앞 턴의 "서류가 없어요"를 이어받아
+        # 값을 말한 턴("카드뮴은 0.01이에요")까지 거절로 표시하면 대화가 판정 불가에 갇힌다.
+        # (다시 묻지 않고 조용히 버린다: rejected에 넣으면 추출을 한 번 더 부른다)
+        res.evidence_refused = bool(_REFUSAL.search(text or ""))
     return res
+
+
+# 서류가 없다·못 구한다는 말: (서류 이름 …) + 없/못/안
+_REFUSAL = re.compile(
+    r"(서류|성적서|결과서|분석|시험|자료|MSDS|증빙|파일|문서|보고서).{0,12}(없|못|안\s*받|안\s*했)",
+    re.IGNORECASE,
+)
 
 
 # ---- 응답 검증 -----------------------------------------------------------------------------

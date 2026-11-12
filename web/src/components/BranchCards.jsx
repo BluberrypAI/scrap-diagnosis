@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CATEGORY_LABEL, DOCUMENT_ACCEPT, EVIDENCE_REFUSE_REPLY, REVIEW_LABEL, ROUTE_ACTION_LABEL } from '../lib/labels.js';
 import { formatDateTime, formatValue } from '../lib/format.js';
-import { getCatalog } from '../api/normalize.js';
+import { factLabel, getCatalog } from '../api/normalize.js';
 
 /** 숫자 칸에서 고를 수 있는 값 모양: 그대로 / 미만(불검출이면 검출한계를 적는다) */
 const NUMBER_MODES = [
@@ -20,6 +20,40 @@ export function toDocumentValue(fact, row) {
   }
   if (fact?.type === 'bool') return raw === 'true';
   return raw;
+}
+
+/** 칸에 적은 값들 → 서버로 보낼 {사실: 값}. 형식이 틀리면 Error */
+export function collectValues(rows) {
+  const catalog = getCatalog();
+  const values = {};
+  for (const [k, row] of Object.entries(rows)) {
+    const v = toDocumentValue(catalog[k] || { key: k, type: 'number' }, row);
+    if (v !== null) values[k] = v;
+  }
+  return values;
+}
+
+/** 올린 서류에서 자동으로 정하지 못한 값의 이유: {사실 키: 메모} */
+export function unreadReasons(docs) {
+  const out = {};
+  for (const d of docs || []) {
+    for (const i of d.extracted_facts?.table_read?.items || []) {
+      if (i.status !== 'FOUND' && !out[i.key]) out[i.key] = i.note || '자동으로 값을 정하지 못함';
+    }
+  }
+  return out;
+}
+
+/** 자동으로 못 읽은 값 안내(왜 못 읽었는지 + 직접 적어 달라는 말) */
+function UnreadNotice({ keys, unread }) {
+  const shown = keys.filter((k) => unread[k]);
+  if (!shown.length) return null;
+  return (
+    <div className="wd-alert is-info">
+      <p><strong>성적서에서 자동으로 읽지 못한 값이 있어요.</strong> 성적서를 보고 아래 칸에 직접 적어 주세요.</p>
+      <ul className="plain small">{shown.map((k) => <li key={k}>{factLabel(k) || k}: {unread[k]}</li>)}</ul>
+    </div>
+  );
 }
 
 /** 서류에 적힌 값을 항목별로 적는 칸. 요청 서류의 항목을 먼저 보이고, 다른 항목도 더할 수 있다 */
@@ -80,20 +114,17 @@ export function DocumentValuesForm({ keys, rows, setRows, disabled }) {
  * 서류 올리기 + 서류 값 직접 입력(항목별 칸, 선택). REQUEST_EVIDENCE면 요청 서류 목록과 '서류가 없어요'.
  * docs가 비어 있으면(사용자가 직접 연 경우) 목록 대신 닫기 버튼.
  */
-export function EvidenceCard({ docs = [], disabled, onUpload, onText, onClose = null }) {
+export function EvidenceCard({ docs = [], disabled, onUpload, onText, onClose = null, unread = {} }) {
   const [file, setFile] = useState(null);
   const [rows, setRows] = useState({});
   const [err, setErr] = useState('');
   const keys = [...new Set(docs.flatMap((d) => d.facts || []))];
-  const catalog = getCatalog();
   const filled = Object.values(rows).some((r) => (r.value ?? '').toString().trim());
+  const hasUnread = keys.some((k) => unread[k]);
   const submit = () => {
-    const values = {};
+    let values = {};
     try {
-      for (const [k, row] of Object.entries(rows)) {
-        const v = toDocumentValue(catalog[k] || { key: k, type: 'number' }, row);
-        if (v !== null) values[k] = v;
-      }
+      values = collectValues(rows);
     } catch (e) {
       setErr(e.message);
       return;
@@ -109,7 +140,8 @@ export function EvidenceCard({ docs = [], disabled, onUpload, onText, onClose = 
         <input type="file" accept={DOCUMENT_ACCEPT} aria-label="서류 파일" onChange={(e) => setFile(e.target.files?.[0] || null)} /></label>
       {file && <p className="muted">{file.name} · {Math.max(1, Math.round(file.size / 1024))}KB</p>}
       <p className="muted">PDF·사진을 올리면 시험성적서 표의 값을 자동으로 읽어 &lsquo;검수 대기&rsquo;로 넣어요. 사진은 읽는 데 몇 초 걸려요. 검수가 끝난 값만 판정에 쓰여요.</p>
-      <details>
+      <UnreadNotice keys={keys} unread={unread} />
+      <details open={hasUnread || undefined}>
         <summary>파일 없이 서류 값 직접 적기</summary>
         <DocumentValuesForm keys={keys} rows={rows} setRows={setRows} disabled={disabled} />
       </details>
@@ -217,13 +249,52 @@ export function ConflictCard({ conflicts, disabled, onReply, onAction }) {
 }
 
 /** UNSUPPORTED */
-export function UnsupportedCard({ message, pending }) {
+/** 칸으로 적을 수 있는 남은 항목(별표 4 번호 선택처럼 고르는 항목은 대화로 묻는다) */
+const NOT_A_VALUE = new Set(['annex4_code', 'material', 'material_group']);
+
+/**
+ * 판정 불가. 막다른 길이 되지 않도록 무엇이 남았는지·왜 막혔는지·어떻게 이어 갈지를 함께 보인다.
+ *  - 남은 항목마다 자동으로 못 읽은 이유(있으면)
+ *  - "서류 값 적기": 남은 항목 칸을 바로 열어 값을 보낸다(onValues)
+ *  - 입력창에 편하게 말해도 이어서 진행한다
+ */
+export function UnsupportedCard({ message, pending, unread = {}, disabled, onValues = null }) {
+  const keys = pending.map((p) => p.key).filter((k) => !NOT_A_VALUE.has(k));
+  const [open, setOpen] = useState(keys.some((k) => unread[k]));
+  const [rows, setRows] = useState({});
+  const [err, setErr] = useState('');
+  const filled = Object.values(rows).some((r) => (r.value ?? '').toString().trim());
+  const send = () => {
+    try {
+      const values = collectValues(rows);
+      setErr('');
+      onValues(values);
+    } catch (e) {
+      setErr(e.message);
+    }
+  };
   return (
     <section className="wd-card qcard" aria-label="판정 불가">
       <h3>지금은 판정할 수 없어요</h3>
       <p>{message}</p>
-      {pending.length > 0 && <ul className="plain">{pending.map((p) => <li key={p.key}>○ {p.label}</li>)}</ul>}
-      <a className="button button-quiet" href="#/cases">목록으로</a>
+      {pending.length > 0 && (
+        <ul className="plain">
+          {pending.map((p) => <li key={p.key}>○ {p.label}{unread[p.key] && <div className="muted small">자동으로 못 읽음: {unread[p.key]}</div>}</li>)}
+        </ul>
+      )}
+      {open && onValues && keys.length > 0 && (
+        <>
+          <UnreadNotice keys={keys} unread={unread} />
+          <DocumentValuesForm keys={keys} rows={rows} setRows={setRows} disabled={disabled} />
+          {err && <p className="wd-alert" role="alert">{err}</p>}
+        </>
+      )}
+      <p className="muted small">서류가 생기면 값을 적어 주시고, 아니면 아래 입력창에 편하게 말씀하셔도 이어서 진행해요.</p>
+      <div className="row">
+        {onValues && keys.length > 0 && !open && <button type="button" className="button button-primary" disabled={disabled} onClick={() => setOpen(true)}>서류 값 적기</button>}
+        {open && <button type="button" className="button button-primary" disabled={disabled || !filled} onClick={send}>값 보내기</button>}
+        <a className="button button-quiet" href="#/cases">목록으로</a>
+      </div>
     </section>
   );
 }
