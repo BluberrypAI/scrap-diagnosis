@@ -29,7 +29,7 @@ from app.reading.rows import (
     section_groups,
 )
 from app.reading.test_items import BY_KEY, TestItem, match_items
-from app.reading.units import convert, find_unit, unit_rule
+from app.reading.units import UnitRule, convert, find_unit, unit_rule
 from app.reading.values import numbers_in, parse_value, to_float
 
 LOW_CONFIDENCE = 0.8  # OCR 칸 신뢰도가 이보다 낮으면 값을 정하지 않는다
@@ -225,6 +225,35 @@ def _item_for_row(
 
     if parsed.kind in ("empty", "text"):
         return ambiguous(f"결과 칸을 값으로 읽을 수 없음: {parsed.raw!r}", parsed.raw or None)
+
+    # 불검출 + 검출한계 없음 + 같은 줄 기준값(단위 없는 숫자) = "이 줄 기준보다 낮다".
+    # 기준 칸은 법 기준을 적는 칸이라 원문 단위 표기(오타 포함)와 상관없이 기준 단위로 본다.
+    # 검출한계 숫자가 적힌 불검출("<0.01 mg/mL")은 단위가 값을 바꾸므로 아래에서 환산한다.
+    if parsed.kind == "nd" and test_item.unit is not None and parsed.detection_limit is None:
+        stated = _detection_limit(layout, info.row, col.col, None, None)
+        bound = _limit_bound(layout, info.row) if stated[0] is None else None
+        if bound is not None and bound[3] is None:
+            dl, dl_raw, dl_ref, _ = bound
+            same = (
+                unit_raw is not None
+                and (unit_rule(unit_raw, test_item.unit) or UnitRule(0)).factor == 1
+            )
+            note = f"불검출. 검출한계가 없어 같은 행 기준 {dl_raw} 미만으로 봄"
+            if unit_raw and not same:
+                note += f" · 원문 단위 '{unit_raw}'와 상관없이 기준 단위({test_item.unit})로 봄"
+            item = ExtractedFactItem(
+                status=ItemStatus.FOUND,
+                value_raw=parsed.raw,
+                unit_raw=unit_raw,
+                below_detection_limit=True,
+                detection_limit=dl,
+                unit_ref=unit_ref,
+                detection_limit_ref=dl_ref,
+                detection_limit_basis="limit_column",
+                note=note,
+                **base,
+            )
+            return _Candidate(item, ("ND", dl), warnings)
 
     rule = unit_rule(unit_raw, test_item.unit)
     if rule is None:

@@ -561,9 +561,20 @@ def test_mg_per_ml_is_converted_with_note():
     cu, cd = by["leach_cu"], by["leach_cd"]
     assert cu.status is ItemStatus.FOUND and cu.value == pytest.approx(2.0)
     assert "단위 환산: mg/mL → mg/L (×1000)" in (cu.note or "")
-    # 불검출 + 같은 줄 기준값도 같은 단위로 본다(0.3 mg/mL = 300 mg/L)
-    assert cd.status is ItemStatus.FOUND and cd.detection_limit == pytest.approx(300)
-    assert "단위 환산" in (cd.note or "")
+    # 불검출 + 같은 줄 기준값은 "기준보다 낮다"는 뜻이라 원문 단위와 상관없이 기준 단위로 본다
+    assert cd.status is ItemStatus.FOUND and cd.detection_limit == pytest.approx(0.3)
+    assert "원문 단위 'mg/mL'와 상관없이" in (cd.note or "")
+
+
+def test_nd_with_stated_limit_still_converts_unit():
+    """검출한계 숫자가 적힌 불검출은 단위가 값을 바꾸므로 그대로 환산한다."""
+    rows = [
+        ["시험항목", "결과", "기준"],
+        ["카드뮴(mg/mL)", "불검출(<0.0001)", "0.3 이상"],
+    ]
+    rep = read_test_report(_build([_table(rows)]), "r.pdf", "application/pdf", settings=Settings())
+    cd = {it.key: it for it in rep.result.facts}["leach_cd"]
+    assert cd.status is ItemStatus.FOUND and cd.detection_limit == pytest.approx(0.1)
 
 
 @pytest.mark.parametrize(
