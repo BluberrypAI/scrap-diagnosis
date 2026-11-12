@@ -3,8 +3,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import QuestionCard from '../components/QuestionCard.jsx';
 import Board from '../components/Board.jsx';
-import { AutoReadNotes, EvidenceCard, PendingReview } from '../components/BranchCards.jsx';
-import { normalizeQuestion } from '../api/normalize.js';
+import { AutoReadNotes, EvidenceCard, PendingReview, toDocumentValue } from '../components/BranchCards.jsx';
+import { normalizeQuestion, setCatalog } from '../api/normalize.js';
 
 const q = (o) => normalizeQuestion({ unit: 'fact', facts: [o.key], text: '질문', ...o });
 
@@ -95,5 +95,30 @@ describe('서류 자동 읽기', () => {
     expect(screen.getByText(/검출한계를 찾지 못함/)).toBeInTheDocument();
     expect(screen.queryByText('leach_pb')).toBeNull();
     expect(screen.getByText(/문서 인식\(OCR\)으로 읽음/)).toBeInTheDocument();
+  });
+});
+
+describe('서류 값 직접 적기', () => {
+  it('요청 항목마다 칸을 보이고, 미만(불검출)은 범위로 보낸다', async () => {
+    setCatalog([
+      { key: 'leach_pb', label: '납 용출 농도', type: 'number', unit: 'mg/L', parent: null, values: [] },
+      { key: 'oil_content_pct', label: '기름성분 함량', type: 'number', unit: '%', parent: null, values: [] },
+    ]);
+    const onUpload = vi.fn();
+    const docs = [{ evidence_type: 'TEST_REPORT', label: '시험성적서', facts: ['leach_pb', 'oil_content_pct'], fact_labels: ['납 용출 농도', '기름성분 함량'] }];
+    render(<EvidenceCard docs={docs} onUpload={onUpload} onText={vi.fn()} />);
+    await userEvent.click(screen.getByText('파일 없이 서류 값 직접 적기'));
+    expect(screen.getByText('mg/L')).toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText('기름성분 함량'), '0.4');
+    await userEvent.selectOptions(screen.getByLabelText('납 용출 농도 값 모양'), 'lt');
+    await userEvent.type(screen.getByLabelText('납 용출 농도'), '0.01');
+    await userEvent.click(screen.getByRole('button', { name: '서류 올리기' }));
+    expect(onUpload).toHaveBeenCalledWith(null, { leach_pb: { hi: 0.01, hi_inc: false }, oil_content_pct: 0.4 });
+  });
+
+  it('숫자가 아니면 보내지 않고 알려 준다', () => {
+    expect(() => toDocumentValue({ key: 'n', label: '납', type: 'number' }, { mode: 'eq', value: '불검출' })).toThrow(/숫자만/);
+    expect(toDocumentValue({ key: 'n', type: 'number' }, { mode: 'eq', value: '' })).toBeNull();
+    expect(toDocumentValue({ key: 'b', type: 'bool' }, { value: 'false' })).toBe(false);
   });
 });

@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { api, USE_MOCK } from '../api/index.js';
-import { factLabel } from '../api/normalize.js';
+import { factLabel, getCatalog } from '../api/normalize.js';
 import { STATUS_LABEL } from '../lib/labels.js';
 import { useLoad } from '../lib/useLoad.js';
 import { navigate } from '../lib/router.js';
@@ -11,6 +11,14 @@ import { AutoReadNotes, autoReadNoteRows, ConflictCard, EvidenceCard, FinalCard,
 import AssistBubble from '../components/AssistBubble.jsx';
 import BerrySpeech from '../components/BerrySpeech.jsx';
 import { DEV_TOOLS } from '../lib/devtools.js';
+
+const MANUAL_NOTE_NAME = '서류값-직접입력.txt';
+/** 직접 적은 서류 값을 사람이 읽을 수 있는 글로 남긴다(서버에는 이 글과 값이 함께 저장된다) */
+function manualNote(facts) {
+  const show = (v) => (v && typeof v === 'object' ? `${v.hi} 미만` : String(v));
+  const lines = Object.entries(facts || {}).map(([k, v]) => `${factLabel(k) || k}: ${show(v)}${getCatalog()[k]?.unit ? ` ${getCatalog()[k].unit}` : ''}`);
+  return ['사용자가 서류를 보고 직접 적은 값', ...lines].join('\n');
+}
 
 // 개발·목 모드에서만 "검수 완료로 적용" 버튼을 보인다(운영에서는 서버의 검수 흐름이 적용한다).
 const DEV_REVIEW = import.meta.env.DEV || USE_MOCK;
@@ -122,10 +130,10 @@ export default function CasePage({ id }) {
     setText('');
   };
   const sendFile = (file, facts) => {
-    const f = file || new Blob([JSON.stringify(facts)], { type: 'application/json' });
-    if (!file) f.name = 'manual-facts.json';
+    // 파일 없이 값만 적었으면 적은 값을 글로 남긴 텍스트 파일을 함께 보낸다(API는 서류 파일이 꼭 있어야 한다).
+    const f = file || new File([manualNote(facts)], MANUAL_NOTE_NAME, { type: 'text/plain' });
     // 값은 검수 대기 후보로만 저장된다(판정은 그대로). 검수 완료 값만 적용(apply)되어 판정에 쓰인다.
-    const go = () => run(`서류 올림: ${f.name || 'manual-facts.json'}`, () => api.uploadDocument(id, f, facts).then((d) => {
+    const go = () => run(file ? `서류 올림: ${f.name}` : '서류 값 직접 입력', () => api.uploadDocument(id, f, facts).then((d) => {
       setDocs((ds) => [...ds.filter((x) => x.id !== d.document.id), d.document]);
       return d.turn;
     }), go, '성적서 표를 읽고 있어요');
@@ -192,7 +200,11 @@ export default function CasePage({ id }) {
   let speech;
   if (busy) speech = { mode: 'thinking', text: status || '확인하고 있어요' };
   else if (confirmed) speech = { mode: 'idle', text: '확정됐어요. 기록에서 다시 볼 수 있어요' };
-  else if (pending.length > 0) speech = { mode: 'idle', text: '성적서에서 값을 읽었어요. 맞는지 확인해 주세요' };
+  else if (pending.length > 0) {
+    // 표에서 자동으로 읽은 값이 있으면 '읽었어요', 직접 적은 값만 있으면 '받았어요'
+    const autoRead = pending.some(({ doc }) => doc.extracted_facts?.table_read);
+    speech = { mode: 'idle', text: autoRead ? '성적서에서 값을 읽었어요. 맞는지 확인해 주세요' : '적어 주신 서류 값을 받았어요. 맞는지 확인해 주세요' };
+  }
   else if (asking) speech = { mode: 'idle', text: '아래에서 고르거나 편하게 말씀해 주세요' };
   else if (turn.branch === 'FINAL_REVIEW') speech = { mode: 'idle', text: '결과를 보고 맞으면 확정해 주세요' };
   else if (showEvidence) speech = { mode: 'idle', text: '서류를 올려 주시면 값을 읽어 볼게요' };

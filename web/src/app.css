@@ -121,3 +121,11 @@
   .berry-speech[data-mode="thinking"]::after { border-top-color: transparent; border-right-color: var(--color-surface-lavender); }
 }
 .small { font-size: 0.85em; }
+/* 서류 값 직접 적기: 항목 이름 · (값 모양) · 숫자 · 단위 한 줄 */
+.doc-values { display: grid; gap: 8px; margin-top: 8px; }
+.doc-value-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.doc-value-label { flex: 1 1 140px; font-weight: 600; }
+.doc-values { min-width: 0; }
+.doc-value-row .wd-input { width: auto; flex: 0 1 auto; min-width: 0; max-width: 100%; }
+.doc-values > select.wd-input { max-width: 100%; }
+.doc-value-row input.wd-input { width: 7.5em; }

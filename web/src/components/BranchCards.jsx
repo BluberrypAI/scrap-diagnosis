@@ -1,27 +1,105 @@
 import { useState } from 'react';
 import { CATEGORY_LABEL, DOCUMENT_ACCEPT, EVIDENCE_REFUSE_REPLY, REVIEW_LABEL, ROUTE_ACTION_LABEL } from '../lib/labels.js';
 import { formatDateTime, formatValue } from '../lib/format.js';
+import { getCatalog } from '../api/normalize.js';
+
+/** 숫자 칸에서 고를 수 있는 값 모양: 그대로 / 미만(불검출이면 검출한계를 적는다) */
+const NUMBER_MODES = [
+  { value: 'eq', label: '값' },
+  { value: 'lt', label: '미만' },
+];
+
+/** 입력 칸 하나의 글 → 서버로 보낼 값. 비어 있으면 null, 형식이 틀리면 Error */
+export function toDocumentValue(fact, row) {
+  const raw = (row.value ?? '').toString().trim();
+  if (!raw) return null;
+  if (fact?.type === 'number') {
+    const n = Number(raw.replace(/,/g, ''));
+    if (!Number.isFinite(n)) throw new Error(`${fact.label || fact.key}: 숫자만 적어 주세요`);
+    return row.mode === 'lt' ? { hi: n, hi_inc: false } : n;
+  }
+  if (fact?.type === 'bool') return raw === 'true';
+  return raw;
+}
+
+/** 서류에 적힌 값을 항목별로 적는 칸. 요청 서류의 항목을 먼저 보이고, 다른 항목도 더할 수 있다 */
+export function DocumentValuesForm({ keys, rows, setRows, disabled }) {
+  const catalog = getCatalog();
+  const shown = [...keys, ...Object.keys(rows).filter((k) => !keys.includes(k))];
+  const addable = Object.values(catalog)
+    .filter((f) => !shown.includes(f.key) && !f.parent && f.key !== 'material_group' && f.key !== 'annex4_code')
+    .sort((a, b) => (a.label || a.key).localeCompare(b.label || b.key, 'ko'));
+  const set = (k, patch) => setRows((r) => ({ ...r, [k]: { mode: 'eq', value: '', ...r[k], ...patch } }));
+  return (
+    <div className="doc-values">
+      {shown.map((k) => {
+        const f = catalog[k] || { key: k, type: 'number' };
+        const row = rows[k] || { mode: 'eq', value: '' };
+        const label = f.label || k;
+        return (
+          <div key={k} className="doc-value-row">
+            <span className="doc-value-label">{label}</span>
+            {f.type === 'number' && (
+              <>
+                <select className="wd-input" aria-label={`${label} 값 모양`} disabled={disabled} value={row.mode} onChange={(e) => set(k, { mode: e.target.value })}>
+                  {NUMBER_MODES.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+                </select>
+                <input className="wd-input" type="text" inputMode="decimal" aria-label={label} placeholder="숫자" disabled={disabled}
+                  value={row.value} onChange={(e) => set(k, { value: e.target.value })} />
+                {f.unit && <span className="muted">{f.unit}</span>}
+              </>
+            )}
+            {f.type === 'bool' && (
+              <select className="wd-input" aria-label={label} disabled={disabled} value={row.value} onChange={(e) => set(k, { value: e.target.value })}>
+                <option value="">선택</option>
+                <option value="true">예</option>
+                <option value="false">아니오</option>
+              </select>
+            )}
+            {f.type === 'enum' && (
+              <select className="wd-input" aria-label={label} disabled={disabled} value={row.value} onChange={(e) => set(k, { value: e.target.value })}>
+                <option value="">선택</option>
+                {(f.values || []).map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
+              </select>
+            )}
+          </div>
+        );
+      })}
+      {addable.length > 0 && (
+        <select className="wd-input" aria-label="다른 항목 더하기" disabled={disabled} value="" onChange={(e) => e.target.value && set(e.target.value, {})}>
+          <option value="">+ 다른 항목 더하기</option>
+          {addable.map((f) => <option key={f.key} value={f.key}>{f.label || f.key}</option>)}
+        </select>
+      )}
+      <p className="muted small">서류에 적힌 값만 적어 주세요. 빈 칸은 보내지 않아요. &lsquo;불검출&rsquo;이면 &lsquo;미만&rsquo;을 고르고 검출한계(예: 0.01)를 적어 주세요. 단위가 다르면 칸 옆 단위로 바꿔 적어 주세요.</p>
+    </div>
+  );
+}
 
 /**
- * 서류 올리기 + 값 직접 입력(JSON, 선택). REQUEST_EVIDENCE면 요청 서류 목록과 '서류가 없어요'.
+ * 서류 올리기 + 서류 값 직접 입력(항목별 칸, 선택). REQUEST_EVIDENCE면 요청 서류 목록과 '서류가 없어요'.
  * docs가 비어 있으면(사용자가 직접 연 경우) 목록 대신 닫기 버튼.
  */
 export function EvidenceCard({ docs = [], disabled, onUpload, onText, onClose = null }) {
   const [file, setFile] = useState(null);
-  const [facts, setFacts] = useState('');
+  const [rows, setRows] = useState({});
   const [err, setErr] = useState('');
+  const keys = [...new Set(docs.flatMap((d) => d.facts || []))];
+  const catalog = getCatalog();
+  const filled = Object.values(rows).some((r) => (r.value ?? '').toString().trim());
   const submit = () => {
-    let parsed = null;
-    if (facts.trim()) {
-      try {
-        parsed = JSON.parse(facts);
-      } catch {
-        setErr('값 직접 입력은 JSON 형식이어야 해요. 예: {"oil_content_pct": 2}');
-        return;
+    const values = {};
+    try {
+      for (const [k, row] of Object.entries(rows)) {
+        const v = toDocumentValue(catalog[k] || { key: k, type: 'number' }, row);
+        if (v !== null) values[k] = v;
       }
+    } catch (e) {
+      setErr(e.message);
+      return;
     }
     setErr('');
-    onUpload(file, parsed);
+    onUpload(file, Object.keys(values).length ? values : null);
   };
   return (
     <section className="wd-card qcard" aria-label="서류 요청">
@@ -32,12 +110,12 @@ export function EvidenceCard({ docs = [], disabled, onUpload, onText, onClose = 
       {file && <p className="muted">{file.name} · {Math.max(1, Math.round(file.size / 1024))}KB</p>}
       <p className="muted">PDF·사진을 올리면 시험성적서 표의 값을 자동으로 읽어 &lsquo;검수 대기&rsquo;로 넣어요. 사진은 읽는 데 몇 초 걸려요. 검수가 끝난 값만 판정에 쓰여요.</p>
       <details>
-        <summary>서류 값 입력</summary>
-        <textarea className="wd-input" rows={2} placeholder='{"oil_content_pct": 2}' value={facts} onChange={(e) => setFacts(e.target.value)} />
+        <summary>파일 없이 서류 값 직접 적기</summary>
+        <DocumentValuesForm keys={keys} rows={rows} setRows={setRows} disabled={disabled} />
       </details>
       {err && <p className="wd-alert" role="alert">{err}</p>}
       <div className="row">
-        <button type="button" className="button button-primary" disabled={disabled || (!file && !facts.trim())} onClick={submit}>서류 올리기</button>
+        <button type="button" className="button button-primary" disabled={disabled || (!file && !filled)} onClick={submit}>서류 올리기</button>
         {docs.length > 0 && <button type="button" className="button button-quiet" disabled={disabled} onClick={() => onText(EVIDENCE_REFUSE_REPLY)}>{EVIDENCE_REFUSE_REPLY}</button>}
         {onClose && <button type="button" className="button button-quiet" disabled={disabled} onClick={onClose}>닫기</button>}
       </div>
