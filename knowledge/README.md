@@ -57,6 +57,9 @@ when:                                   # 목록 = 모두 만족(AND). 기존 �
 - 단순 조건: `{fact, op, value}`. `op`는 `eq ne in not_in lt lte gt gte exists`.
 - `min_status`(선택): 이 조건이 참이 되려면 필요한 증빙 수준. `EVIDENCED`면 서류·성적서로 확인한 값만 참으로 본다. 적지 않으면 시험 수치(`facts.yaml`의 `cost: TEST`)만 `EVIDENCED`, 나머지는 말로 답해도 된다.
 - 기준 미만·해당 없음처럼 조건을 **거짓**으로 만드는 답은 증빙 수준과 관계없이 말로도 받는다(엔진의 3값 평가).
+  - 예외: **확인대상 폐기물**(시행규칙 제17조의2제1항, `fact_settings.yaml`의 `confirm_target`)의 소재 테이블에서는
+    빌드가 시험 수치 조건에 `falsify_min_status: EVIDENCED`를 붙인다. 이런 조건은 '기준 미만'도 성적서 값으로만 거짓이 되고,
+    엔진은 그 수치를 말로 묻지 않고 바로 성적서를 요청한다. PCB 수치는 `exclude_facts`로 뺐다(모든 소재에 걸린 조건이라).
 - 소재의 `presets`(소재가 정하는 사실)는 빌드할 때 조건을 미리 참·거짓으로 접는다.
 
 공통 정의(`definitions.yaml`): `이름: {title, when, source, location, quote, plain}`. 검토 단위 `def:<이름>`이 생기고, 정의를 쓰는 생성 규칙은 그 단위에도 기댄다(정의가 바뀌면 그 규칙들의 검토가 함께 풀린다).

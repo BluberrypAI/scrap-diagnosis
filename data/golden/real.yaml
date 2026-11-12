@@ -66,7 +66,7 @@
 
 - id: GR-003
   kb: real
-  description: "오니: 시험 항목을 모르면 하나씩 묻지 않고 성적서를 한 번에 요청, 없으면 판정 불가"
+  description: "오니(확인대상 폐기물): 시험 수치는 말로 묻지 않고 성적서를 한 번에 요청, 없으면 판정 불가"
   setup: {facts: {emission_facility: true}}
   turns:
     - user: "폐수처리장에서 나온 무기성 오니입니다. 기름이나 유해물질은 없고, 내보내는 폐기물이에요."
@@ -81,11 +81,6 @@
     - quick_reply: {key: contamination_screen, kind: none_all}
     - quick_reply: {key: scope_screen, kind: none_all}
     - quick_reply: {key: sludge_facility_notified, value: true}
-      expect: {branch: ASK_FACT, ask_fact: sludge_water_pct}
-    - user: "함수율은 모르겠어요"
-      extract:
-        facts:
-          - {key: sludge_water_pct, status: DECLARED_UNKNOWN, quote: "모르겠어요"}
       expect: {branch: REQUEST_EVIDENCE, documents: [TEST_REPORT]}
     - user: "성적서는 아직 없어요"
       extract: {evidence_refused: true}

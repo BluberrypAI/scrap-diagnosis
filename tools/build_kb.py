@@ -295,17 +295,32 @@ class Converter:
             "location": code,
         }
 
-    def leaf(self, c: dict, band: int) -> dict:
+    def confirm_target(self, mid: str | None) -> bool:
+        """이 소재가 확인대상 폐기물(시행규칙 제17조의2제1항)인가.
+
+        목록은 fact_settings.yaml의 confirm_target.
+        """
+        if mid is None:
+            return False
+        kinds = (self.ov.get("confirm_target") or {}).get("waste_kinds") or []
+        return self.materials.get(mid, {}).get("waste_kind") in kinds
+
+    def leaf(self, c: dict, band: int, mid: str | None = None) -> dict:
         fid = c["fact"]
         self.used_facts.add(fid)
         self.fact_band[fid] = max(self.fact_band.get(fid, 0), band)
         out = {"fact": fid, "op": c["op"], "value": c.get("value")}
+        is_test = self.facts.get(fid, {}).get("cost") == "TEST"
         # 증빙 수준: 원본에 적었으면 그대로, 아니면 시험 수치만 성적서(EVIDENCED) 필요
         if c.get("min_status"):
             if c["min_status"] != "CLAIMED":
                 out["min_status"] = c["min_status"]
-        elif self.facts.get(fid, {}).get("cost") == "TEST":
+        elif is_test:
             out["min_status"] = "EVIDENCED"
+        # 확인대상 폐기물은 '기준 미만'도 분석결과서로만 받는다(말로는 지정 후보를 지우지 않음)
+        excluded = (self.ov.get("confirm_target") or {}).get("exclude_facts") or []
+        if is_test and fid not in excluded and self.confirm_target(mid):
+            out["falsify_min_status"] = "EVIDENCED"
         return out
 
     def emit(self, reduced: Any, band: int, mid: str | None = None) -> Any:
@@ -318,7 +333,7 @@ class Converter:
             return {key: [self.emit(x, band, mid) for x in reduced[key]]}
         if "not" in reduced:
             return {"not": self.emit(reduced["not"], band, mid)}
-        return self.leaf(reduced, band)
+        return self.leaf(reduced, band, mid)
 
     # ---- 공통 조각: 범위·사업장 -----------------------------------------------------------
 
@@ -876,6 +891,10 @@ class Converter:
             "허용 기준은 tests/test_legacy_regression.py.",
             "- 시험 수치 조건은 `min_status: EVIDENCED`다. 지정 판정에는 성적서가 필요하고, "
             "기준 미만 진술로는 지정 후보를 지울 수 있다.",
+            "- 단 확인대상 폐기물(시행규칙 제17조의2제1항, "
+            "`fact_settings.yaml`의 `confirm_target`) "
+            "소재는 시험 수치 조건에 `falsify_min_status: EVIDENCED`를 붙인다. "
+            "기준 미만도 분석결과서로만 받는다(PCB 수치는 제외).",
             "",
         ]
         for key, title in (

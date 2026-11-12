@@ -3,7 +3,8 @@
 조건 평가 (docs/engine/algorithm.md 4.1~4.2절)
 - 유효 사실이 없거나 상태가 UNKNOWN/DECLARED_UNKNOWN이면 → UNKNOWN
 - 값으로는 만족하지만 상태가 min_status보다 낮으면 → UNKNOWN, 사유 NEEDS_EVIDENCE
-- 값으로 거짓이면 → FALSE (상태 무관, 지운 근거를 기록)
+- 값으로 거짓이면 → FALSE (지운 근거를 기록). 단 상태가 falsify_min_status보다 낮으면
+  → UNKNOWN, 사유 NEEDS_EVIDENCE (확인대상 폐기물의 '기준 미만'은 분석결과서로만 받는다)
 - 그 외 → TRUE
 
 확정 (docs/engine/algorithm.md 4.4절)
@@ -58,6 +59,7 @@ class CondResult(BaseModel):
     actual: Any = None
     actual_status: FactStatus | None = None
     min_status: FactStatus
+    falsify_min_status: FactStatus = FactStatus.CLAIMED
     status: TV
     reason: UnknownReason | None = None
 
@@ -97,6 +99,9 @@ class UnknownFact(BaseModel):
     reason: UnknownReason
     rule_ids: list[str]
     evidence_type: str | None = None
+    # 참·거짓 어느 쪽이든 증빙이 있어야 정해지는 사실(확인대상 폐기물의 시험 수치).
+    # 말로 묻지 않는다.
+    evidence_only: bool = False
 
 
 TableStatus = Literal["SELECTED", "PENDING", "NONE", "AMBIGUOUS"]
@@ -152,7 +157,13 @@ def _compare(op: str, actual: Any, expected: Any, fd: FactDef | None) -> bool:
 
 def eval_cond(c: Cond, facts: dict[str, Fact], catalog: dict[str, FactDef]) -> CondResult:
     f = facts.get(c.fact)
-    base = dict(fact=c.fact, op=c.op, expected=c.value, min_status=c.min_status)
+    base = dict(
+        fact=c.fact,
+        op=c.op,
+        expected=c.value,
+        min_status=c.min_status,
+        falsify_min_status=c.falsify_min_status,
+    )
     if (
         f is None
         or f.status in (FactStatus.UNKNOWN, FactStatus.DECLARED_UNKNOWN)
@@ -184,6 +195,9 @@ def eval_cond(c: Cond, facts: dict[str, Fact], catalog: dict[str, FactDef]) -> C
             # 타입이 맞지 않는 값은 guard가 걸러야 한다. 여기서는 판단하지 않는다.
             return CondResult(**base, status=TV.UNKNOWN, reason="MISSING")
     if not matched:
+        if STATUS_RANK[f.status] < STATUS_RANK[c.falsify_min_status]:
+            # 확인대상 폐기물: '기준 미만'이라는 말만으로는 지정 후보를 지우지 않는다.
+            return CondResult(**base, status=TV.UNKNOWN, reason="NEEDS_EVIDENCE")
         return CondResult(**base, status=TV.FALSE)
     if STATUS_RANK[f.status] < STATUS_RANK[c.min_status]:
         return CondResult(**base, status=TV.UNKNOWN, reason="NEEDS_EVIDENCE")
@@ -285,9 +299,13 @@ def _unknown_facts(results: list[RuleResult], catalog: dict[str, FactDef]) -> li
             reason = c.reason or "MISSING"
             if reason == "DECLARED_UNKNOWN" and fd is not None and fd.evidence_type:
                 reason = "NEEDS_EVIDENCE"
-            e = agg.setdefault(c.fact, {"reasons": set(), "rule_ids": set()})
+            e = agg.setdefault(c.fact, {"reasons": set(), "rule_ids": set(), "strict": True})
             e["reasons"].add(reason)
             e["rule_ids"].add(rr.rule_id)
+            e["strict"] = e["strict"] and (
+                c.min_status == FactStatus.EVIDENCED
+                and c.falsify_min_status == FactStatus.EVIDENCED
+            )
     out = []
     for key in sorted(agg):
         reasons = agg[key]["reasons"]
@@ -300,6 +318,7 @@ def _unknown_facts(results: list[RuleResult], catalog: dict[str, FactDef]) -> li
                 reason=reason,
                 rule_ids=sorted(agg[key]["rule_ids"]),
                 evidence_type=fd.evidence_type if fd else None,
+                evidence_only=bool(agg[key]["strict"] and fd is not None and fd.evidence_type),
             )
         )
     return out

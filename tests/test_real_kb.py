@@ -28,7 +28,8 @@ EXPECT = {
     "REAL-PP-TOXIC": ("FINAL_REVIEW", "09-01-00", 7, None),
     # D1(2026-11-09): 해석 필요 결론끼리 합쳐져 상태·다른 법 질문을 먼저 묻는다(4 → 6회)
     "REAL-NOT-WASTE": ("FINAL_REVIEW", None, 6, "INTERPRETATION_NEEDED"),
-    "REAL-SLUDGE-NO-REPORT": ("UNSUPPORTED", None, 4, None),
+    # 확인대상 폐기물(2026-11-12): 오니 시험 수치는 말로 묻지 않고 바로 성적서를 요청한다(4 → 3회)
+    "REAL-SLUDGE-NO-REPORT": ("UNSUPPORTED", None, 3, None),
     "REAL-SOLVENT-GROUP": ("FINAL_REVIEW", "04-02-00", 3, None),
     "REAL-MIXED-AUTO": ("FINAL_REVIEW", None, 3, "NO_MIXTURE_RULE"),
 }

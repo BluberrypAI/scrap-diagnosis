@@ -48,6 +48,34 @@ facts:
     # 판정 조건은 법 문언대로(공통 정의 SLUDGE_STATE: 수분 < 95 또는 고형물 ≥ 5).
     complement: {fact: sludge_solids_pct, total: 100}
 
+# 확인대상 폐기물(시행규칙 제17조의2제1항): 지정폐기물이 '아니라는' 것도 폐기물분석전문기관의
+# 분석결과서로 미리 확인해야 하는 폐기물. 이 종류(waste_kind)의 소재 테이블에서는 시험 수치(cost: TEST)
+# 조건에 falsify_min_status: EVIDENCED를 붙여 '기준 미만'이라는 말만으로 지정 후보를 지우지 않는다.
+# 목록에 있어도 넣지 않은 것
+#   - 폐흡수제는 adsorbent 종류(absorbent 소재)에 들어 있다. 도자기조각은 따로 소재가 없다
+#   - stabilized·mercury_residue·asbestos_demolition은 아직 고를 소재가 없지만 생기면 바로 적용되도록 둔다
+#   - 기름성분·폴리클로리네이티드비페닐: 폐기물 종류가 아니라 성분 기준이라 범위를 정하지 못함.
+#     PCB 조건은 모든 소재에 걸려 있어 넣으면 PCB와 무관한 폐기물도 성적서를 요구하게 된다(검토 필요)
+#   - exclude_facts: PCB 수치는 위 이유로 확인대상 소재에서도 말로 받는다
+confirm_target:
+  source: GUIDE-REPORT
+  location: Ⅵ.1.가 확인대상 폐기물(규칙 제17조의2제1항)
+  quote: 오니류, 폐흡착제, 폐흡수제 / 광재, 분진, 폐주물사, 폐사, 폐내화물, 도자기조각, 소각재, 안정화 또는 고형화ㆍ고체화 처리물, 폐촉매, 수은함유폐기물 처리잔재물 / 기름성분 / 폐석면 / 폴리클로리네이티드비페닐
+  waste_kinds:
+    - sludge_wastewater
+    - sludge_process
+    - adsorbent
+    - slag
+    - dust
+    - foundry_sand
+    - refractory
+    - incineration_ash
+    - stabilized
+    - catalyst
+    - mercury_residue
+    - asbestos_demolition
+  exclude_facts: [pcb_mg_l, pcb_leach_mg_l]
+
 # 소재 2단계 질문의 1단계(큰 분류). 값·라벨·예시는 기존 materials.yaml의 groups에서 온다.
 # 여기서는 질문 문구, 라벨 보정, 큰 분류만 말할 때 쓰는 표현(별칭)을 정한다.
 material_group:

@@ -65,6 +65,9 @@ class Cond:
     op: str
     value: Any = None
     min_status: FactStatus = FactStatus.CLAIMED
+    # 값으로 거짓일 때도 이 수준의 증빙이 있어야 거짓으로 본다. 기본 CLAIMED(말로 충분).
+    # 확인대상 폐기물(시행규칙 제17조의2)은 '기준 미만'도 분석결과서로 확인해야 해서 EVIDENCED.
+    falsify_min_status: FactStatus = FactStatus.CLAIMED
 
 
 @dataclass(frozen=True)

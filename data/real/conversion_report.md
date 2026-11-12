@@ -1,6 +1,6 @@
 # 규칙 빌드 보고서
 
-- 원본: `knowledge/` (937eea79). 기존 엔진 resource_engine `2f1355a`의 rules/에서 옮겨 왔다.
+- 원본: `knowledge/` (220aa072). 기존 엔진 resource_engine `2f1355a`의 rules/에서 옮겨 왔다.
 - 소재 테이블: 101개, 시행일 2026-10-02
 - 전문가 검토(`knowledge/reviews.yaml`): 생성 규칙 0개가 `VERIFIED`, 나머지는 `UNVERIFIED`다.
 
@@ -44,6 +44,7 @@
 - 지정 기준 미만 산·알칼리: 기존은 일반 그룹·번호를 물었지만 NO_GENERAL_CODE로 안내한다.
 - 회귀 비교 결과는 regression/summary.md, 허용 기준은 tests/test_legacy_regression.py.
 - 시험 수치 조건은 `min_status: EVIDENCED`다. 지정 판정에는 성적서가 필요하고, 기준 미만 진술로는 지정 후보를 지울 수 있다.
+- 단 확인대상 폐기물(시행규칙 제17조의2제1항, `fact_settings.yaml`의 `confirm_target`) 소재는 시험 수치 조건에 `falsify_min_status: EVIDENCED`를 붙인다. 기준 미만도 분석결과서로만 받는다(PCB 수치는 제외).
 
 ## 일반 코드 대신 안내로 끝나는 소재 (29)
 - sludge_ww_unknown: CODE_NEEDS_TEST
