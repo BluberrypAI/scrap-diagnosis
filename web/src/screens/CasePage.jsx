@@ -7,7 +7,7 @@ import { navigate } from '../lib/router.js';
 import { QuestionBody, QuestionOptions } from '../components/QuestionCard.jsx';
 import berry from '../assets/berry.png';
 import Board from '../components/Board.jsx';
-import { AutoReadNotes, ConflictCard, EvidenceCard, FinalCard, PendingReview, UnsupportedCard } from '../components/BranchCards.jsx';
+import { AutoReadNotes, autoReadNoteRows, ConflictCard, EvidenceCard, FinalCard, PendingReview, UnsupportedCard } from '../components/BranchCards.jsx';
 import AssistBubble from '../components/AssistBubble.jsx';
 import BerrySpeech from '../components/BerrySpeech.jsx';
 import { DEV_TOOLS } from '../lib/devtools.js';
@@ -235,7 +235,7 @@ export default function CasePage({ id }) {
             )}
             {card && !busy && <BerryRow>{card}</BerryRow>}
             {/* 올린 서류에서 자동으로 읽은 값 안내도 베리가 말한다(검수 전 후보) */}
-            {!confirmed && !busy && readDocs.length > 0 && <BerryRow><AutoReadNotes docs={readDocs} labels={readLabels} /></BerryRow>}
+            {!confirmed && !busy && autoReadNoteRows(readDocs).length > 0 && <BerryRow><AutoReadNotes docs={readDocs} labels={readLabels} /></BerryRow>}
             <span ref={chatEnd} />
           </div>
           {hint && <p className="wd-alert is-info">{hint}</p>}

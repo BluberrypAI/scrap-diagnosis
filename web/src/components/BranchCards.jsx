@@ -81,10 +81,15 @@ const READ_STATUS_LABEL = { AMBIGUOUS: '확인 필요', UNREADABLE: '글자를 �
  * 값을 정한 항목은 검수 대기 목록에 이미 있으므로 여기서는 보이지 않는다.
  * @param {{docs: any[], labels?: Record<string, string>}} p
  */
-export function AutoReadNotes({ docs, labels = {} }) {
-  const rows = docs
+/** 자동 읽기에서 사람이 볼 메모(못 읽은 값·오류·경고)가 있는 서류 */
+export function autoReadNoteRows(docs) {
+  return docs
     .map((d) => ({ doc: d, tr: d.extracted_facts?.table_read }))
     .filter(({ tr }) => tr && ((tr.items || []).some((i) => i.status !== 'FOUND') || (tr.errors || []).length || (tr.warnings || []).length));
+}
+
+export function AutoReadNotes({ docs, labels = {} }) {
+  const rows = autoReadNoteRows(docs);
   if (!rows.length) return null;
   return (
     <section className="wd-card qcard" aria-label="자동 읽기 메모">
