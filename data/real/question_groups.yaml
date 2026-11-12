@@ -1,4 +1,4 @@
-# 자동 생성: tools/build_kb.py (knowledge 220aa072). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge 614733ba). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 groups:
 - group_id: scope_screen
   title: 이 물질은 사업장에서 더 쓰지 않아 내보내는 것이고, 아래 어느 것에도 해당하지 않나요?
@@ -16,11 +16,11 @@ groups:
   - designated_residue
   - oil_presence
   - pcb_possible
-  - toxic_chemical_discard
+  - chemical_itself
   item_labels:
     designated_residue: 용기·포장재에 약품·페인트 같은 원래 내용물이 남아 있다
     oil_presence: 기름(절삭유·윤활유 등)이 묻었거나 섞여 있다
     pcb_possible: 변압기·콘덴서 같은 전기기기나 그 절연유에서 나왔다
-    toxic_chemical_discard: 버리는 것이 유해화학물질로 표시된 약품이다
+    chemical_itself: 버리는 것이 쓰지 않았거나 쓰다 남은 약품·시약 그 자체다
   none_label: 하나도 해당 없어요
   expand_label: 해당하거나 잘 모르겠어요

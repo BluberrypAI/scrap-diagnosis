@@ -37,6 +37,14 @@ facts:
     # 판정 조건은 법대로(상태 + 농도). 시험값이 있으면 그 값이 이긴다(knowledge/README.md 질문 전략).
     implies:
       false: {pcb_mg_l: {hi: 2}, pcb_leach_mg_l: {hi: 0.003}}
+  chemical_itself:
+    prior: {false: 0.97}  # 이전 유해화학물질 폐기 질문과 같은 사전확률
+    none_value: false
+    # 대리 질문(2026-11-12): 약품·시약 그 자체가 아니면 '유해화학물질 폐기 = 아니오'로 추정한다.
+    # 오니·광재·플라스틱처럼 약품이 아닌 폐기물에 MSDS를 요구해 막히던 문제. 결과에 추정으로 표시한다.
+    # '예'·'모름'이면 유해화학물질 폐기를 직접 묻는다(MSDS). 전문가 확인: docs/rule-changes/toxic-chemical-proxy.md
+    implies:
+      false: {toxic_chemical_discard: false}
   toxic_chemical_discard:
     prior: {false: 0.97}
     none_value: false
@@ -116,12 +124,12 @@ groups:
     help: >-
       하나라도 해당하면 일반 폐기물이 아니라 지정폐기물이 될 수 있어 하나씩 확인합니다.
       하나도 해당하지 않으면 다음 단계로 넘어갑니다.
-    facts: [designated_residue, oil_presence, pcb_possible, toxic_chemical_discard]
+    facts: [designated_residue, oil_presence, pcb_possible, chemical_itself]
     # 묶음 카드에 보이는 항목 문구. 판정 화면의 항목 이름(facts.yaml label)과 따로 둔다
     item_labels:
       designated_residue: 용기·포장재에 약품·페인트 같은 원래 내용물이 남아 있다
       oil_presence: 기름(절삭유·윤활유 등)이 묻었거나 섞여 있다
       pcb_possible: 변압기·콘덴서 같은 전기기기나 그 절연유에서 나왔다
-      toxic_chemical_discard: 버리는 것이 유해화학물질로 표시된 약품이다
+      chemical_itself: 버리는 것이 쓰지 않았거나 쓰다 남은 약품·시약 그 자체다
     none_label: 하나도 해당 없어요
     expand_label: 해당하거나 잘 모르겠어요

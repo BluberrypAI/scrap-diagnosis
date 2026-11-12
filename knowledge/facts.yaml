@@ -407,6 +407,15 @@ pcb_leach_mg_l:
     method: 폐기물공정시험기준 용출시험 + PCBs 시험
     report: 용출액 mg/L
 
+chemical_itself:
+  label: 약품·시약 그 자체
+  type: bool
+  cost: USER
+  question: 버리는 것이 쓰지 않았거나 쓰다 남은 약품·시약 그 자체인가요? (원액·폐시약·남은 약품 등)
+  how_to_check:
+    - text: 공정에서 생긴 찌꺼기·부산물(오니·광재·분진·플라스틱 자투리 등)은 약품 그 자체가 아닙니다.
+    - text: 병·통에 든 원액, 유통기한이 지난 시약, 쓰다 남은 약품을 버리는 경우는 약품 그 자체입니다.
+
 toxic_chemical_discard:
   label: 유해화학물질 폐기
   type: bool

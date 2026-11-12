@@ -17,7 +17,7 @@
   setup: {facts: {emission_facility: true}}
   answers: {material_group: plastic, material: pp, scope_screen: expand, material_fate: released, circular_resource_recognized: false,
             law_exclusion: none, contamination_screen: expand, designated_residue: false, oil_presence: none,
-            pcb_possible: false, toxic_chemical_discard: false, physical_state: solid}
+            pcb_possible: false, chemical_itself: false, physical_state: solid}
 - id: REAL-H2SO4
   description: "폐황산. pH는 성적서로 확인"
   as_of: 2026-11-08
@@ -29,7 +29,7 @@
   as_of: 2026-11-08
   setup: {facts: {emission_facility: true, material: pp, physical_state: solid}}
   answers: {scope_screen: none, contamination_screen: expand, designated_residue: false, oil_presence: none,
-            pcb_possible: false, toxic_chemical_discard: true, annex4_code: 09-01-00}
+            pcb_possible: false, chemical_itself: true, toxic_chemical_discard: true, annex4_code: 09-01-00}
 - id: REAL-NOT-WASTE
   description: "아직 원료로 쓴다는 답 → 진술만으로 비폐기물 확정하지 않고 해석 필요(코드 없는 결론, 확정 가능)"
   as_of: 2026-11-08

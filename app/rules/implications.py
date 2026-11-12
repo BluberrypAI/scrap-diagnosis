@@ -106,6 +106,13 @@ def apply_implications(kb: KnowledgeBase, facts: dict[str, Fact]) -> dict[str, F
     return out
 
 
+_EVIDENCE_NAMES = {"MSDS": "물질안전보건자료(MSDS)", "TEST_REPORT": "시험성적서"}
+
+
+def _evidence_name(t: str) -> str:
+    return _EVIDENCE_NAMES.get(t, "관련 서류")
+
+
 def assumption_notes(kb: KnowledgeBase, facts: dict[str, Fact]) -> list[str]:
     """대리 질문 답에서 추정한 사실의 안내 문장(결과 카드·인계 객체에 표시).
 
@@ -133,6 +140,18 @@ def assumption_notes(kb: KnowledgeBase, facts: dict[str, Fact]) -> list[str]:
         sfd, tfd = kb.catalog.get(src), kb.catalog.get(key)
         slabel = (sfd.label or src) if sfd else src
         tlabel = (tfd.label or key) if tfd else key
+        if tfd is not None and tfd.type != "number":
+            # 예/아니오·선택 사실(예: 유해화학물질 폐기)은 '기준 미만'이 아니라 값으로 추정한다
+            shown = tfd.value_labels.get(str(f.value), str(f.value))
+            if tfd.type == "bool":
+                shown = "예" if f.value else "아니오"
+            ev = ""
+            if tfd.evidence_type:
+                ev = f" 의심되면 {_evidence_name(tfd.evidence_type)}로 확인하세요."
+            notes.append(
+                f"{tlabel}: 서류가 아니라 '{slabel}' 답에서 '{shown}'(으)로 추정했습니다.{ev}"
+            )
+            continue
         notes.append(
             f"{tlabel}: 시험값이 아니라 '{slabel}' 답에서 기준 미만으로 추정했습니다."
             " 의심되면 시험성적서로 확인하세요."

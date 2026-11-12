@@ -25,7 +25,9 @@ EXPECT = {
     "REAL-PP-EXPAND": ("FINAL_REVIEW", "51-03-01", 12, None),
     "REAL-H2SO4": ("FINAL_REVIEW", "02-01-02", 3, None),
     # D2(2026-11-09): PCB 관문이 대리 질문이 되어 유해화학물질 경로에서도 묻는다(6 → 7회)
-    "REAL-PP-TOXIC": ("FINAL_REVIEW", "09-01-00", 7, None),
+    # 유해화학물질 대리 질문(2026-11-12): "약품 그 자체" 예 → 유해화학물질 여부를
+    # 직접 묻는다(7 → 8회)
+    "REAL-PP-TOXIC": ("FINAL_REVIEW", "09-01-00", 8, None),
     # D1(2026-11-09): 해석 필요 결론끼리 합쳐져 상태·다른 법 질문을 먼저 묻는다(4 → 6회)
     "REAL-NOT-WASTE": ("FINAL_REVIEW", None, 6, "INTERPRETATION_NEEDED"),
     # 확인대상 폐기물(2026-11-12): 오니 시험 수치는 말로 묻지 않고 바로 성적서를 요청한다(4 → 3회)
