@@ -320,11 +320,18 @@ export function FinalCard({ turn, confirmed, handoff, busy, onConfirm, onRecheck
         <span className="wd-chip is-review">{REVIEW_LABEL[r.review] || r.review}</span>
       </div>
       {r.code && <p>{r.conclusion} {r.category && <span className="muted">({CATEGORY_LABEL[r.category] || r.category})</span>}</p>}
-      {r.assumptions?.length > 0 && (
-        <div className="wd-note" role="note">
-          <strong>시험이 아니라 답변으로 추정한 내용</strong>
-          <ul className="plain">{r.assumptions.map((a, i) => <li key={i}>{a}</li>)}</ul>
+      {/* 왜 이 결론인지와 할 일. 번호를 못 정한 결론일수록 이게 먼저 보여야 한다 */}
+      {r.reason && (
+        <div className="wd-note final-reason" role="note">
+          <strong>{r.code ? '판정 이유' : '번호를 정하지 못한 이유'}</strong>
+          <p>{r.reason}</p>
         </div>
+      )}
+      {r.assumptions?.length > 0 && (
+        <details className="final-assumptions">
+          <summary>참고: 시험이 아니라 답변으로 추정한 내용 ({r.assumptions.length})</summary>
+          <ul className="plain">{r.assumptions.map((a, i) => <li key={i}>{a}</li>)}</ul>
+        </details>
       )}
       {v.conditions.length > 0 && (
         <ul className="plain">{v.conditions.map((c, i) => <li key={i}>{MARK[c.satisfied] || '○'} {c.text}</li>)}</ul>

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import QuestionCard from '../components/QuestionCard.jsx';
 import ReviewDialog from '../components/ReviewDialog.jsx';
 import Board from '../components/Board.jsx';
-import { AutoReadNotes, EvidenceCard, PendingReview, toDocumentValue, UnsupportedCard, unreadReasons } from '../components/BranchCards.jsx';
+import { AutoReadNotes, EvidenceCard, FinalCard, PendingReview, toDocumentValue, UnsupportedCard, unreadReasons } from '../components/BranchCards.jsx';
 import { normalizeQuestion, setCatalog } from '../api/normalize.js';
 
 const q = (o) => normalizeQuestion({ unit: 'fact', facts: [o.key], text: '질문', ...o });
@@ -218,5 +218,15 @@ describe('서류 값 검수 창', () => {
     render(<ReviewDialog items={items} docs={[doc]} onApply={vi.fn()} onClose={onClose} />);
     await userEvent.keyboard('{Escape}');
     expect(onClose).toHaveBeenCalled();
+  });
+});
+
+describe('결과 카드', () => {
+  it('번호를 못 정한 이유를 먼저 보이고, 답변 추정은 접어 둔다', () => {
+    const turn = { ui: { can_confirm: true, result: { result_type: 'NO_CODE', code: null, name: null, outcome: 'CODE_NEEDS_TEST', conclusion: '분류번호를 정하려면 성분 분석(시험)이 더 필요합니다.', next_step: '확정하면 다음 단계로 넘어갑니다.', review: 'UNVERIFIED', reason: '오니는 유기성(51-01)과 무기성(51-02)에 따라 분류번호가 다릅니다.', assumptions: ['PCB 용출 농도: 추정'] } }, verdict: { conditions: [], rationale: [] } };
+    render(<FinalCard turn={turn} onConfirm={vi.fn()} onRecheck={vi.fn()} />);
+    expect(screen.getByText('번호를 정하지 못한 이유')).toBeInTheDocument();
+    expect(screen.getByText(/유기성\(51-01\)과 무기성/)).toBeInTheDocument();
+    expect(screen.getByText(/참고: 시험이 아니라 답변으로 추정한 내용 \(1\)/).closest('details')).not.toBeNull();
   });
 });

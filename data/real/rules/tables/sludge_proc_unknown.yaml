@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge 614733ba). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge b71fc531). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: sludge_proc_unknown
 title: 공정 오니(유기성·무기성 모름)
-version: 2026.11.0+kb-614733ba
+version: 2026.11.0+kb-b71fc531
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -1248,6 +1248,8 @@ rules:
     code: null
     category: GENERAL
     outcome: CODE_NEEDS_TEST
+    reason: 오니는 유기성(51-01)과 무기성(51-02)에 따라 분류번호가 다릅니다. 이 계산기는 유기성·무기성을 가르는 기준을 아직 법령 자료에서 확보하지 못해 번호를 정하지 않습니다.
+      오니의 성분 분석 결과(유기물 함량)를 확인하고, 구분 기준은 분석기관이나 관할 시·군·구에 확인한 뒤 '유기성' 또는 '무기성' 소재로 다시 고르세요.
   basis:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1(지정폐기물의 종류)

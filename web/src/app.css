@@ -193,3 +193,5 @@
 .review-item-chip { justify-self: end; align-self: start; white-space: nowrap; }
 .review-item[data-state="unread"] { border-color: var(--wd-warn); background: color-mix(in srgb, var(--wd-warn) 6%, var(--color-card)); }
 .review-conv { grid-column: 1 / -1; margin: 0; padding: 6px 8px; border-radius: var(--wd-radius-sm); color: var(--wd-warn); background: color-mix(in srgb, var(--wd-warn) 8%, var(--color-card)); }
+.final-reason p { margin: 4px 0 0; }
+.final-assumptions summary { cursor: pointer; color: var(--color-text-secondary); }

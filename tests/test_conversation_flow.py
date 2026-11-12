@@ -119,3 +119,44 @@ def test_refusal_needs_document_words():
     # 값을 말한 문장이나 성분이 없다는 말은 서류 거절이 아니다
     for t in ["카드뮴은 0.01이에요", "카드뮴은 없어"]:
         assert not _REFUSAL.search(t), t
+
+
+def test_no_code_result_carries_reason(real_kb):
+    """번호를 못 정한 결론은 결과 카드에 구체적 이유를 싣는다(오니 유기성·무기성 모름)."""
+    from datetime import date
+
+    from app.agent.router import SessionState, run_engine
+    from app.domain.facts import FactStatus, FactStore
+    from app.domain.verdict import build_result
+    from app.rules.answers import fact_answer
+
+    leach = ["leach_pb", "leach_cu", "leach_as", "leach_hg", "leach_cd", "leach_cr6", "leach_cn"]
+    answers = {
+        "material": "sludge_ww_unknown",
+        "material_fate": "released",
+        "law_exclusion": "none",
+        "circular_resource_recognized": False,
+        "emission_facility": True,
+        "oil_presence": "none",
+        "pcb_possible": False,
+        "chemical_itself": False,
+        "designated_residue": False,
+        "sludge_facility_notified": True,
+        "physical_state": "semisolid",
+    }
+    docs = {k: {"hi": 0.001} for k in [*leach, "leach_op", "leach_pce", "leach_tce"]}
+    docs |= {"oil_content_pct": 0.1, "sludge_water_pct": 74.4}
+    store = FactStore()
+    for k, v in answers.items():
+        store.append(fact_answer(real_kb, k, v, source_ref="t"))
+    for k, v in docs.items():
+        store.append(
+            fact_answer(
+                real_kb, k, v, source_type="DOCUMENT", source_ref="d", status=FactStatus.EVIDENCED
+            )
+        )
+    step = run_engine(real_kb, store, SessionState(), date(2026, 11, 13))
+    rules = {r.rule_id: r for t in real_kb.tables for r in t.rules}
+    res = build_result(step, rules, real_kb)
+    assert res is not None and res.outcome == "CODE_NEEDS_TEST"
+    assert "유기성(51-01)" in (res.reason or "")

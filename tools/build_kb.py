@@ -212,6 +212,7 @@ class Converter:
         m = read(src / "materials.yaml")
         self.materials: dict[str, dict] = m["materials"]
         self.groups_meta = m.get("groups") or {}
+        self.code_tests: dict[str, dict] = m.get("code_tests") or {}
         a4 = read(src / "annex4_codes.yaml")
         self.a4_groups: list[dict] = a4.get("groups") or []
         self.codes: list[dict] = a4["codes"]
@@ -437,6 +438,15 @@ class Converter:
                 cands = [target]
         return cands
 
+    def outcome_reason(self, mat: dict) -> str | None:
+        """번호 없는 일반 결론의 구체적 이유(결과 카드에 그대로 보인다)."""
+        test = self.code_tests.get(mat.get("code_needs_test") or "")
+        if test and test.get("message"):
+            return " ".join(str(test["message"]).split())
+        if mat.get("reason"):
+            return " ".join(str(mat["reason"]).split())
+        return None
+
     def general_codes(self, mat: dict) -> tuple[list[str], str | None]:
         if mat.get("no_general_code"):
             return [], "NO_MIXTURE_RULE"
@@ -578,7 +588,12 @@ class Converter:
                     **gsource,
                     "priority": P_GENERAL,
                     "when": {"fact": "material", "op": "eq", "value": mid},
-                    "then": {"code": None, "category": "GENERAL", "outcome": goutcome},
+                    "then": {
+                        "code": None,
+                        "category": "GENERAL",
+                        "outcome": goutcome,
+                        **({"reason": r} if (r := self.outcome_reason(mat)) else {}),
+                    },
                     "basis": gbasis,
                     **self.rv(gdeps),
                 }

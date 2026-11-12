@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PENDING_REASON } from '../lib/labels.js';
+import { OUTCOME_LABEL, PENDING_REASON } from '../lib/labels.js';
 import { formatValue } from '../lib/format.js';
 import { getCatalog } from '../api/normalize.js';
 
@@ -95,7 +95,8 @@ export default function Board({ board, locked, onReply }) {
         </ul>
       )}
       <h4>남은 후보 {board.candidates_count}개</h4>
-      <ul className="plain">{board.top_candidates.map((c, i) => <li key={i}><strong>{c.code}</strong> {c.name}</li>)}</ul>
+      {/* 번호 없는 결론(예: 시험 필요)은 코드·이름이 없으므로 결론 이름을 보인다 */}
+      <ul className="plain">{board.top_candidates.map((c, i) => <li key={i}>{c.code ? <><strong>{c.code}</strong> {c.name}</> : (OUTCOME_LABEL[c.outcome] || c.outcome || '결론')}</li>)}</ul>
       <h4>필요한 서류</h4>
       {board.documents_needed.length === 0 ? <p className="muted">없어요</p> : (
         <ul className="plain">{board.documents_needed.map((d) => <li key={d.evidence_type}>{d.label} <span className="muted">({d.fact_labels.join(', ')})</span></li>)}</ul>

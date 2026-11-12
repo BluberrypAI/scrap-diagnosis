@@ -324,6 +324,7 @@ def _parse_rule(raw: dict, origin: str, hit_policy: str) -> Rule:
             category=then.get("category"),
             name=then.get("name"),
             outcome=then.get("outcome"),
+            reason=then.get("reason"),
         ),
         priority=int(raw.get("priority", 0)),
         basis=_parse_basis(raw.get("basis"), where),

@@ -117,6 +117,8 @@ class Outcome:
     name: str | None = None
     # 코드 없는 결론의 사유 (NOT_WASTE, EXCLUDED, HOUSEHOLD, INTERPRETATION_NEEDED ...)
     outcome: str | None = None
+    # 이 결론에 이른 구체적 이유와 할 일(사람이 읽는 문장). 예: 오니 유기성·무기성 기준 없음
+    reason: str | None = None
 
     @property
     def key(self) -> str:
