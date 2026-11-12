@@ -539,6 +539,11 @@ def test_unread_item_keeps_place_raw_name_and_unit():
     by = {it.key: it for it in rep.result.facts}
     cd = by["leach_cd"]
     assert cd.status is ItemStatus.AMBIGUOUS
-    assert (cd.page, cd.item_raw, cd.unit_raw, cd.value_raw) == (1, "카드뮴(mg/mL)", "mg/mL", "불검출")
+    assert (cd.page, cd.item_raw, cd.unit_raw, cd.value_raw) == (
+        1,
+        "카드뮴(mg/mL)",
+        "mg/mL",
+        "불검출",
+    )
     assert cd.cell_ref is not None and cd.cell_ref.row == 2
     assert by["leach_tce"].item_raw == "TCE(mg/L)"
