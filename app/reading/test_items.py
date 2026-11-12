@@ -75,6 +75,14 @@ TEST_ITEMS: tuple[TestItem, ...] = (
         "content",
         "%",
     ),
+    # 오니 유기성·무기성 구분(시행규칙 별표 5: 고형물 중 유기성물질 40% 이상 = 유기성)
+    TestItem(
+        "sludge_organic_pct",
+        "유기물 함량",
+        ("유기물함량", "유기물", "유기성물질", "유기물질"),
+        "content",
+        "%",
+    ),
     TestItem("ph", "pH", ("ph", "수소이온농도"), None, None),
 )
 

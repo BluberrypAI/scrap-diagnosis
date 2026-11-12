@@ -265,6 +265,19 @@ sludge_solids_pct:
     method: 폐기물공정시험기준(국립환경과학원고시 제2025-21호) 수분·고형물 시험
     report: 고형물함량(%)
 
+sludge_organic_pct:
+  label: 유기성물질 함량(고형물 중)
+  type: number
+  unit: "%"
+  cost: TEST
+  question: 이 오니의 고형물 중 유기성물질(유기물) 함량은 몇 %인가요?
+  how_to_check:
+    - text: 시험성적서의 '유기물 함량' 값을 보세요. 고형물 기준 값인지(수분을 뺀 고형물 중 비율) 함께 확인하세요.
+  test:
+    item: 강열감량 및 유기물 함량
+    method: 폐기물공정시험기준 ES 06301.1d 강열감량 및 유기물 함량-중량법
+    report: 유기물 함량(%, 고형물 중)
+
 sludge_facility_notified:
   label: 고시된 오니 발생시설
   type: bool

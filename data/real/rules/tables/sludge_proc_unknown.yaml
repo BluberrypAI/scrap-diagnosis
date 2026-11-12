@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge b71fc531). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge e406ce79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: sludge_proc_unknown
 title: 공정 오니(유기성·무기성 모름)
-version: 2026.11.0+kb-b71fc531
+version: 2026.11.0+kb-e406ce79
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -1237,25 +1237,63 @@ rules:
   - code_map
   - material:sludge_proc_unknown
   review: UNVERIFIED
-- rule_id: sludge_proc_unknown:GENERAL
+- rule_id: sludge_proc_unknown:GENERAL:51-01-06
   source_rule: S3-NOT-DESIGNATED
   priority: 100
   when:
-    fact: material
-    op: eq
-    value: sludge_proc_unknown
+    fact: sludge_organic_pct
+    op: gte
+    value: 40
+    min_status: EVIDENCED
+    falsify_min_status: EVIDENCED
   then:
-    code: null
+    code: 51-01-06
     category: GENERAL
-    outcome: CODE_NEEDS_TEST
-    reason: 오니는 유기성(51-01)과 무기성(51-02)에 따라 분류번호가 다릅니다. 이 계산기는 유기성·무기성을 가르는 기준을 아직 법령 자료에서 확보하지 못해 번호를 정하지 않습니다.
-      오니의 성분 분석 결과(유기물 함량)를 확인하고, 구분 기준은 분석기관이나 관할 시·군·구에 확인한 뒤 '유기성' 또는 '무기성' 소재로 다시 고르세요.
+    name: 그 밖의 공정오니
   basis:
-  - type: LAW
+  - &id007
+    type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1(지정폐기물의 종류)
     source_id: DEC-A1
     location: 별표 1(지정폐기물의 종류)
     excerpt: 지정폐기물의 종류(제3조 관련)
+  - &id008
+    type: LAW
+    ref: 폐기물관리법 시행규칙 별표 5(폐기물의 처리에 관한 구체적 기준 및 방법) 2) 사업장일반폐기물의 종류별 처리기준 및 방법 나) 오니
+    source_id: RULE-A5
+    location: 2) 사업장일반폐기물의 종류별 처리기준 및 방법 나) 오니
+    excerpt: 유기성 오니(고형물 중 유기성물질의 함량이 40퍼센트 이상인 것을 말한다. 이하 같다) … 무기성 오니(유기성 오니 외의 오니를 말한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-01-06
+    excerpt: 51-01-06 그 밖의 공정오니
+    source_id: RULE-A4
+    location: 51-01-06
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:sludge_proc_unknown
+  - code_map
+  review: UNVERIFIED
+- rule_id: sludge_proc_unknown:GENERAL:51-02-19
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    fact: sludge_organic_pct
+    op: lt
+    value: 40
+    min_status: EVIDENCED
+    falsify_min_status: EVIDENCED
+  then:
+    code: 51-02-19
+    category: GENERAL
+    name: 그 밖의 공정오니
+  basis:
+  - *id007
+  - *id008
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-19
+    excerpt: 51-02-19 그 밖의 공정오니
+    source_id: RULE-A4
+    location: 51-02-19
   review_units:
   - S3-NOT-DESIGNATED
   - material:sludge_proc_unknown

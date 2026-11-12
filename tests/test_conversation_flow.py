@@ -121,8 +121,8 @@ def test_refusal_needs_document_words():
         assert not _REFUSAL.search(t), t
 
 
-def test_no_code_result_carries_reason(real_kb):
-    """번호를 못 정한 결론은 결과 카드에 구체적 이유를 싣는다(오니 유기성·무기성 모름)."""
+def _sludge_result(real_kb, organic=None, organic_status=None):
+    """폐수처리 오니(유기성·무기성 모름) + 지정 기준 미만 성적서로 결과 카드를 만든다."""
     from datetime import date
 
     from app.agent.router import SessionState, run_engine
@@ -155,8 +155,42 @@ def test_no_code_result_carries_reason(real_kb):
                 real_kb, k, v, source_type="DOCUMENT", source_ref="d", status=FactStatus.EVIDENCED
             )
         )
+    if organic is not None:
+        st = organic_status or FactStatus.EVIDENCED
+        src = "DOCUMENT" if st == FactStatus.EVIDENCED else "UTTERANCE"
+        store.append(
+            fact_answer(
+                real_kb, "sludge_organic_pct", organic, source_type=src, source_ref="d", status=st
+            )
+        )
     step = run_engine(real_kb, store, SessionState(), date(2026, 11, 13))
     rules = {r.rule_id: r for t in real_kb.tables for r in t.rules}
-    res = build_result(step, rules, real_kb)
-    assert res is not None and res.outcome == "CODE_NEEDS_TEST"
-    assert "유기성(51-01)" in (res.reason or "")
+    return step, build_result(step, rules, real_kb)
+
+
+def test_organic_sludge_split_by_40_percent(real_kb):
+    """시행규칙 별표 5: 고형물 중 유기성물질 40% 이상 = 유기성(51-01), 미만 = 무기성(51-02)."""
+    _, res = _sludge_result(real_kb, organic=71.4)
+    assert res is not None and res.code == "51-01-08"
+    _, res = _sludge_result(real_kb, organic=40)
+    assert res.code == "51-01-08"
+    _, res = _sludge_result(real_kb, organic=39.9)
+    assert res.code == "51-02-01"
+
+
+def test_organic_sludge_needs_report_value(real_kb):
+    """오니는 확인대상 폐기물: 유기성물질 함량도 성적서 값이 있어야 번호를 정한다."""
+    from app.domain.facts import FactStatus
+
+    step, res = _sludge_result(real_kb)
+    assert res is None
+    assert "sludge_organic_pct" in {u.key for u in step.evaluation.blocking_facts}
+    step, res = _sludge_result(real_kb, organic=71.4, organic_status=FactStatus.CLAIMED)
+    assert res is None  # 말로 한 값으로는 정하지 않는다
+
+
+def test_no_code_result_carries_reason(real_kb):
+    """번호 없는 일반 결론의 규칙에는 구체적 이유가 실린다(여러 소재 혼합)."""
+    rules = {r.rule_id: r for t in real_kb.tables for r in t.rules}
+    reason = rules["mixed_inseparable:GENERAL"].then.reason or ""
+    assert "섞여" in reason and "시·군·구" in reason

@@ -213,6 +213,7 @@ class Converter:
         self.materials: dict[str, dict] = m["materials"]
         self.groups_meta = m.get("groups") or {}
         self.code_tests: dict[str, dict] = m.get("code_tests") or {}
+        self.general_splits: dict[str, dict] = m.get("general_splits") or {}
         a4 = read(src / "annex4_codes.yaml")
         self.a4_groups: list[dict] = a4.get("groups") or []
         self.codes: list[dict] = a4["codes"]
@@ -438,6 +439,39 @@ class Converter:
                 cands = [target]
         return cands
 
+    def split_general_rules(
+        self, mid: str, mat: dict, gsource: dict, gbasis: list[dict], gdeps: list[str]
+    ) -> list[dict]:
+        """시험 수치로 일반 번호를 가르는 규칙 두 개(예: 유기성물질 40% 이상 → 유기성 오니 번호)."""
+        sp = mat["general_split"]
+        rule = self.general_splits[sp["rule"]]
+        fact, threshold = rule["fact"], rule["threshold"]
+        split_basis = self.basis(
+            {"source": rule["source"], "location": rule.get("location"), "quote": rule.get("quote")}
+        )
+        out = []
+        for op, code in (("gte", sp["gte"]), ("lt", sp["lt"])):
+            cond = self.leaf({"fact": fact, "op": op, "value": threshold}, 3, mid)
+            out.append(
+                {
+                    "rule_id": f"{mid}:GENERAL:{code}",
+                    **gsource,
+                    "priority": P_GENERAL,
+                    "when": cond,
+                    "then": {
+                        "code": code,
+                        "category": "GENERAL",
+                        "name": self.code_index[code]["name"],
+                    },
+                    "basis": gbasis + split_basis + [self.code_basis(code)],
+                    **self.rv(gdeps),
+                }
+            )
+        self.report["general_split"].append(
+            f"{mid}: {fact} {threshold} 이상 {sp['gte']} / 미만 {sp['lt']}"
+        )
+        return out
+
     def outcome_reason(self, mat: dict) -> str | None:
         """번호 없는 일반 결론의 구체적 이유(결과 카드에 그대로 보인다)."""
         test = self.code_tests.get(mat.get("code_needs_test") or "")
@@ -581,7 +615,9 @@ class Converter:
         gsource = {"source_rule": complement["id"]} if complement else {}
         gdeps = [complement["id"]] if complement else []
         gdeps += [f"{MATERIAL_PREFIX}{mid}", CODE_MAP_UNIT]
-        if goutcome:
+        if mat.get("general_split"):
+            rules += self.split_general_rules(mid, mat, gsource, gbasis, gdeps)
+        elif goutcome:
             rules.append(
                 {
                     "rule_id": f"{mid}:GENERAL",
