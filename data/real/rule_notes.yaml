@@ -1,4 +1,4 @@
-# 자동 생성: tools/build_kb.py (knowledge 937eea79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge e406ce79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 rules:
   S0-CIRCULAR:
     plain: 정부에서 순환자원으로 인정받은 물질은 법에서 폐기물로 보지 않습니다. 유효한 인정서(대상 물질·기간)를 서류로 확인합니다.

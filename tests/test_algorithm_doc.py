@@ -43,7 +43,7 @@ def test_pp_walkthrough_matches_doc(real_kb):
         "scope_screen",
         "physical_state",
     ]
-    assert live == [243, 243, 21, 5, 2, 1]
+    assert live == [242, 242, 21, 5, 2, 1]
     assert step.decision.branch == Branch.FINAL_REVIEW
     assert step.evaluation.decided.code == "51-03-01"
 

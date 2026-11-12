@@ -230,18 +230,21 @@ def parse_expr(raw: Any, where: str) -> Expr:
         return All(parsed) if k == "all" else AnyOf(parsed)
     if "fact" not in raw or "op" not in raw:
         raise RuleDataError(f"{where}: 조건에는 fact와 op가 필요합니다: {raw!r}")
-    unknown = keys - {"fact", "op", "value", "min_status"}
+    unknown = keys - {"fact", "op", "value", "min_status", "falsify_min_status"}
     if unknown:
         raise RuleDataError(f"{where}: 알 수 없는 조건 키 {sorted(unknown)}")
     op = raw["op"]
     if op not in OPS:
         raise RuleDataError(f"{where}: 지원하지 않는 연산자 {op}")
-    try:
-        min_status = FactStatus(raw.get("min_status", "CLAIMED"))
-    except ValueError as exc:
-        raise RuleDataError(f"{where}: min_status 오류 {raw.get('min_status')}") from exc
-    if min_status not in (FactStatus.CLAIMED, FactStatus.EVIDENCED):
-        raise RuleDataError(f"{where}: min_status는 CLAIMED 또는 EVIDENCED")
+    statuses = {}
+    for key in ("min_status", "falsify_min_status"):
+        try:
+            statuses[key] = FactStatus(raw.get(key, "CLAIMED"))
+        except ValueError as exc:
+            raise RuleDataError(f"{where}: {key} 오류 {raw.get(key)}") from exc
+        if statuses[key] not in (FactStatus.CLAIMED, FactStatus.EVIDENCED):
+            raise RuleDataError(f"{where}: {key}는 CLAIMED 또는 EVIDENCED")
+    min_status = statuses["min_status"]
     value = raw.get("value")
     if op in LIST_OPS:
         if not isinstance(value, list) or not value:
@@ -251,7 +254,13 @@ def parse_expr(raw: Any, where: str) -> Expr:
         value = None
     elif value is None:
         raise RuleDataError(f"{where}: {op}에는 value가 필요합니다")
-    return Cond(fact=raw["fact"], op=op, value=value, min_status=min_status)
+    return Cond(
+        fact=raw["fact"],
+        op=op,
+        value=value,
+        min_status=min_status,
+        falsify_min_status=statuses["falsify_min_status"],
+    )
 
 
 def _check_cond(c: Cond, catalog: dict[str, FactDef], where: str) -> None:
@@ -315,6 +324,7 @@ def _parse_rule(raw: dict, origin: str, hit_policy: str) -> Rule:
             category=then.get("category"),
             name=then.get("name"),
             outcome=then.get("outcome"),
+            reason=then.get("reason"),
         ),
         priority=int(raw.get("priority", 0)),
         basis=_parse_basis(raw.get("basis"), where),

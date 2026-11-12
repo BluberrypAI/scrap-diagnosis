@@ -212,6 +212,8 @@ class Converter:
         m = read(src / "materials.yaml")
         self.materials: dict[str, dict] = m["materials"]
         self.groups_meta = m.get("groups") or {}
+        self.code_tests: dict[str, dict] = m.get("code_tests") or {}
+        self.general_splits: dict[str, dict] = m.get("general_splits") or {}
         a4 = read(src / "annex4_codes.yaml")
         self.a4_groups: list[dict] = a4.get("groups") or []
         self.codes: list[dict] = a4["codes"]
@@ -295,17 +297,32 @@ class Converter:
             "location": code,
         }
 
-    def leaf(self, c: dict, band: int) -> dict:
+    def confirm_target(self, mid: str | None) -> bool:
+        """이 소재가 확인대상 폐기물(시행규칙 제17조의2제1항)인가.
+
+        목록은 fact_settings.yaml의 confirm_target.
+        """
+        if mid is None:
+            return False
+        kinds = (self.ov.get("confirm_target") or {}).get("waste_kinds") or []
+        return self.materials.get(mid, {}).get("waste_kind") in kinds
+
+    def leaf(self, c: dict, band: int, mid: str | None = None) -> dict:
         fid = c["fact"]
         self.used_facts.add(fid)
         self.fact_band[fid] = max(self.fact_band.get(fid, 0), band)
         out = {"fact": fid, "op": c["op"], "value": c.get("value")}
+        is_test = self.facts.get(fid, {}).get("cost") == "TEST"
         # 증빙 수준: 원본에 적었으면 그대로, 아니면 시험 수치만 성적서(EVIDENCED) 필요
         if c.get("min_status"):
             if c["min_status"] != "CLAIMED":
                 out["min_status"] = c["min_status"]
-        elif self.facts.get(fid, {}).get("cost") == "TEST":
+        elif is_test:
             out["min_status"] = "EVIDENCED"
+        # 확인대상 폐기물은 '기준 미만'도 분석결과서로만 받는다(말로는 지정 후보를 지우지 않음)
+        excluded = (self.ov.get("confirm_target") or {}).get("exclude_facts") or []
+        if is_test and fid not in excluded and self.confirm_target(mid):
+            out["falsify_min_status"] = "EVIDENCED"
         return out
 
     def emit(self, reduced: Any, band: int, mid: str | None = None) -> Any:
@@ -318,7 +335,7 @@ class Converter:
             return {key: [self.emit(x, band, mid) for x in reduced[key]]}
         if "not" in reduced:
             return {"not": self.emit(reduced["not"], band, mid)}
-        return self.leaf(reduced, band)
+        return self.leaf(reduced, band, mid)
 
     # ---- 공통 조각: 범위·사업장 -----------------------------------------------------------
 
@@ -421,6 +438,48 @@ class Converter:
             if target in cands:
                 cands = [target]
         return cands
+
+    def split_general_rules(
+        self, mid: str, mat: dict, gsource: dict, gbasis: list[dict], gdeps: list[str]
+    ) -> list[dict]:
+        """시험 수치로 일반 번호를 가르는 규칙 두 개(예: 유기성물질 40% 이상 → 유기성 오니 번호)."""
+        sp = mat["general_split"]
+        rule = self.general_splits[sp["rule"]]
+        fact, threshold = rule["fact"], rule["threshold"]
+        split_basis = self.basis(
+            {"source": rule["source"], "location": rule.get("location"), "quote": rule.get("quote")}
+        )
+        out = []
+        for op, code in (("gte", sp["gte"]), ("lt", sp["lt"])):
+            cond = self.leaf({"fact": fact, "op": op, "value": threshold}, 3, mid)
+            out.append(
+                {
+                    "rule_id": f"{mid}:GENERAL:{code}",
+                    **gsource,
+                    "priority": P_GENERAL,
+                    "when": cond,
+                    "then": {
+                        "code": code,
+                        "category": "GENERAL",
+                        "name": self.code_index[code]["name"],
+                    },
+                    "basis": gbasis + split_basis + [self.code_basis(code)],
+                    **self.rv(gdeps),
+                }
+            )
+        self.report["general_split"].append(
+            f"{mid}: {fact} {threshold} 이상 {sp['gte']} / 미만 {sp['lt']}"
+        )
+        return out
+
+    def outcome_reason(self, mat: dict) -> str | None:
+        """번호 없는 일반 결론의 구체적 이유(결과 카드에 그대로 보인다)."""
+        test = self.code_tests.get(mat.get("code_needs_test") or "")
+        if test and test.get("message"):
+            return " ".join(str(test["message"]).split())
+        if mat.get("reason"):
+            return " ".join(str(mat["reason"]).split())
+        return None
 
     def general_codes(self, mat: dict) -> tuple[list[str], str | None]:
         if mat.get("no_general_code"):
@@ -556,14 +615,21 @@ class Converter:
         gsource = {"source_rule": complement["id"]} if complement else {}
         gdeps = [complement["id"]] if complement else []
         gdeps += [f"{MATERIAL_PREFIX}{mid}", CODE_MAP_UNIT]
-        if goutcome:
+        if mat.get("general_split"):
+            rules += self.split_general_rules(mid, mat, gsource, gbasis, gdeps)
+        elif goutcome:
             rules.append(
                 {
                     "rule_id": f"{mid}:GENERAL",
                     **gsource,
                     "priority": P_GENERAL,
                     "when": {"fact": "material", "op": "eq", "value": mid},
-                    "then": {"code": None, "category": "GENERAL", "outcome": goutcome},
+                    "then": {
+                        "code": None,
+                        "category": "GENERAL",
+                        "outcome": goutcome,
+                        **({"reason": r} if (r := self.outcome_reason(mat)) else {}),
+                    },
                     "basis": gbasis,
                     **self.rv(gdeps),
                 }
@@ -876,6 +942,10 @@ class Converter:
             "허용 기준은 tests/test_legacy_regression.py.",
             "- 시험 수치 조건은 `min_status: EVIDENCED`다. 지정 판정에는 성적서가 필요하고, "
             "기준 미만 진술로는 지정 후보를 지울 수 있다.",
+            "- 단 확인대상 폐기물(시행규칙 제17조의2제1항, "
+            "`fact_settings.yaml`의 `confirm_target`) "
+            "소재는 시험 수치 조건에 `falsify_min_status: EVIDENCED`를 붙인다. "
+            "기준 미만도 분석결과서로만 받는다(PCB 수치는 제외).",
             "",
         ]
         for key, title in (

@@ -66,6 +66,14 @@ RULE-A4:
   evidence: LAW
   path: sources/raw/170401309.pdf
   verify: text
+RULE-A5:
+  title: 폐기물관리법 시행규칙 별표 5(폐기물의 처리에 관한 구체적 기준 및 방법)
+  version: 기후에너지환경부령 (별표 2026-03-26 개정)
+  effective_on: "2026-03-26"
+  version_status: CURRENT
+  evidence: LAW
+  path: sources/raw/170401419.pdf
+  verify: text
 RULE-WASTE:
   title: 폐기물관리법 시행규칙
   version: 기후에너지환경부령 제60호

@@ -54,6 +54,8 @@ WALK_DEFAULTS = {
     "oil_presence": "none",
     "pcb_possible": False,
     "toxic_chemical_discard": False,
+    # 대리 질문(2026-11-12): '약품 그 자체 아님' = 유해화학물질 폐기 아니오와 같은 기본값
+    "chemical_itself": False,
 }
 
 

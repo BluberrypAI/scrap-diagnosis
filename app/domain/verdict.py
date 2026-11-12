@@ -284,6 +284,8 @@ class ResultView(BaseModel):
     review: str
     # 시험·서류가 아니라 사용자 답에서 추정한 사실의 안내(예: PCB 관련 없음 → 기준 미만 추정)
     assumptions: list[str] = []
+    # 이 결론에 이른 구체적 이유와 할 일(규칙 데이터의 고정 문장). 없으면 null
+    reason: str | None = None
 
 
 class UI(BaseModel):
@@ -640,6 +642,7 @@ def build_result(
     from app.rules.implications import assumption_notes  # 순환 import 방지
 
     common = dict(
+        reason=(rule.then.reason if rule else None),
         category=c.category,
         category_label=templates.CATEGORY_LABEL.get(c.category or ""),
         review=review,

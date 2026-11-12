@@ -2737,6 +2737,17 @@
             ],
             "title": "Outcome"
           },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
           "result_type": {
             "enum": [
               "WASTE_CODE",

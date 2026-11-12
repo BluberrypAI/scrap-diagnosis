@@ -1,4 +1,4 @@
-# 자동 생성: tools/build_kb.py (knowledge 937eea79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge e406ce79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 - key: material_group
   label: 소재 분류
   type: enum
@@ -605,6 +605,20 @@
   help: '시험: 수분 및 고형물 — 폐기물공정시험기준(국립환경과학원고시 제2025-21호) 수분·고형물 시험
 
     성적서에서 확인할 값: 고형물함량(%)'
+- key: sludge_organic_pct
+  label: 유기성물질 함량(고형물 중)
+  type: number
+  unit: '%'
+  ask_cost: 4
+  evidence_cost: 50
+  evidence_type: TEST_REPORT
+  legal_priority: 3
+  question_hint: 이 오니의 고형물 중 유기성물질(유기물) 함량은 몇 %인가요?
+  help: '시험성적서의 ''유기물 함량'' 값을 보세요. 고형물 기준 값인지(수분을 뺀 고형물 중 비율) 함께 확인하세요.
+
+    시험: 강열감량 및 유기물 함량 — 폐기물공정시험기준 ES 06301.1d 강열감량 및 유기물 함량-중량법
+
+    성적서에서 확인할 값: 유기물 함량(%, 고형물 중)'
 - key: sludge_facility_notified
   label: 고시된 오니 발생시설
   type: bool
@@ -701,6 +715,21 @@
   help: '시험: 폴리클로리네이티드비페닐(PCBs) 용출 — 폐기물공정시험기준 용출시험 + PCBs 시험
 
     성적서에서 확인할 값: 용출액 mg/L'
+- key: chemical_itself
+  label: 약품·시약 그 자체
+  type: bool
+  ask_cost: 1
+  legal_priority: 1
+  question_hint: 버리는 것이 쓰지 않았거나 쓰다 남은 약품·시약 그 자체인가요? (원액·폐시약·남은 약품 등)
+  help: '공정에서 생긴 찌꺼기·부산물(오니·광재·분진·플라스틱 자투리 등)은 약품 그 자체가 아닙니다.
+
+    병·통에 든 원액, 유통기한이 지난 시약, 쓰다 남은 약품을 버리는 경우는 약품 그 자체입니다.'
+  prior:
+    false: 0.97
+  none_value: false
+  implies:
+    false:
+      toxic_chemical_discard: false
 - key: toxic_chemical_discard
   label: 유해화학물질 폐기
   type: bool

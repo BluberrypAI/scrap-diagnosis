@@ -153,7 +153,8 @@ class DocumentOut(_ORM):
     content_type: str | None
     size: int
     sha256: str
-    # {"method": "manual"|"none", "candidates": {key: value}, "accepted": {}} (accepted는 이전 호환)
+    # {"method": "none"|"manual"|"table"|"manual+table", "candidates": {key: value},
+    #  "accepted": {}(이전 호환), "table_read"?: 표 자동 읽기 요약(PDF·이미지)}
     extracted_facts: dict[str, Any]
     version: int = 1  # 파일 버전(교체할 때마다 1씩 오름)
     created_at: SeoulDateTime

@@ -35,7 +35,9 @@ from app.rules.selector import (
     value_domain,
 )
 
-DEFAULT_MAX_QUESTIONS = 12
+# 질문 상한은 끝없이 묻는 것을 막는 안전장치다. 정상 문진이 여기에 걸리지 않도록 넉넉히 둔다
+# (2026-11-12: 12 → 40. 12회에서는 묶음 질문을 펼치고 사업장 질문까지 받으면 판정 전에 멈췄다)
+DEFAULT_MAX_QUESTIONS = 40
 
 
 class Branch(StrEnum):
@@ -111,10 +113,24 @@ def blocking_view(kb: KnowledgeBase, ev: EvaluationResult, facts: dict[str, Fact
 
     - ask_last 사실(별표4 번호 선택)은 다른 막는 사실이 없을 때만 묻는다.
     - 이미 '모름'이라 답한 증빙 종류의 사실은 묻지 않고 증빙으로 받는다.
+    - 말로는 참·거짓을 정할 수 없는 사실(evidence_only, 확인대상 폐기물의 시험 수치)은 묻지 않고
+      바로 증빙으로 받는다.
     """
     deferred_types = deferred_evidence_types(kb, facts)
+    # 이미 증빙이 필요한 사실이 있으면 같은 서류에서 나올 값은 하나씩 묻지 않는다.
+    # 예: 확인대상 폐기물에서 '납 기준 미만'이라고 말함 → 어차피 분석결과서가 필요하므로
+    # 나머지 용출 항목은 그 서류로 한 번에 받는다.
+    deferred_types |= {
+        u.evidence_type
+        for u in ev.blocking_facts
+        if u.reason == "NEEDS_EVIDENCE" and u.evidence_type
+    }
     missing = [u for u in ev.blocking_facts if u.reason == "MISSING"]
-    deferred = [u for u in missing if u.evidence_type and u.evidence_type in deferred_types]
+    deferred = [
+        u
+        for u in missing
+        if u.evidence_only or (u.evidence_type and u.evidence_type in deferred_types)
+    ]
     deferred_keys = {u.key for u in deferred}
     missing = [u for u in missing if u.key not in deferred_keys]
     others = [u for u in ev.blocking_facts if not kb.catalog[u.key].ask_last]

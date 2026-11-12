@@ -24,7 +24,14 @@ from app.agent.extractor import extract
 from app.agent.guard import ExtractionResult, norm
 from app.agent.llm_client import LLMCall, LLMClient
 from app.agent.responder import respond
-from app.agent.router import SUB_CONFIRM_GUESS, Branch, EngineStep, SessionState, run_engine
+from app.agent.router import (
+    DEFAULT_MAX_QUESTIONS,
+    SUB_CONFIRM_GUESS,
+    Branch,
+    EngineStep,
+    SessionState,
+    run_engine,
+)
 from app.agent.templates import RETRACT_REPLY_LABEL
 from app.domain.clock import seoul_today, utcnow
 from app.domain.facts import Fact, FactStatus, FactStore, retract_fact
@@ -94,7 +101,7 @@ class DiagnosisSession:
         case_id: str = "case",
         session_id: str | None = None,
         as_of: date | None = None,
-        max_questions: int = 12,
+        max_questions: int = DEFAULT_MAX_QUESTIONS,
         prompt_version: str = "m3.3",
     ):
         self.kb = kb
@@ -177,7 +184,7 @@ class DiagnosisSession:
             case_id=state["case_id"],
             session_id=state["session_id"],
             as_of=date.fromisoformat(state["as_of"]),
-            max_questions=state.get("max_questions", 12),
+            max_questions=state.get("max_questions", DEFAULT_MAX_QUESTIONS),
             prompt_version=state.get("prompt_version", "m3.1"),
         )
         raw_facts = state.get("facts", []) if facts is None else facts
@@ -266,6 +273,7 @@ class DiagnosisSession:
                 }
             )
 
+        refused_before = self.state.evidence_refused
         if quick_reply is not None:
             appended = self._apply_quick_reply(quick_reply, turn_id)
         elif text:
@@ -274,6 +282,16 @@ class DiagnosisSession:
             user_question = extraction.user_question
             if extraction.question_kind in INTENTS:
                 intent = extraction.question_kind
+        # "서류가 없어요" 뒤에도 대화를 이어 간다: 이번 턴에 다시 거절하지 않았으면
+        # 거절 상태를 푼다. 그러면 '판정 불가'에 갇히지 않고 필요한 서류·값을 다시 안내한다.
+        refused_now = (extraction is not None and extraction.evidence_refused) or (
+            quick_reply is not None
+            and quick_reply.key == "__evidence__"
+            and quick_reply.value == "refused"
+        )
+        spoke = bool(text) or quick_reply is not None
+        if refused_before and spoke and not refused_now and not _is_memo:
+            self.state.evidence_refused = False
 
         step = run_engine(
             self.kb,
@@ -310,6 +328,9 @@ class DiagnosisSession:
             assist=assist_ctx,
         )
         calls += rcalls
+        notice = self._talk_cannot_settle_notice(step, appended)
+        if notice:
+            out.message = f"{notice} {out.message}".strip()
         assist_view = to_view(assist_ctx, out.assist_text or "") if assist_ctx is not None else None
         if blocked and not out.llm_blocked:
             out.llm_blocked = blocked
@@ -449,6 +470,22 @@ class DiagnosisSession:
         if norm(text) == norm(EVIDENCE_REFUSE_REPLY):
             res.evidence_refused = True
         return res
+
+    def _talk_cannot_settle_notice(self, step: EngineStep, appended: list[Fact]) -> str | None:
+        """말로 답한 수치를 판정에 쓸 수 없을 때(확인대상 폐기물의 시험 수치) 이유와 할 일.
+
+        같은 안내만 반복하지 않도록, 방금 말한 항목을 짚어 왜 안 되는지와 할 일을 말한다.
+        """
+        strict = {u.key for u in step.evaluation.blocking_facts if u.evidence_only}
+        said = [f.key for f in appended if f.key in strict and f.status != FactStatus.EVIDENCED]
+        if not said:
+            return None
+        labels = ", ".join(dict.fromkeys(self.kb.catalog[k].label or k for k in said))
+        return (
+            f"{labels}은(는) 말씀만으로는 정할 수 없어요. 이 폐기물은 법에서 지정폐기물인지 "
+            "분석으로 미리 확인하도록 정한 폐기물이라 시험성적서(분석결과서) 값이 필요해요. "
+            "성적서를 올리거나, 성적서에 적힌 값을 서류 카드의 칸에 적어 주세요."
+        )
 
     def _apply_extraction(self, ex: ExtractionResult) -> list[Fact]:
         appended: list[Fact] = []

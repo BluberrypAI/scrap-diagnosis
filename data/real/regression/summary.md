@@ -6,9 +6,9 @@
 {
   "rows": 4281,
   "verdicts": {
-    "MATCH": 2863,
+    "MATCH": 2833,
     "FEWER_CHOICES": 1361,
-    "DIFF": 57
+    "DIFF": 87
   },
   "by_kind": {
     "CODE/DIFF": 15,
@@ -16,8 +16,8 @@
     "CODE_CHOICE/DIFF": 36,
     "CODE_CHOICE/FEWER_CHOICES": 1361,
     "CODE_CHOICE/MATCH": 319,
-    "STOP/DIFF": 6,
-    "STOP/MATCH": 227
+    "STOP/DIFF": 36,
+    "STOP/MATCH": 197
   },
   "extra_questions": {
     "0": 4083,
@@ -26,7 +26,37 @@
 }
 ```
 
-## 다른 행 (57)
+## 다른 행 (87)
+- sludge_ww_unknown#1 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "sludge_facility_notified": false} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_ww_unknown#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "sludge_facility_notified": true, "sludge_water_pct": 93.1, "oil_content_pct": 4.9, "leach_pb": 2.94, "leach_cu": 2.94, "leach_as": 1.47, "leach_hg": 0.004, "leach_cd": 0.294, "leach_cr6": 1.47, "leach_cn": 0.98, "leach_op": 0.98, "leach_pce": 0.098, "leach_tce": 0.294} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_ww_unknown#14 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "sludge_facility_notified": true, "sludge_water_pct": 96.9} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_ww_unknown#15 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "solid", "sludge_facility_notified": false, "pcb_leach_mg_l": 0.002} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_ww_unknown#17 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "solid", "sludge_facility_notified": true, "pcb_leach_mg_l": 0.002, "sludge_water_pct": 93.1, "oil_content_pct": 4.9, "leach_pb": 2.94, "leach_cu": 2.94, "leach_as": 1.47, "leach_hg": 0.004, "leach_cd": 0.294, "leach_cr6": 1.47, "leach_cn": 0.98, "leach_op": 0.98, "leach_pce": 0.098, "leach_tce": 0.294} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_ww_unknown#29 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "solid", "sludge_facility_notified": true, "pcb_leach_mg_l": 0.002, "sludge_water_pct": 96.9} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_ww_unknown#43 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "liquid", "sludge_facility_notified": false, "pcb_mg_l": 1.96} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_ww_unknown#45 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "liquid", "sludge_facility_notified": true, "pcb_mg_l": 1.96, "sludge_water_pct": 93.1, "oil_content_pct": 4.9, "leach_pb": 2.94, "leach_cu": 2.94, "leach_as": 1.47, "leach_hg": 0.004, "leach_cd": 0.294, "leach_cr6": 1.47, "leach_cn": 0.98, "leach_op": 0.98, "leach_pce": 0.098, "leach_tce": 0.294} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_ww_unknown#57 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "liquid", "sludge_facility_notified": true, "pcb_mg_l": 1.96, "sludge_water_pct": 96.9} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_ww_unknown#71 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "semisolid", "sludge_facility_notified": false, "pcb_leach_mg_l": 0.002} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_ww_unknown#73 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "semisolid", "sludge_facility_notified": true, "pcb_leach_mg_l": 0.002, "sludge_water_pct": 93.1, "oil_content_pct": 4.9, "leach_pb": 2.94, "leach_cu": 2.94, "leach_as": 1.47, "leach_hg": 0.004, "leach_cd": 0.294, "leach_cr6": 1.47, "leach_cn": 0.98, "leach_op": 0.98, "leach_pce": 0.098, "leach_tce": 0.294} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_ww_unknown#85 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "semisolid", "sludge_facility_notified": true, "pcb_leach_mg_l": 0.002, "sludge_water_pct": 96.9} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_ww_unknown#113 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "sludge_facility_notified": false, "oil_content_pct": 4.9} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_ww_unknown#115 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "sludge_facility_notified": true, "oil_content_pct": 4.9, "sludge_water_pct": 93.1, "leach_pb": 2.94, "leach_cu": 2.94, "leach_as": 1.47, "leach_hg": 0.004, "leach_cd": 0.294, "leach_cr6": 1.47, "leach_cn": 0.98, "leach_op": 0.98, "leach_pce": 0.098, "leach_tce": 0.294} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_ww_unknown#126 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "sludge_facility_notified": true, "oil_content_pct": 4.9, "sludge_water_pct": 96.9} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#1 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "sludge_facility_notified": false} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "sludge_facility_notified": true, "sludge_water_pct": 93.1, "oil_content_pct": 4.9, "leach_pb": 2.94, "leach_cu": 2.94, "leach_as": 1.47, "leach_hg": 0.004, "leach_cd": 0.294, "leach_cr6": 1.47, "leach_cn": 0.98, "leach_op": 0.98, "leach_pce": 0.098, "leach_tce": 0.294} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#14 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "sludge_facility_notified": true, "sludge_water_pct": 96.9} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#15 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "solid", "sludge_facility_notified": false, "pcb_leach_mg_l": 0.002} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#17 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "solid", "sludge_facility_notified": true, "pcb_leach_mg_l": 0.002, "sludge_water_pct": 93.1, "oil_content_pct": 4.9, "leach_pb": 2.94, "leach_cu": 2.94, "leach_as": 1.47, "leach_hg": 0.004, "leach_cd": 0.294, "leach_cr6": 1.47, "leach_cn": 0.98, "leach_op": 0.98, "leach_pce": 0.098, "leach_tce": 0.294} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#29 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "solid", "sludge_facility_notified": true, "pcb_leach_mg_l": 0.002, "sludge_water_pct": 96.9} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#43 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "liquid", "sludge_facility_notified": false, "pcb_mg_l": 1.96} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#45 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "liquid", "sludge_facility_notified": true, "pcb_mg_l": 1.96, "sludge_water_pct": 93.1, "oil_content_pct": 4.9, "leach_pb": 2.94, "leach_cu": 2.94, "leach_as": 1.47, "leach_hg": 0.004, "leach_cd": 0.294, "leach_cr6": 1.47, "leach_cn": 0.98, "leach_op": 0.98, "leach_pce": 0.098, "leach_tce": 0.294} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#57 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "liquid", "sludge_facility_notified": true, "pcb_mg_l": 1.96, "sludge_water_pct": 96.9} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#71 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "semisolid", "sludge_facility_notified": false, "pcb_leach_mg_l": 0.002} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#73 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "semisolid", "sludge_facility_notified": true, "pcb_leach_mg_l": 0.002, "sludge_water_pct": 93.1, "oil_content_pct": 4.9, "leach_pb": 2.94, "leach_cu": 2.94, "leach_as": 1.47, "leach_hg": 0.004, "leach_cd": 0.294, "leach_cr6": 1.47, "leach_cn": 0.98, "leach_op": 0.98, "leach_pce": 0.098, "leach_tce": 0.294} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#85 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "physical_state": "semisolid", "sludge_facility_notified": true, "pcb_leach_mg_l": 0.002, "sludge_water_pct": 96.9} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#113 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "sludge_facility_notified": false, "oil_content_pct": 4.9} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#115 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "sludge_facility_notified": true, "oil_content_pct": 4.9, "sludge_water_pct": 93.1, "leach_pb": 2.94, "leach_cu": 2.94, "leach_as": 1.47, "leach_hg": 0.004, "leach_cd": 0.294, "leach_cr6": 1.47, "leach_cn": 0.98, "leach_op": 0.98, "leach_pce": 0.098, "leach_tce": 0.294} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
+- sludge_proc_unknown#126 {"oil_presence": "present", "toxic_chemical_discard": false, "pcb_possible": false, "sludge_facility_notified": true, "oil_content_pct": 4.9, "sludge_water_pct": 96.9} → 기대 CODE_NEEDS_TEST / 결과 REQUEST_EVIDENCE
 - hcl#2 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": false, "ph": 2.04} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
 - hcl#5 {"oil_presence": "none", "toxic_chemical_discard": false, "pcb_possible": true, "ph": 2.04, "pcb_mg_l": 1.96} → 기대 번호 선택(47) / 결과 FINAL_REVIEW @NO_GENERAL_CODE
 - hcl#7 {"oil_presence": "none", "toxic_chemical_discard": true, "pcb_possible": false, "ph": 1.96} → 기대 번호 선택(6) / 결과 FINAL_REVIEW 02-01-01

@@ -63,11 +63,15 @@ def test_sludge_solids_is_computed_from_water_and_keeps_evidence(real_kb):
     assert solids.status == FactStatus.EVIDENCED  # 같은 성적서의 값 → 증빙 상태를 잇는다
 
 
-def test_sludge_asks_water_first_when_both_unknown(real_kb):
+def test_sludge_requests_report_when_both_unknown(real_kb):
+    # 오니는 확인대상 폐기물이라 함수율·고형물을 말로 묻지 않고 성적서로 한 번에 받는다
+    # (이전: 함수율을 먼저 물었다. docs/rule-changes/confirm-target-waste.md)
     row = _sludge_row(GENERAL)
     step = run_engine(real_kb, row_store(real_kb, BASE, row), SessionState(), AS_OF)
-    assert step.decision.branch == Branch.ASK_FACT
-    assert step.decision.question.key == "sludge_water_pct"  # 고형물 대신 함수율을 먼저
+    assert step.decision.branch == Branch.REQUEST_EVIDENCE
+    (doc,) = step.decision.requested_documents
+    assert doc.evidence_type == "TEST_REPORT"
+    assert {"sludge_water_pct", "sludge_solids_pct"} <= set(doc.facts)
 
 
 def _oil_row(code: str, **answers) -> dict:

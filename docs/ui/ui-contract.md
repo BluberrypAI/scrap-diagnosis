@@ -33,7 +33,8 @@
 | `allow_free_number` | number일 때 직접 입력칸을 보일지(true). 구간 버튼은 `options`(value는 NumRange dict) |
 | `items` | group: 이번에 묻는 항목(라벨) |
 | `answered_items` | group: 같은 묶음에서 이미 답한 항목. 비었으면 [] |
-| `result.assumptions` | 결과 카드: 시험·서류가 아니라 사용자 답에서 추정한 사실의 안내 문장 목록(예: PCB 관련 없음 → 기준 미만 추정). 비었으면 []. 화면은 결론 아래에 눈에 띄게 보여 준다 |
+| `result.reason` | (2026-11-13) 결과 카드: 이 결론에 이른 구체적 이유와 할 일(규칙 데이터의 고정 문장, 예: 오니 유기성·무기성 기준이 없어 번호를 정하지 않음 → 소재를 다시 고르기). 없으면 null. 화면은 결론 바로 아래에 먼저 보여 준다 |
+| `result.assumptions` | 결과 카드: 시험·서류가 아니라 사용자 답에서 추정한 사실의 안내 문장 목록(예: PCB 관련 없음 → 기준 미만 추정). 비었으면 []. 화면은 이유 아래에 참고로 보여 준다(참조 화면은 접어 둠) |
 | `terms` | 질문 글에 나온 전문용어의 쉬운 설명 `[{term, plain, example}]`(knowledge/glossary.yaml, 사람이 쓴 고정 설명). 비었으면 []. 화면은 "용어 설명" 접기 등으로 보여 주면 된다 |
 | `guide` | (2026-11-11 추가) 처음 쓰는 사람이 카드만 보고 답할 수 있게 하는 고정 안내 `{background, reason, actions[], if_unknown}`. `background` 말의 뜻·상황, `reason` 왜 묻는지(답에 따라 무엇이 달라지는지), `actions` "이렇게 확인하세요" 단계(볼 서류·항목·검색할 곳), `if_unknown` 모를 때 안내. 사람이 쓴 문구(knowledge/question_guide.yaml)라 판정에 쓰지 않는다. 자료가 없으면 null. 화면은 제목 아래 배경·이유를, 선택지 아래 확인 단계를 접지 않고 보여 준다. `actions`가 있으면 `help`(한 줄 도움말)는 감춰도 된다 |
 
@@ -50,7 +51,7 @@
        "options": [{"label": "PP(폴리프로필렌)", "value": "pp"}]}}
   ],
   "pending": [{"key": "toxic_chemical_discard", "label": "유해화학물질 폐기", "reason": "MISSING"}],
-  "progress": {"questions_asked": 2, "max_questions": 12},
+  "progress": {"questions_asked": 2, "max_questions": 40},
   "candidates_count": 22,
   "top_candidates": [{"code": "51-03-01", "name": "…", "outcome": null}],
   "documents_needed": [{"evidence_type": "TEST_REPORT", "label": "시험성적서", "facts": ["ph"], "fact_labels": ["pH"]}]
@@ -140,7 +141,7 @@ NO_CANDIDATE 충돌은 `fact`에 원인 사실 목록의 첫 키, `facts`에 전
 - `profile.facts` 응답은 항상 낸다(계산값 + 직접 지정값, 없으면 `{}`). 저장은 보낸 그대로다. `facilities`는 5개 값만 받고(그 밖은 422), `none`은 다른 값과 함께 보낼 수 없다(422). 5절 밖의 키(예: 예전 `site`)는 그대로 저장한다.
 - 오류 형식 통일은 `app/api/errors.py`의 `api_error`로 한다. 문서 업로드·적용의 서류 값 형식 오류(422)는 `detail.message` + `details.problems`(같은 값이 `detail.problems`에도 있음)다. FastAPI 요청 검증 422는 기본 형식을 유지한다.
 - 대화 기록(`conversation`)은 세션 state의 messages에서 만든다. 서류 업로드는 `role: "user"`, `text: "서류를 올렸어요: 파일명"`, `document_id`로 나온다. 이 기능 전에 쌓인 기록은 `at`이 null일 수 있다. 확정 건에 철회 `quick_reply`를 보내면 409(`case_status` 포함)다.
-- 서류 값 흐름(docs/api/server-engine-contract.md 3.1절): 업로드의 `facts`는 **검수 대기 후보**(`document.values[].status: UNVERIFIED`)로만 저장되고 판정은 바뀌지 않는다. 화면은 서류 카드에 후보를 "검수 대기"로 보여 준다. 검수는 서버(scrap-server)가 하고, 검수가 끝난 값만 `…/documents/{doc}/values/apply`로 적용돼 EVIDENCED("서류로 확인")가 된다. 참조 화면의 "검수 완료로 적용" 버튼은 개발용이다(운영 화면은 서버의 검수 흐름을 쓴다). 형식 오류(빈 값, "-", 숫자 칸의 글자, 선택지 밖 값)는 업로드에서 422(`details.problems`)다. 서류 교체(`…/versions`)·해제(`…/revoke`) 뒤에는 그 서류의 증빙이 보드에서 빠진다.
+- 서류 값 흐름(docs/api/server-engine-contract.md 3.1절): 업로드의 `facts`는 **검수 대기 후보**(`document.values[].status: UNVERIFIED`)로만 저장되고 판정은 바뀌지 않는다. 화면은 서류 카드에 후보를 "검수 대기"로 보여 준다. 검수는 서버(scrap-server)가 하고, 검수가 끝난 값만 `…/documents/{doc}/values/apply`로 적용돼 EVIDENCED("서류로 확인")가 된다. 참조 화면은 서류 값 검수 창(왼쪽 원문 · 오른쪽 읽은 값, 값마다 "맞아요/고치기", "검수 완료")에서 `values/apply`를 부른다. 고친 값은 `value`로 함께 보낸다. 원문 파일은 엔진이 보관하지 않으므로 화면이 브라우저(IndexedDB)에 보관해 보여 준다. 형식 오류(빈 값, "-", 숫자 칸의 글자, 선택지 밖 값)는 업로드에서 422(`details.problems`)다. 서류 교체(`…/versions`)·해제(`…/revoke`) 뒤에는 그 서류의 증빙이 보드에서 빠진다.
 - 규칙이 바뀐 건은 `case.kb_changed: true`이고 쓰기 요청이 409 `KB_CHANGED`다. 화면은 "규칙이 갱신됐어요" 안내와 함께 `POST /cases/{id}/rebase`를 부르면 된다(확정 건은 reopen).
 - `CaseOut.summary.title`의 소재 라벨은 마지막 턴 Trace의 유효 사실(CLAIMED/EVIDENCED)에서 읽는다. `result_label`은 확정 전 FINAL_REVIEW 턴에서도 채운다(확정 검토 중).
 - 전체 API 설명과 예시는 `docs/api/api-spec.md`, 자동 명세는 `docs/api/openapi.json`이다.

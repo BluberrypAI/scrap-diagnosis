@@ -1,4 +1,4 @@
-from app.agent.router import Branch, SessionState, run_engine
+from app.agent.router import DEFAULT_MAX_QUESTIONS, Branch, SessionState, run_engine
 from app.domain.facts import FactStatus, FactStore
 from tests.conftest import AS_OF, CLEAN, F
 
@@ -56,7 +56,10 @@ def test_decided_beats_question_limit(kb):
 
 
 def test_question_limit(kb):
+    # 상한은 안전장치(기본 40회). 정상 문진의 12회째에서는 멈추지 않는다
     d = run(kb, [F("material", "PP")], SessionState(questions_asked=12)).decision
+    assert d.branch == Branch.ASK_FACT
+    d = run(kb, [F("material", "PP")], SessionState(questions_asked=DEFAULT_MAX_QUESTIONS)).decision
     assert d.branch == Branch.UNSUPPORTED and d.failure_reason == "QUESTION_LIMIT"
     d = run(kb, [F("material", "PP")], SessionState(questions_asked=3), max_questions=3).decision
     assert d.failure_reason == "QUESTION_LIMIT"

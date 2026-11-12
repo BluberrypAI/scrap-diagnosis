@@ -87,7 +87,15 @@ def get_service(
     엔진 자체 기업 정보(PROFILE) 시딩은 개발·참조 화면(루트 경로, prod 아님)에서만 한다.
     """
     return CaseService(
-        db, kb, kb_info, llms, settings, today, company, seed_local_profile=not is_internal(request)
+        db,
+        kb,
+        kb_info,
+        llms,
+        settings,
+        today,
+        company,
+        seed_local_profile=not is_internal(request),
+        azure_client=getattr(request.app.state.container, "azure_client", None),
     )
 
 

@@ -106,6 +106,12 @@ uv run python scripts/eval.py                    # 실제 Azure
 uv run python scripts/eval_extractor.py          # 기존 질의회신 60건 추출 평가
 ```
 
+시험성적서 표 읽기(시험 구현, `docs/design/test-report-table-extraction.md`):
+```bash
+uv run python scripts/read_test_report.py 성적서.pdf                    # 글자 있는 PDF는 로컬(pdfplumber)
+uv run python scripts/read_test_report.py 사진.jpg --backend azure      # Azure: ALLOW_DOCUMENT_OCR=true와 AZURE_DOCINTEL_* 필요, 과금
+```
+
 규칙 원본(`knowledge/`)을 고친 뒤 엔진용 규칙(`data/real/`)을 다시 만들 때(`knowledge/README.md`):
 ```bash
 uv run python tools/build_kb.py            # 빌드
@@ -151,7 +157,7 @@ uv run python scripts/turn_latency.py                     # 실제 Azure로 턴�
 | GET | `/cases?status=` | 상태별 목록 |
 | GET | `/cases/{id}` | 건 상세 + 현재 판정·판정 버전·마지막 턴·문서 |
 | POST | `/cases/{id}/diagnosis/messages` | `{text}` 또는 `{quick_reply:{key,kind,value}}` → 한 턴 응답(`docs/engine/algorithm.md` 7절) |
-| POST | `/cases/{id}/documents` | multipart `file`(.txt/.md/.pdf), 선택 `facts`(JSON) → EVIDENCED → 재평가 |
+| POST | `/cases/{id}/documents` | multipart `file`(.txt/.md/.pdf, OCR이 켜져 있으면 이미지), 선택 `facts`(JSON) → 검수 대기 후보. PDF·이미지는 성적서 표 값도 자동으로 읽어 후보로 |
 | POST | `/cases/{id}/confirm` | 서버 재평가 후 판정 버전 고정 + 인계 객체(`handoff`) → `CODE_CONFIRMED` (불가 시 409) |
 | POST | `/cases/{id}/reopen` | `CODE_CONFIRMED`에서만. 이전 판정은 버전으로 보존 |
 | GET | `/cases/{id}/trace` | Decision Trace 전체(사실 이력·턴·확정 기록) |

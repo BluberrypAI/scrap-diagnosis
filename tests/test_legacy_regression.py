@@ -29,6 +29,9 @@ ACID_ALKALI = {
     "ammonia_solution",
     "alkali_other",
 }
+# 유기성·무기성 모름 오니(2026-11-13, 별표 5 40% 기준): 기존은 '시험 필요'로 멈췄지만 이제
+# 유기성물질 함량 성적서를 요청한다(docs/rule-changes/organic-sludge-40.md). 30행
+ORGANIC_UNKNOWN = {"sludge_ww_unknown", "sludge_proc_unknown"}
 BATTERY_ASKS_TYPE = {"battery_ev", "battery_drive", "battery_secondary_other"}
 NOT_SECONDARY = {"battery_primary", "battery_cathode", "battery_fuel_cell"}
 
@@ -40,9 +43,9 @@ def result(real_kb):
 
 def test_codes_and_stops_match_exactly(result):
     kinds = result["by_kind"]
-    # 전지 행만 다르다(test_remaining_diffs_are_known_cases): 종류 질문 15행, 손상 6행
+    # 전지(종류 질문 15행, 손상 6행)와 유기성·무기성 모름 오니(30행)만 다르다
     assert kinds.get("CODE/MATCH") == 2317 and kinds.get("CODE/DIFF") == 15
-    assert kinds.get("STOP/MATCH") == 227 and kinds.get("STOP/DIFF") == 6
+    assert kinds.get("STOP/MATCH") == 197 and kinds.get("STOP/DIFF") == 36
 
 
 def test_code_choice_matches_or_has_fewer_options(result):
@@ -56,10 +59,13 @@ def test_code_choice_matches_or_has_fewer_options(result):
 
 
 def test_remaining_diffs_are_known_cases(result):
-    acid = battery = 0
+    acid = battery = sludge = 0
     for line in result["diffs"]:
         mid = line.split("#")[0]
-        if mid in BATTERY_ASKS_TYPE:
+        if mid in ORGANIC_UNKNOWN:
+            assert "CODE_NEEDS_TEST" in line and "REQUEST_EVIDENCE" in line, line
+            sludge += 1
+        elif mid in BATTERY_ASKS_TYPE:
             assert "ASK_FACT battery_type" in line, line
             battery += 1
         elif mid in NOT_SECONDARY:
@@ -69,7 +75,7 @@ def test_remaining_diffs_are_known_cases(result):
             assert mid in ACID_ALKALI, line
             assert ("NO_GENERAL_CODE" in line) or ("FINAL_REVIEW 02-0" in line), line
             acid += 1
-    assert (acid, battery) == (36, 21)
+    assert (acid, battery, sludge) == (36, 21, 30)
 
 
 def test_extra_questions_are_rare(result):

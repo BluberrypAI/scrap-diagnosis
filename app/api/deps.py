@@ -80,6 +80,7 @@ class AppContainer:
         self._responder_llm = responder_llm
         self._engine = engine
         self.today = today
+        self.azure_client = None  # 문서 인식(Azure) 클라이언트를 바꿔 끼울 때만(테스트)
 
     @cached_property
     def kb(self) -> KnowledgeBase:

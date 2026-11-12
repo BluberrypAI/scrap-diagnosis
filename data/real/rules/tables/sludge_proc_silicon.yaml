@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge 937eea79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge e406ce79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: sludge_proc_silicon
 title: 실리콘 (제조)공정 오니
-version: 2026.11.0+kb-937eea79
+version: 2026.11.0+kb-e406ce79
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -25,14 +25,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_pb
       op: gte
       value: 3
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-04
@@ -80,14 +83,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_cu
       op: gte
       value: 3
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-04
@@ -135,14 +141,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_as
       op: gte
       value: 1.5
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-04
@@ -190,14 +199,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_hg
       op: gte
       value: 0.005
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-04
@@ -245,14 +257,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_cd
       op: gte
       value: 0.3
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-04
@@ -300,14 +315,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_cr6
       op: gte
       value: 1.5
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-04
@@ -355,14 +373,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_cn
       op: gte
       value: 1
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-04
@@ -410,14 +431,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_op
       op: gte
       value: 1
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-04
@@ -465,14 +489,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_pce
       op: gte
       value: 0.1
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-04
@@ -520,14 +547,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_tce
       op: gte
       value: 0.3
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-04
@@ -575,14 +605,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: oil_content_pct
       op: gte
       value: 5
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-04
@@ -631,6 +664,7 @@ rules:
       op: gte
       value: 5
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - &id003
       not:
         any:

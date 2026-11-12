@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge 937eea79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge e406ce79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: mixed_inseparable
 title: 여러 소재가 섞여 나누기 어려움
-version: 2026.11.0+kb-937eea79
+version: 2026.11.0+kb-e406ce79
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -795,6 +795,8 @@ rules:
     code: null
     category: GENERAL
     outcome: NO_MIXTURE_RULE
+    reason: 여러 소재가 섞여 나누기 어려운 폐기물의 일반 분류번호를 정하는 법령 규정을 찾지 못해 번호를 정하지 않습니다. 지정폐기물에 해당하는 성분은 확인했습니다. 분류번호는 관할 시·군·구에
+      문의하거나, 소재별로 나눌 수 있으면 나눠서 다시 문진해 주세요.
   basis:
   - type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1(지정폐기물의 종류)

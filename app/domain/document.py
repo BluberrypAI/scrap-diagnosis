@@ -17,6 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.domain.facts import Fact, FactStatus
 from app.domain.ranges import NumRange
+from app.domain.tables import CellRef, FootnoteRef, TableGrid
 
 CONTRACT = "document-extraction-v1"
 
@@ -64,6 +65,11 @@ class WarningCode(StrEnum):
     LOW_QUALITY = "LOW_QUALITY"  # 읽기 품질 낮음
     PARTIAL_DOCUMENT = "PARTIAL_DOCUMENT"  # 일부 쪽만 있는 듯함
     METHOD_MISMATCH = "METHOD_MISMATCH"  # 시험방법이 카탈로그 기준과 다름
+    # 표 인식(docs/design/test-report-table-extraction.md 8절)
+    COLUMN_ROLE_UNCERTAIN = "COLUMN_ROLE_UNCERTAIN"  # 규칙으로 열 역할을 정하지 못함
+    VALUE_OUTSIDE_TABLE = "VALUE_OUTSIDE_TABLE"  # 표가 있는데 표 밖 글자에서 값을 읽음
+    TABLE_NOT_DETECTED = "TABLE_NOT_DETECTED"  # 표를 찾지 못함
+    TABLE_CONTINUATION_GUESSED = "TABLE_CONTINUATION_GUESSED"  # 쪽 넘김 표 잇기를 추정함
 
 
 class ErrorCode(StrEnum):
@@ -111,12 +117,13 @@ class DocumentContent(_Strict):
 
     text_pages: list[PageText] = []
     page_images: list[PageImage] = []  # [미래] OCR
+    tables: list[TableGrid] = []  # 표 인식 층의 칸 단위 표(선택)
     page_count: int | None = Field(default=None, ge=1)
 
     @model_validator(mode="after")
     def _has_content(self) -> Self:
-        if not self.text_pages and not self.page_images:
-            raise ValueError("text_pages 또는 page_images 중 하나는 있어야 한다")
+        if not self.text_pages and not self.page_images and not self.tables:
+            raise ValueError("text_pages, page_images, tables 중 하나는 있어야 한다")
         return self
 
 
@@ -171,11 +178,19 @@ class ExtractedFactItem(_Strict):
     unit_raw: str | None = None
     page: int | None = Field(default=None, ge=1)
     quote: str | None = None  # 서류 원문 발췌(해당 쪽에 실제로 있어야 함)
+    item_raw: str | None = None  # 서류에 적힌 항목 이름 그대로(예: 'TCE(mg/L)'). 검수 화면 비교용
     method: str | None = None  # 시험방법 표기
     sample_label: str | None = None  # 시료가 여럿일 때 어느 시료인지
     below_detection_limit: bool = False  # 불검출(ND)
     detection_limit: float | None = None  # 정규화 단위의 검출한계
+    # 검출한계를 어디서 얻었나. "limit_column"이면 검출한계가 서류에 없어 같은 행 기준 칸의 값을
+    # 상한으로 쓴 것(불검출은 기준보다 낮다는 뜻으로만 쓴다). None은 검출한계 표기("stated")와 같다
+    detection_limit_basis: Literal["stated", "limit_column"] | None = None
     note: str | None = None
+    # 표 인식(선택): 값·단위·검출한계를 읽은 칸. 있으면 엔진이 표 구조로 검증한다(T1~T10)
+    cell_ref: CellRef | None = None
+    unit_ref: CellRef | None = None
+    detection_limit_ref: CellRef | FootnoteRef | None = None
 
     @model_validator(mode="after")
     def _check(self) -> Self:

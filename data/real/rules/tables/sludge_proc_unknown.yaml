@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge 937eea79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge e406ce79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: sludge_proc_unknown
 title: 공정 오니(유기성·무기성 모름)
-version: 2026.11.0+kb-937eea79
+version: 2026.11.0+kb-e406ce79
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -25,14 +25,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_pb
       op: gte
       value: 3
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-99
@@ -80,14 +83,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_cu
       op: gte
       value: 3
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-99
@@ -135,14 +141,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_as
       op: gte
       value: 1.5
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-99
@@ -190,14 +199,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_hg
       op: gte
       value: 0.005
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-99
@@ -245,14 +257,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_cd
       op: gte
       value: 0.3
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-99
@@ -300,14 +315,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_cr6
       op: gte
       value: 1.5
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-99
@@ -355,14 +373,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_cn
       op: gte
       value: 1
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-99
@@ -410,14 +431,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_op
       op: gte
       value: 1
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-99
@@ -465,14 +489,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_pce
       op: gte
       value: 0.1
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-99
@@ -520,14 +547,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: leach_tce
       op: gte
       value: 0.3
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-99
@@ -575,14 +605,17 @@ rules:
         op: lt
         value: 95
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
       - fact: sludge_solids_pct
         op: gte
         value: 5
         min_status: EVIDENCED
+        falsify_min_status: EVIDENCED
     - fact: oil_content_pct
       op: gte
       value: 5
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 01-02-99
@@ -631,6 +664,7 @@ rules:
       op: gte
       value: 5
       min_status: EVIDENCED
+      falsify_min_status: EVIDENCED
     - &id003
       not:
         any:
@@ -1203,23 +1237,63 @@ rules:
   - code_map
   - material:sludge_proc_unknown
   review: UNVERIFIED
-- rule_id: sludge_proc_unknown:GENERAL
+- rule_id: sludge_proc_unknown:GENERAL:51-01-06
   source_rule: S3-NOT-DESIGNATED
   priority: 100
   when:
-    fact: material
-    op: eq
-    value: sludge_proc_unknown
+    fact: sludge_organic_pct
+    op: gte
+    value: 40
+    min_status: EVIDENCED
+    falsify_min_status: EVIDENCED
   then:
-    code: null
+    code: 51-01-06
     category: GENERAL
-    outcome: CODE_NEEDS_TEST
+    name: 그 밖의 공정오니
   basis:
-  - type: LAW
+  - &id007
+    type: LAW
     ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1(지정폐기물의 종류)
     source_id: DEC-A1
     location: 별표 1(지정폐기물의 종류)
     excerpt: 지정폐기물의 종류(제3조 관련)
+  - &id008
+    type: LAW
+    ref: 폐기물관리법 시행규칙 별표 5(폐기물의 처리에 관한 구체적 기준 및 방법) 2) 사업장일반폐기물의 종류별 처리기준 및 방법 나) 오니
+    source_id: RULE-A5
+    location: 2) 사업장일반폐기물의 종류별 처리기준 및 방법 나) 오니
+    excerpt: 유기성 오니(고형물 중 유기성물질의 함량이 40퍼센트 이상인 것을 말한다. 이하 같다) … 무기성 오니(유기성 오니 외의 오니를 말한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-01-06
+    excerpt: 51-01-06 그 밖의 공정오니
+    source_id: RULE-A4
+    location: 51-01-06
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:sludge_proc_unknown
+  - code_map
+  review: UNVERIFIED
+- rule_id: sludge_proc_unknown:GENERAL:51-02-19
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    fact: sludge_organic_pct
+    op: lt
+    value: 40
+    min_status: EVIDENCED
+    falsify_min_status: EVIDENCED
+  then:
+    code: 51-02-19
+    category: GENERAL
+    name: 그 밖의 공정오니
+  basis:
+  - *id007
+  - *id008
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-02-19
+    excerpt: 51-02-19 그 밖의 공정오니
+    source_id: RULE-A4
+    location: 51-02-19
   review_units:
   - S3-NOT-DESIGNATED
   - material:sludge_proc_unknown

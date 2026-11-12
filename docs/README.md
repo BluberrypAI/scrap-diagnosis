@@ -17,7 +17,10 @@
 | [document-extraction-contract.md](document-extraction-contract.md) | 서류 자동 읽기(OCR·AI)를 붙일 때의 입출력 형식(지금은 미구현) | 서류 담당 |
 | [llm-data-policy.md](llm-data-policy.md) | AI 전송 정책: 개인정보 가리기, 문서 원문 차단, 기록 최소화 | 모두 |
 | [design/rule-review-and-amendment.md](design/rule-review-and-amendment.md) | (제안) 전문가 규칙 검토와 법령 개정 반영 설계 | 모두, 도메인 전문가 |
+| [design/reliability-roadmap.md](design/reliability-roadmap.md) | (제안, 향후 할 일) 장기 운영 신뢰성: 경로 자동 탐색, 규칙 증명 검사, 안전 원칙, 그림자 판정, 개정 감시 | 모두 |
 | [design/agent-skill-harness.md](design/agent-skill-harness.md) | (제안) 규칙 엔진 위에 스킬·하네스를 얹어 보충 설명·부가 기능을 붙이는 설계(판정은 엔진 유지) | 모두 |
+| [design/test-report-table-extraction.md](design/test-report-table-extraction.md) | (제안) 시험성적서 표 인식: 칸 단위 표 → 칸 좌표로 값 검증 | 엔진, AI |
+| [design/image-recognition-mapping.md](design/image-recognition-mapping.md) | (초안) AI허브 산업 폐기물 이미지 클래스 → 문진 소재·질문 대응표 | 엔진, AI |
 | [ui/](ui/) | 화면 설계(`ui-design.md`), 화면용 API 계약(`ui-contract.md`), 프론트 인수인계(`handover.md`) | 웹 |
 | [perf/sync-vs-async.md](perf/sync-vs-async.md) | 동기·비동기 서버 부하 측정 결과 | 서버·DB 결정 |
 | [perf/turn-latency.md](perf/turn-latency.md) | 실제 Azure로 잰 문진 한 턴의 지연, 서버 타임아웃 제안 | 서버 |

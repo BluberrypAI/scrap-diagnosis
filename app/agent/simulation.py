@@ -3,7 +3,7 @@
 시나리오 형식(YAML)
     id: SIM-001
     as_of: 2026-11-08
-    max_questions: 12
+    max_questions: 40             # 생략하면 엔진 기본값(DEFAULT_MAX_QUESTIONS)
     setup:                        # 문진 전에 알고 있는 사실 (기업 프로필·건 메모)
       facts: {material: PP}
       evidenced: {oil_content_pct: 3}
@@ -25,7 +25,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from app.agent.router import Branch, SessionState, run_engine
+from app.agent.router import DEFAULT_MAX_QUESTIONS, Branch, SessionState, run_engine
 from app.domain.facts import FactStatus, FactStore
 from app.rules.answers import fact_answer, group_none_answer
 from app.rules.model import KnowledgeBase
@@ -59,7 +59,7 @@ def simulate(kb: KnowledgeBase, scenario: dict) -> SimulationResult:
     as_of = scenario.get("as_of") or date.today()
     if isinstance(as_of, str):
         as_of = date.fromisoformat(as_of)
-    max_q = int(scenario.get("max_questions", 12))
+    max_q = int(scenario.get("max_questions", DEFAULT_MAX_QUESTIONS))
     setup = scenario.get("setup") or {}
     answers: dict[str, Any] = dict(scenario.get("answers") or {})
     documents: dict[str, dict] = scenario.get("documents") or {}

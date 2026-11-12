@@ -4,7 +4,7 @@
     - id: G-001
       kb: sample | real
       description: ...
-      max_questions: 12
+      max_questions: 40                 # 생략하면 엔진 기본값(DEFAULT_MAX_QUESTIONS)
       setup: {facts: {...}, evidenced: {...}}   # 기업 프로필·이미 확인된 값
       turns:
         - user: "내 폐기물 코드는 SAMPLE-A야"
@@ -26,6 +26,7 @@ from pydantic import BaseModel
 
 from app.agent.llm_client import FakeLLMClient, LLMClient
 from app.agent.orchestrator import DiagnosisSession, QuickReply
+from app.agent.router import DEFAULT_MAX_QUESTIONS
 from app.domain.facts import FactStatus
 from app.domain.verdict import TurnResponse
 from app.rules.model import KnowledgeBase
@@ -145,7 +146,7 @@ def run_case(
         responder_llm=responder_llm,
         case_id=case["id"],
         as_of=as_of,
-        max_questions=int(case.get("max_questions", 12)),
+        max_questions=int(case.get("max_questions", DEFAULT_MAX_QUESTIONS)),
     )
     setup = case.get("setup") or {}
     s.seed(setup.get("facts") or {})

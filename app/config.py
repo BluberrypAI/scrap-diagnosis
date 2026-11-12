@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = 60.0
 
     kb_dir: Path = ROOT / "data" / "real"
-    max_questions: int = 12
+    max_questions: int = 40  # 안전장치(app/agent/router.py DEFAULT_MAX_QUESTIONS)
     # m3.2: 소재 분류(material_group) 추출·묶음 긍정 답 규칙. m3.3: 코드 없는 결론의 확정 안내(응답)
     prompt_version: str = "m3.3"
 
@@ -54,6 +54,21 @@ class Settings(BaseSettings):
     web_search_provider: Literal["none", "naver"] = "none"
     naver_client_id: str | None = None
     naver_client_secret: str | None = None
+
+    # 서류 표 인식(docs/design/test-report-table-extraction.md 9절).
+    # 원본 쪽 이미지를 Azure Document Intelligence로 보낸다. 엔진과 같은 구독·리전의 리소스만 쓴다.
+    document_table_reading: bool = True  # PDF·이미지 업로드 때 시험성적서 표 자동 읽기(후보만)
+    allow_document_ocr: bool = False  # 기본 꺼짐: 개발·시험 환경의 과금·전송을 막는다
+    azure_docintel_endpoint: str | None = None
+    azure_docintel_api_key: str | None = None
+    azure_docintel_model: str = "prebuilt-layout"
+    ocr_timeout_seconds: float = 120.0
+
+    @property
+    def ocr_enabled(self) -> bool:
+        return self.allow_document_ocr and bool(
+            self.azure_docintel_endpoint and self.azure_docintel_api_key
+        )
 
     @property
     def llm_enabled(self) -> bool:

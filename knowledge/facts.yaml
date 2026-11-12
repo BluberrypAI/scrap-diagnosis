@@ -265,6 +265,19 @@ sludge_solids_pct:
     method: 폐기물공정시험기준(국립환경과학원고시 제2025-21호) 수분·고형물 시험
     report: 고형물함량(%)
 
+sludge_organic_pct:
+  label: 유기성물질 함량(고형물 중)
+  type: number
+  unit: "%"
+  cost: TEST
+  question: 이 오니의 고형물 중 유기성물질(유기물) 함량은 몇 %인가요?
+  how_to_check:
+    - text: 시험성적서의 '유기물 함량' 값을 보세요. 고형물 기준 값인지(수분을 뺀 고형물 중 비율) 함께 확인하세요.
+  test:
+    item: 강열감량 및 유기물 함량
+    method: 폐기물공정시험기준 ES 06301.1d 강열감량 및 유기물 함량-중량법
+    report: 유기물 함량(%, 고형물 중)
+
 sludge_facility_notified:
   label: 고시된 오니 발생시설
   type: bool
@@ -406,6 +419,15 @@ pcb_leach_mg_l:
     item: 폴리클로리네이티드비페닐(PCBs) 용출
     method: 폐기물공정시험기준 용출시험 + PCBs 시험
     report: 용출액 mg/L
+
+chemical_itself:
+  label: 약품·시약 그 자체
+  type: bool
+  cost: USER
+  question: 버리는 것이 쓰지 않았거나 쓰다 남은 약품·시약 그 자체인가요? (원액·폐시약·남은 약품 등)
+  how_to_check:
+    - text: 공정에서 생긴 찌꺼기·부산물(오니·광재·분진·플라스틱 자투리 등)은 약품 그 자체가 아닙니다.
+    - text: 병·통에 든 원액, 유통기한이 지난 시약, 쓰다 남은 약품을 버리는 경우는 약품 그 자체입니다.
 
 toxic_chemical_discard:
   label: 유해화학물질 폐기
