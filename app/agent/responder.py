@@ -128,7 +128,10 @@ def build_payload(
                 for k in (g.facts if g else ())
                 if k not in q.facts and k in step.effective and step.effective[k].is_known
             ]
-            p["question"]["items"] = [_fact_label(kb, k) for k in q.facts]
+            # 묶음 카드와 같은 쉬운 항목 문구를 넘긴다(판정 화면용 이름은 법 용어라 질문에 쓰지 않음)
+            p["question"]["items"] = [
+                (g.item_label(k) if g else None) or _fact_label(kb, k) for k in q.facts
+            ]
             if answered:
                 # 일부만 답한 묶음을 다시 물을 때: 남은 항목만 짚는다
                 p["question"]["already_answered"] = [_fact_label(kb, k) for k in answered]

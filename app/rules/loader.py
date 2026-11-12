@@ -500,6 +500,7 @@ def parse_groups(raw: Any) -> list[QuestionGroup]:
                 expand_label=g.get("expand_label", "해당하는 게 있어요 / 잘 모르겠어요"),
                 help=g.get("help"),
                 ask_cost=float(g.get("ask_cost", 1)),
+                item_labels=tuple((g.get("item_labels") or {}).items()),
             )
         )
     return out

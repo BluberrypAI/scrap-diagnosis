@@ -177,6 +177,11 @@ class QuestionGroup:
     expand_label: str = "해당하는 게 있어요 / 잘 모르겠어요"
     help: str | None = None
     ask_cost: float = 1.0
+    # 묶음 카드에 보이는 항목 문구((사실 키, 문구) 쌍). 없으면 사실의 label을 쓴다
+    item_labels: tuple[tuple[str, str], ...] = ()
+
+    def item_label(self, key: str) -> str | None:
+        return dict(self.item_labels).get(key)
 
 
 # ---- 코드표 ------------------------------------------------------------------------------

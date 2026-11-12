@@ -444,7 +444,10 @@ def question_view(kb: KnowledgeBase, q: QuestionChoice, effective: dict[str, Fac
     value_type = None
     if q.unit == "group":
         g = kb.group(q.key)
-        items = [QuestionItem(key=k, label=fact_label(kb, k)) for k in q.facts]
+        items = [
+            QuestionItem(key=k, label=(g.item_label(k) if g else None) or fact_label(kb, k))
+            for k in q.facts
+        ]
         for k in g.facts if g else ():
             f = effective.get(k)
             if k in q.facts or f is None or not f.is_known:
