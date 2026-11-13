@@ -1,6 +1,6 @@
 # UI용 API 보강 형식 (ui-v1)
 
-`docs/ui/ui-design.md`의 화면을 그리기 위해 기존 API에 **추가**하는 필드다. 기존 필드는 바꾸거나 지우지 않는다. 백엔드 구현과 참조 프론트(`web/`)는 이 문서를 기준으로 맞춘다. 이름이나 형식을 바꿔야 하면 이 문서부터 고친다.
+`docs/ui/ui-design.md`의 화면을 그리기 위해 기존 API에 **추가**하는 필드다. 기존 필드는 바꾸거나 지우지 않는다. 백엔드 구현과 scrap-web 문진 화면은 이 문서를 기준으로 맞춘다. 이름이나 형식을 바꿔야 하면 이 문서부터 고친다.
 
 ## 1. `TurnResponse.ui` 추가 필드
 모든 턴 응답(`POST /cases`, `…/diagnosis/messages`, `…/documents`, `…/reopen`의 `turn`, `GET /cases/{id}`의 `latest_turn`)에 들어간다.
@@ -95,7 +95,7 @@ NO_CANDIDATE 충돌은 `fact`에 원인 사실 목록의 첫 키, `facts`에 전
            "terms": [{"term": "용출", "plain": "…", "example": null}], "review": "UNVERIFIED"}
 ```
 - 화면: `text`는 AI 말풍선(질문 말풍선 앞), `sources`는 "근거 보기" 접기, `terms`는 "용어 설명" 접기. `review`가 `UNVERIFIED`면 "검토 전 규칙 · 참고용"을 붙인다.
-- 판정에 쓰지 않는다. 질문 카드·판정 보드는 직전과 같다(참조 화면 `web/src/components/AssistBubble.jsx`).
+- 판정에 쓰지 않는다. 질문 카드·판정 보드는 직전과 같다(scrap-web `src/features/diagnosis/components/AssistBubble.jsx`).
 
 ## 2. 대화 기록: `GET /cases/{id}` 의 `conversation`
 `CaseDetail`에 `conversation[]`을 추가한다. 새로고침하거나 다시 들어왔을 때 대화를 다시 그리기 위해서다.

@@ -6,35 +6,20 @@
 
 엔진이 질문을 고르고 판정하는 방법: [docs/engine/algorithm.md](docs/engine/algorithm.md)
 
-## 웹 화면에서 바로 써 보기
+## 화면에서 써 보기
 
-참조 화면(`web/`, UI팀 확인용 테스트 화면)으로 문진·판정·보충 설명을 직접 눌러 볼 수 있다.
+문진 화면은 **scrap-web**이 맡는다(`/wastes/case-<건 ID>/survey`). scrap-web → scrap-server(`/api/v1/diagnosis`) → 이 엔진(`/internal/v1`) 순서로 부른다.
+예전 참조 화면(`web/`)은 scrap-web으로 옮긴 뒤 이 저장소에서 지웠고, 원본은 `archive/reference-web-ui` 브랜치에 보관한다.
 
-**준비(처음 한 번)**: Python 패키지 관리자 [uv](https://docs.astral.sh/uv/), Node.js 20 이상
+**엔진만 띄우기**
 ```bash
 uv sync
-cd web && npm install && cd ..
 cp .env.example .env        # 실제 AI를 쓰려면 AZURE_OPENAI_* 값을 채운다(값은 팀에서 따로 받음)
-uv run alembic -x url=sqlite:///var/ui.db upgrade head   # 화면용 테스트 DB
+DATABASE_URL=sqlite:///var/ui.db uv run uvicorn app.main:app --port 8030   # API 문서 http://localhost:8030/docs
 ```
+Windows PowerShell이면 `$env:DATABASE_URL="sqlite:///var/ui.db"; uv run uvicorn app.main:app --port 8030`로 실행한다.
+scrap-server는 `DIAGNOSIS_ENGINE_URL=http://127.0.0.1:8030`과 이 엔진과 같은 `ENGINE_SERVICE_TOKEN`(영문·숫자만)을 넣고 띄운다.
 `AZURE_OPENAI_*` 값을 비워 두면(또는 `LLM_PROVIDER=off`) AI 없이 동작한다. 이때는 자유 문장을 알아듣지 못하므로 선택지 버튼으로만 답한다.
-
-**실행(터미널 두 개)**
-```bash
-# 1) 엔진 API (http://localhost:8030, API 문서 /docs)
-DATABASE_URL=sqlite:///var/ui.db uv run uvicorn app.main:app --port 8030
-```
-```bash
-# 2) 화면 (http://localhost:5180)
-cd web && npm run dev
-```
-Windows PowerShell이면 1)을 `$env:DATABASE_URL="sqlite:///var/ui.db"; uv run uvicorn app.main:app --port 8030`로 실행한다. 화면은 `/api` 요청을 `VITE_PROXY_TARGET`(기본 `http://127.0.0.1:8030`)으로 넘긴다.
-엔진 없이 화면만 보려면 `cd web && npm run dev:mock`(목 API, 정해진 시나리오만).
-
-**써 보기**
-1. http://localhost:5180 → "회사 만들기"에 아무 이름을 넣고, 배출시설에서 "대기 배출시설"을 골라 저장한다(로그인은 다른 팀 담당이라 개발용 회사 선택으로 대신한다).
-2. "새 문진"에 폐기물을 말로 적거나 예시 버튼을 누른다. 질문 카드의 버튼이나 자유 문장으로 답한다. 실제 AI를 쓰면 한 턴에 5~10초 걸린다.
-3. 결과가 나오면 "확정"을 누른다. 확정하면 경로추천 AI로 넘길 인계 객체가 만들어진다(문진 화면 "기록").
 
 | 입력해 볼 문장 | 확인할 것 |
 |---|---|
@@ -45,11 +30,7 @@ Windows PowerShell이면 1)을 `$env:DATABASE_URL="sqlite:///var/ui.db"; uv run 
 | `근처 처리업체 추천해 줘` | 문진만 돕는다고 안내하고 원래 질문 유지 |
 | `폐수처리 오니` → 함수율 `모르겠어요` | 추측하지 않고 시험성적서 요청 |
 
-**개발자 화면**(개발 서버 `npm run dev`에서만 보임, 엔진도 `APP_ENV=prod`면 404)
-- 상단 **"규칙 그래프(개발)"**(`#/dev/rules`): 엔진 규칙 전체 구조(폐기물 해당 → 법 적용 → 사업장 → 소재 분류 × 지정폐기물 법 조항 → 결론), 소재별 판정 흐름과 검색
-- 문진 화면 **"AI 데이터(개발)"**(`#/cases/{id}/dev`): 턴마다 AI에 보낸 데이터·받은 값·guard 채택/버림·질문 점수. "안내용으로 찾은 자료만"으로 보충 설명에 쓴 자료만 따로 본다
-
-자세한 화면 설명은 [docs/ui/handover.md](docs/ui/handover.md).
+개발용 API(`/dev/rules/*`, `/cases/{id}/trace`)는 `APP_ENV=prod`면 404다. 이 API를 그려 보던 개발자 화면(규칙 그래프·AI 데이터)도 `archive/reference-web-ui` 브랜치에 있다.
 
 ## 문진 대화는 어떻게 동작하나 (답변과 질문 구분, 설명 자료)
 
@@ -88,7 +69,7 @@ AI가 엔진을 부르는 구조가 아니라, **코드(하네스)가 AI와 엔�
 ④ 응답 AI: 엔진 결과 + ③의 자료 + 스킬 지침으로 질문 문장과 설명 문장을 쓴다
            검사(app/agent/guard.py): 자료에 없는 번호·숫자 금지, "왜?"는 근거 인용 필수. 실패하면 템플릿 문장
 ```
-AI 호출은 한 턴에 최대 2번(①·④)이다. 무엇을 보내고 받았는지는 개발자 화면 "AI 데이터(개발)" → "안내용으로 찾은 자료만"에서 본다.
+AI 호출은 한 턴에 최대 2번(①·④)이다. 무엇을 보내고 받았는지는 `GET /cases/{id}/trace` 응답에서 본다.
 
 ## 실행
 ```bash
@@ -137,7 +118,7 @@ uv run python scripts/turn_latency.py                     # 실제 Azure로 턴�
 - 설정(`.env`/환경변수): `DATABASE_URL`(기본 `sqlite:///<저장소>/var/app.db`), `KB_DIR`(기본 `data/real`),
   `DB_CREATE_ALL`(기본 true), `LLM_PROVIDER`(off면 LLM 없이 선택지 버튼·라벨만 받음),
   `DB_POOL_SIZE`·`DB_MAX_OVERFLOW`(PostgreSQL 연결 풀), `THREAD_LIMIT`(동시 처리 턴 수, 기본 40)
-- 기업 격리: 서버용 경로 `/internal/v1`은 `Authorization: Bearer <ENGINE_SERVICE_TOKEN>` + `X-Company-Id`(서버 기업 ID). 루트 경로는 개발·참조 화면용으로 `X-Company-Id`만 쓴다. 다른 기업의 건은 404. 자세한 규약은 `docs/api/server-engine-contract.md`.
+- 기업 격리: 서버용 경로 `/internal/v1`은 `Authorization: Bearer <ENGINE_SERVICE_TOKEN>` + `X-Company-Id`(서버 기업 ID). 루트 경로는 개발용으로 `X-Company-Id`만 쓴다. 다른 기업의 건은 404. 자세한 규약은 `docs/api/server-engine-contract.md`.
 - 코드 없는 결론도 확정한다: 규칙 엔진이 분류번호 없이 결론을 낸 경우(폐기물 아님·순환자원·적용 제외·
   생활폐기물·해석 필요·일반 번호 없음·시험 필요·혼합물)는 `FINAL_REVIEW`(`verdict.waste_code` null,
   `verdict.outcome`)이고 확정하면 `CODE_CONFIRMED`다. 결론이 나지 않은 경우(질문 상한·증빙 거부·규칙 없음)는

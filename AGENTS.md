@@ -16,7 +16,7 @@ Re:Source AI 조직의 **폐기물 진단 엔진(waste-diagnosis)**. 모든 AI �
 | [docs/handoff-contract.md](docs/handoff-contract.md) | 확정·인계 객체(`diagnosis-handoff-v1`)를 바꿀 때 |
 | [knowledge/README.md](knowledge/README.md) | 규칙 원본(법 규칙·소재·번호 대응·근거)을 고치거나 빌드할 때 |
 | [docs/rule-changes/](docs/rule-changes/) | 규칙 내용(판정)을 바꿀 때: 주제별 차이 보고서를 여기에 남김 |
-| [docs/ui/ui-contract.md](docs/ui/ui-contract.md), [docs/ui/ui-design.md](docs/ui/ui-design.md) | 화면용 응답 필드, 참조 화면(`web/`)을 고칠 때 |
+| [docs/ui/ui-contract.md](docs/ui/ui-contract.md), [docs/ui/ui-design.md](docs/ui/ui-design.md) | 화면(scrap-web)이 쓰는 응답 필드를 바꿀 때 |
 | [docs/llm-data-policy.md](docs/llm-data-policy.md) | AI 호출·프롬프트·Trace 기록을 바꿀 때 |
 | [docs/agent-changelog.md](docs/agent-changelog.md) | 에이전트 문서를 고칠 때 |
 | 팀 공통 규칙(조직 `.github`의 CONTRIBUTING.md) | 브랜치·커밋·PR을 만들 때, 다른 레포와의 경계·API 형식을 바꿀 때 |
@@ -32,7 +32,7 @@ Re:Source AI 조직의 **폐기물 진단 엔진(waste-diagnosis)**. 모든 AI �
 7. 비밀값은 코드·커밋·로그에 쓰지 않는다. 로컬은 `.env`(git 제외), 변수 이름은 `.env.example`에 값 없이 둔다. `.env` 값을 출력하지 않는다
 8. 사용자에게 보이는 문서와 응답은 한국어로 쓴다. 코드 식별자와 커밋 메시지 제목은 영어로 쓴다(본문은 한국어 가능)
 9. develop·main에 직접 커밋하지 않는다. 작업 브랜치 `<종류>/<번호>-<설명>`(feat·fix·docs·chore·refactor·test)에서 커밋하고, push·PR·병합은 사용자가 요청할 때만 한다
-10. `web/`은 UI팀이 동작·형식을 확인하는 테스트용 화면이다. scrap-web에 복사할 코드로 만들지 않는다
+10. 화면은 scrap-web 담당이다. 예전 참조 화면(`web/`)은 scrap-web으로 옮긴 뒤 지웠고 `archive/reference-web-ui` 브랜치에 보관한다
 
 ## 3. 구조
 
@@ -47,7 +47,6 @@ Re:Source AI 조직의 **폐기물 진단 엔진(waste-diagnosis)**. 모든 AI �
 | `data/real/` | 엔진이 읽는 규칙 데이터(`knowledge/`로 빌드한 생성물, 생성 규칙마다 `source_rule`·조문 위치) |
 | `data/sample/` | 테스트용 작은 규칙 데이터(손으로 관리, 빌드하지 않음) |
 | `tests/`, `scripts/`, `tools/` | 테스트, 평가·측정 스크립트, 규칙 빌드(`build_kb.py`)·판정표 회귀(`legacy_regression.py`) |
-| `web/` | 테스트용 참조 화면(React + Vite) |
 
 ## 4. 명령어
 
@@ -63,7 +62,6 @@ uv run python scripts/eval.py --mock-extractor  # 골든 시나리오(AI 없이)
 uv run python tools/review_kit.py export        # 전문가 검토 카드(build/review/)
 docker compose up -d db                         # PostgreSQL(호스트 포트 55432)
 TEST_DATABASE_URL=postgresql+psycopg://wd:wd@localhost:55432/postgres uv run pytest
-cd web && npm test && npm run build             # 참조 화면
 ```
 
 CI(`.github/workflows/ci.yml`)는 develop·main 대상 PR과 push에서 위 검사를 SQLite와 PostgreSQL 기준으로 실행한다.
