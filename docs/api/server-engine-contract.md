@@ -183,3 +183,9 @@ POST /internal/v1/cases/C1/documents/D1/values/apply
 **서버 타임아웃:** 실제 Azure로 잰 턴당 지연은 중앙값 4.4초, 최대 8.2초였다(`docs/perf/turn-latency.md`). 이 경로의 서버 타임아웃은 30초를 권한다. 타임아웃 뒤 다시 보내기 전에 `GET /cases/{id}`로 그 턴이 저장됐는지 확인한다.
 
  기존 개발 DB에는 `alembic upgrade head`(0004: `companies.external_id`, 0005: `document_values`, `documents.version`, `fact_records.revoked`)가 필요하다.
+
+### 추가 응답: 재활용 유형표 조회
+
+확정 응답의 handoff.recycling과 건 상세 GET 응답의 recycling에 유형표·출처·기준일을 제공한다.
+이전 immutable 판정은 보충 응답만 제공한다. 인증·기업 소유권 검사는 기존 GET과 같다.
+규격은 [인계 계약](../handoff-contract.md)의 재활용 유형 절을 참조한다.

@@ -196,6 +196,7 @@ class CaseDetail(BaseModel):
     documents: list[DocumentOut]
     # 현재(대체되지 않은) 확정 판정의 인계 객체. 확정 전·reopen 뒤에는 null
     handoff: dict[str, Any] | None = None
+    recycling: dict[str, Any] | None = None  # 이전 immutable 판정의 별도 보충 조회
     conversation: list[ConversationItem] = []  # 대화 기록(reopen 전후 포함, 시간순)
 
 

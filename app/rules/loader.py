@@ -643,6 +643,9 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
     skill = skill_path.read_text(encoding="utf-8") if skill_path.exists() else None
     guide_path = data_dir / "question_guide.yaml"
     guide = (_read_yaml(guide_path) or {}) if guide_path.exists() else {}
+    from app.domain.recycling import load_registry
+
+    recycling = load_registry(data_dir / "recycling_types.yaml")
     return KnowledgeBase(
         catalog=catalog,
         tables=tuple(tables),
@@ -651,6 +654,7 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
         warnings=tuple(warnings),
         guidance=guidance,
         glossary=glossary,
+        recycling=recycling,
         rule_notes={str(k): dict(v) for k, v in notes.items()},
         skill_text=skill,
         question_guide={
