@@ -491,10 +491,16 @@ def evaluate(kb: KnowledgeBase, facts: dict[str, Fact], as_of: date) -> Evaluati
     if not pending:
         return EvaluationResult(as_of=as_of, table_status="NONE")
     # PENDING: 테이블 선택 사실을 먼저 묻는다.
-    sub = [evaluate_table(t, facts, kb.catalog, as_of) for t, _ in pending]
     merged: dict[str | None, Candidate] = {}
-    for r in sub:
-        for c in r.candidates:
+    for table, _ in pending:
+        # 선택 전에는 후보 목록만 쓴다. 각 테이블의 확정·질문·증빙 집계까지
+        # 만들지 않아도 후보와 우선순위는 동일하며, 아직 어떤 판정도 확정하지 않는다.
+        rules = table.rules_as_of(as_of)
+        candidates = _candidates(
+            [eval_rule(rule, facts, kb.catalog) for rule in rules],
+            {rule.rule_id: rule for rule in rules},
+        )
+        for c in candidates:
             if c.key not in merged:
                 merged[c.key] = c.model_copy(update={"status": TV.UNKNOWN})
     agg: dict[str, set[str]] = {}

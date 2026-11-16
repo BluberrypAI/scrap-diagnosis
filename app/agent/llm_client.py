@@ -66,7 +66,8 @@ class AzureOpenAIClient:
                 base_url=f"{u.scheme}://{u.netloc}/openai/v1/",
                 api_key=settings.azure_openai_api_key,
                 timeout=settings.llm_timeout_seconds,
-                max_retries=2,
+                # 추출기·응답기가 각 1회 재시도한다. SDK에서 다시 3배로 늘리지 않는다.
+                max_retries=0,
             )
         else:
             self._client = AzureOpenAI(
@@ -74,7 +75,7 @@ class AzureOpenAIClient:
                 api_key=settings.azure_openai_api_key,
                 api_version=settings.azure_openai_api_version,
                 timeout=settings.llm_timeout_seconds,
-                max_retries=2,
+                max_retries=0,
             )
 
     def complete_json(

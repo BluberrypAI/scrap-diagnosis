@@ -8,7 +8,8 @@ import yaml
 from app.agent.router import Branch, SessionState, run_engine
 from app.agent.simulation import simulate
 from app.domain.facts import FactStatus, FactStore
-from app.rules.evaluator import evaluate
+from app.rules.evaluator import TV, eval_expr, evaluate, evaluate_table
+from app.rules.implications import apply_implications
 from app.rules.model import iter_conds
 from tests.conftest import AS_OF, REAL, F
 
@@ -137,3 +138,22 @@ def test_first_question_is_fast(real_kb):
     elapsed = time.perf_counter() - t
     assert step.decision.question.key == "material_group"
     assert elapsed < 1.0, elapsed
+
+
+@pytest.mark.parametrize(
+    "values",
+    [{}, {"oil_presence": "none"}, {"designated_residue": True}, {"pcb_possible": False}],
+)
+def test_pending_candidates_match_full_table_evaluation(real_kb, values):
+    """소재 선택 전의 빠른 집계도 기존 전체 평가와 후보·근거·우선순위가 같다."""
+    facts = apply_implications(real_kb, {key: F(key, value) for key, value in values.items()})
+    result = evaluate(real_kb, facts, AS_OF)
+    assert result.table_status == "PENDING"
+    assert result.decided is None
+    expected = {}
+    for table in real_kb.tables_as_of(AS_OF):
+        if eval_expr(table.applies_when, facts, real_kb.catalog) != TV.UNKNOWN:
+            continue
+        for candidate in evaluate_table(table, facts, real_kb.catalog, AS_OF).candidates:
+            expected.setdefault(candidate.key, candidate.model_copy(update={"status": TV.UNKNOWN}))
+    assert result.candidates == sorted(expected.values(), key=lambda c: (-c.priority, c.key))
