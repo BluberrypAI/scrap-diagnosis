@@ -1,0 +1,48 @@
+# SAMPLE 규칙 테이블: 폐합성수지. 코드·조문은 실제 법령이 아니다.
+table_id: plastic_waste
+title: 폐합성수지 (샘플)
+version: "2026.11.0"
+effective_from: "2026-01-01"
+effective_to: null
+hit_policy: PRIORITY        # 높을수록 우선
+applies_when: { fact: material, op: in, value: [PP, PE, PET, PVC] }
+includes:
+  - ../common/contamination.yaml
+rules:
+  - rule_id: PW-002
+    priority: 20
+    when:
+      all:
+        - { fact: oil_content_pct, op: gte, value: 5, min_status: EVIDENCED }
+    then: { code: SAMPLE-B, category: DESIGNATED, name: "유분 함유 폐합성수지(샘플)" }
+    basis:
+      - { type: LAW, ref: "(샘플) 시행령 별표 Y" }
+  - rule_id: PW-001
+    priority: 10
+    when:
+      all:
+        - { fact: material, op: in, value: [PP, PE] }
+        - { fact: form, op: eq, value: FILM }
+        - { fact: oil_content_pct, op: lt, value: 5, min_status: EVIDENCED }
+    then: { code: SAMPLE-A, category: GENERAL, name: "폐합성수지 필름(샘플)" }
+    basis:
+      - { type: LAW, ref: "(샘플) 시행규칙 별표 X" }
+  - rule_id: PW-003
+    priority: 10
+    when:
+      all:
+        - { fact: form, op: in, value: [RIGID, FOAM] }
+        - { fact: oil_content_pct, op: lt, value: 5, min_status: EVIDENCED }
+    then: { code: SAMPLE-C, category: GENERAL, name: "폐합성수지 성형품(샘플)" }
+    basis:
+      - { type: LAW, ref: "(샘플) 시행규칙 별표 X" }
+  - rule_id: PW-009
+    priority: 1
+    when:
+      all:
+        - { fact: oil_content_pct, op: lt, value: 5, min_status: EVIDENCED }
+        - not: { all: [ { fact: material, op: in, value: [PP, PE] }, { fact: form, op: eq, value: FILM } ] }
+        - not: { fact: form, op: in, value: [RIGID, FOAM] }
+    then: { code: SAMPLE-Z, category: GENERAL, name: "그 밖의 폐합성수지(샘플)" }
+    basis:
+      - { type: LAW, ref: "(샘플) 시행규칙 별표 X 그 밖의" }

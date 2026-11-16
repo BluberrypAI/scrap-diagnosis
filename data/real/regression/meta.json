@@ -1,0 +1,16 @@
+{
+  "source": "material_tables.json",
+  "as_of": "2026-11-06",
+  "base": {
+    "material_fate": "released",
+    "circular_resource_recognized": false,
+    "law_exclusion": "none",
+    "emission_facility": true
+  },
+  "rows": 4281,
+  "kinds": {
+    "CODE": 2332,
+    "CODE_CHOICE": 1716,
+    "STOP": 233
+  }
+}

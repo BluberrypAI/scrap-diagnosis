@@ -1,0 +1,174 @@
+# 실제 변환 규칙(data/real) 골든 세트. 배출시설 여부는 기업 프로필에서 온다고 본다.
+# extract는 --mock-extractor에서 LLM 대신 쓰는 추출 결과다.
+# 세부 소재를 말하면서 큰 분류(material_group)도 함께 뽑혀도 된다. 판정은 소재로만 한다.
+
+- id: GR-001
+  kb: real
+  description: "PP 사출 스크랩, 묶음 질문 두 번으로 일반폐기물 확정"
+  setup: {facts: {emission_facility: true}}
+  turns:
+    - user: "사출 공정에서 PP 불량품 스크랩이 나와요. 고체 덩어리예요."
+      extract:
+        facts:
+          - {key: material, value: pp, quote: "PP"}
+          - {key: physical_state, value: solid, quote: "고체"}
+      expect: {branch: ASK_FACT, ask_fact: contamination_screen}
+    - user: "기름, 잔류물, PCB, 유해화학물질 다 해당 없어요"
+      extract: {group_answer: {group_id: contamination_screen, choice: none_all}}
+      expect: {branch: ASK_FACT, ask_fact: scope_screen}
+    - user: "네 버리는 거고 해당 없어요"
+      extract: {group_answer: {group_id: scope_screen, choice: none_all}}
+      expect: {branch: FINAL_REVIEW, code: 51-03-01, can_confirm: true}
+
+- id: GR-001B
+  kb: real
+  description: "묶음 질문에 일부만 답하면 남은 항목만 다시 묻는다(언급하지 않은 PCB를 '없음'으로 보지 않음)"
+  setup: {facts: {emission_facility: true, material: pp, physical_state: solid}}
+  turns:
+    - user: "폐기물 분류 부탁드려요"
+      extract: {}
+      expect: {branch: ASK_FACT, ask_fact: contamination_screen}
+    - user: "기름이나 약품 묻은 건 없어요"
+      extract:
+        facts:
+          - {key: oil_presence, value: none, quote: "기름이나 약품 묻은 건 없어요"}
+      # 남은 항목을 묶음으로 다시 묻든 하나씩 묻든 맞다(LLM이 '약품'을 어느 사실로 볼지에 따라 다름).
+      # 중요한 것은 언급하지 않은 PCB를 '없음'으로 보고 확정하지 않는 것.
+      expect: {branch: ASK_FACT, can_confirm: false}
+    - user: "PCB 기기랑도 관계없고 나머지도 해당 없어요"
+      extract: {group_answer: {group_id: contamination_screen, choice: none_all}}
+      expect: {branch: ASK_FACT, ask_fact: scope_screen}
+
+- id: GR-002
+  kb: real
+  description: "폐황산: pH는 진술만으로 지정 판정하지 않고 성적서로 확정"
+  setup: {facts: {emission_facility: true}}
+  turns:
+    - user: "도금 라인에서 나온 폐황산 처리 문의입니다"
+      extract:
+        facts:
+          - {key: material, value: h2so4, quote: "폐황산"}
+          - {key: material_group, value: acid_alkali, quote: "폐황산"}
+      expect: {branch: ASK_FACT, ask_fact: contamination_screen}
+    - user: "해당 없음"
+      extract: {group_answer: {group_id: contamination_screen, choice: none_all}}
+      expect: {branch: ASK_FACT, ask_fact: scope_screen}
+    - user: "네, 그렇습니다"
+      extract: {group_answer: {group_id: scope_screen, choice: none_all}}
+      expect: {branch: ASK_FACT, ask_fact: ph}
+    - user: "pH는 1 정도로 알고 있어요"
+      extract:
+        facts:
+          - {key: ph, value: 1, quote: "pH는 1"}
+      expect: {branch: REQUEST_EVIDENCE, documents: [TEST_REPORT], can_confirm: false}
+    - evidence: {ph: 0.8}
+      expect: {branch: FINAL_REVIEW, code: 02-01-02}
+
+- id: GR-003
+  kb: real
+  description: "오니(확인대상 폐기물): 시험 수치는 말로 묻지 않고 성적서를 한 번에 요청, 없으면 판정 불가"
+  setup: {facts: {emission_facility: true}}
+  turns:
+    - user: "폐수처리장에서 나온 무기성 오니입니다. 기름이나 유해물질은 없고, 내보내는 폐기물이에요."
+      extract:
+        facts:
+          - {key: material, value: sludge_ww_inorganic, quote: "무기성 오니"}
+          - {key: material_group, value: sludge, quote: "오니"}
+          - {key: oil_presence, value: none, quote: "기름이나 유해물질은 없고"}
+          - {key: toxic_chemical_discard, value: false, quote: "기름이나 유해물질은 없고"}
+          - {key: material_fate, value: released, quote: "내보내는 폐기물이에요"}
+      expect: {branch: ASK_FACT}
+    - quick_reply: {key: contamination_screen, kind: none_all}
+    - quick_reply: {key: scope_screen, kind: none_all}
+    - quick_reply: {key: sludge_facility_notified, value: true}
+      expect: {branch: REQUEST_EVIDENCE, documents: [TEST_REPORT]}
+    - user: "성적서는 아직 없어요"
+      extract: {evidence_refused: true}
+      expect: {branch: UNSUPPORTED, failure_reason: UNDETERMINABLE}
+
+- id: GR-004
+  kb: real
+  description: "사용자가 번호를 말해도 바로 확정하지 않고 조건을 확인"
+  setup: {facts: {emission_facility: true}}
+  turns:
+    - user: "PE 필름인데 예전에 51-03-01로 신고했었어요"
+      extract:
+        user_code_claim: "51-03-01"
+        facts:
+          - {key: material, value: pe, quote: "PE"}
+      expect: {branch: ASK_FACT, can_confirm: false}
+
+- id: GR-005
+  kb: real
+  description: "아직 공정에서 쓴다는 답만으로는 비폐기물로 확정하지 않음 → 해석 필요(코드 없는 결론)로 확정 가능"
+  setup: {facts: {emission_facility: true}}
+  turns:
+    - user: "PP 원료 펠릿인데 아직 공정에서 계속 쓰는 물건이에요. 순환자원 인정은 안 받았어요."
+      extract:
+        facts:
+          - {key: material, value: pp, quote: "PP"}
+          - {key: material_fate, value: still_used, quote: "아직 공정에서 계속 쓰는 물건이에요"}
+          - {key: circular_resource_recognized, value: false, quote: "순환자원 인정은 안 받았어요"}
+      expect: {branch: FINAL_REVIEW, can_confirm: true, code: null, outcome: INTERPRETATION_NEEDED}
+
+- id: GR-006
+  kb: real
+  description: "유해화학물질이 묻은 PP → 번호 선택지에서 고름"
+  setup: {facts: {emission_facility: true, material: pp, physical_state: solid,
+                  material_fate: released, circular_resource_recognized: false, law_exclusion: none}}
+  turns:
+    - user: "MSDS에 유해화학물질로 표시된 물질을 버리는 거예요. 기름이나 잔류물은 없고 PCB랑은 관계없어요."
+      extract:
+        facts:
+          - {key: oil_presence, value: none, quote: "기름이나 잔류물은 없고"}
+          - {key: designated_residue, value: false, quote: "기름이나 잔류물은 없고"}
+          - {key: toxic_chemical_discard, value: true, quote: "MSDS에 유해화학물질로 표시된 물질을 버리는 거예요"}
+          - {key: pcb_possible, value: false, quote: "PCB랑은 관계없어요"}
+      expect: {branch: ASK_FACT, ask_fact: annex4_code}
+    - quick_reply: {key: annex4_code, value: 09-01-00}
+      expect: {branch: FINAL_REVIEW, code: 09-01-00}
+
+# ---- 소재 2단계 질문: 소재 분류(material_group) → 소재(material) ----
+
+- id: GR-007
+  kb: real
+  description: "큰 분류(폐유기용제)만 말함 → 분류 질문 없이 용제·페인트 소재 중에서 묻는다"
+  setup: {facts: {emission_facility: true}}
+  turns:
+    - user: "폐유기용제가 나와요"
+      extract:
+        facts:
+          - {key: material_group, value: solvent_paint, quote: "폐유기용제"}
+      expect: {branch: ASK_FACT, ask_fact: material, can_confirm: false}
+    - user: "세척에 쓰고 남은 시너예요"
+      extract:
+        facts:
+          - {key: material, value: solvent_other, quote: "시너"}
+      expect: {branch: ASK_FACT, ask_fact: contamination_screen}
+
+- id: GR-008
+  kb: real
+  description: "아무 정보 없이 시작 → 소재 분류를 먼저 묻고, 고른 분류의 소재만 선택지로"
+  setup: {facts: {emission_facility: true}}
+  turns:
+    - user: "폐기물 분류 문의드립니다"
+      extract: {}
+      expect: {branch: ASK_FACT, ask_fact: material_group}
+    - quick_reply: {key: material_group, value: acid_alkali}
+      expect: {branch: ASK_FACT, ask_fact: material}
+    - user: "가성소다 용액이에요"
+      extract:
+        facts:
+          - {key: material, value: caustic_solution, quote: "가성소다"}
+      expect: {branch: ASK_FACT, ask_fact: contamination_screen}
+
+- id: GR-009
+  kb: real
+  description: "여러 재질이 섞여 나눌 수 없음 → 해당 소재가 하나라 자동으로 정하고 다음 질문으로"
+  setup: {facts: {emission_facility: true}}
+  turns:
+    - user: "여러 재질이 뒤섞여 있어서 분리가 안 되는 폐기물이에요"
+      extract:
+        facts:
+          - {key: material_group, value: special, quote: "여러 재질이 뒤섞여 있어서 분리가 안 되는 폐기물"}
+      expect: {branch: ASK_FACT, ask_fact: contamination_screen}
