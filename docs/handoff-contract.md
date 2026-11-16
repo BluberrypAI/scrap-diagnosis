@@ -82,3 +82,18 @@
   outcome의 항목이 하나라도 없으면 KB 로드(서버 시작)가 실패한다. action·outcome은 계약의 값만 받는다.
 - confirm의 `expected_code`: 코드 없는 결론이면 outcome(`NOT_WASTE` 또는 `@NOT_WASTE`)과 비교한다. 분류번호를 보내면 409.
 
+
+## 재활용 유형 인계 (2026-11-16)
+
+확정 인계 객체의 `recycling`에는 별표 4의3에서 조회한 유형이 들어간다.
+분류를 결정하는 기능이나 시설 허가 판정이 아니다. 현재 일반 플라스틱·금속 14개 번호만 대조했다.
+
+- `status`: `table_listed`(표 등재), `not_applicable`(일반 경로 대상 아님), `not_covered`(자료 범위 밖), `out_of_date`(법 기준일 불일치).
+- `types.free / analysis / unmarked`: 사전 분석 해당 없음 / 분석·확인 필요 / 불명. R-10이 두 그룹에 있으면 모두 보존한다.
+- `source`: 원문 URL·시행일·별표 개정일·확인일·원문 SHA-256. `pages`, `notes`, 별도 자료 `version/checksum`도 전달한다.
+- `case_id`, `verdict_version`, `waste_code`, `as_of`로 판정과 묶는다. `facility_permit_verified`는 항상 false.
+
+`GET /internal/v1/cases/{id}`의 최상위 `recycling`은 현재 판정에 대한 보충 조회다.
+이전 확정 건도 소유권 검사 후 조회하되 저장된 handoff·Verdict·Trace는 수정하지 않는다.
+최상위 보충 조회가 있으면 서버는 번호·버전·기준일을 대조한 뒤 사용한다.
+B의 실제 산출물은 A와 같다고 가정하지 않는다. 서버는 후속 후보 검토에 A의 번호·R유형을 자동 재사용하지 않는다.

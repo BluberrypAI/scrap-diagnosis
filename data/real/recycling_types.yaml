@@ -1,0 +1,229 @@
+version: annex43-2025-12-30-checked-2026-11-16
+valid_from: '2026-11-12'
+source:
+  title: 폐기물관리법 시행규칙 별표 4의3
+  url: https://www.law.go.kr/LSW/flDownload.do?bylClsCd=110201&flSeq=171400843&gubun=
+  law_url: https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=291947
+  law_effective_from: '2026-11-12'
+  annex_revision: '2025-12-30'
+  checked_on: '2026-11-16'
+  sha256: 34983e831af31bfdfd0e9e350fdbe435dd0a942364e23ec2e27bbac4a7b6ac48
+notes:
+- 유형표에 등재된 범위입니다. 해당 업체의 허가·물량 반입 승인·안전성 검사를 뜻하지 않습니다.
+- 사전 분석 해당 유형은 재활용 전에 분석 결과 등으로 구체적 재활용 기준 충족 여부를 확인해야 합니다(비고 3).
+- R-10은 같은 분석 조건에 속한 최종 재활용 유형을 위한 중간가공입니다. 최종 목적을 정하지 않고 분석 면제로 판단하지 않습니다(비고 4).
+- 표에 없는 유형은 자동 금지를 뜻하지 않으며 재활용환경성평가 등 별도 검토가 필요합니다(비고 1·2).
+rows:
+  51-03-01:
+    pages:
+    - 9
+    types:
+      free:
+      - R-1
+      - R-2
+      - R-3-2
+      - R-3-3
+      - R-3-4
+      - R-4-4
+      - R-9-3
+      - R-10
+      analysis:
+      - R-8-1
+      - R-8-2
+      - R-9-1
+      - R-10
+      unmarked: []
+  51-03-02:
+    pages:
+    - 9
+    - 10
+    types:
+      free:
+      - R-1-1
+      - R-2-1
+      - R-3-3
+      - R-3-4
+      - R-4-4
+      - R-9-3
+      - R-10
+      analysis:
+      - R-8-1
+      - R-8-2
+      - R-9-1
+      - R-10
+      unmarked: []
+  51-03-03:
+    pages:
+    - 10
+    types:
+      free:
+      - R-1-1
+      - R-2-1
+      - R-3-3
+      - R-4-4
+      - R-10
+      analysis:
+      - R-8-1
+      - R-9-1
+      - R-10
+      unmarked: []
+  51-03-04:
+    pages:
+    - 10
+    types:
+      free:
+      - R-1-1
+      - R-2-1
+      - R-3-3
+      - R-4-4
+      - R-9-3
+      - R-10
+      analysis:
+      - R-8-1
+      - R-8-2
+      - R-9-1
+      - R-10
+      unmarked: []
+  51-03-05:
+    pages:
+    - 10
+    types:
+      free:
+      - R-1
+      - R-2
+      - R-3-3
+      - R-4-4
+      - R-9-3
+      - R-10
+      analysis:
+      - R-8-1
+      - R-8-2
+      - R-9-1
+      - R-10
+      unmarked: []
+  51-03-06:
+    pages:
+    - 10
+    types:
+      free:
+      - R-1-1
+      - R-2-1
+      - R-3-3
+      - R-3-4
+      - R-4-4
+      - R-9-3
+      - R-10
+      analysis:
+      - R-8-1
+      - R-8-2
+      - R-9-1
+      - R-10
+      unmarked: []
+  51-03-07:
+    pages:
+    - 10
+    types:
+      free:
+      - R-1
+      - R-2
+      - R-3-3
+      - R-3-4
+      - R-4-4
+      - R-9-3
+      - R-10
+      analysis:
+      - R-3-5
+      - R-8-1
+      - R-8-2
+      - R-9-1
+      - R-10
+      unmarked: []
+  51-03-08:
+    pages:
+    - 10
+    types:
+      free:
+      - R-1
+      - R-2
+      - R-3-3
+      - R-4-4
+      - R-9-3
+      - R-9-1
+      - R-10
+      analysis:
+      - R-8-1
+      - R-8-2
+      - R-10
+      unmarked: []
+  51-03-99:
+    pages:
+    - 10
+    types:
+      free:
+      - R-1
+      - R-2
+      - R-3-1
+      - R-3-3
+      - R-3-4
+      - R-4-4
+      - R-9-3
+      - R-10
+      analysis:
+      - R-8-2
+      - R-10
+      unmarked: []
+  51-29-01:
+    pages:
+    - 20
+    types:
+      free:
+      - R-3-3
+      - R-4-1
+      - R-10
+      analysis: []
+      unmarked: []
+  51-29-02:
+    pages:
+    - 20
+    types:
+      free:
+      - R-3-1
+      - R-3-2
+      - R-3-3
+      - R-4-1
+      - R-10
+      analysis: []
+      unmarked: []
+  51-29-03:
+    pages:
+    - 20
+    types:
+      free:
+      - R-3-3
+      - R-4-1
+      - R-10
+      analysis: []
+      unmarked: []
+  51-29-04:
+    pages:
+    - 20
+    types:
+      free:
+      - R-2-1
+      - R-3-3
+      - R-4-1
+      - R-10
+      analysis: []
+      unmarked: []
+  51-29-99:
+    pages:
+    - 20
+    types:
+      free:
+      - R-3-1
+      - R-3-2
+      - R-3-3
+      - R-4-1
+      - R-10
+      analysis: []
+      unmarked: []

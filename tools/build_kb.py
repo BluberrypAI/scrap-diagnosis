@@ -57,6 +57,7 @@ SOURCE_FILES = (
 # 빌드가 쓰는 파일(data/real/ 기준). --check는 이것만 비교한다.
 # regression/(기존 엔진 판정표 기준)과 scenarios/(시뮬레이터 시나리오)는 빌드하지 않는다.
 GENERATED_FILES = (
+    "recycling_types.yaml",
     "facts_catalog.yaml",
     "question_groups.yaml",
     "codes.yaml",
@@ -886,6 +887,7 @@ class Converter:
         (out / "skills").mkdir(exist_ok=True)
         shutil.copyfile(self.src / "skills" / "interviewer.md", out / "skills" / "interviewer.md")
         shutil.copyfile(self.src / "question_guide.yaml", out / "question_guide.yaml")
+        shutil.copyfile(self.src / "recycling_types.yaml", out / "recycling_types.yaml")
         self.write_report(out, n)
         print(f"테이블 {n}개, 사실 {len(self.used_facts)}개 → {out}")
 

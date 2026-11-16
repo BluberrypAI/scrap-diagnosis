@@ -237,6 +237,8 @@ class KnowledgeBase:
     # 질문 안내(knowledge/question_guide.yaml): {"facts": {...}, "topics": {...}, "groups": {...}}
     question_guide: dict[str, Any] = field(default_factory=dict)
 
+    recycling: dict[str, Any] = field(default_factory=dict)
+
     def tables_as_of(self, as_of: date) -> tuple[Table, ...]:
         return tuple(t for t in self.tables if t.is_effective(as_of))
 
