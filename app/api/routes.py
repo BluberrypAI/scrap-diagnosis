@@ -54,6 +54,7 @@ from app.api.schemas import (
 from app.api.service import CaseService, ServiceError
 from app.config import Settings
 from app.domain.case import CaseStatus
+from app.domain.recycling import assess_recycling
 from app.domain.verdict import TurnResponse
 from app.persistence.models import Company, Document, WasteCase, new_id
 
@@ -301,6 +302,9 @@ def get_case(case_id: str, svc: ServiceDep) -> CaseDetail:
         latest_turn=svc.latest_turn(case),
         documents=[_doc_out(svc, d) for d in svc.documents(case)],
         handoff=current.handoff if current else None,
+        recycling=assess_recycling(svc.kb.recycling, current.handoff).model_dump(mode="json")
+        if current and current.handoff
+        else None,
         conversation=svc.conversation(case),
     )
 

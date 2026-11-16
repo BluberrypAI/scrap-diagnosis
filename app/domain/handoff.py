@@ -14,6 +14,7 @@ from pydantic import BaseModel
 
 from app.domain.clock import seoul_iso
 from app.domain.facts import Fact, document_id_of
+from app.domain.recycling import RecyclingAssessment, assess_recycling
 from app.rules.evaluator import Candidate
 from app.rules.implications import assumption_notes
 from app.rules.model import KnowledgeBase, Rule
@@ -119,6 +120,7 @@ class Handoff(BaseModel):
     inputs: HandoffInputs = HandoffInputs()
     # 시험·서류가 아니라 사용자 답에서 추정한 사실의 안내(추가 필드, 없으면 [])
     assumptions: list[str] = []
+    recycling: RecyclingAssessment | None = None
 
 
 def build_handoff(
@@ -154,7 +156,7 @@ def build_handoff(
         HandoffBasis(id=f"B{i}", type=b.type, ref=b.ref, excerpt=b.excerpt)
         for i, b in enumerate(rule.basis if rule else (), start=1)
     ]
-    return Handoff(
+    handoff = Handoff(
         case_id=case_id,
         verdict_version=verdict_version,
         result_type=result_type,
@@ -183,3 +185,6 @@ def build_handoff(
             ),
         ),
     )
+
+    handoff.recycling = assess_recycling(kb.recycling, handoff.model_dump(mode="json"))
+    return handoff

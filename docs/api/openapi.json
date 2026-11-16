@@ -656,6 +656,18 @@
               }
             ]
           },
+          "recycling": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recycling"
+          },
           "verdicts": {
             "items": {
               "$ref": "#/components/schemas/VerdictOut"

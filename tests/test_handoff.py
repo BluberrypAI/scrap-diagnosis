@@ -42,6 +42,7 @@ CONTRACT_ACTIONS = {
     ("NO_CODE", "NO_MIXTURE_RULE"): "MANUAL_CLASSIFICATION",
 }
 HANDOFF_KEYS = {
+    "recycling",
     "contract",
     "case_id",
     "verdict_version",
@@ -307,6 +308,9 @@ def test_waste_code_handoff_has_document_evidence(api):
     assert h["facts"]["emission_facility"]["source_type"] == "PROFILE"
     assert h["kb"]["table_id"] == "plastic_waste" and h["kb"]["table_version"] == "2026.11.0"
     assert r.json()["verdict"]["result_type"] == "WASTE_CODE"
+    detail = api.get(f"/cases/{cid}").json()
+    assert detail["recycling"] == h["recycling"]
+    assert detail["handoff"] == h  # supplementary read never edits the stored verdict
 
 
 def test_undecided_unsupported_confirm_is_409(api):
