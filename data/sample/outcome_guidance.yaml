@@ -1,0 +1,61 @@
+# 결론 종류(result_type, outcome) → 경로추천 AI 안내 (docs/handoff-contract.md, diagnosis-handoff-v1)
+# 사람이 관리하는 파일이다(테스트용 SAMPLE 규칙. 빌드하지 않는다). 확정 시 인계 객체의 route_guidance가 된다.
+# 계약 표의 모든 행과, 규칙에 쓰인 모든 outcome에 항목이 있어야 KB가 로드된다(빠지면 서버 시작 실패).
+# data/real/outcome_guidance.yaml과 같은 표다(SAMPLE 규칙에는 코드 없는 결론이 없지만 계약 표 전체를 둔다).
+guidance:
+  - result_type: WASTE_CODE
+    outcome: null
+    action: RECOMMEND_ROUTE
+    summary: "분류번호와 구분(지정/일반)에 맞는 처리 경로와 처리업체를 추천합니다."
+    notes:
+      - "지정폐기물이면 지정폐기물 처리 허가를 받은 업체만 추천한다."
+      - "판정은 검토 전 규칙(UNVERIFIED)에 따른 참고 판정임을 함께 안내한다."
+  - result_type: NO_CODE
+    outcome: NOT_WASTE
+    action: NO_ROUTE_NEEDED
+    summary: "폐기물관리법상 폐기물이 아니어서 폐기물 처리 경로가 필요하지 않습니다."
+    notes:
+      - "나중에 사용을 그만두고 내보내게 되면 다시 문진을 받도록 안내한다."
+  - result_type: NO_CODE
+    outcome: CIRCULAR_RESOURCE
+    action: NO_ROUTE_NEEDED
+    summary: "순환자원으로 인정받은 물질이라 폐기물로 보지 않습니다. 인정 범위 안에서 거래하면 됩니다."
+    notes:
+      - "순환자원 인정서의 유효기간과 인정 범위(용도·거래 상대)를 확인하도록 권고한다."
+      - "인정 범위를 벗어나 처리하면 다시 문진을 받도록 안내한다."
+  - result_type: NO_CODE
+    outcome: EXCLUDED
+    action: REFER_OTHER_LAW
+    summary: "폐기물관리법이 아닌 다른 법의 적용을 받으므로 그 법에 따른 처리 절차와 담당 기관을 안내합니다."
+    notes:
+      - "적용되는 법은 사실 law_exclusion 값으로 확인한다."
+  - result_type: NO_CODE
+    outcome: HOUSEHOLD
+    action: REFER_MUNICIPALITY
+    summary: "생활폐기물로 보이므로 관할 지자체의 생활폐기물 배출 방법을 안내합니다."
+    notes:
+      - "사업장폐기물 배출자 조건(배출시설·배출량 등)이 새로 확인되면 다시 문진을 받도록 안내한다."
+  - result_type: NO_CODE
+    outcome: INTERPRETATION_NEEDED
+    action: REFER_AUTHORITY
+    summary: "법령만으로 정하기 어려운 경우라 관할 기관(지자체·환경청)에 질의하도록 안내합니다."
+    notes:
+      - "근거 질의회신(basis)을 질의 자료로 첨부하도록 안내한다."
+  - result_type: NO_CODE
+    outcome: CODE_NEEDS_TEST
+    action: NEEDS_TEST
+    summary: "분류번호를 정하려면 성분 분석이 필요하므로 분석기관에서 시험을 받도록 안내합니다."
+    notes:
+      - "시험 결과(시험성적서)가 나오면 문진을 다시 열어 이어 가도록 안내한다."
+  - result_type: NO_CODE
+    outcome: NO_GENERAL_CODE
+    action: MANUAL_CLASSIFICATION
+    summary: "지정폐기물은 아니지만 일반폐기물 세부 분류번호는 담당자 확인이 필요하다고 안내합니다."
+    notes:
+      - "지정폐기물 처리 경로를 추천하지 않는다."
+  - result_type: NO_CODE
+    outcome: NO_MIXTURE_RULE
+    action: MANUAL_CLASSIFICATION
+    summary: "여러 소재가 섞인 폐기물이라 소재별로 나눠 따로 문진하거나 관할 기관에 확인하도록 안내합니다."
+    notes:
+      - "나눌 수 있는 소재는 소재별로 새 건을 만들어 문진하도록 안내한다."

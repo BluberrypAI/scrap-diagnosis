@@ -1,0 +1,42 @@
+# 개발·테스트용 PostgreSQL(+ 선택: 엔진 컨테이너).
+#   docker compose up -d db                 # DB만 (호스트 포트 55432)
+#   docker compose --profile app up -d      # DB + 엔진(포트 8030)
+# 엔진 컨테이너는 시작 전에 alembic upgrade head로 스키마를 만든다.
+# 비밀값은 개발용이다. 운영에서는 배포 환경의 비밀값 저장소를 쓴다.
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: wd
+      POSTGRES_PASSWORD: wd
+      POSTGRES_DB: waste_diagnosis
+    ports:
+      - "55432:5432"
+    volumes:
+      - wd-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wd -d waste_diagnosis"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  engine:
+    profiles: ["app"]
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: prod
+      DATABASE_URL: postgresql+psycopg://wd:wd@db:5432/waste_diagnosis
+      DB_CREATE_ALL: "false"
+      # 기본값 없음: .env에 넣지 않으면 내부 API가 모두 401로 막힌다(fail-closed)
+      ENGINE_SERVICE_TOKEN: ${ENGINE_SERVICE_TOKEN:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-off}
+      THREAD_LIMIT: ${THREAD_LIMIT:-40}
+    command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8030"]
+    ports:
+      - "${ENGINE_PORT:-8030}:8030"
+
+volumes:
+  wd-pg:

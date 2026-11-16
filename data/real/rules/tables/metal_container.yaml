@@ -1,0 +1,813 @@
+# 자동 생성: tools/build_kb.py (knowledge e406ce79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+table_id: metal_container
+title: 폐금속용기(드럼 등)
+version: 2026.11.0+kb-e406ce79
+effective_from: '2026-10-02'
+hit_policy: PRIORITY
+applies_when:
+  fact: material
+  op: eq
+  value: metal_container
+includes:
+- ../common/scope.yaml
+- ../common/business.yaml
+rules:
+- rule_id: metal_container:S3-6-OIL-5PCT:06-01-01
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - &id001
+      fact: oil_presence
+      op: eq
+      value: present
+    - &id002
+      fact: oil_content_pct
+      op: gte
+      value: 5
+      min_status: EVIDENCED
+    - &id003
+      not:
+        any:
+        - all:
+          - fact: physical_state
+            op: eq
+            value: liquid
+          - fact: pcb_mg_l
+            op: gte
+            value: 2
+            min_status: EVIDENCED
+        - all:
+          - fact: physical_state
+            op: in
+            value: &id004
+            - solid
+            - semisolid
+          - fact: pcb_leach_mg_l
+            op: gte
+            value: 0.003
+            min_status: EVIDENCED
+    - fact: annex4_code
+      op: eq
+      value: 06-01-01
+  then:
+    code: 06-01-01
+    category: DESIGNATED
+    name: 폐윤활유(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조에 따른 재활용의무 대상 제품·포장재인 기어유 및 내연 기관용 윤활유를 말한다)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-01
+    excerpt: 06-01-01 폐윤활유(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조에 따른 재활용의무 대상 제품·포장재인 기어유 및 내연 기관용 윤활유를 말한다)
+    source_id: RULE-A4
+    location: 06-01-01
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-6-OIL-5PCT:06-01-02
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-01-02
+  then:
+    code: 06-01-02
+    category: DESIGNATED
+    name: 폐연마유·비수용성폐절삭유·폐열처리유(금속가공과정에서 발 생된 것을 말한다)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-02
+    excerpt: 06-01-02 폐연마유·비수용성폐절삭유·폐열처리유(금속가공과정에서 발 생된 것을 말한다)
+    source_id: RULE-A4
+    location: 06-01-02
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-6-OIL-5PCT:06-01-03
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-01-03
+  then:
+    code: 06-01-03
+    category: DESIGNATED
+    name: 폐기계유·폐작동유(공업용 기계유·냉동기유·터어빈유·베어링윤 활유·압축기유·유압작동유·열매체유 및 프로세스유 등을 말한 다)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-03
+    excerpt: 06-01-03 폐기계유·폐작동유(공업용 기계유·냉동기유·터어빈유·베어링윤 활유·압축기유·유압작동유·열매체유 및 프로세스유 등을 말한 다)
+    source_id: RULE-A4
+    location: 06-01-03
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-6-OIL-5PCT:06-01-04
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-01-04
+  then:
+    code: 06-01-04
+    category: DESIGNATED
+    name: 폐연료유
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-04
+    excerpt: 06-01-04 폐연료유
+    source_id: RULE-A4
+    location: 06-01-04
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-6-OIL-5PCT:06-01-05
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-01-05
+  then:
+    code: 06-01-05
+    category: DESIGNATED
+    name: 폐오일필터
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-05
+    excerpt: 06-01-05 폐오일필터
+    source_id: RULE-A4
+    location: 06-01-05
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-6-OIL-5PCT:06-01-06
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-01-06
+  then:
+    code: 06-01-06
+    category: DESIGNATED
+    name: 기름함유 폐전선·폐케이블
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-06
+    excerpt: 06-01-06 기름함유 폐전선·폐케이블
+    source_id: RULE-A4
+    location: 06-01-06
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-6-OIL-5PCT:06-01-07
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-01-07
+  then:
+    code: 06-01-07
+    category: DESIGNATED
+    name: 폐절연유(폴리클로리네이티드비페닐 함유 폐기물을 제외한다)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-07
+    excerpt: 06-01-07 폐절연유(폴리클로리네이티드비페닐 함유 폐기물을 제외한다)
+    source_id: RULE-A4
+    location: 06-01-07
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-6-OIL-5PCT:06-01-99
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-01-99
+  then:
+    code: 06-01-99
+    category: DESIGNATED
+    name: 그 밖의 폐광물유[아스팔트유·그리스(grease)·방청유 및 수용 성절삭유, 20퍼센트 이상의 이물질이 함유된 폐유, 고체상태의 폐유 등을 말한다]
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-01-99
+    excerpt: 06-01-99 그 밖의 폐광물유[아스팔트유·그리스(grease)·방청유 및 수용 성절삭유, 20퍼센트 이상의 이물질이 함유된 폐유, 고체상태의 폐유 등을 말한다]
+    source_id: RULE-A4
+    location: 06-01-99
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-6-OIL-5PCT:06-02-00
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-02-00
+  then:
+    code: 06-02-00
+    category: DESIGNATED
+    name: 폐동식물유
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-02-00
+    excerpt: 06-02-00 폐동식물유
+    source_id: RULE-A4
+    location: 06-02-00
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-6-OIL-5PCT:06-03-00
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: eq
+      value: 06-03-00
+  then:
+    code: 06-03-00
+    category: DESIGNATED
+    name: 그 밖의 폐유
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 06-03-00
+    excerpt: 06-03-00 그 밖의 폐유
+    source_id: RULE-A4
+    location: 06-03-00
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-8GA-PCB-LIQUID:08-03-00
+  source_rule: S3-8GA-PCB-LIQUID
+  priority: 500
+  when:
+    all:
+    - fact: physical_state
+      op: eq
+      value: liquid
+    - fact: pcb_mg_l
+      op: gte
+      value: 2
+      min_status: EVIDENCED
+    - fact: annex4_code
+      op: eq
+      value: 08-03-00
+  then:
+    code: 08-03-00
+    category: DESIGNATED
+    name: 그 밖의 폴리클로리네이티드비페닐을 함유한 액상의 것
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호가목
+    source_id: DEC-A1
+    location: 별표 1 제8호가목
+    excerpt: 액체상태의 것(1리터당 2밀리그램 이상 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호
+    source_id: DEC-A1
+    location: 별표 1 제8호
+    excerpt: 폴리클로리네이티드비페닐 함유 폐기물
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 08-03-00
+    excerpt: 08-03-00 그 밖의 폴리클로리네이티드비페닐을 함유한 액상의 것
+    source_id: RULE-A4
+    location: 08-03-00
+  review_units:
+  - S3-8GA-PCB-LIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-8NA-PCB-NONLIQUID:08-04-00
+  source_rule: S3-8NA-PCB-NONLIQUID
+  priority: 500
+  when:
+    all:
+    - fact: physical_state
+      op: in
+      value: *id004
+    - fact: pcb_leach_mg_l
+      op: gte
+      value: 0.003
+      min_status: EVIDENCED
+    - fact: annex4_code
+      op: eq
+      value: 08-04-00
+  then:
+    code: 08-04-00
+    category: DESIGNATED
+    name: 그 밖의 폴리클로리네이티드비페닐을 함유한 액상이 아닌 것
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호나목
+    source_id: DEC-A1
+    location: 별표 1 제8호나목
+    excerpt: 액체상태 외의 것(용출액 1리터당 0.003밀리그램 이상 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호
+    source_id: DEC-A1
+    location: 별표 1 제8호
+    excerpt: 폴리클로리네이티드비페닐 함유 폐기물
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 08-04-00
+    excerpt: 08-04-00 그 밖의 폴리클로리네이티드비페닐을 함유한 액상이 아닌 것
+    source_id: RULE-A4
+    location: 08-04-00
+  review_units:
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-9-TOXIC:09-01-00
+  source_rule: S3-9-TOXIC
+  priority: 500
+  when:
+    all:
+    - &id005
+      fact: toxic_chemical_discard
+      op: eq
+      value: true
+    - &id006
+      not:
+        any:
+        - all:
+          - fact: physical_state
+            op: eq
+            value: liquid
+          - fact: pcb_mg_l
+            op: gte
+            value: 2
+            min_status: EVIDENCED
+        - all:
+          - fact: physical_state
+            op: in
+            value: *id004
+          - fact: pcb_leach_mg_l
+            op: gte
+            value: 0.003
+            min_status: EVIDENCED
+    - fact: annex4_code
+      op: eq
+      value: 09-01-00
+  then:
+    code: 09-01-00
+    category: DESIGNATED
+    name: 「화학물질관리법」 제2조제5호에 따른 금지물질
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
+    source_id: DEC-A1
+    location: 별표 1 제9호
+    excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-01-00
+    excerpt: 09-01-00 「화학물질관리법」 제2조제5호에 따른 금지물질
+    source_id: RULE-A4
+    location: 09-01-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-9-TOXIC:09-02-00
+  source_rule: S3-9-TOXIC
+  priority: 500
+  when:
+    all:
+    - *id005
+    - *id006
+    - fact: annex4_code
+      op: eq
+      value: 09-02-00
+  then:
+    code: 09-02-00
+    category: DESIGNATED
+    name: 연구·검사용 폐시약
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
+    source_id: DEC-A1
+    location: 별표 1 제9호
+    excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-02-00
+    excerpt: 09-02-00 연구·검사용 폐시약
+    source_id: RULE-A4
+    location: 09-02-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-9-TOXIC:09-03-00
+  source_rule: S3-9-TOXIC
+  priority: 500
+  when:
+    all:
+    - *id005
+    - *id006
+    - fact: annex4_code
+      op: eq
+      value: 09-03-00
+  then:
+    code: 09-03-00
+    category: DESIGNATED
+    name: 「화학물질관리법」 제2조제7호에 따른 유해화학물질
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
+    source_id: DEC-A1
+    location: 별표 1 제9호
+    excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-03-00
+    excerpt: 09-03-00 「화학물질관리법」 제2조제7호에 따른 유해화학물질
+    source_id: RULE-A4
+    location: 09-03-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-9-TOXIC:09-04-00
+  source_rule: S3-9-TOXIC
+  priority: 500
+  when:
+    all:
+    - *id005
+    - *id006
+    - fact: annex4_code
+      op: eq
+      value: 09-04-00
+  then:
+    code: 09-04-00
+    category: DESIGNATED
+    name: 「화학물질관리법」 제2조제3호 및 제4호에 따른 허가물질 및 제한물질
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
+    source_id: DEC-A1
+    location: 별표 1 제9호
+    excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 09-04-00
+    excerpt: 09-04-00 「화학물질관리법」 제2조제3호 및 제4호에 따른 허가물질 및 제한물질
+    source_id: RULE-A4
+    location: 09-04-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-RESIDUE-WASTE_OIL
+  source_rule: S3-RESIDUE-WASTE_OIL
+  priority: 300
+  when:
+    all:
+    - fact: designated_residue
+      op: eq
+      value: true
+    - fact: residue_kind
+      op: eq
+      value: waste_oil
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 폐유가 남은 용기·물건
+  basis:
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    source_id: QA-MOE25
+    location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    excerpt: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 같은 사례
+    source_id: QA-MOE25
+    location: 같은 사례
+    excerpt: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+  review_units:
+  - S3-RESIDUE-WASTE_OIL
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-RESIDUE-ORGANIC_SOLVENT
+  source_rule: S3-RESIDUE-ORGANIC_SOLVENT
+  priority: 300
+  when:
+    all:
+    - fact: designated_residue
+      op: eq
+      value: true
+    - fact: residue_kind
+      op: eq
+      value: organic_solvent
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 폐유기용제가 남은 용기·물건
+  basis:
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    source_id: QA-MOE25
+    location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    excerpt: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 같은 사례
+    source_id: QA-MOE25
+    location: 같은 사례
+    excerpt: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+  review_units:
+  - S3-RESIDUE-ORGANIC_SOLVENT
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-RESIDUE-ACID
+  source_rule: S3-RESIDUE-ACID
+  priority: 300
+  when:
+    all:
+    - fact: designated_residue
+      op: eq
+      value: true
+    - fact: residue_kind
+      op: eq
+      value: acid
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 폐산이 남은 용기·물건
+  basis:
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    source_id: QA-MOE25
+    location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    excerpt: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 같은 사례
+    source_id: QA-MOE25
+    location: 같은 사례
+    excerpt: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+  review_units:
+  - S3-RESIDUE-ACID
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-RESIDUE-ALKALI
+  source_rule: S3-RESIDUE-ALKALI
+  priority: 300
+  when:
+    all:
+    - fact: designated_residue
+      op: eq
+      value: true
+    - fact: residue_kind
+      op: eq
+      value: alkali
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 폐알칼리가 남은 용기·물건
+  basis:
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    source_id: QA-MOE25
+    location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    excerpt: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 같은 사례
+    source_id: QA-MOE25
+    location: 같은 사례
+    excerpt: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+  review_units:
+  - S3-RESIDUE-ALKALI
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-RESIDUE-PAINT
+  source_rule: S3-RESIDUE-PAINT
+  priority: 300
+  when:
+    all:
+    - fact: designated_residue
+      op: eq
+      value: true
+    - fact: residue_kind
+      op: eq
+      value: paint
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 폐페인트가 남은 용기·물건
+  basis:
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    source_id: QA-MOE25
+    location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    excerpt: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 같은 사례
+    source_id: QA-MOE25
+    location: 같은 사례
+    excerpt: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+  review_units:
+  - S3-RESIDUE-PAINT
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:S3-RESIDUE-TOXIC_CHEMICAL
+  source_rule: S3-RESIDUE-TOXIC_CHEMICAL
+  priority: 300
+  when:
+    all:
+    - fact: designated_residue
+      op: eq
+      value: true
+    - fact: residue_kind
+      op: eq
+      value: toxic_chemical
+  then:
+    code: null
+    category: NEEDS_INTERPRETATION
+    outcome: INTERPRETATION_NEEDED
+    name: 유해화학물질이 남은 용기·물건
+  basis:
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    source_id: QA-MOE25
+    location: 자원순환 분야 사례 14(지정폐기물 처리종류 문의) p.245
+    excerpt: 지정폐기물이 아닌 물질에 지정폐기물 잔량이 남아 있거나, 묻어 있는 경우에는 담겨 있던 지정폐기물로 분류하여야 합니다.
+  - type: QA
+    ref: 환경부 질의회신 사례집(2025.7) 같은 사례
+    source_id: QA-MOE25
+    location: 같은 사례
+    excerpt: 이 경우에도 세척 등을 통해 지정폐기물 성분이 제거된다면 재질에 따라 사업장일반폐기물로 분류하여 처리할 수 있으며
+  review_units:
+  - S3-RESIDUE-TOXIC_CHEMICAL
+  - material:metal_container
+  review: UNVERIFIED
+- rule_id: metal_container:GENERAL
+  source_rule: S3-NOT-DESIGNATED
+  priority: 100
+  when:
+    fact: material
+    op: eq
+    value: metal_container
+  then:
+    code: 51-29-04
+    category: GENERAL
+    name: 폐금속용기류(폐금속캔류는 제외한다)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1(지정폐기물의 종류)
+    source_id: DEC-A1
+    location: 별표 1(지정폐기물의 종류)
+    excerpt: 지정폐기물의 종류(제3조 관련)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 4(폐기물의 종류별 세부분류) 51-29-04
+    excerpt: 51-29-04 폐금속용기류(폐금속캔류는 제외한다)
+    source_id: RULE-A4
+    location: 51-29-04
+  review_units:
+  - S3-NOT-DESIGNATED
+  - material:metal_container
+  - code_map
+  review: UNVERIFIED

@@ -1,0 +1,270 @@
+# 소재 카탈로그 — 소재 우선 문진의 첫 질문.
+#
+# 이 파일은 법 판단을 담지 않는다. 법 판단(지정폐기물 여부 등)은 공통 규칙(rules*.yaml)이 한다.
+# 소재가 정하는 것은 세 가지뿐이다.
+#   waste_kind : 공통 규칙이 쓰는 폐기물 종류(facts.yaml의 waste_kind 값)
+#   presets    : 소재가 본질적으로 정하는 사실(예: 폐염산은 액체). 사용자가 따로 답하면 사용자 답이 우선이며,
+#                값이 다르면 자료 충돌로 처리한다.
+#   codes      : 별표 4 번호 후보. GENERAL(사업장일반) / DESIGNATED(지정). 앞 단계 판정이 정한 범위와의
+#                교집합만 남는다. 적지 않은 쪽은 제한하지 않는다(기존 범위·선택 질문으로 감).
+# 번호는 시행규칙 별표 4 명칭에서 옮긴 것이며 review: UNVERIFIED — 법률 검토 대상.
+#
+#   treatment_material : 처리경로 엔진(scrap-ai /api/treatment/next-step)이 받는 재질 키. 지금은 PP·PE·PET·aluminium만.
+#                        금속캔은 알루미늄 캔 시연에 맞춘 것이며 철 캔이면 맞지 않음 → 처리경로 쪽 키가 늘면 함께 보완.
+#
+# 특수 소재
+#   unlisted           : 목록에 없음 → 기존 '폐기물 종류' 질문으로 진행(LLM이 가까운 소재를 제안할 수 있음)
+#   mixed_inseparable  : 여러 소재가 섞여 나누기 어려움 → 지정 성분은 공통 규칙으로 확인, 일반 번호는
+#                        법령에 혼합물 번호 결정 규정이 확인되지 않아 엔진이 정하지 않고 기관 확인을 안내
+
+review: UNVERIFIED
+source: RULE-A4
+
+# 소재만으로 번호를 정할 수 없고 시험·확인이 필요할 때의 안내(code_needs_test 값)
+# 일반 번호를 시험 수치로 가르는 기준(소재의 general_split이 rule로 가리킨다).
+# gte: 기준 이상이면 쓰는 번호, lt: 기준 미만이면 쓰는 번호(소재마다 지정)
+general_splits:
+  organic_sludge:
+    fact: sludge_organic_pct
+    threshold: 40
+    source: RULE-A5
+    location: 2) 사업장일반폐기물의 종류별 처리기준 및 방법 나) 오니
+    quote: 유기성 오니(고형물 중 유기성물질의 함량이 40퍼센트 이상인 것을 말한다. 이하 같다) … 무기성 오니(유기성 오니 외의 오니를 말한다)
+
+groups:
+  plastic: {label: 플라스틱·고무, hint: "PP, PE, PVC, PET, PS, ABS, 우레탄, 스티로폼, 고무"}
+  metal: {label: 금속, hint: "고철, 비철, 금속캔·용기"}
+  slag: {label: 광재(슬래그), hint: "고로·제강 슬래그, 비철 제련 광재"}
+  dust_ash: {label: 분진·소각재, hint: "집진기 분진, 소각 비산재·바닥재"}
+  sand: {label: 주물사·폐사·내화물, hint: "폐주물사, 샌드블라스트 폐사, 폐내화물"}
+  sludge: {label: 오니(슬러지), hint: "폐수처리·공정 오니"}
+  oil: {label: 기름, hint: "윤활유, 절삭유, 작동유, 절연유, 연료유"}
+  acid_alkali: {label: 산·알칼리, hint: "염산, 황산, 질산, 불산, 가성소다"}
+  solvent_paint: {label: 용제·페인트, hint: "유기용제, 유성·수성 페인트, 락카"}
+  wood_paper_fiber: {label: 목재·종이·섬유·유리, hint: "목재 포장재, 폐지, 섬유, 폐유리"}
+  catalyst_adsorbent: {label: 촉매·흡착제, hint: "폐촉매, 폐활성탄, 이온교환수지"}
+  product: {label: 제품·복합물, hint: "피복전선, 전기전자제품, 폐타이어, 태양광 패널, 전지(납축전지 포함)"}
+  special: {label: 목록에 없거나 섞인 것, hint: "목록에 없는 소재, 나누기 어려운 혼합물"}
+  unlisted_family: {label: "목록에 없는 폐기물(별표 4 계열에서 고르기)", hint: "폐콘크리트, 음식물류, 폐석재 등 위 목록에 없는 것"}
+
+materials:
+  # ---------------- 플라스틱·고무
+  pp: {label: "PP(폴리프로필렌)", group: plastic, treatment_material: PP, aliases: [폴리프로필렌, polypropylene], waste_kind: synthetic_resin,
+       codes: {GENERAL: ["51-03-01"], DESIGNATED: ["01-01-02"]}}
+  pe: {label: "PE(폴리에틸렌)", group: plastic, treatment_material: PE, aliases: [폴리에틸렌, HDPE, LDPE, 비닐], waste_kind: synthetic_resin,
+       codes: {GENERAL: ["51-03-01"], DESIGNATED: ["01-01-01"]}}
+  pet: {label: "PET", group: plastic, treatment_material: PET, aliases: [페트, 폴리에틸렌테레프탈레이트], waste_kind: synthetic_resin,
+        codes: {GENERAL: ["51-03-01"], DESIGNATED: ["01-01-04"]}}
+  ps: {label: "PS(폴리스티렌, 발포 아님)", group: plastic, aliases: [폴리스티렌], waste_kind: synthetic_resin,
+       codes: {GENERAL: ["51-03-01"], DESIGNATED: ["01-01-08"]}}
+  abs: {label: "ABS 수지", group: plastic, aliases: [ABS], waste_kind: synthetic_resin,
+        codes: {GENERAL: ["51-03-01"], DESIGNATED: ["01-01-09"]}}
+  phenol_resin: {label: "페놀수지", group: plastic, aliases: [베이클라이트], waste_kind: synthetic_resin,
+                 codes: {GENERAL: ["51-03-01"], DESIGNATED: ["01-01-05"]}}
+  other_resin: {label: "그 밖의 합성수지(PC, 나일론 등)", group: plastic, aliases: [PC, 나일론, 아크릴], waste_kind: synthetic_resin,
+                codes: {GENERAL: ["51-03-01"], DESIGNATED: ["01-01-99"]}}
+  pvc: {label: "PVC(염화비닐)", group: plastic, aliases: [염화비닐, 폴리염화비닐], waste_kind: synthetic_resin,
+        codes: {GENERAL: ["51-03-03"], DESIGNATED: ["01-01-03"]}}
+  pu_foam: {label: "폴리우레탄폼", group: plastic, aliases: [우레탄폼, 스펀지], waste_kind: synthetic_resin,
+            presets: {physical_state: solid}, codes: {GENERAL: ["51-03-04"], DESIGNATED: ["01-01-06"]}}
+  eps: {label: "발포합성수지(스티로폼)", group: plastic, aliases: [스티로폼, EPS], waste_kind: synthetic_resin,
+        presets: {physical_state: solid}, codes: {GENERAL: ["51-03-06"], DESIGNATED: ["01-01-08"]}}
+  plastic_packaging: {label: "플라스틱 포장재", group: plastic, aliases: [포장 비닐, 랩], waste_kind: synthetic_resin,
+                      presets: {physical_state: solid}, codes: {GENERAL: ["51-03-07"]}}
+  fishing_net: {label: "폐어망", group: plastic, waste_kind: synthetic_resin, presets: {physical_state: solid}, codes: {GENERAL: ["51-03-08"]}}
+  aqua_buoy: {label: "양식용 부자", group: plastic, waste_kind: synthetic_resin, presets: {physical_state: solid}, codes: {GENERAL: ["51-03-05"]}}
+  rubber: {label: "합성고무", group: plastic, aliases: [고무], waste_kind: synthetic_rubber,
+           codes: {GENERAL: ["51-03-02"], DESIGNATED: ["01-01-07"]}}
+
+  # ---------------- 금속
+  ferrous_scrap: {label: "고철(철 스크랩)", group: metal, aliases: [철 스크랩, 철칩, 철판 자투리], waste_kind: other,
+                  codes: {GENERAL: ["51-29-01"]}}
+  nonferrous_scrap: {label: "비철금속(구리·알루미늄 등)", group: metal, aliases: [구리, 알루미늄, 동, 신주], waste_kind: other,
+                     codes: {GENERAL: ["51-29-02"]}}
+  metal_can: {label: "폐금속캔", group: metal, treatment_material: aluminium, aliases: [캔], waste_kind: other, codes: {GENERAL: ["51-29-03"]},
+              note: "담았던 내용물이 남아 있으면 오염 확인에서 지정폐기물로 갈 수 있다"}
+  metal_container: {label: "폐금속용기(드럼 등)", group: metal, aliases: [드럼, 철제 용기], waste_kind: other,
+                    codes: {GENERAL: ["51-29-04"]}, note: "담았던 내용물이 남아 있으면 오염 확인에서 지정폐기물로 갈 수 있다"}
+
+  # ---------------- 광재
+  bf_slag: {label: "고로슬래그(철광석 고로)", group: slag, aliases: [고로 슬래그], waste_kind: slag,
+            presets: {blast_furnace_iron_slag: true}, codes: {GENERAL: ["51-04-01"]}}
+  steel_slag: {label: "제강슬래그", group: slag, aliases: [전기로 슬래그], waste_kind: slag,
+               presets: {blast_furnace_iron_slag: false}, codes: {GENERAL: ["51-04-02"], DESIGNATED: ["03-01-04"]}}
+  # 비철 제련 광재: 일반 번호는 하나(51-04-03)지만 지정이 되면 금속 공정별로 번호가 갈려 소재를 나눈다
+  slag_aluminum: {label: "알루미늄 제조공정 광재", group: slag, aliases: [알루미늄 드로스], waste_kind: slag,
+                  presets: {blast_furnace_iron_slag: false}, codes: {GENERAL: ["51-04-03"], DESIGNATED: ["03-01-01"]}}
+  slag_lead: {label: "납 열처리·야금공정 광재", group: slag, waste_kind: slag,
+              presets: {blast_furnace_iron_slag: false}, codes: {GENERAL: ["51-04-03"], DESIGNATED: ["03-01-02"]}}
+  slag_zinc: {label: "아연 열처리공정 광재", group: slag, waste_kind: slag,
+              presets: {blast_furnace_iron_slag: false}, codes: {GENERAL: ["51-04-03"], DESIGNATED: ["03-01-03"]}}
+  slag_nonferrous_other: {label: "그 밖의 비철금속 제련 광재", group: slag, waste_kind: slag,
+                          presets: {blast_furnace_iron_slag: false}, codes: {GENERAL: ["51-04-03"], DESIGNATED: ["03-01-99"]}}
+
+  # ---------------- 분진·소각재
+  dust_steel: {label: "제철공정 분진", group: dust_ash, waste_kind: dust, presets: {dust_from_incinerator: false},
+               codes: {GENERAL: ["51-05-01"], DESIGNATED: ["03-02-00"]}}
+  dust_cement: {label: "시멘트 제조공정 분진", group: dust_ash, waste_kind: dust, presets: {dust_from_incinerator: false},
+                codes: {GENERAL: ["51-05-02"], DESIGNATED: ["03-02-00"]}}
+  dust_power: {label: "발전시설 분진", group: dust_ash, waste_kind: dust, presets: {dust_from_incinerator: false},
+               codes: {GENERAL: ["51-05-03"], DESIGNATED: ["03-02-00"]}}
+  silica_fume: {label: "실리카 퓸(규소철 제조 분진)", group: dust_ash, waste_kind: dust, presets: {dust_from_incinerator: false},
+                codes: {GENERAL: ["51-05-04"], DESIGNATED: ["03-02-00"]}}
+  dust_other: {label: "그 밖의 분진(집진기 분진 등)", group: dust_ash, waste_kind: dust, presets: {dust_from_incinerator: false},
+               codes: {GENERAL: ["51-05-99"], DESIGNATED: ["03-02-00"]}}
+  fly_ash_business: {label: "사업장폐기물 소각시설 비산재", group: dust_ash, waste_kind: incineration_ash,
+                     codes: {GENERAL: ["51-08-02"], DESIGNATED: ["03-05-02"]}}
+  bottom_ash_business: {label: "사업장폐기물 소각시설 바닥재", group: dust_ash, waste_kind: incineration_ash,
+                        codes: {GENERAL: ["51-08-04"], DESIGNATED: ["03-05-04"]}}
+  mixed_ash_business: {label: "사업장폐기물 소각시설 소각재(바닥재+비산재)", group: dust_ash, waste_kind: incineration_ash,
+                       codes: {GENERAL: ["51-08-06"], DESIGNATED: ["03-05-06"]}}
+
+  # ---------------- 주물사·폐사·내화물
+  foundry_clay: {label: "점토점결 폐주물사", group: sand, waste_kind: foundry_sand,
+                 codes: {GENERAL: ["51-06-01"], DESIGNATED: ["03-03-01"]}}
+  foundry_chemical: {label: "화학점결 폐주물사", group: sand, waste_kind: foundry_sand,
+                     codes: {GENERAL: ["51-06-02"], DESIGNATED: ["03-03-02"]}}
+  sandblast: {label: "샌드블라스트 폐사", group: sand, waste_kind: foundry_sand,
+              codes: {GENERAL: ["51-06-03"], DESIGNATED: ["03-03-03"]}}
+  filter_sand: {label: "폐여과사", group: sand, waste_kind: foundry_sand,
+                codes: {GENERAL: ["51-06-04"], DESIGNATED: ["03-03-99"]}}
+  refractory: {label: "폐내화물", group: sand, waste_kind: refractory, codes: {GENERAL: ["51-07-01"], DESIGNATED: ["03-04-01"]}}
+
+  # ---------------- 오니
+  # 오니: 별표 4는 유기성(51-01)·무기성(51-02)과 발생 업종·공정으로 번호를 나눈다.
+  # 유기성·무기성 구분(2026-11-13): 시행규칙 별표 5 — 고형물 중 유기성물질 함량 40% 이상이면 유기성,
+  # 그 외는 무기성. '모름' 소재는 이 값(시험성적서)으로 번호를 정한다(general_splits.organic_sludge).
+  sludge_ww_pulp_paper: {label: "펄프·제지 폐수처리 오니", group: sludge, waste_kind: sludge_wastewater,
+                         codes: {GENERAL: ["51-01-07"], DESIGNATED: ["01-02-01"]}}
+  sludge_ww_stone: {label: "석재·골재 생산 폐수처리 오니", group: sludge, waste_kind: sludge_wastewater,
+                    codes: {GENERAL: ["51-02-06"], DESIGNATED: ["01-02-01"]}}
+  sludge_ww_organic: {label: "그 밖의 폐수처리 오니(유기성)", group: sludge, waste_kind: sludge_wastewater,
+                      codes: {GENERAL: ["51-01-08"], DESIGNATED: ["01-02-01"]}}
+  sludge_ww_inorganic: {label: "그 밖의 폐수처리 오니(무기성)", group: sludge, waste_kind: sludge_wastewater,
+                        codes: {GENERAL: ["51-02-01"], DESIGNATED: ["01-02-01"]}}
+  sludge_ww_unknown: {label: "폐수처리 오니(유기성·무기성 모름)", group: sludge, waste_kind: sludge_wastewater,
+                      codes: {DESIGNATED: ["01-02-01"]},
+                      general_split: {rule: organic_sludge, gte: "51-01-08", lt: "51-02-01"}}
+  sludge_proc_pulp_paper: {label: "펄프·제지 공정 오니", group: sludge, waste_kind: sludge_process,
+                           codes: {GENERAL: ["51-01-05"], DESIGNATED: ["01-02-03"]}}
+  sludge_proc_glass_etching: {label: "유리식각 공정 오니", group: sludge, waste_kind: sludge_process,
+                              codes: {GENERAL: ["51-02-07"], DESIGNATED: ["01-02-02"]}}
+  sludge_proc_silicon: {label: "실리콘 (제조)공정 오니", group: sludge, waste_kind: sludge_process,
+                        codes: {GENERAL: ["51-02-08"], DESIGNATED: ["01-02-04"]}}
+  sludge_proc_organic: {label: "그 밖의 공정 오니(유기성)", group: sludge, waste_kind: sludge_process,
+                        codes: {GENERAL: ["51-01-06"], DESIGNATED: ["01-02-99"]}}
+  sludge_proc_inorganic: {label: "그 밖의 공정 오니(무기성)", group: sludge, waste_kind: sludge_process,
+                          codes: {GENERAL: ["51-02-19"], DESIGNATED: ["01-02-99"]}}
+  sludge_proc_unknown: {label: "공정 오니(유기성·무기성 모름)", group: sludge, waste_kind: sludge_process,
+                        codes: {DESIGNATED: ["01-02-99"]},
+                        general_split: {rule: organic_sludge, gte: "51-01-06", lt: "51-02-19"}}
+
+  # ---------------- 기름
+  lube_oil: {label: "폐윤활유", group: oil, aliases: [엔진오일], waste_kind: waste_oil, presets: {physical_state: liquid},
+             codes: {DESIGNATED: ["06-01-01"]}}
+  cutting_oil_insoluble: {label: "비수용성 절삭유·연마유·열처리유", group: oil, aliases: [절삭유], waste_kind: waste_oil,
+                          presets: {physical_state: liquid}, codes: {DESIGNATED: ["06-01-02"]}}
+  machine_oil: {label: "기계유·작동유(유압유 등)", group: oil, aliases: [유압유, 작동유], waste_kind: waste_oil,
+                presets: {physical_state: liquid}, codes: {DESIGNATED: ["06-01-03"]}}
+  fuel_oil: {label: "폐연료유", group: oil, waste_kind: waste_oil, presets: {physical_state: liquid}, codes: {DESIGNATED: ["06-01-04"]}}
+  oil_filter: {label: "폐오일필터", group: oil, waste_kind: waste_oil, codes: {DESIGNATED: ["06-01-05"]}}
+  insulating_oil: {label: "폐절연유(변압기유)", group: oil, aliases: [변압기유], waste_kind: waste_oil, presets: {physical_state: liquid},
+                   codes: {DESIGNATED: ["06-01-07"]}, note: "PCB 함유 여부에 따라 08(PCB 함유 폐기물)로 바뀐다 — 공통 규칙이 확인"}
+  cutting_oil_soluble: {label: "수용성 절삭유·그리스·방청유 등", group: oil, waste_kind: waste_oil, presets: {physical_state: liquid},
+                        codes: {DESIGNATED: ["06-01-99"]}}
+
+  # ---------------- 산·알칼리
+  hcl: {label: "폐염산", group: acid_alkali, waste_kind: acid, presets: {physical_state: liquid}, codes: {DESIGNATED: ["02-01-01"]}}
+  h2so4: {label: "폐황산", group: acid_alkali, waste_kind: acid, presets: {physical_state: liquid}, codes: {DESIGNATED: ["02-01-02"]}}
+  hno3: {label: "폐질산", group: acid_alkali, waste_kind: acid, presets: {physical_state: liquid}, codes: {DESIGNATED: ["02-01-03"]}}
+  hf: {label: "폐불산", group: acid_alkali, waste_kind: acid, presets: {physical_state: liquid}, codes: {DESIGNATED: ["02-01-04"]}}
+  acid_lcd_semi: {label: "LCD·반도체 공정 폐산", group: acid_alkali, waste_kind: acid, presets: {physical_state: liquid},
+                  codes: {DESIGNATED: ["02-01-05"]}}
+  acid_other: {label: "그 밖의 폐산", group: acid_alkali, waste_kind: acid, presets: {physical_state: liquid}, codes: {DESIGNATED: ["02-01-99"]}}
+  caustic_solution: {label: "폐가성소다수(수산화나트륨 수용액)", group: acid_alkali, aliases: [가성소다], waste_kind: alkali,
+                     presets: {physical_state: liquid, alkali_solid_naoh_koh: false}, codes: {DESIGNATED: ["02-02-01"]}}
+  ammonia_solution: {label: "폐암모니아수", group: acid_alkali, waste_kind: alkali,
+                     presets: {physical_state: liquid, alkali_solid_naoh_koh: false}, codes: {DESIGNATED: ["02-02-02"]}}
+  naoh_solid: {label: "고체 수산화나트륨", group: acid_alkali, waste_kind: alkali,
+               presets: {physical_state: solid, alkali_solid_naoh_koh: true}, codes: {DESIGNATED: ["02-02-03"]}}
+  koh_solid: {label: "고체 수산화칼륨", group: acid_alkali, waste_kind: alkali,
+              presets: {physical_state: solid, alkali_solid_naoh_koh: true}, codes: {DESIGNATED: ["02-02-04"]}}
+  alkali_other: {label: "그 밖의 폐알칼리(액체)", group: acid_alkali, waste_kind: alkali,
+                 presets: {physical_state: liquid, alkali_solid_naoh_koh: false}, codes: {DESIGNATED: ["02-02-99"]}}
+
+  # ---------------- 용제·페인트
+  solvent_halogen: {label: "할로겐족 유기용제(TCE, 염화메틸렌 등)", group: solvent_paint, waste_kind: organic_solvent,
+                    codes: {DESIGNATED: ["04-01-00"]}}
+  solvent_other: {label: "그 밖의 유기용제(시너, 아세톤, IPA 등)", group: solvent_paint, aliases: [시너, 아세톤, IPA], waste_kind: organic_solvent,
+                  codes: {DESIGNATED: ["04-02-00"]}}
+  paint_oil: {label: "유성 페인트", group: solvent_paint, waste_kind: paint, codes: {DESIGNATED: ["05-01-00"]}}
+  paint_water: {label: "수성 페인트", group: solvent_paint, waste_kind: paint, codes: {DESIGNATED: ["05-02-00"]}}
+  lacquer: {label: "락카(래커)", group: solvent_paint, waste_kind: paint, codes: {DESIGNATED: ["05-03-00"]}}
+
+  # ---------------- 목재·종이·섬유·유리
+  wood_clean: {label: "깨끗한 폐목재(목재 포장재·팔레트·전선드럼 등)", group: wood_paper_fiber, aliases: [팔레트, 파레트], waste_kind: other,
+               codes: {GENERAL: ["51-20-23"]}}
+  wood_treated: {label: "접착제·페인트·기름 등이 사용된 폐목재", group: wood_paper_fiber, aliases: [합판, MDF], waste_kind: other,
+                 codes: {GENERAL: ["51-20-24"]}}
+  wood_preservative: {label: "방부제·할로겐족 처리 폐목재", group: wood_paper_fiber, waste_kind: other, codes: {GENERAL: ["51-20-25"]}}
+  wood_byproduct: {label: "원목 가공 부산물(톱밥·대패밥·껍질)", group: wood_paper_fiber, aliases: [톱밥], waste_kind: other,
+                   codes: {GENERAL: ["51-20-22"]}}
+  paper: {label: "폐지(종이류)", group: wood_paper_fiber, aliases: [종이, 박스, 골판지], waste_kind: other, codes: {GENERAL: ["51-28-02"]}}
+  fiber_natural: {label: "폐천연섬유", group: wood_paper_fiber, waste_kind: other, codes: {GENERAL: ["51-27-01"]}}
+  fiber_synthetic: {label: "폐합성섬유", group: wood_paper_fiber, waste_kind: other, codes: {GENERAL: ["51-27-02"]}}
+  glass: {label: "폐유리", group: wood_paper_fiber, waste_kind: other, codes: {GENERAL: ["51-30-01"]}}
+  glass_fiber: {label: "폐유리섬유", group: wood_paper_fiber, waste_kind: other, codes: {GENERAL: ["51-30-04"]}}
+
+  # ---------------- 촉매·흡착제
+  catalyst_metal: {label: "금속성 폐촉매", group: catalyst_adsorbent, waste_kind: catalyst,
+                   codes: {GENERAL: ["51-10-01"], DESIGNATED: ["03-07-01"]}}
+  catalyst_nonmetal: {label: "비금속성 폐촉매", group: catalyst_adsorbent, waste_kind: catalyst,
+                      codes: {GENERAL: ["51-10-99"], DESIGNATED: ["03-07-02"]}}
+  ion_exchange_resin: {label: "폐이온교환수지", group: catalyst_adsorbent, waste_kind: catalyst, codes: {GENERAL: ["51-10-02"]}}
+  activated_carbon: {label: "폐활성탄", group: catalyst_adsorbent, waste_kind: adsorbent,
+                     codes: {GENERAL: ["51-11-03"], DESIGNATED: ["03-08-01"]}}
+  adsorbent: {label: "폐흡착제", group: catalyst_adsorbent, waste_kind: adsorbent, codes: {GENERAL: ["51-11-01"], DESIGNATED: ["03-08-01"]}}
+  absorbent: {label: "폐흡수제(기름 흡착포 등)", group: catalyst_adsorbent, waste_kind: adsorbent,
+              codes: {GENERAL: ["51-11-02"], DESIGNATED: ["03-08-02"]}}
+
+  # ---------------- 제품·복합물 (별표 4에 그 복합물 자체의 번호가 있는 것)
+  coated_wire: {label: "합성수지 피복 폐전선", group: product, aliases: [전선, 케이블], waste_kind: synthetic_resin,
+                presets: {physical_state: solid}, codes: {GENERAL: ["51-03-99"]}, composite: true,
+                note: "기름이 함유된 폐전선·케이블은 06-01-06(지정) — 오염 확인에서 기름 함유로 가면 폐유 쪽으로 판정"}
+  eee_industrial: {label: "산업용 폐전기전자제품", group: product, waste_kind: other, codes: {GENERAL: ["51-18-02"]}, composite: true}
+  tire_auto: {label: "자동차 폐타이어", group: product, waste_kind: synthetic_rubber, codes: {GENERAL: ["51-15-01"]}, composite: true}
+  solar_panel: {label: "태양광 폐패널", group: product, waste_kind: other, codes: {GENERAL: ["51-41-04"]}, composite: true}
+  # 폐전지: 손상된 이차전지는 공통 규칙에서 따로 판정(해석 필요). 아래 번호는 손상되지 않은 것.
+  battery_primary: {label: "폐일차전지", group: product, aliases: [건전지], waste_kind: battery,
+                    presets: {battery_type: not_secondary}, codes: {GENERAL: ["51-41-01"]}}
+  battery_ev: {label: "전기자동차 폐이차전지", group: product, aliases: [전기차 배터리], waste_kind: battery,
+               codes: {GENERAL: ["51-41-05"]}}
+  battery_drive: {label: "구동용 폐이차전지(전기차 외)", group: product, waste_kind: battery, codes: {GENERAL: ["51-41-06"]}}
+  battery_cathode: {label: "폐양극활물질(양극재·전구체 공정 포함)", group: product, waste_kind: battery,
+                    presets: {battery_type: not_secondary}, codes: {GENERAL: ["51-41-07"]}}
+  battery_fuel_cell: {label: "폐연료전지", group: product, waste_kind: battery,
+                      presets: {battery_type: not_secondary}, codes: {GENERAL: ["51-41-08"]}}
+  # 별표 4 03-10(지정): 납축·알칼리 이차전지, 이차전지 스크랩(2026-11-11). 시행령 별표 1 근거를 찾지 못해
+  # 공통 규칙이 '해석 필요'로 판정한다. 일반 번호(51-41-99 등)로 가지 않게 일반 번호를 두지 않는다.
+  battery_lead_acid: {label: "폐납축전지(황산 전해액)", group: product, aliases: [납축전지, 납산 배터리, 자동차 배터리, 지게차 배터리],
+                      waste_kind: battery, presets: {battery_type: lead_acid}, designated_only: true,
+                      codes: {DESIGNATED: ["03-10-01"]}}
+  battery_alkaline: {label: "폐알칼리 이차전지(니켈카드뮴·니켈수소)", group: product, aliases: [니켈카드뮴 전지, 니켈수소 전지, 니카드 배터리],
+                     waste_kind: battery, presets: {battery_type: alkaline}, designated_only: true,
+                     codes: {DESIGNATED: ["03-10-02"]}}
+  battery_scrap: {label: "이차전지 스크랩(제조·해체 부산물)", group: product, aliases: [배터리 스크랩, 전극 스크랩],
+                  waste_kind: battery, presets: {battery_type: scrap}, designated_only: true,
+                  codes: {DESIGNATED: ["03-10-04"]}}
+  battery_secondary_other: {label: "그 밖의 폐이차전지", group: product, aliases: [리튬이온 배터리], waste_kind: battery,
+                            codes: {GENERAL: ["51-41-99"]}}
+
+  # ---------------- 특수
+  mixed_inseparable: {label: "여러 소재가 섞여 나누기 어려움", group: special, waste_kind: other, no_general_code: true,
+                      note: "법령에서 혼합물 일반의 분류번호 결정 규정을 확인하지 못함(MIX-CLASS NOT_FOUND). 지정 성분은 공통 규칙으로 확인",
+                      reason: "여러 소재가 섞여 나누기 어려운 폐기물의 일반 분류번호를 정하는 법령 규정을 찾지 못해 번호를 정하지 않습니다. 지정폐기물에 해당하는 성분은 확인했습니다. 분류번호는 관할 시·군·구에 문의하거나, 소재별로 나눌 수 있으면 나눠서 다시 문진해 주세요."}
+  unlisted: {label: "목록에 없음", group: special, unlisted: true}
+  # 목록에 맞는 소재가 없을 때의 대체 경로(2026-11-11): 공통 단계(폐기물·법 적용·사업장)와 공통 오염 확인
+  # (기름·PCB·유해화학물질·잔류물)은 그대로 하고, 일반 번호는 별표 4의 일반 계열(general_group)을 고른 뒤
+  # 그 계열의 번호(annex4_code)를 고른다. 계열별 지정 기준(용출 등)은 적용하지 않으므로 전문가 확인 대상.
+  unlisted_other: {label: "목록에 없는 폐기물(별표 4 계열에서 고르기)", group: unlisted_family, waste_kind: other,
+                   general_by_family: true, aliases: [그 밖의 폐기물, 기타 폐기물]}

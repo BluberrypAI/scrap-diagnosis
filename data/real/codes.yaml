@@ -1,0 +1,1257 @@
+# 자동 생성: tools/build_kb.py (knowledge e406ce79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+codes:
+- code: 01-01-01
+  name: 폐폴리에틸렌
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-01-02
+  name: 폐폴리프로필렌
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-01-03
+  name: 폐폴리염화비닐수지
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-01-04
+  name: 폐폴리에틸렌테레프탈레이트
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-01-05
+  name: 폐페놀수지
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-01-06
+  name: 폐폴리우레탄
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-01-07
+  name: 폐합성고무
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-01-08
+  name: 폐폴리스티렌
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-01-09
+  name: 폐아크리로니트릴브타디엔스티렌(ABS수지)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-01-99
+  name: 그 밖의 폐합성고분자화합물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-02-01
+  name: 폐수처리오니
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-02-02
+  name: 유리식각공정오니
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-02-03
+  name: 제지공정오니
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-02-04
+  name: 실리콘제조공정오니
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-02-05
+  name: 보크사이트잔재물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-02-99
+  name: 그 밖의 공정오니
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-03-01
+  name: 유기인계폐농약
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-03-02
+  name: 유기염소계폐농약
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-03-03
+  name: 카바메이트계(Carbamate)폐농약
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 01-03-99
+  name: 그 밖의 폐농약
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 02-01-01
+  name: 폐염산
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 02-01-02
+  name: 폐황산(폐황산이 포함된 2차폐축전지는 제외한다)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 02-01-03
+  name: 폐질산
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 02-01-04
+  name: 폐불산
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 02-01-05
+  name: LCD·반도체 공정의 폐산
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 02-01-99
+  name: 그 밖의 폐산
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 02-02-01
+  name: 폐가성소다수
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 02-02-02
+  name: 폐암모니아수
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 02-02-03
+  name: 폐수산화나트륨(고상)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 02-02-04
+  name: 폐수산화칼륨(고상)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 02-02-99
+  name: 그 밖의 폐알칼리
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-01-01
+  name: 알루미늄제조공정광재
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-01-02
+  name: 납 열처리·야금(冶金)공정광재
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-01-03
+  name: 아연열처리공정광재
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-01-04
+  name: 철제조공정광재(철광원석의 사용으로 인한 고로슬래그는 제 외한다)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-01-99
+  name: 그 밖의 광재
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-02-00
+  name: 분진
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-03-01
+  name: 점토점결폐주물사
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-03-02
+  name: 화학점결폐주물사
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-03-03
+  name: 샌드블라스트폐사
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-03-99
+  name: 그 밖의 폐주물사 및 폐사
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-04-01
+  name: 폐내화물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-04-02
+  name: 폐도자기조각
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-05-01
+  name: 생활폐기물 소각시설 비산재
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-05-02
+  name: 사업장폐기물 소각시설 비산재
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-05-03
+  name: 생활폐기물 소각시설 바닥재
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-05-04
+  name: 사업장폐기물 소각시설 바닥재
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-05-05
+  name: 생활폐기물 소각시설 소각재(바닥재와 비산재가 혼합된 경우 를 말한다)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-05-06
+  name: 사업장폐기물 소각시설 소각재(바닥재와 비산재가 혼합된 경 우를 말한다)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-05-07
+  name: 천연방사성제품폐기물 소각재
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-06-01
+  name: 안정화처리물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-06-02
+  name: 시멘트고형화처리물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-06-03
+  name: 고화처리물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-06-04
+  name: 킬레이트(Chelate)처리물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-06-05
+  name: 폐석면고형화처리물(석면을 1퍼센트 이상 함유한 경우로 한정 한다)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-06-99
+  name: 그 밖의 고형화·고화처리물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-07-01
+  name: 금속성폐촉매
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-07-02
+  name: 비금속성폐촉매
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-08-01
+  name: 폐흡착제
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-08-02
+  name: 폐흡수제
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-10-01
+  name: 황산이 포함된 폐이차전지
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-10-02
+  name: 알칼리가 포함된 폐이차전지
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-10-03
+  name: 리튬계 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험이 있 는 것으로 한정한다)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-10-04
+  name: 이차전지 스크랩
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 03-10-99
+  name: 그 밖의 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것 과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험이 있는 것으로 한정한다)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 04-01-00
+  name: 할로겐족 폐유기용제
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 04-02-00
+  name: 그 밖의 폐유기용제
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 05-01-00
+  name: 폐유성페인트
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 05-02-00
+  name: 폐수성페인트
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 05-03-00
+  name: 폐락카
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 06-01-01
+  name: 폐윤활유(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조에 따른 재활용의무 대상 제품·포장재인 기어유 및 내연 기관용 윤활유를 말한다)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 06-01-02
+  name: 폐연마유·비수용성폐절삭유·폐열처리유(금속가공과정에서 발 생된 것을 말한다)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 06-01-03
+  name: 폐기계유·폐작동유(공업용 기계유·냉동기유·터어빈유·베어링윤 활유·압축기유·유압작동유·열매체유 및 프로세스유 등을 말한 다)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 06-01-04
+  name: 폐연료유
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 06-01-05
+  name: 폐오일필터
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 06-01-06
+  name: 기름함유 폐전선·폐케이블
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 06-01-07
+  name: 폐절연유(폴리클로리네이티드비페닐 함유 폐기물을 제외한다)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 06-01-99
+  name: 그 밖의 폐광물유[아스팔트유·그리스(grease)·방청유 및 수용 성절삭유, 20퍼센트 이상의 이물질이 함유된 폐유, 고체상태의 폐유 등을 말한다]
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 06-02-00
+  name: 폐동식물유
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 06-03-00
+  name: 그 밖의 폐유
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 07-01-01
+  name: 흩날릴 우려가 없는 폐석면
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 07-01-02
+  name: 흩날릴 우려가 있는 폐석면
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 07-02-00
+  name: 석면제품 등의 연마·절단·가공 공정에서 발생된 부스러기 및 연 마·절단·가공 시설의 집진기에서 모아진 분진
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 07-03-00
+  name: 석면의 제거작업에 사용된 모든 비닐시트·방진마스크·작업복·집 진필터 등
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 08-01-00
+  name: 폴리클로리네이티드비페닐 함유 폐유
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 08-02-00
+  name: 폴리클로리네이티드비페닐 함유 폐유기용제
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 08-03-00
+  name: 그 밖의 폴리클로리네이티드비페닐을 함유한 액상의 것
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 08-04-00
+  name: 그 밖의 폴리클로리네이티드비페닐을 함유한 액상이 아닌 것
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 09-01-00
+  name: 「화학물질관리법」 제2조제5호에 따른 금지물질
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 09-02-00
+  name: 연구·검사용 폐시약
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 09-03-00
+  name: 「화학물질관리법」 제2조제7호에 따른 유해화학물질
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 09-04-00
+  name: 「화학물질관리법」 제2조제3호 및 제4호에 따른 허가물질 및 제한물질
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 10-11-00
+  name: 격리의료폐기물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 10-12-01
+  name: 조직물류폐기물(태반을 재활용하는 경우는 제외한다)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 10-12-02
+  name: 병리계폐기물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 10-12-03
+  name: 손상성폐기물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 10-12-04
+  name: 생물·화학폐기물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 10-12-05
+  name: 혈액오염폐기물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 10-12-06
+  name: 인체조직물 중 태반(재활용하는 경우에만 해당한다)
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 10-13-00
+  name: 일반의료폐기물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 11-01-01
+  name: 수은함유 폐램프
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 11-01-02
+  name: 수은함유 폐계측기기
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 11-01-03
+  name: 수은함유 폐전지
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 11-01-99
+  name: 그 밖의 기후에너지환경부장관이 고시하는 폐제품
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 11-02-00
+  name: 수은구성폐기물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 11-03-00
+  name: 수은함유폐기물 처리잔재물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 12-00-00
+  name: 천연방사성제품폐기물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 30-00-00
+  name: 그 밖에 기후에너지환경부장관이 정하여 고시하는 폐기물
+  category: DESIGNATED
+  effective_from: '2026-10-02'
+- code: 51-01-01
+  name: 정수처리오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-01-02
+  name: 하수처리오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-01-03
+  name: 분뇨처리오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-01-04
+  name: 가축분뇨처리오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-01-05
+  name: 펄프·제지공정오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-01-06
+  name: 그 밖의 공정오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-01-07
+  name: 펄프·제지폐수처리오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-01-08
+  name: 그 밖의 폐수처리오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-01-99
+  name: 그 밖의 유기성오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-02-01
+  name: 폐수처리오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-02-02
+  name: 정수처리오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-02-03
+  name: 하수처리오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-02-04
+  name: 하수준설토
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-02-05
+  name: 건설오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-02-06
+  name: 석재·골재폐수처리오니(석재·골재 생산 시 발생한 폐수를 처리하 는 과정에서 발생한 오니로 한정한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-02-07
+  name: 유리식각공정오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-02-08
+  name: 실리콘공정오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-02-09
+  name: 보크사이트잔재물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-02-10
+  name: 영농폐기물(농업활동 과정에서 배출된 농업용 폐플라스틱 필름 ㆍ시트류에 한정한다) 폐수처리오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-02-11
+  name: 영농폐기물(농업활동 과정에서 배출된 농업용 폐플라스틱 필름 ㆍ시트류에 한정한다) 공정오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-02-19
+  name: 그 밖의 공정오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-02-99
+  name: 그 밖의 무기성오니
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-03-01
+  name: 폐합성수지류(폐염화비닐수지류는 제외한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-03-02
+  name: 폐합성고무류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-03-03
+  name: 폐폴리염화비닐수지류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-03-04
+  name: 폐폴리우레탄폼류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-03-05
+  name: 양식용폐부자
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-03-06
+  name: 폐발포합성수지
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-03-07
+  name: 플라스틱폐포장재
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-03-08
+  name: 폐어망
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-03-99
+  name: 그 밖의 폐합성고분자화합물(합성수지류로 피복된 폐전선을 포 함한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-04-01
+  name: 고로슬래그
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-04-02
+  name: 제강슬래그
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-04-03
+  name: 비철금속제련공정광재
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-04-04
+  name: 선광공정광재(기후에너지환경부장관이 정하는 방법에 따라 관리 되는 것은 제외한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-04-99
+  name: 그 밖의 광재류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-05-01
+  name: 제철공정분진
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-05-02
+  name: 시멘트제조공정분진
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-05-03
+  name: 발전시설분진
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-05-04
+  name: 폐실리카 퓸(규소철 제조과정에서 발생된 분진을 말한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-05-99
+  name: 그 밖의 분진
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-06-01
+  name: 점토점결폐주물사
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-06-02
+  name: 화학점결폐주물사
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-06-03
+  name: 샌드블라스트폐사
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-06-04
+  name: 폐여과사
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-06-99
+  name: 그 밖의 폐사
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-07-01
+  name: 폐내화물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-07-02
+  name: 폐도자기조각
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-08-01
+  name: 생활폐기물 소각시설 비산재
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-08-02
+  name: 사업장폐기물 소각시설 비산재
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-08-03
+  name: 생활폐기물 소각시설 바닥재
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-08-04
+  name: 사업장폐기물 소각시설 바닥재
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-08-05
+  name: 생활폐기물 소각시설 소각재(바닥재와 비산재가 혼합된 경우를 말한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-08-06
+  name: 사업장폐기물 소각시설 소각재(바닥재와 비산재가 혼합된 경우 를 말한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-09-01
+  name: 안정화 처리물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-09-02
+  name: 시멘트고형화 처리물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-09-03
+  name: 고화 처리물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-09-04
+  name: 킬레이트(Chelate) 처리물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-09-99
+  name: 그 밖의 고형화·고화 처리물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-10-01
+  name: 금속성폐촉매
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-10-02
+  name: 폐이온교환수지
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-10-03
+  name: 폐멤브레인수지
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-10-99
+  name: 그 밖의 폐촉매
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-11-01
+  name: 폐흡착제
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-11-02
+  name: 폐흡수제
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-11-03
+  name: 폐활성탄
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-12-01
+  name: 폐석고
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-12-02
+  name: 폐석회
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-13-01
+  name: 연탄재
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-13-02
+  name: 액체연료연소재
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-13-03
+  name: 석탄재
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-13-99
+  name: 그 밖의 연소잔재물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-14-01
+  name: 폐석분토사(석재·골재생산 과정에서 발생한 응집 미립분을 포함 한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-14-02
+  name: 폐석재
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-15-01
+  name: 자동차 폐타이어
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-15-02
+  name: 그 밖의 폐타이어
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-16-00
+  name: 폐식용유(식용을 목적으로 식품 재료와 원료를 제조·조리·가공하거 나 식용유를 유통·사용 또는 음식물류 폐기물을 처리하는 과정에서 발생하는 기름을 말한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-01
+  name: 동물사체
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-02
+  name: 축산물가공잔재물(동물성 유지류는 제외한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-03
+  name: 수산물가공잔재물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-04
+  name: 폐패각
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-05
+  name: 폐모피류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-06
+  name: 피혁 및 피혁가공잔재물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-07
+  name: 동물털
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-08
+  name: 동물성유지류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-19
+  name: 그 밖의 동물성잔재물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-21
+  name: 주정박
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-22
+  name: 맥주박
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-23
+  name: 유박유잔재물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-24
+  name: 초본류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-25
+  name: 커피찌꺼기
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-26
+  name: 버섯폐배지
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-27
+  name: 과채류(「사료관리법」 제2조제2호에 따른 단미사료에 해당하 는 것으로 한정한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-29
+  name: 그 밖의 식물성잔재물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-30
+  name: 식재료 및 조리부산물(제18조제1항제1호에 따른 배출자 중 식 품제조ㆍ가공업체 및 같은 항 제3호에 따른 배출자 중 집단급 식소에서 발생한 것으로 한정한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-17-99
+  name: 그 밖의 동·식물성잔재물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-18-01
+  name: 가정용폐전기전자제품
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-18-02
+  name: 산업용폐전기전자제품
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-18-03
+  name: 프린트토너 및 카트리지폐부속품
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-18-99
+  name: 그 밖의 폐전기전자제품류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-19-00
+  name: 왕겨 및 쌀겨(「사료관리법」에 따른 사료로 사용하는 경우는 제외한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-20-21
+  name: 임목폐목재(건설공사ㆍ산지개간 등의 과정에서 발생된 나무뿌리 ㆍ가지ㆍ줄기 등을 말한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-20-22
+  name: 제재부산물(원목 가공과정에서 발생되는 나무 껍질ㆍ톱밥ㆍ대패 밥 등을 말한다), 목재가공공장 부산물(원목상태의 깨끗한 목재부 산물 및 분진을 말한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-20-23
+  name: 폐도장목ㆍ폐목재포장재ㆍ폐전선드럼ㆍ건설현장 폐목재(원목상 태의 깨끗한 목재를 말한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-20-24
+  name: 접착제ㆍ페인트ㆍ기름ㆍ콘크리트 등의 물질이 사용된 폐목재(목 재부산물 및 분진을 포함한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-20-25
+  name: 할로겐족 유기화합물 또는 방부제가 사용된 폐목재(목재부산물 및 분진을 포함한다) 및 건설현장의 실외목재구조물에서 발생되는 폐목재, 폐선박 및 차량에서 나오는 목재, 건축물 화재현장에서 발
+    생한 폐목재, 냉각탑, 산업용 바닥재 등에 사용된 폐목재
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-20-26
+  name: 폐철도목재받침목
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-20-27
+  name: 폐가구류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-20-99
+  name: 그 밖의 폐목재류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-21-01
+  name: 폐토사
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-21-02
+  name: 건설폐토석
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-21-03
+  name: 오염하천·오염해양 준설토
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-22-01
+  name: 폐콘크리트
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-22-02
+  name: 폐철도콘크리트받침목
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-23-00
+  name: 폐아스팔트콘크리트
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-24-00
+  name: 폐벽돌
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-25-00
+  name: 폐블록
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-26-00
+  name: 폐기와
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-27-01
+  name: 폐천연섬유
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-27-02
+  name: 폐합성섬유
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-27-03
+  name: 폐의류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-27-04
+  name: 의료기관 일회용기저귀(별표 3에 따른 의료기관 및 시험ㆍ검사 기관 등에서 발생한 것을 말하며, 같은 표 제14호에 따른 노인요 양시설에서 발생한 것과 영 별표 2에 따른 의료폐기물에 해당하
+    는 것은 제외한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-27-99
+  name: 그 밖의 폐섬유
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-28-01
+  name: 폐종이팩(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제 18조제1호에 해당하는 것을 말한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-28-02
+  name: 폐종이류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-28-03
+  name: 폐벽지
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-29-01
+  name: 고철
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-29-02
+  name: 비철금속
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-29-03
+  name: 폐금속캔류(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조제1호에 해당하는 것을 말한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-29-04
+  name: 폐금속용기류(폐금속캔류는 제외한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-29-99
+  name: 그 밖의 폐금속류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-30-01
+  name: 폐유리
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-30-02
+  name: 폐유리병류(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조제1호에 해당하는 것을 말한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-30-03
+  name: 폐스마트유리
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-30-04
+  name: 폐유리섬유
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-30-05
+  name: 수은함유폐기물 처리잔재물[수은함유폐기물을 처리하는 과정에 서 발생되는 것과 폐형광등을 재활용하는 과정에서 발생되는 것 을 포함하되, 폐기물공정시험기준에 따른 용출시험 결과 용출액 1 리터당
+    0.005밀리그램 미만의 수은 및 그 화합물이 함유된 것으 로 한정한다(이하 "수은폐기물이 아닌 수은함유폐기물 처리잔재 물"이라 한다)]
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-30-99
+  name: 그 밖의 폐유리
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-31-00
+  name: 폐타일
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-32-00
+  name: 폐보드류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-33-00
+  name: 폐판넬
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-35-00
+  name: 폐전주(폐애자, 폐근가 및 폐합성수지제 덮개류 등을 포함한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-36-01
+  name: 이산화탄소스트림
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-36-02
+  name: 이산화탄소전환탄산화물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-37-01
+  name: 가전제품회수폐냉매물질
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-37-02
+  name: 자동차회수폐냉매물질
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-37-03
+  name: 공조기회수폐냉매물질
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-37-99
+  name: 그 밖의 폐냉매물질
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-38-01
+  name: 음식물류폐기물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-38-02
+  name: 중간가공음식물류폐기물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-38-03
+  name: 음식물류폐기물처리잔재물(액상의 경우만 해당한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-38-99
+  name: 그 밖의 음식물류폐기물처리잔재물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-39-00
+  name: 폐사료
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-40-01
+  name: 폐분말소화기
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-40-99
+  name: 그 밖의 폐소화기
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-41-01
+  name: 폐일차전지
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-41-04
+  name: 폐태양전지ㆍ전자기기페이스트ㆍ태양광 폐패널
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-41-05
+  name: 전기자동차 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험 이 있는 것은 제외한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-41-06
+  name: 구동용 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험이 있 는 것은 제외한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-41-07
+  name: 폐양극활물질(양극재 또는 전구체 제조공정에서 발생하는 것을 포함한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-41-08
+  name: 폐연료전지
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-41-99
+  name: 그 밖의 폐이차전지(침수ㆍ화재ㆍ변형ㆍ파손 등이 발생한 것과 셀이 훼손되어 유해물질이 유출되거나 화재ㆍ폭발의 위험이 있 는 것은 제외한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-42-00
+  name: 폐의약품류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-43-00
+  name: 폐흑연가루
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-44-00
+  name: 나노폐기물(나노물질을 제조·가공하는 과정에서 발생된 분진을 말 한다)
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-45-01
+  name: 폐차파쇄잔재물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-45-02
+  name: 폐차부품류
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-45-99
+  name: 그 밖의 폐차발생폐기물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-46-00
+  name: 의료폐기물 멸균분쇄잔재물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-47-01
+  name: 폐형광등
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-47-02
+  name: 폐발광다이오드조명
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 51-99-00
+  name: 그 밖의 폐기물
+  category: GENERAL
+  effective_from: '2026-10-02'
+- code: 91-01-00
+  name: 종량제봉투 배출 폐기물(합성수지 종량제 봉투에 배출되는 폐기 물을 말한다)
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-02-00
+  name: 음식물류 폐기물(분리배출된 음식물류 폐기물을 말한다)
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-03-00
+  name: 폐식용유(가정 및 음식점에서 분리배출된 것을 말한다)
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-04-00
+  name: 폐지류(종이팩을 포함한다)
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-05-00
+  name: 고철 및 금속캔류
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-06-01
+  name: 폐합성수지(폴리염화비닐은 제외한다)
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-06-02
+  name: 폐합성수지(폴리염화비닐)
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-06-03
+  name: 폐합성고무류
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-07-01
+  name: 유리병
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-07-02
+  name: 폐유리
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-08-00
+  name: 폐의류 및 원단류(섬유재질의 커튼, 현수막 등을 포함한다)
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-09-00
+  name: 폐전기전자제품
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-10-01
+  name: 원목상태의 깨끗한 목재
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-10-02
+  name: 접착제, 페인트, 기름, 콘크리트 등의 물질이 사용된 목재(할로 겐족 유기화합물 또는 방부제가 사용된 목재는 제외한다)
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-10-03
+  name: 할로겐족 유기화합물 또는 방부제가 사용된 목재
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-10-04
+  name: 폐가구류
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-11-00
+  name: 건설폐재류(콘크리트, 벽돌 등을 말한다)
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-12-00
+  name: 폐타일 및 도자기류
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-13-01
+  name: 폐형광등
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-13-02
+  name: 폐발광다이오드조명
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-14-00
+  name: 폐전지류
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-15-00
+  name: 연탄재
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-16-00
+  name: 동물성 잔재물(동물의 사체, 수산가공물, 유지 등을 포함한다)
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-17-01
+  name: 커피찌꺼기
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-17-02
+  name: 버섯폐배지
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-17-03
+  name: 그 밖의 식물성 잔재물
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-18-01
+  name: 영농폐기물(농약용기류)
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-18-02
+  name: 영농폐기물(농촌폐비닐)
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-19-00
+  name: 폐소화기류
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-20-00
+  name: 천연방사성제품생활폐기물
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-21-01
+  name: 종이 컵
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-21-02
+  name: 합성수지 컵
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-21-03
+  name: 금속 컵
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
+- code: 91-99-00
+  name: 그 밖의 생활폐기물
+  category: HOUSEHOLD
+  effective_from: '2026-10-02'
