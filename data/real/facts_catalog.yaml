@@ -1,4 +1,4 @@
-# 자동 생성: tools/build_kb.py (knowledge e406ce79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge 67e78d8d). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 - key: material_group
   label: 소재 분류
   type: enum
@@ -570,11 +570,11 @@
   type: enum
   values:
     solid: 고체
-    liquid: 액체(흐름)
+    liquid: 흐르는 액체
     semisolid: 반고체·점성·슬러지 상태
   ask_cost: 1
   legal_priority: 3
-  question_hint: 배출할 때 이 폐기물의 상태는?
+  question_hint: 배출할 때 어떤 상태인가요?
   help: 배출 시점의 실제 상태로 고르세요. 경계가 애매하면 '모름'으로 답하세요.
 - key: sludge_water_pct
   label: 수분함량
@@ -585,11 +585,11 @@
   evidence_type: TEST_REPORT
   legal_priority: 3
   question_hint: 이 오니의 수분함량은 몇 %인가요?
-  help: '시험: 수분 및 고형물 — 폐기물공정시험기준(국립환경과학원고시 제2025-21호) 수분·고형물 시험
+  help: '지정폐기물 오니의 조건 중 하나가 ''수분함량 95% 미만 또는 고형물함량 5% 이상''입니다. 두 값은 같은 성적서에 함께 나오니, 아는 쪽 값을 입력하세요.
 
-    성적서에서 확인할 값: 수분함량(%)과 고형물함량(%)
+    시험: 수분 및 고형물 — 폐기물공정시험기준(국립환경과학원고시 제2025-21호) 수분·고형물 시험
 
-    지정폐기물 오니의 조건 중 하나가 ''수분함량 95% 미만 또는 고형물함량 5% 이상''입니다. 두 값은 같은 성적서에 함께 나오니, 아는 쪽 값을 입력하세요.'
+    성적서에서 확인할 값: 수분함량(%)과 고형물함량(%)'
   complement:
     fact: sludge_solids_pct
     total: 100
@@ -625,7 +625,7 @@
   ask_cost: 2
   evidence_type: FACILITY_NOTIFICATION
   legal_priority: 3
-  question_hint: 이 오니가 나온 시설이 기후에너지환경부장관이 고시한 오니 발생시설에 해당하나요?
+  question_hint: 이 오니가 나온 시설이 지정폐기물 오니 발생시설로 고시된 시설인가요?
   help: '오니 발생시설을 정한 기후에너지환경부 고시(2025-10-01 시행)의 시설 목록을 찾아보세요.
 
     오니가 나온 설비 이름을 배출시설 허가서(신고서)의 시설명과 맞춰 보세요. 대조가 어렵거나 모르면 관할 유역환경청·지방환경청에 문의하세요.'
@@ -637,7 +637,9 @@
   evidence_type: TEST_REPORT
   legal_priority: 3
   question_hint: 이 폐액의 pH(수소이온 농도지수)는 얼마인가요?
-  help: '시험: 수소이온농도(pH) — 폐기물공정시험기준 ES 06304.1 수소이온농도-유리전극법
+  help: '산은 pH 2.0 이하, 알칼리는 pH 12.5 이상이면 지정폐기물입니다. 시험성적서의 pH 값을 고르거나 입력하세요. 성적서가 없으면 ''모름''을 고르세요. 시험 의뢰 방법을 안내합니다.
+
+    시험: 수소이온농도(pH) — 폐기물공정시험기준 ES 06304.1 수소이온농도-유리전극법
 
     성적서에서 확인할 값: pH 값(0.01 단위), 측정 온도, 시료 채취일'
 - key: dust_from_apc
@@ -747,6 +749,19 @@
   prior:
     false: 0.97
   none_value: false
+- key: organic_solvent_mixed
+  label: 유기용제 혼합
+  type: bool
+  ask_cost: 1
+  legal_priority: 3
+  question_hint: 이 폐액에 유기용제(유기용매)가 섞여 있나요?
+  help: '폐액이 나온 공정에서 쓰는 약품의 물질안전보건자료(MSDS)와 배합표를 보세요. 아세톤·알코올·시너처럼 유기용제를 함께 쓰거나 세척에 썼다면 ''예''입니다.
+
+    pH가 2.0 이하가 아니어서 폐산이 아니더라도, 유기용매와 섞인 폐액은 폐유기용제로 분류할 수 있다는 질의회신이 있습니다.'
+  prior:
+    false: 0.9
+  none_value: false
+  evidence_type: MSDS
 - key: leach_pb
   label: 납 용출 농도
   type: number

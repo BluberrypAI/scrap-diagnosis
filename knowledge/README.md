@@ -13,7 +13,7 @@ uv run python tools/legacy_regression.py   # 기존 엔진 판정표와 비교(�
 | 파일 | 내용 | 법 판단을 담나 |
 |---|---|---|
 | `law_rules/scope_and_business.yaml` | 법 규칙 28개: 폐기물 해당 여부(S0), 법 적용 제외(S1), 사업장폐기물 여부(S2) | 예 |
-| `law_rules/designated.yaml` | 법 규칙 122개: 지정폐기물 기준(S3). 규칙마다 쉬운 설명(`plain`), 인용문(`quote`), 조문 위치(`location`) | 예 |
+| `law_rules/designated.yaml` | 법 규칙 123개: 지정폐기물 기준(S3). 규칙마다 쉬운 설명(`plain`), 인용문(`quote`), 조문 위치(`location`) | 예 |
 | `materials.yaml` | 소재 102개: 폐기물 종류, 소재가 정하는 사실, 별표 4 번호 후보 | 아니오 |
 | `code_map.yaml` | 법 규칙 → 별표 4 번호 범위 대응표(사람이 옮긴 것). 법의 예외는 여기 두지 않는다 | 예(대응) |
 | `definitions.yaml` | 공통 정의: 여러 규칙이 함께 쓰는 이름 붙은 조건(규칙이 `{ref: 이름}`으로 씀) | 예 |
@@ -101,7 +101,7 @@ when:                                   # 목록 = 모두 만족(AND). 기존 �
 
 ## 검토하는 방법
 
-검토 단위는 249개다: 법 규칙 150개(규칙 ID), 소재 98개(`material:<소재>`), 번호 대응표 1개(`code_map`).
+검토 단위는 251개다: 법 규칙 151개(규칙 ID), 소재 98개(`material:<소재>`), 번호 대응표 1개(`code_map`), 공통 정의 1개(`def:<이름>`).
 
 1. **카드 만들기(개발 담당):** `uv run python tools/review_kit.py export` → `build/review/검토카드.html`, `build/review/검토표.csv`. 두 파일을 전문가에게 보낸다(`build/`는 git에 올리지 않는다).
    - 카드에는 쉬운 설명, 조건을 문장으로 쓴 것, 결론과 별표 4 번호 범위, 근거 조문과 인용문, 확인하지 못한 점, 영향(생성 규칙 수, 소재 테이블 수)이 있다. 영향이 큰 것부터 나온다.

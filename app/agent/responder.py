@@ -18,7 +18,7 @@ from app.agent.assist import AssistContext, template_text
 from app.agent.guard import validate_response
 from app.agent.llm_client import LLMCall, LLMClient
 from app.agent.redact import RedactionError, find_identifiers, redact_obj, scrub_call
-from app.agent.router import Branch, EngineStep
+from app.agent.router import Branch, EngineStep, blocking_view
 from app.config import Settings, get_settings
 from app.rules.model import KnowledgeBase, Rule
 
@@ -160,8 +160,9 @@ def build_payload(
                 "outcome": c.outcome,
                 "category": c.category,
                 "conclusion": templates.OUTCOME_TEXT.get(c.outcome or "", ""),
+                "reason": templates.outcome_reason(c.name),
             }
-            p["next_step"] = templates.NO_CODE_NEXT_STEP
+            p["next_step"] = no_code_next_step(kb, c.outcome)
         p["basis"] = basis
         p["unverified"] = bool(rule and rule.review == "UNVERIFIED")
     elif d.branch == Branch.RESOLVE_CONFLICT:
@@ -174,12 +175,37 @@ def build_payload(
             for u in ev.blocking_facts
             if not (kb.catalog.get(u.key) and kb.catalog[u.key].internal)
         ]
+        # 어떻게 하면 이어지는지: 서류로 받을 사실 / '모름'으로 답한 사실
+        ev_types = sorted(
+            {u.evidence_type or "DOCUMENT" for u in blocking_view(kb, ev, step.effective).evidence}
+        )
+        p["evidence_labels"] = [templates.evidence_label(x) for x in ev_types]
+        p["needs_test_report"] = "TEST_REPORT" in ev_types
+        unknown = [
+            u.key
+            for u in ev.blocking_facts
+            if u.reason == "DECLARED_UNKNOWN"
+            and not (kb.catalog.get(u.key) and kb.catalog[u.key].internal)
+            and (kb.catalog[u.key].evidence_type or "DOCUMENT") not in ev_types
+        ]
+        p["unknown_items"] = [_fact_label(kb, k) for k in unknown]
+        first = kb.catalog.get(unknown[0]) if unknown else None
+        p["unknown_hint"] = (first.help or "").splitlines()[0] if first and first.help else None
     if user_question:
         p["user_question"] = user_question
         q = d.question
         fd = kb.catalog.get(q.facts[0]) if (q and q.facts) else None
         p["help"] = (q.help if q else None) or (fd.help if fd else None)
     return p
+
+
+def no_code_next_step(kb: KnowledgeBase, outcome: str | None) -> str:
+    """확정하면 이어질 안내(경로추천 행동 이름). 안내 표에 없으면 기본 문장."""
+    try:
+        action = kb.guidance_for("NO_CODE", outcome).action
+    except KeyError:
+        action = None
+    return templates.no_code_next_step(action)
 
 
 def suggested_replies(step: EngineStep) -> list[str]:

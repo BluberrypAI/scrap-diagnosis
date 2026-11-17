@@ -13,7 +13,7 @@
   "facts": ["designated_residue", "pcb_possible", "toxic_chemical_discard"],
   "options": [{"label": "모두 해당 없음", "value": {"…": "…"}, "kind": "none_all"},
               {"label": "해당하는 게 있어요 / 잘 모르겠어요", "value": null, "kind": "expand"}],
-  "text": "이 폐기물에 해당하는 것이 있나요? (기름·잔류물·PCB·유해화학물질)",
+  "text": "이 폐기물에 해당하는 것이 있나요? (기름·잔류물·PCB·유해화학물질·유기용제 혼합)",
   "help": "대부분의 제조 공정 폐기물은 '모두 해당 없음'입니다. …",
   "input": "group",
   "value_type": null,
@@ -79,10 +79,17 @@ NO_CANDIDATE 충돌은 `fact`에 원인 사실 목록의 첫 키, `facts`에 전
 ### 1.4 `ui.result` (FINAL_REVIEW일 때)
 ```json
 {"result_type": "WASTE_CODE", "code": "51-03-01", "name": "…", "category": "GENERAL",
- "outcome": null, "conclusion": "분류번호 51-03-01 …로 판정됩니다", "next_step": "확정하면 경로 추천으로 넘어갑니다",
- "review": "UNVERIFIED"}
+ "outcome": null, "conclusion": "분류번호는 51-03-01(사업장일반폐기물)입니다. 명칭: …", "next_step": "확정하면 경로 추천으로 넘어갑니다.",
+ "review": "UNVERIFIED", "assumptions": [], "reason": null}
 ```
 코드 없는 결론은 `result_type: "NO_CODE"`, `code: null`, `outcome`, `conclusion`(OUTCOME_TEXT)을 채운다.
+- `reason`(추가, 2026-11-10): 코드 없는 결론의 이유 한 줄(규칙 설명). 예: "법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다. 아직 … 확정하지 않고, 관할 기관 확인을 안내합니다." 분류번호가 있으면 null. 화면은 결론 바로 아래에 보여 준다.
+- `next_step`: 코드 없는 결론이면 확정 **전에도** 확정하면 무엇으로 이어지는지 담는다(`outcome_guidance.yaml`의 action → 건 목록의 '다음 할 일' 이름). 예: "확정하면 다음 단계에서 '관할 기관 질의 안내'로 이어집니다."
+- `assumptions`: 같은 대리 질문에서 나온 추정은 한 문장으로 합친다(예: PCB 용출 농도·PCB 함량).
+
+### 1.5 판정 불가(UNSUPPORTED)일 때
+- `message`에 부족한 항목(최대 3개 + "외 n개"), 서류로 이어 갈 수 있으면 올릴 서류와 "시험성적서가 없으면 폐기물 분석전문기관에 시험을 의뢰하세요", '모름'으로 답한 항목이 있으면 "판정 보드에서 고치면 이어서 진행합니다"와 첫 항목의 확인 방법을 넣는다.
+- 서류로 이어 갈 수 있으면 `ui.board.documents_needed`가 채워져 있다. 화면은 판정 불가 카드에서도 서류 올리기를 보여 준다(참조 화면 `UnsupportedCard`).
 
 ## 1.6 추측 답변 (2026-11-11 추가)
 추측 답변("아마 ~일걸", "대충 ~ 정도"): 추출 AI가 확신 정도를 함께 표시하고, 추측한 값은 판정 보드 사실에 `hedged: true`·`source_label` "… · 추측"으로, 결과 `assumptions`에 "사용자가 추측으로 답한 값"으로 보인다. 지정폐기물 가능성을 지우는 추측(오염 확인 묶음의 '해당 없음', 말로 답한 수치)은 결론이 나도 확정 전에 한 번 다시 묻는다(`sub_branch: "CONFIRM_GUESS"`, 같은 질문 카드). 버튼으로 다시 답하면 추측 표시가 풀린다. 화면은 보드에서 추측 값을 구분해 보여 주고, `CONFIRM_GUESS` 질문은 평소 질문 카드처럼 그린다.

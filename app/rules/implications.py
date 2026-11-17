@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 from app.domain.facts import Fact, FactStatus
+from app.domain.josa import attach
 from app.domain.ranges import NumRange
 from app.rules.answers import coerce_value
 from app.rules.model import FactDef, KnowledgeBase
@@ -120,6 +121,7 @@ def assumption_notes(kb: KnowledgeBase, facts: dict[str, Fact]) -> list[str]:
     보수 관계(complement)로 계산한 값은 같은 시험의 값이라 여기에 넣지 않는다.
     """
     notes: list[str] = []
+    by_source: dict[str, list[str]] = {}
     parents = {fd.parent for fd in kb.catalog.values() if fd.parent}
     for key, f in sorted(facts.items()):
         if f.hedged and f.is_known and key in parents:
@@ -152,8 +154,13 @@ def assumption_notes(kb: KnowledgeBase, facts: dict[str, Fact]) -> list[str]:
                 f"{tlabel}: 서류가 아니라 '{slabel}' 답에서 '{shown}'(으)로 추정했습니다.{ev}"
             )
             continue
+        by_source.setdefault(src, []).append(tlabel)
+    for src, targets in sorted(by_source.items()):
+        sfd = kb.catalog.get(src)
+        slabel = (sfd.label or src) if sfd else src
+        what = attach("·".join(targets), "은")
         notes.append(
-            f"{tlabel}: 시험값이 아니라 '{slabel}' 답에서 기준 미만으로 추정했습니다."
+            f"'{slabel}' 답을 근거로 {what} 시험 없이 기준 미만으로 추정했습니다."
             " 의심되면 시험성적서로 확인하세요."
         )
     return notes

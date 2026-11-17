@@ -129,7 +129,9 @@ POST /cases/C1/documents/D1/values/apply   {"values": [{"value_id": "V1", "docum
 ```
 → turn: {"branch": "FINAL_REVIEW", "verdict": {"waste_code": null, "outcome": "NOT_WASTE", …},
          "ui": {"can_confirm": true, "result": {"result_type": "NO_CODE", "code": null,
-                "outcome": "NOT_WASTE", "conclusion": "…폐기물이 아닌 것으로 판정됩니다"}}}
+                "outcome": "NOT_WASTE", "conclusion": "…폐기물이 아닌 것으로 판정됩니다",
+                "reason": "결론의 이유 한 줄(규칙 설명)",
+                "next_step": "확정하면 다음 단계에서 '처리 경로 필요 없음'으로 이어집니다."}}}
 
 POST /cases/C1/confirm   {"expected_code": "NOT_WASTE"}     # 코드 없는 결론은 사유(outcome)로 비교, "@NOT_WASTE"도 받음
 → 200 {"case": {"status": "CODE_CONFIRMED", "summary": {"code": null, "outcome": "NOT_WASTE", "result_label": "폐기물 아님"}},
@@ -152,9 +154,16 @@ POST /cases/C1/diagnosis/messages {"quick_reply": {"key": "material", "kind": "r
 
 - `ui.question.terms`: 질문 글에 나온 전문용어의 쉬운 설명 `[{term, plain, example}]`(`knowledge/glossary.yaml`, 사람이 쓴 고정 설명).
 - `ui.question.guide`(2026-11-11 추가): 질문 카드에 함께 보일 고정 안내 `{background, reason, actions[], if_unknown}`(배경·왜 묻나요·이렇게 확인하세요·모를 때, `knowledge/question_guide.yaml`). 자료가 없으면 `null`. 자세한 표시 방법은 `docs/ui/ui-contract.md` 1.1절.
-- `ui.result.assumptions`, `handoff.assumptions`: 시험·서류가 아니라 사용자 답(대리 질문)에서 추정한 사실의 안내 문장 목록. 비었으면 `[]`.
+- `ui.result.assumptions`, `handoff.assumptions`: 시험·서류가 아니라 사용자 답(대리 질문)에서 추정한 사실의 안내 문장 목록. 비었으면 `[]`. 같은 대리 질문에서 나온 수치 추정은 한 문장으로 합친다.
 - 추측 답변("아마 ~일걸", "대충 ~ 정도"): 추출 AI가 확신 정도를 함께 표시하고, 추측한 값은 판정 보드 사실에 `hedged: true`·`source_label` "… · 추측"으로, 결과 `assumptions`에 "사용자가 추측으로 답한 값"으로 보인다. 지정폐기물 가능성을 지우는 추측(오염 확인 묶음의 '해당 없음', 말로 답한 수치)은 결론이 나도 확정 전에 한 번 다시 묻는다(`sub_branch: "CONFIRM_GUESS"`, 같은 질문 카드). 버튼으로 다시 답하면 추측 표시가 풀린다.
 - `assist`(턴 응답, 추가 필드): 사용자가 "왜?"(`why`), "뭐예요?"(`term`)라고 묻거나 문진 밖 요청(`off_topic`)을 했을 때만 오는 보충 설명 `{intent, text, sources[{id, type, ref, excerpt}], terms[], review}`. 평범한 답변 턴에는 `null`. 사실을 기록하지 않으므로 `branch`·질문 카드·판정이 직전과 같다(답과 질문이 섞이면 답은 평소처럼 기록). 서버는 가공 없이 화면에 넘긴다. 설계: `docs/design/agent-skill-harness.md`.
+
+### 5.6 결과 이유와 다음 단계 (2026-11-10 추가)
+
+- `ui.result.reason`(추가 필드): 코드 없는 결론의 이유 한 줄(규칙 설명). 분류번호가 있으면 null.
+- `ui.result.next_step`: 코드 없는 결론이면 확정하면 이어질 안내 이름을 담는다(예: "확정하면 다음 단계에서 '관할 기관 질의 안내'로 이어집니다.").
+- `ui.result.conclusion`(분류번호 있음): "분류번호는 51-03-01(사업장일반폐기물)입니다. 명칭: …" 형식. 문장이므로 화면은 그대로 보여 주고 비교에 쓰지 않는다.
+- 판정 불가(UNSUPPORTED)의 `message`는 부족한 항목과 이어 가는 방법(서류·시험 의뢰·판정 보드 수정)을 담는다. 서류로 이어 갈 수 있으면 `ui.board.documents_needed`가 채워진다(`docs/ui/ui-contract.md` 1.5절).
 
 ## 6. 질문 카드 `ui.question.input` 규칙
 
