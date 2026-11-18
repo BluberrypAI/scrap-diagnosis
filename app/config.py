@@ -6,6 +6,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -20,11 +21,18 @@ class Settings(BaseSettings):
     azure_openai_deployment: str | None = None
     azure_openai_api_version: str = "2024-10-21"
     llm_timeout_seconds: float = 60.0
+    # 호출별 추론 강도(추론 모델만). 비우면 모델 기본값.
+    # 같은 배포를 쓰므로 프롬프트 캐시는 유지된다.
+    # 응답(respond)은 엔진이 정한 내용을 문장으로만 다듬으므로 낮춰도 판정에 영향이 없다.
+    # 추출 medium: 2026-11-18 low/medium/high 비교에서 정확도·시간·비용 균형이 가장 좋았다
+    extract_reasoning_effort: Literal["minimal", "low", "medium", "high"] | None = "medium"
+    respond_reasoning_effort: Literal["minimal", "low", "medium", "high"] | None = None
 
     kb_dir: Path = ROOT / "data" / "real"
     max_questions: int = 40  # 안전장치(app/agent/router.py DEFAULT_MAX_QUESTIONS)
     # m3.2: 소재 분류(material_group) 추출·묶음 긍정 답 규칙. m3.3: 코드 없는 결론의 확정 안내(응답)
-    prompt_version: str = "m3.3"
+    # m3.4: 추출 프롬프트 순서(고정 자료를 앞에, 캐시 적중용). 내용은 같다
+    prompt_version: str = "m3.4"
 
     # M4: API·영속화. 개발은 SQLite(저장소 기준 var/app.db), 운영은 PostgreSQL URL.
     database_url: str = f"sqlite:///{(ROOT / 'var' / 'app.db').as_posix()}"
@@ -63,6 +71,12 @@ class Settings(BaseSettings):
     azure_docintel_api_key: str | None = None
     azure_docintel_model: str = "prebuilt-layout"
     ocr_timeout_seconds: float = 120.0
+
+    @field_validator("extract_reasoning_effort", "respond_reasoning_effort", mode="before")
+    @classmethod
+    def _blank_effort(cls, v: object) -> object:
+        # .env에서 빈 값(EXTRACT_REASONING_EFFORT=)이면 모델 기본값을 쓴다
+        return None if v == "" else v
 
     @property
     def ocr_enabled(self) -> bool:
