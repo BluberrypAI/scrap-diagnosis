@@ -57,7 +57,12 @@ class AzureOpenAIClient:
         if not settings.llm_enabled:
             raise LLMError("Azure OpenAI 설정이 없습니다(.env)")
         self.model = settings.azure_openai_deployment or ""
-        self._temperature_ok = True
+        # 모델이 받지 않는 선택 인자는 한 번 거절되면 이후 계속 뺀다
+        self._unsupported: set[str] = set()
+        self._effort = {
+            "extract": settings.extract_reasoning_effort,
+            "respond": settings.respond_reasoning_effort,
+        }
         endpoint = settings.azure_openai_endpoint or ""
         u = urlparse(endpoint)
         if "/openai/v1" in u.path:
@@ -93,18 +98,11 @@ class AzureOpenAIClient:
                 "json_schema": {"name": name, "strict": True, "schema": schema},
             },
         )
+        optional: dict[str, Any] = {"temperature": 0}
+        if self._effort.get(name):
+            optional["reasoning_effort"] = self._effort[name]
         try:
-            if self._temperature_ok:
-                try:
-                    resp = self._client.chat.completions.create(temperature=0, **kwargs)
-                except Exception as exc:  # noqa: BLE001
-                    # 추론 모델은 temperature를 받지 않는다 → 빼고 다시 부른다(이후 계속 생략)
-                    if "temperature" not in str(exc):
-                        raise
-                    self._temperature_ok = False
-                    resp = self._client.chat.completions.create(**kwargs)
-            else:
-                resp = self._client.chat.completions.create(**kwargs)
+            resp = self._create(kwargs, optional)
             call.raw = resp.choices[0].message.content
             call.usage = resp.usage.model_dump() if resp.usage else None
             call.parsed = json.loads(call.raw or "{}")
@@ -112,6 +110,21 @@ class AzureOpenAIClient:
             call.error = f"{type(exc).__name__}: {exc}"
         call.latency_ms = int((time.perf_counter() - t) * 1000)
         return call
+
+    def _create(self, kwargs: dict[str, Any], optional: dict[str, Any]) -> Any:
+        """선택 인자를 붙여 부르고, 모델이 그 인자를 거절하면 빼고 다시 부른다.
+
+        추론 모델은 temperature를, 일반 모델은 reasoning_effort를 받지 않는다.
+        """
+        while True:
+            extra = {k: v for k, v in optional.items() if k not in self._unsupported}
+            try:
+                return self._client.chat.completions.create(**extra, **kwargs)
+            except Exception as exc:  # noqa: BLE001
+                bad = next((k for k in extra if k in str(exc)), None)
+                if bad is None:
+                    raise
+                self._unsupported.add(bad)
 
 
 Responder = dict | Callable[[str, str], dict]
