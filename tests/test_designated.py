@@ -115,7 +115,8 @@ def test_designated_reason_for_other_rules(real_kb):
     step = _step(real_kb, "pp", annex4_code="01-01-02", physical_state="liquid", **NO_OIL)
     res = _result(real_kb, step)
     assert res.category == "DESIGNATED"
-    assert res.designated.reason == "배출 시 상태: 액체(흐름)"
+    # 통합된 질문 원본의 쉬운 상태 명칭을 근거 안내에도 그대로 사용한다.
+    assert res.designated.reason == "배출 시 상태: 흐르는 액체"
 
 
 def test_general_has_no_designated(real_kb):
