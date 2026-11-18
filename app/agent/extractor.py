@@ -107,6 +107,7 @@ EXTRACT_SYSTEM = """너는 사업장 폐기물 문진의 '사실 추출기'다. 
 
 규칙
 1. key는 '사실 목록'에 있는 것만 쓴다. 목록에 없는 사실은 버린다.
+   ('사실 목록(직전 질문 추가)'이 있으면 그것도 '사실 목록'에 포함된다.)
 2. 사용자가 분명히 말한 것만 뽑는다. 추측하거나 상식으로 채우지 마라. 애매하면 뽑지 않는다.
 3. 값은 허용 값만 쓴다.
    - enum: value_text에 values의 '키'(예: "pp", "solid")를 쓴다. 라벨이나 별칭(aliases)을 보고 키로 바꾼다.
@@ -150,8 +151,10 @@ EXTRACT_SYSTEM = """너는 사업장 폐기물 문진의 '사실 추출기'다. 
    분명히 맞는 계열이 있으면 그것도 뽑는다(예: "폐콘크리트" → 51-22). 애매하면 general_group은 비운다."""
 
 
-def catalog_view(kb: KnowledgeBase, last_question: QuestionChoice | None) -> list[dict]:
-    """LLM에 보여 줄 사실 목록. internal 사실은 직전 질문일 때 그 선택지만 보여 준다.
+def catalog_parts(
+    kb: KnowledgeBase, last_question: QuestionChoice | None
+) -> tuple[list[dict], list[dict]]:
+    """LLM에 보여 줄 사실 목록을 (매 턴 같은 부분, 직전 질문에만 보이는 internal 사실)로 나눈다.
 
     상위 분류가 있는 사실에는 parent를, 상위 분류 사실에는 세부 사실 키(detail_facts)를 붙인다.
     """
@@ -159,19 +162,36 @@ def catalog_view(kb: KnowledgeBase, last_question: QuestionChoice | None) -> lis
     for fd in kb.catalog.values():
         if fd.parent:
             details.setdefault(fd.parent, []).append(fd.key)
-    out = []
+    fixed, asked = [], []
     for fd in kb.catalog.values():
         if fd.internal:
             if last_question is None or last_question.key != fd.key:
                 continue
             vals = {str(o.value): o.label for o in last_question.value_options if o.kind == "value"}
-            out.append(_fact_view(fd, vals))
+            asked.append(_fact_view(fd, vals))
             continue
         view = _fact_view(fd)
         if fd.key in details:
             view["detail_facts"] = details[fd.key]
-        out.append(view)
-    return out
+        fixed.append(view)
+    return fixed, asked
+
+
+def catalog_view(kb: KnowledgeBase, last_question: QuestionChoice | None) -> list[dict]:
+    """LLM에 보여 줄 사실 목록 전체. internal 사실은 직전 질문일 때 그 선택지만 보여 준다."""
+    fixed, asked = catalog_parts(kb, last_question)
+    return fixed + asked
+
+
+def build_system_prompt(kb: KnowledgeBase) -> str:
+    """지침 + 매 턴 같은 자료(설명 자료 목록·사실 목록).
+
+    이 배포의 프롬프트 캐시는 메시지 단위로 맞는다(사용자 메시지 안의 같은 앞부분은 할인되지 않음).
+    고정 자료를 시스템 메시지에 두어야 매 턴 캐시된다. 측정: docs/perf/turn-latency.md
+    """
+    fixed, _ = catalog_parts(kb, None)
+    data = {"설명 자료 목록": guide_index(kb), "사실 목록": fixed}
+    return EXTRACT_SYSTEM + "\n\n고정 자료(JSON)\n" + json.dumps(data, ensure_ascii=False)
 
 
 def _fact_view(fd: FactDef, values: dict[str, str] | None = None) -> dict:
@@ -219,15 +239,19 @@ def build_user_prompt(
         for k, f in effective.items()
         if f.is_known
     }
-    payload: dict[str, Any] = {
-        "사실 목록": catalog_view(kb, last_question),
-        "현재 알고 있는 사실": known,
-        "직전 질문": _question_view(last_question),
-        "최근 대화": recent[-6:],
-        "사용자 발화": text,
-        # 사용자가 질문하면 관련 자료 id를 고르는 데 쓴다(app/rules/guide_index.py)
-        "설명 자료 목록": guide_index(kb),
-    }
+    # '설명 자료 목록'과 매 턴 같은 '사실 목록'은 시스템 메시지(build_system_prompt)에 있다.
+    _, asked = catalog_parts(kb, last_question)
+    payload: dict[str, Any] = {}
+    if asked:
+        payload["사실 목록(직전 질문 추가)"] = asked
+    payload.update(
+        {
+            "현재 알고 있는 사실": known,
+            "직전 질문": _question_view(last_question),
+            "최근 대화": recent[-6:],
+            "사용자 발화": text,
+        }
+    )
     if feedback:
         payload["이전 출력의 오류(고쳐서 다시 내라)"] = feedback
     return json.dumps(payload, ensure_ascii=False)
@@ -294,7 +318,7 @@ def extract(
         )
         call = llm.complete_json(
             name="extract",
-            system=EXTRACT_SYSTEM,
+            system=build_system_prompt(kb),
             user=user,
             schema=EXTRACTION_SCHEMA,
             prompt_version=prompt_version,
