@@ -209,7 +209,7 @@ def run_config(mode: str, n_list: list[int], latency: float) -> list[tuple]:
 
 
 def measure_prompt() -> None:
-    from app.agent.extractor import EXTRACT_SYSTEM, build_user_prompt
+    from app.agent.extractor import build_system_prompt, build_user_prompt
     from app.agent.router import SessionState, run_engine
     from app.domain.facts import FactStore
 
@@ -234,8 +234,9 @@ def measure_prompt() -> None:
         f"run_engine CPU (대표 사실 집합) 평균 {cpu * 1000:.1f} ms; "
         f"빈 세션 첫 호출 {first * 1000:.0f} ms"
     )
-    print(f"extractor user prompt {len(user)} chars, system prompt {len(EXTRACT_SYSTEM)} chars")
-    print(f"입력 토큰 추정(chars/2): {(len(user) + len(EXTRACT_SYSTEM)) // 2}")
+    system = build_system_prompt(kb)
+    print(f"extractor user prompt {len(user)} chars, system prompt {len(system)} chars")
+    print(f"입력 토큰 추정(chars/2): {(len(user) + len(system)) // 2}")
 
 
 def main() -> None:

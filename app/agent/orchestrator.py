@@ -102,7 +102,7 @@ class DiagnosisSession:
         session_id: str | None = None,
         as_of: date | None = None,
         max_questions: int = DEFAULT_MAX_QUESTIONS,
-        prompt_version: str = "m3.3",
+        prompt_version: str = "m3.4",
     ):
         self.kb = kb
         self.extractor_llm = extractor_llm
