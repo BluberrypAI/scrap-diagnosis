@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge 67e78d8d). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge 1a8224f4). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: sludge_ww_organic
 title: 그 밖의 폐수처리 오니(유기성)
-version: 2026.11.0+kb-67e78d8d
+version: 2026.11.0+kb-1a8224f4
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -17,10 +17,12 @@ rules:
   priority: 500
   when:
     all:
-    - fact: sludge_facility_notified
+    - &id001
+      fact: sludge_facility_notified
       op: eq
       value: true
-    - any:
+    - &id002
+      any:
       - fact: sludge_water_pct
         op: lt
         value: 95
@@ -31,7 +33,8 @@ rules:
         value: 5
         min_status: EVIDENCED
         falsify_min_status: EVIDENCED
-    - fact: leach_pb
+    - &id003
+      fact: leach_pb
       op: gte
       value: 3
       min_status: EVIDENCED
@@ -39,6 +42,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 01-02-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 01-02-01
     category: DESIGNATED
@@ -70,15 +76,54 @@ rules:
   - code_map
   - material:sludge_ww_organic
   review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_PB:CODE_UNKNOWN
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_PB
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 오니류
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목1)
+    source_id: DEC-A1
+    location: 별표 1 제1호나목1)
+    excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목
+    source_id: DEC-A1
+    location: 별표 1 제1호나목
+    excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 제1호가목
+    source_id: RULE-A1
+    location: 별표 1 제1호가목
+    excerpt: 용출액 1리터당 3밀리그램 이상의 납을 함유한 경우만 해당한다
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_PB
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CU:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CU
   priority: 500
   when:
     all:
-    - fact: sludge_facility_notified
+    - &id004
+      fact: sludge_facility_notified
       op: eq
       value: true
-    - any:
+    - &id005
+      any:
       - fact: sludge_water_pct
         op: lt
         value: 95
@@ -89,7 +134,8 @@ rules:
         value: 5
         min_status: EVIDENCED
         falsify_min_status: EVIDENCED
-    - fact: leach_cu
+    - &id006
+      fact: leach_cu
       op: gte
       value: 3
       min_status: EVIDENCED
@@ -97,6 +143,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 01-02-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 01-02-01
     category: DESIGNATED
@@ -128,15 +177,54 @@ rules:
   - code_map
   - material:sludge_ww_organic
   review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CU:CODE_UNKNOWN
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CU
+  priority: 500
+  when:
+    all:
+    - *id004
+    - *id005
+    - *id006
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 오니류
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목1)
+    source_id: DEC-A1
+    location: 별표 1 제1호나목1)
+    excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목
+    source_id: DEC-A1
+    location: 별표 1 제1호나목
+    excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 제1호나목
+    source_id: RULE-A1
+    location: 별표 1 제1호나목
+    excerpt: 용출액 1리터당 3밀리그램 이상의 구리를 함유한 경우만 해당한다
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_CU
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_AS:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_AS
   priority: 500
   when:
     all:
-    - fact: sludge_facility_notified
+    - &id007
+      fact: sludge_facility_notified
       op: eq
       value: true
-    - any:
+    - &id008
+      any:
       - fact: sludge_water_pct
         op: lt
         value: 95
@@ -147,7 +235,8 @@ rules:
         value: 5
         min_status: EVIDENCED
         falsify_min_status: EVIDENCED
-    - fact: leach_as
+    - &id009
+      fact: leach_as
       op: gte
       value: 1.5
       min_status: EVIDENCED
@@ -155,6 +244,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 01-02-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 01-02-01
     category: DESIGNATED
@@ -186,15 +278,54 @@ rules:
   - code_map
   - material:sludge_ww_organic
   review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_AS:CODE_UNKNOWN
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_AS
+  priority: 500
+  when:
+    all:
+    - *id007
+    - *id008
+    - *id009
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 오니류
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목1)
+    source_id: DEC-A1
+    location: 별표 1 제1호나목1)
+    excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목
+    source_id: DEC-A1
+    location: 별표 1 제1호나목
+    excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 제1호다목
+    source_id: RULE-A1
+    location: 별표 1 제1호다목
+    excerpt: 용출액 1리터당 1.5밀리그램 이상의 비소를 함유한 경우만 해당한다
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_AS
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_HG:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_HG
   priority: 500
   when:
     all:
-    - fact: sludge_facility_notified
+    - &id010
+      fact: sludge_facility_notified
       op: eq
       value: true
-    - any:
+    - &id011
+      any:
       - fact: sludge_water_pct
         op: lt
         value: 95
@@ -205,7 +336,8 @@ rules:
         value: 5
         min_status: EVIDENCED
         falsify_min_status: EVIDENCED
-    - fact: leach_hg
+    - &id012
+      fact: leach_hg
       op: gte
       value: 0.005
       min_status: EVIDENCED
@@ -213,6 +345,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 01-02-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 01-02-01
     category: DESIGNATED
@@ -244,15 +379,54 @@ rules:
   - code_map
   - material:sludge_ww_organic
   review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_HG:CODE_UNKNOWN
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_HG
+  priority: 500
+  when:
+    all:
+    - *id010
+    - *id011
+    - *id012
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 오니류
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목1)
+    source_id: DEC-A1
+    location: 별표 1 제1호나목1)
+    excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목
+    source_id: DEC-A1
+    location: 별표 1 제1호나목
+    excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 제1호라목
+    source_id: RULE-A1
+    location: 별표 1 제1호라목
+    excerpt: 용출액 1리터당 0.005밀리그램 이상의 수은을 함유한 경우만 해당한다
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_HG
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CD:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CD
   priority: 500
   when:
     all:
-    - fact: sludge_facility_notified
+    - &id013
+      fact: sludge_facility_notified
       op: eq
       value: true
-    - any:
+    - &id014
+      any:
       - fact: sludge_water_pct
         op: lt
         value: 95
@@ -263,7 +437,8 @@ rules:
         value: 5
         min_status: EVIDENCED
         falsify_min_status: EVIDENCED
-    - fact: leach_cd
+    - &id015
+      fact: leach_cd
       op: gte
       value: 0.3
       min_status: EVIDENCED
@@ -271,6 +446,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 01-02-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 01-02-01
     category: DESIGNATED
@@ -302,15 +480,54 @@ rules:
   - code_map
   - material:sludge_ww_organic
   review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CD:CODE_UNKNOWN
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CD
+  priority: 500
+  when:
+    all:
+    - *id013
+    - *id014
+    - *id015
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 오니류
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목1)
+    source_id: DEC-A1
+    location: 별표 1 제1호나목1)
+    excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목
+    source_id: DEC-A1
+    location: 별표 1 제1호나목
+    excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 제1호마목
+    source_id: RULE-A1
+    location: 별표 1 제1호마목
+    excerpt: 용출액 1리터당 0.3밀리그램 이상의 카드뮴을 함유한 경우만 해당한다
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_CD
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CR6:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CR6
   priority: 500
   when:
     all:
-    - fact: sludge_facility_notified
+    - &id016
+      fact: sludge_facility_notified
       op: eq
       value: true
-    - any:
+    - &id017
+      any:
       - fact: sludge_water_pct
         op: lt
         value: 95
@@ -321,7 +538,8 @@ rules:
         value: 5
         min_status: EVIDENCED
         falsify_min_status: EVIDENCED
-    - fact: leach_cr6
+    - &id018
+      fact: leach_cr6
       op: gte
       value: 1.5
       min_status: EVIDENCED
@@ -329,6 +547,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 01-02-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 01-02-01
     category: DESIGNATED
@@ -360,15 +581,54 @@ rules:
   - code_map
   - material:sludge_ww_organic
   review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CR6:CODE_UNKNOWN
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CR6
+  priority: 500
+  when:
+    all:
+    - *id016
+    - *id017
+    - *id018
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 오니류
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목1)
+    source_id: DEC-A1
+    location: 별표 1 제1호나목1)
+    excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목
+    source_id: DEC-A1
+    location: 별표 1 제1호나목
+    excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 제1호바목
+    source_id: RULE-A1
+    location: 별표 1 제1호바목
+    excerpt: 용출액 1리터당 1.5밀리그램 이상의 6가크롬을 함유한 경우만 해당한다
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_CR6
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CN:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CN
   priority: 500
   when:
     all:
-    - fact: sludge_facility_notified
+    - &id019
+      fact: sludge_facility_notified
       op: eq
       value: true
-    - any:
+    - &id020
+      any:
       - fact: sludge_water_pct
         op: lt
         value: 95
@@ -379,7 +639,8 @@ rules:
         value: 5
         min_status: EVIDENCED
         falsify_min_status: EVIDENCED
-    - fact: leach_cn
+    - &id021
+      fact: leach_cn
       op: gte
       value: 1
       min_status: EVIDENCED
@@ -387,6 +648,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 01-02-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 01-02-01
     category: DESIGNATED
@@ -418,15 +682,54 @@ rules:
   - code_map
   - material:sludge_ww_organic
   review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_CN:CODE_UNKNOWN
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_CN
+  priority: 500
+  when:
+    all:
+    - *id019
+    - *id020
+    - *id021
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 오니류
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목1)
+    source_id: DEC-A1
+    location: 별표 1 제1호나목1)
+    excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목
+    source_id: DEC-A1
+    location: 별표 1 제1호나목
+    excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 제1호사목
+    source_id: RULE-A1
+    location: 별표 1 제1호사목
+    excerpt: 용출액 1리터당 1밀리그램 이상의 시안화합물을 함유한 경우만 해당한다
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_CN
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_OP:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_OP
   priority: 500
   when:
     all:
-    - fact: sludge_facility_notified
+    - &id022
+      fact: sludge_facility_notified
       op: eq
       value: true
-    - any:
+    - &id023
+      any:
       - fact: sludge_water_pct
         op: lt
         value: 95
@@ -437,7 +740,8 @@ rules:
         value: 5
         min_status: EVIDENCED
         falsify_min_status: EVIDENCED
-    - fact: leach_op
+    - &id024
+      fact: leach_op
       op: gte
       value: 1
       min_status: EVIDENCED
@@ -445,6 +749,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 01-02-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 01-02-01
     category: DESIGNATED
@@ -476,15 +783,54 @@ rules:
   - code_map
   - material:sludge_ww_organic
   review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_OP:CODE_UNKNOWN
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_OP
+  priority: 500
+  when:
+    all:
+    - *id022
+    - *id023
+    - *id024
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 오니류
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목1)
+    source_id: DEC-A1
+    location: 별표 1 제1호나목1)
+    excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목
+    source_id: DEC-A1
+    location: 별표 1 제1호나목
+    excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 제1호아목
+    source_id: RULE-A1
+    location: 별표 1 제1호아목
+    excerpt: 용출액 1리터당 1밀리그램 이상의 유기인화합물을 함유한 경우만 해당한다
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_OP
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_PCE:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_PCE
   priority: 500
   when:
     all:
-    - fact: sludge_facility_notified
+    - &id025
+      fact: sludge_facility_notified
       op: eq
       value: true
-    - any:
+    - &id026
+      any:
       - fact: sludge_water_pct
         op: lt
         value: 95
@@ -495,7 +841,8 @@ rules:
         value: 5
         min_status: EVIDENCED
         falsify_min_status: EVIDENCED
-    - fact: leach_pce
+    - &id027
+      fact: leach_pce
       op: gte
       value: 0.1
       min_status: EVIDENCED
@@ -503,6 +850,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 01-02-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 01-02-01
     category: DESIGNATED
@@ -534,15 +884,54 @@ rules:
   - code_map
   - material:sludge_ww_organic
   review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_PCE:CODE_UNKNOWN
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_PCE
+  priority: 500
+  when:
+    all:
+    - *id025
+    - *id026
+    - *id027
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 오니류
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목1)
+    source_id: DEC-A1
+    location: 별표 1 제1호나목1)
+    excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목
+    source_id: DEC-A1
+    location: 별표 1 제1호나목
+    excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 제1호자목
+    source_id: RULE-A1
+    location: 별표 1 제1호자목
+    excerpt: 용출액 1리터당 0.1밀리그램 이상의 테트라클로로에틸렌을 함유한 경우만 해당한다
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_PCE
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_TCE:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_TCE
   priority: 500
   when:
     all:
-    - fact: sludge_facility_notified
+    - &id028
+      fact: sludge_facility_notified
       op: eq
       value: true
-    - any:
+    - &id029
+      any:
       - fact: sludge_water_pct
         op: lt
         value: 95
@@ -553,7 +942,8 @@ rules:
         value: 5
         min_status: EVIDENCED
         falsify_min_status: EVIDENCED
-    - fact: leach_tce
+    - &id030
+      fact: leach_tce
       op: gte
       value: 0.3
       min_status: EVIDENCED
@@ -561,6 +951,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 01-02-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 01-02-01
     category: DESIGNATED
@@ -592,15 +985,54 @@ rules:
   - code_map
   - material:sludge_ww_organic
   review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-LEACH_TCE:CODE_UNKNOWN
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-LEACH_TCE
+  priority: 500
+  when:
+    all:
+    - *id028
+    - *id029
+    - *id030
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 오니류
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목1)
+    source_id: DEC-A1
+    location: 별표 1 제1호나목1)
+    excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목
+    source_id: DEC-A1
+    location: 별표 1 제1호나목
+    excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 제1호차목
+    source_id: RULE-A1
+    location: 별표 1 제1호차목
+    excerpt: 용출액 1리터당 0.3밀리그램 이상의 트리클로로에틸렌을 함유한 경우만 해당한다
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-LEACH_TCE
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-OIL_CONTENT_PCT:01-02-01
   source_rule: S3-1NA-SLUDGE_WASTEWATER-OIL_CONTENT_PCT
   priority: 500
   when:
     all:
-    - fact: sludge_facility_notified
+    - &id031
+      fact: sludge_facility_notified
       op: eq
       value: true
-    - any:
+    - &id032
+      any:
       - fact: sludge_water_pct
         op: lt
         value: 95
@@ -611,7 +1043,8 @@ rules:
         value: 5
         min_status: EVIDENCED
         falsify_min_status: EVIDENCED
-    - fact: oil_content_pct
+    - &id033
+      fact: oil_content_pct
       op: gte
       value: 5
       min_status: EVIDENCED
@@ -619,6 +1052,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 01-02-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 01-02-01
     category: DESIGNATED
@@ -650,22 +1086,59 @@ rules:
   - code_map
   - material:sludge_ww_organic
   review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-1NA-SLUDGE_WASTEWATER-OIL_CONTENT_PCT:CODE_UNKNOWN
+  source_rule: S3-1NA-SLUDGE_WASTEWATER-OIL_CONTENT_PCT
+  priority: 500
+  when:
+    all:
+    - *id031
+    - *id032
+    - *id033
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 오니류
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목1)
+    source_id: DEC-A1
+    location: 별표 1 제1호나목1)
+    excerpt: 폐수처리 오니(기후에너지환경부령으로 정하는 물질을 함유한 것으로 기후에너지환경부장관이 고시한 시설에서 발생되는 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제1호나목
+    source_id: DEC-A1
+    location: 별표 1 제1호나목
+    excerpt: 오니류(수분함량이 95퍼센트 미만이거나 고형물함량이 5퍼센트 이상인 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 제1호카목
+    source_id: RULE-A1
+    location: 별표 1 제1호카목
+    excerpt: 기름성분(중량비를 기준으로 하여 유해물질을 5퍼센트 이상 함유한 경우만 해당한다)
+  review_units:
+  - S3-1NA-SLUDGE_WASTEWATER-OIL_CONTENT_PCT
+  - def:SLUDGE_STATE
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-6-OIL-5PCT:06-01-01
   source_rule: S3-6-OIL-5PCT
   priority: 500
   when:
     all:
-    - &id001
+    - &id034
       fact: oil_presence
       op: eq
       value: present
-    - &id002
+    - &id035
       fact: oil_content_pct
       op: gte
       value: 5
       min_status: EVIDENCED
       falsify_min_status: EVIDENCED
-    - &id003
+    - &id036
       not:
         any:
         - all:
@@ -679,7 +1152,7 @@ rules:
         - all:
           - fact: physical_state
             op: in
-            value: &id004
+            value: &id039
             - solid
             - semisolid
           - fact: pcb_leach_mg_l
@@ -689,6 +1162,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 06-01-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-01
     category: DESIGNATED
@@ -716,12 +1192,15 @@ rules:
   priority: 500
   when:
     all:
-    - *id001
-    - *id002
-    - *id003
+    - *id034
+    - *id035
+    - *id036
     - fact: annex4_code
       op: eq
       value: 06-01-02
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-02
     category: DESIGNATED
@@ -749,12 +1228,15 @@ rules:
   priority: 500
   when:
     all:
-    - *id001
-    - *id002
-    - *id003
+    - *id034
+    - *id035
+    - *id036
     - fact: annex4_code
       op: eq
       value: 06-01-03
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-03
     category: DESIGNATED
@@ -782,12 +1264,15 @@ rules:
   priority: 500
   when:
     all:
-    - *id001
-    - *id002
-    - *id003
+    - *id034
+    - *id035
+    - *id036
     - fact: annex4_code
       op: eq
       value: 06-01-04
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-04
     category: DESIGNATED
@@ -815,12 +1300,15 @@ rules:
   priority: 500
   when:
     all:
-    - *id001
-    - *id002
-    - *id003
+    - *id034
+    - *id035
+    - *id036
     - fact: annex4_code
       op: eq
       value: 06-01-05
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-05
     category: DESIGNATED
@@ -848,12 +1336,15 @@ rules:
   priority: 500
   when:
     all:
-    - *id001
-    - *id002
-    - *id003
+    - *id034
+    - *id035
+    - *id036
     - fact: annex4_code
       op: eq
       value: 06-01-06
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-06
     category: DESIGNATED
@@ -881,12 +1372,15 @@ rules:
   priority: 500
   when:
     all:
-    - *id001
-    - *id002
-    - *id003
+    - *id034
+    - *id035
+    - *id036
     - fact: annex4_code
       op: eq
       value: 06-01-07
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-07
     category: DESIGNATED
@@ -914,12 +1408,15 @@ rules:
   priority: 500
   when:
     all:
-    - *id001
-    - *id002
-    - *id003
+    - *id034
+    - *id035
+    - *id036
     - fact: annex4_code
       op: eq
       value: 06-01-99
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-99
     category: DESIGNATED
@@ -947,12 +1444,15 @@ rules:
   priority: 500
   when:
     all:
-    - *id001
-    - *id002
-    - *id003
+    - *id034
+    - *id035
+    - *id036
     - fact: annex4_code
       op: eq
       value: 06-02-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-02-00
     category: DESIGNATED
@@ -980,12 +1480,15 @@ rules:
   priority: 500
   when:
     all:
-    - *id001
-    - *id002
-    - *id003
+    - *id034
+    - *id035
+    - *id036
     - fact: annex4_code
       op: eq
       value: 06-03-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-03-00
     category: DESIGNATED
@@ -1008,21 +1511,54 @@ rules:
   - code_map
   - material:sludge_ww_organic
   review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-6-OIL-5PCT:CODE_UNKNOWN
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id034
+    - *id035
+    - *id036
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐유(기름성분 5% 이상 함유)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-8GA-PCB-LIQUID:08-03-00
   source_rule: S3-8GA-PCB-LIQUID
   priority: 500
   when:
     all:
-    - fact: physical_state
+    - &id037
+      fact: physical_state
       op: eq
       value: liquid
-    - fact: pcb_mg_l
+    - &id038
+      fact: pcb_mg_l
       op: gte
       value: 2
       min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 08-03-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 08-03-00
     category: DESIGNATED
@@ -1048,21 +1584,56 @@ rules:
   - code_map
   - material:sludge_ww_organic
   review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-8GA-PCB-LIQUID:CODE_UNKNOWN
+  source_rule: S3-8GA-PCB-LIQUID
+  priority: 500
+  when:
+    all:
+    - *id037
+    - *id038
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: PCB 함유 폐기물
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제8호가목
+    source_id: DEC-A1
+    location: 별표 1 제8호가목
+    excerpt: 액체상태의 것(1리터당 2밀리그램 이상 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제8호
+    source_id: DEC-A1
+    location: 별표 1 제8호
+    excerpt: 폴리클로리네이티드비페닐 함유 폐기물
+  review_units:
+  - S3-8GA-PCB-LIQUID
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-8NA-PCB-NONLIQUID:08-04-00
   source_rule: S3-8NA-PCB-NONLIQUID
   priority: 500
   when:
     all:
-    - fact: physical_state
+    - &id040
+      fact: physical_state
       op: in
-      value: *id004
-    - fact: pcb_leach_mg_l
+      value: *id039
+    - &id041
+      fact: pcb_leach_mg_l
       op: gte
       value: 0.003
       min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 08-04-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 08-04-00
     category: DESIGNATED
@@ -1088,16 +1659,46 @@ rules:
   - code_map
   - material:sludge_ww_organic
   review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-8NA-PCB-NONLIQUID:CODE_UNKNOWN
+  source_rule: S3-8NA-PCB-NONLIQUID
+  priority: 500
+  when:
+    all:
+    - *id040
+    - *id041
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: PCB 함유 폐기물
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제8호나목
+    source_id: DEC-A1
+    location: 별표 1 제8호나목
+    excerpt: 액체상태 외의 것(용출액 1리터당 0.003밀리그램 이상 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제8호
+    source_id: DEC-A1
+    location: 별표 1 제8호
+    excerpt: 폴리클로리네이티드비페닐 함유 폐기물
+  review_units:
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
 - rule_id: sludge_ww_organic:S3-9-TOXIC:09-01-00
   source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
-    - &id005
+    - &id042
       fact: toxic_chemical_discard
       op: eq
       value: true
-    - &id006
+    - &id043
       not:
         any:
         - all:
@@ -1111,7 +1712,7 @@ rules:
         - all:
           - fact: physical_state
             op: in
-            value: *id004
+            value: *id039
           - fact: pcb_leach_mg_l
             op: gte
             value: 0.003
@@ -1119,6 +1720,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 09-01-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 09-01-00
     category: DESIGNATED
@@ -1146,11 +1750,14 @@ rules:
   priority: 500
   when:
     all:
-    - *id005
-    - *id006
+    - *id042
+    - *id043
     - fact: annex4_code
       op: eq
       value: 09-02-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 09-02-00
     category: DESIGNATED
@@ -1178,11 +1785,14 @@ rules:
   priority: 500
   when:
     all:
-    - *id005
-    - *id006
+    - *id042
+    - *id043
     - fact: annex4_code
       op: eq
       value: 09-03-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 09-03-00
     category: DESIGNATED
@@ -1210,11 +1820,14 @@ rules:
   priority: 500
   when:
     all:
-    - *id005
-    - *id006
+    - *id042
+    - *id043
     - fact: annex4_code
       op: eq
       value: 09-04-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 09-04-00
     category: DESIGNATED
@@ -1230,6 +1843,33 @@ rules:
     excerpt: 09-04-00 「화학물질관리법」 제2조제3호 및 제4호에 따른 허가물질 및 제한물질
     source_id: RULE-A4
     location: 09-04-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:sludge_ww_organic
+  review: UNVERIFIED
+- rule_id: sludge_ww_organic:S3-9-TOXIC:CODE_UNKNOWN
+  source_rule: S3-9-TOXIC
+  priority: 500
+  when:
+    all:
+    - *id042
+    - *id043
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐유독물질(또는 그 제외 조항이 가리키는 다른 지정폐기물)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제9호
+    source_id: DEC-A1
+    location: 별표 1 제9호
+    excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   review_units:
   - S3-9-TOXIC
   - S3-8GA-PCB-LIQUID

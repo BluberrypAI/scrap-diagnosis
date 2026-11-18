@@ -20,6 +20,7 @@ from app.agent.llm_client import LLMCall, LLMClient
 from app.agent.redact import RedactionError, find_identifiers, redact_obj, scrub_call
 from app.agent.router import Branch, EngineStep, blocking_view
 from app.config import Settings, get_settings
+from app.domain.designated import with_warning
 from app.rules.model import KnowledgeBase, Rule
 
 RESPONSE_SCHEMA = {
@@ -219,6 +220,13 @@ def suggested_replies(step: EngineStep) -> list[str]:
     return []
 
 
+def _final_message(msg: str, step: EngineStep) -> str:
+    """지정폐기물 확인 메시지 끝에 경고를 붙인다(검증을 통과한 문장 뒤에 코드가 붙이므로 LLM과 무관)."""
+    if step.decision.branch != Branch.FINAL_REVIEW:
+        return msg
+    return with_warning(msg, step.evaluation.decided)
+
+
 def respond(
     llm: LLMClient | None,
     kb: KnowledgeBase,
@@ -301,7 +309,7 @@ def respond(
                     found.append("assist: 근거 source id를 인용하지 않음")
             if not found:
                 return ResponderOutput(
-                    message=msg,
+                    message=_final_message(msg, step),
                     cited_basis_ids=cited,
                     suggested_replies=replies,
                     problems=problems,
@@ -314,7 +322,7 @@ def respond(
     msg = templates.render(step.decision.branch.value, payload)
     cited = [b["id"] for b in payload.get("basis", [])][:1]
     return ResponderOutput(
-        message=msg,
+        message=_final_message(msg, step),
         cited_basis_ids=cited,
         suggested_replies=replies,
         used_template=True,

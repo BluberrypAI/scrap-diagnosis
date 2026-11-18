@@ -34,9 +34,24 @@
 | `items` | group: 이번에 묻는 항목(라벨) |
 | `answered_items` | group: 같은 묶음에서 이미 답한 항목. 비었으면 [] |
 | `result.reason` | (2026-11-13) 결과 카드: 이 결론에 이른 구체적 이유와 할 일(규칙 데이터의 고정 문장, 예: 오니 유기성·무기성 기준이 없어 번호를 정하지 않음 → 소재를 다시 고르기). 없으면 null. 화면은 결론 바로 아래에 먼저 보여 준다 |
+| `result.designated` | (2026-11-18 추가) 지정폐기물(`category == "DESIGNATED"`)일 때만 오는 안내 객체, 아니면 null. `{reason, warning, next_actions[]}`. `reason`은 어떤 조건 때문에 지정폐기물인지 코드가 규칙의 만족한 조건과 사용자 값으로 만든 한 문장(예: "기름성분 함량 7.5% (기준 5% 이상)", 만들 수 없으면 null이며 이때 화면은 `result.reason`을 쓴다). `warning`은 고정 경고 문장(확인 메시지 `message` 끝에도 붙어 온다). `next_actions[]`는 `{id, text, source_id, source_title, source_ref, form}` 4개(licensed_only, plan_confirm, storage, recheck, 사람이 쓴 `knowledge/designated_guidance.yaml`). `source_ref`(추가 필드)는 근거 안의 조항 위치(예: "제18조의2", 없으면 null)이고, `text`는 결정된 분류번호 계열(앞 2자리)에 따라 배출량 기준·보관 기간이 달라진다. `form`은 `form12`(처리계획서 별지 제12호)이거나 null. 세부 분류번호를 '모름'이라고 답해 `outcome: "DESIGNATED_CODE_NEEDED"`(`result_type: "NO_CODE"`, `category: "DESIGNATED"`, `code: null`)로 끝난 경우에도 `designated`가 오고, 이때는 `code_check`가 하나 더 와서 5개다. 번호가 없으니 처리계획서(제12호) 버튼은 쓸 수 없고 초안으로만 본다. 화면은 결론 아래에 경고와 할 일 목록으로 보여 준다 |
 | `result.assumptions` | 결과 카드: 시험·서류가 아니라 사용자 답에서 추정한 사실의 안내 문장 목록(예: PCB 관련 없음 → 기준 미만 추정). 비었으면 []. 화면은 이유 아래에 참고로 보여 준다(참조 화면은 접어 둠) |
 | `terms` | 질문 글에 나온 전문용어의 쉬운 설명 `[{term, plain, example}]`(knowledge/glossary.yaml, 사람이 쓴 고정 설명). 비었으면 []. 화면은 "용어 설명" 접기 등으로 보여 주면 된다 |
 | `guide` | (2026-11-11 추가) 처음 쓰는 사람이 카드만 보고 답할 수 있게 하는 고정 안내 `{background, reason, actions[], if_unknown}`. `background` 말의 뜻·상황, `reason` 왜 묻는지(답에 따라 무엇이 달라지는지), `actions` "이렇게 확인하세요" 단계(볼 서류·항목·검색할 곳), `if_unknown` 모를 때 안내. 사람이 쓴 문구(knowledge/question_guide.yaml)라 판정에 쓰지 않는다. 자료가 없으면 null. 화면은 제목 아래 배경·이유를, 선택지 아래 확인 단계를 접지 않고 보여 준다. `actions`가 있으면 `help`(한 줄 도움말)는 감춰도 된다 |
+
+`result.designated` 예(지정폐기물일 때. `result.category == "DESIGNATED"`):
+```json
+"designated": {
+  "reason": "기름성분 함량 7.5% (기준 5% 이상)",
+  "warning": "지정폐기물은 지정폐기물 처리 허가를 받은 업체에만 맡길 수 있어요. 일반 재활용 업체에는 보낼 수 없어요.",
+  "next_actions": [
+    {"id": "licensed_only", "text": "지정폐기물 처리 허가를 받은 업체에만 맡겨야 해요. …", "source_id": "ACT-WASTE", "source_title": "폐기물관리법", "source_ref": "제18조제1항", "form": null},
+    {"id": "plan_confirm", "text": "처리하기 전에 지정폐기물 처리계획서(별지 제12호)를 …", "source_id": "RULE-WASTE", "source_title": "폐기물관리법 시행규칙", "source_ref": "제18조의2", "form": "form12"},
+    {"id": "storage", "text": "보관 기간과 보관 장소 기준이 …", "source_id": "RULE-A5", "source_title": "…", "source_ref": "제4호나목", "form": null},
+    {"id": "recheck", "text": "판정이 의심되면 …", "source_id": null, "source_title": null, "source_ref": null, "form": null}
+  ]
+}
+```
 
 `input`이 `material_group`/`material`인 기준: 질문 key가 카탈로그의 상위 분류(다른 사실의 `parent`)면 `material_group`, `parent`가 있는 사실이면 `material`.
 

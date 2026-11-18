@@ -22,6 +22,7 @@ uv run python tools/legacy_regression.py   # 기존 엔진 판정표와 비교(�
 | `facts.yaml` | 사실(질문 항목) 정의: 라벨, 값, 질문 문장, 확인 방법 | 아니오 |
 | `fact_settings.yaml` | 빌드 때 더하는 사실 설정: 사전확률, 법적 중요도, 묶음 질문, 증빙 문서 종류 | 아니오 |
 | `outcome_guidance.yaml` | 결론 → 경로추천 안내(`docs/handoff-contract.md`). 빌드가 그대로 복사 | 아니오 |
+| `designated_guidance.yaml` | 지정폐기물 판정 때 보여 줄 다음 할 일(분류번호 계열별 `variants`, 조항 위치 `source_ref`, 특정 결론에만 `only_outcome` 지원, `ui.result.designated`·인계 객체 `designated`). `source_id`는 `sources.yaml`에 있어야 한다(없으면 KB 로드 실패). 빌드가 그대로 복사 | 아니오 |
 | `glossary.yaml` | 용어집: 전문용어의 쉬운 설명. 질문 카드 `terms`와 검토 카드 "용어 풀이"에 붙는다. 판정에는 쓰지 않음. 빌드가 그대로 복사 | 아니오 |
 | `question_guide.yaml` | 질문 안내: 문진 질문·선택지마다 무엇을·왜 묻는지, 확인 방법, 해당 예시, FAQ, 출처. 질문 카드의 배경·왜 묻나요·이렇게 확인하세요(`background`·`reason`·`how_to_check`·`if_unknown`, 묶음은 `groups`)와 보충 설명("어떤 게 해당돼요?")에 씀. 모든 질문·선택지에 있어야 함(`tests/test_question_guide.py`). 판정에는 쓰지 않음 | 아니오 |
 | `skills/interviewer.md` | (초안) 문진 진행 AI의 지침·체크리스트. 판정에는 쓰지 않음(docs/design/agent-skill-harness.md). 사용자 검토 후 확정 | 아니오 |

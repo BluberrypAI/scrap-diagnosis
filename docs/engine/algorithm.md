@@ -97,7 +97,7 @@ PP 스크랩의 실제 진행(기업 정보에 "배출시설 있음"이 있을 �
 
 ### 2.2 조건식
 규칙의 `when`은 조건(Cond)과 그 조합이다.
-- **조건:** `{fact, op, value, min_status, falsify_min_status}`. `op`는 `eq` `ne` `in` `not_in` `lt` `lte` `gt` `gte` `exists`.
+- **조건:** `{fact, op, value, min_status, falsify_min_status}`. `op`는 `eq` `ne` `in` `not_in` `lt` `lte` `gt` `gte` `exists` `declared_unknown`(사용자가 그 사실을 '모름'이라고 답했을 때만 참, 값이 있거나 아직 안 물었으면 거짓. 항상 참/거짓으로 정해지고 질문을 만들지 않는다. 번호 질문에 '모름'이라고 답해도 지정폐기물 결론이 막히지 않게 `{규칙}:CODE_UNKNOWN` 규칙에 쓴다).
 - **조합:** `all`(모두), `any`(하나라도), `not`(부정). 얼마든지 겹쳐 쓸 수 있다.
 - **`min_status`:** 그 조건이 참이 되려면 필요한 사실의 최소 상태. 기본은 `CLAIMED`(말로 충분). 기름 함량 5% 이상처럼 시험으로 확인해야 하는 조건은 `EVIDENCED`(서류 필요)다.
 - **`falsify_min_status`:** 그 조건이 거짓이 되려면 필요한 최소 상태. 기본은 `CLAIMED`. 확인대상 폐기물(시행규칙 제17조의2제1항: 오니·광재·분진·폐주물사 등)의 시험 수치 조건은 빌드가 `EVIDENCED`로 정한다. 지정폐기물이 아니라는 것도 분석결과서로 확인해야 하기 때문이다.

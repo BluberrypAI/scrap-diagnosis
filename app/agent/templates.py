@@ -25,6 +25,7 @@ OUTCOME_TEXT = {
     "CODE_NEEDS_TEST": "분류번호를 정하려면 성분 분석(시험)이 더 필요합니다.",
     "NO_MIXTURE_RULE": "여러 소재가 섞여 나누기 어려운 폐기물이라 분류번호 기준이 없습니다. "
     "소재별로 나눠 확인해야 합니다.",
+    "DESIGNATED_CODE_NEEDED": "지정폐기물입니다. 세부 분류번호는 확인이 필요해요.",
 }
 NO_CODE_NEXT_STEP = "확정하시면 다음 단계에서 어떻게 처리하면 되는지 안내해 드립니다."
 
@@ -68,6 +69,7 @@ OUTCOME_LABEL = {
     "NO_GENERAL_CODE": "일반폐기물 세부 번호 확인 필요",
     "CODE_NEEDS_TEST": "시험 필요",
     "NO_MIXTURE_RULE": "혼합물(소재별 확인 필요)",
+    "DESIGNATED_CODE_NEEDED": "지정폐기물(세부 번호 확인 필요)",
 }
 
 CATEGORY_LABEL = {"DESIGNATED": "지정폐기물", "GENERAL": "사업장일반폐기물"}
@@ -250,7 +252,7 @@ def answer_prefix(payload: dict) -> str:
     help_text = payload.get("help")
     if help_text:
         return f"말씀하신 질문에 대해: {help_text.splitlines()[0]}"
-    return "질문하신 내용은 판정 근거 자료를 확인한 뒤 안내해 드리겠습니다."
+    return "질문하신 내용은 준비된 자료에서 답을 찾지 못했어요. 관할 기관이나 전문가에게 확인해 주세요."
 
 
 def render(branch: str, payload: dict) -> str:

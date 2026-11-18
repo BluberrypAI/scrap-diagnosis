@@ -14,7 +14,7 @@ from app.domain.facts import FactStatus
 FactType = Literal["number", "enum", "bool"]
 HitPolicy = Literal["UNIQUE", "PRIORITY", "COLLECT"]
 
-OPS = ("eq", "ne", "in", "not_in", "lt", "lte", "gt", "gte", "exists")
+OPS = ("eq", "ne", "in", "not_in", "lt", "lte", "gt", "gte", "exists", "declared_unknown")
 NUMERIC_OPS = frozenset({"lt", "lte", "gt", "gte"})
 LIST_OPS = frozenset({"in", "not_in"})
 
@@ -216,6 +216,21 @@ class RouteGuidance:
     notes: tuple[str, ...] = ()
 
 
+@dataclass(frozen=True)
+class DesignatedAction:
+    """지정폐기물 판정 때 보여 주는 '다음에 할 일' 한 줄(designated_guidance.yaml)."""
+
+    id: str
+    text: str
+    source_id: str | None = None
+    source_title: str | None = None  # sources.yaml에서 로드 때 채움
+    form: str | None = None  # form12 | None
+    source_ref: str | None = None  # 조항 위치(예: 제18조의2)
+    # (분류번호 앞 2자리 묶음, 문장): 결정된 분류번호의 계열이 맞으면 text 대신 쓴다
+    variants: tuple[tuple[tuple[str, ...], str], ...] = ()
+    only_outcome: str | None = None  # 이 결론일 때만 보여 줌(null이면 항상)
+
+
 # ---- 지식 베이스 ---------------------------------------------------------------------------
 
 
@@ -228,6 +243,8 @@ class KnowledgeBase:
     warnings: tuple[str, ...] = ()
     # (result_type, outcome) → 안내. load_kb는 outcome_guidance.yaml을 반드시 읽는다.
     guidance: dict[tuple[str, str | None], RouteGuidance] = field(default_factory=dict)
+    # 지정폐기물 판정 때의 다음 할 일(designated_guidance.yaml). 파일이 없으면 빈 튜플
+    designated_actions: tuple[DesignatedAction, ...] = ()
     glossary: tuple[Any, ...] = ()  # app.rules.glossary.GlossaryEntry (용어 쉬운 설명, 판정 무관)
     # 문진 설명용(판정 무관, docs/design/agent-skill-harness.md)
     rule_notes: dict[str, dict[str, str]] = field(
