@@ -92,6 +92,7 @@ ENGINE_OUTCOME = {
     "NO_GENERAL_CODE": "일반 번호 없이 담당자 확인 안내",
     "CODE_NEEDS_TEST": "번호를 정하려면 시험 필요 안내",
     "NO_MIXTURE_RULE": "혼합물: 소재별 분리 문진 안내",
+    "DESIGNATED_CODE_NEEDED": "지정폐기물이나 세부 번호는 확인 필요(지정폐기물 허가 업체 안내)",
 }
 ENGINE_USE = {
     "CONCLUDES": "결론을 내는 규칙",

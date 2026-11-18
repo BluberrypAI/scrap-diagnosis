@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from app.agent import templates
 from app.agent.router import Branch, EngineStep, blocking_view
 from app.domain.clock import seoul_iso
+from app.domain.designated import DesignatedGuidance, build_designated
 from app.domain.facts import Fact, FactStatus, document_id_of
 from app.domain.ranges import NumRange
 from app.rules.evaluator import TV
@@ -31,6 +32,7 @@ OP_TEXT = {
     "gt": "{v} 초과",
     "gte": "{v} 이상",
     "exists": "확인됨",
+    "declared_unknown": "모름이라고 답함",
 }
 
 
@@ -286,6 +288,8 @@ class ResultView(BaseModel):
     assumptions: list[str] = []
     # 이 결론에 이른 구체적 이유와 할 일(규칙 데이터의 고정 문장). 없으면 null
     reason: str | None = None
+    # 지정폐기물일 때만(아니면 null): 이유·경고·다음 할 일. docs/ui/ui-contract.md
+    designated: DesignatedGuidance | None = None
 
 
 class UI(BaseModel):
@@ -647,6 +651,7 @@ def build_result(
         category_label=templates.CATEGORY_LABEL.get(c.category or ""),
         review=review,
         assumptions=assumption_notes(kb, step.effective) if kb is not None else [],
+        designated=build_designated(kb, c, rule, step.effective) if kb is not None else None,
     )
     if c.code is not None:
         return ResultView(

@@ -1535,6 +1535,98 @@
         "title": "DeletionOut",
         "type": "object"
       },
+      "DesignatedActionOut": {
+        "properties": {
+          "form": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Form"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref"
+          },
+          "source_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Title"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "text"
+        ],
+        "title": "DesignatedActionOut",
+        "type": "object"
+      },
+      "DesignatedGuidance": {
+        "properties": {
+          "next_actions": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/DesignatedActionOut"
+            },
+            "title": "Next Actions",
+            "type": "array"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "warning": {
+            "default": "지정폐기물은 지정폐기물 처리 허가를 받은 업체에만 맡길 수 있어요. 일반 재활용 업체에는 보낼 수 없어요.",
+            "title": "Warning",
+            "type": "string"
+          }
+        },
+        "title": "DesignatedGuidance",
+        "type": "object"
+      },
       "DocumentNeeded": {
         "properties": {
           "evidence_type": {
@@ -2722,6 +2814,16 @@
           "conclusion": {
             "title": "Conclusion",
             "type": "string"
+          },
+          "designated": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DesignatedGuidance"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "name": {
             "anyOf": [

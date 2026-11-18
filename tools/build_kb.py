@@ -48,6 +48,7 @@ SOURCE_FILES = (
     "code_map.yaml",
     "sources.yaml",
     "outcome_guidance.yaml",
+    "designated_guidance.yaml",
     "reviews.yaml",
     "definitions.yaml",
     "glossary.yaml",
@@ -63,6 +64,7 @@ GENERATED_FILES = (
     "codes.yaml",
     "sources.yaml",
     "outcome_guidance.yaml",
+    "designated_guidance.yaml",
     "glossary.yaml",
     "rule_notes.yaml",
     "skills/interviewer.md",
@@ -559,7 +561,12 @@ class Converter:
                 parts = base_leaves + extra
                 rid = f"{mid}:{r['id']}"
                 if need_choice:
-                    parts = parts + [{"fact": "annex4_code", "op": "eq", "value": code}]
+                    # '번호 모름'이면 번호별 규칙은 거짓(아래 CODE_UNKNOWN 규칙이 대신 결론)
+                    # 결론을 막지 않는다. 번호를 고르거나 아직 안 물었을 때는 아무 영향이 없다
+                    parts = parts + [
+                        {"fact": "annex4_code", "op": "eq", "value": code},
+                        {"not": {"fact": "annex4_code", "op": "declared_unknown"}},
+                    ]
                     rid = f"{rid}:{code}"
                 when = (
                     (parts[0] if len(parts) == 1 else {"all": parts})
@@ -591,6 +598,34 @@ class Converter:
                 )
                 if not need_choice:
                     break
+            if need_choice:
+                # 번호를 고르는 질문에 '모름'이라고 답해도 지정폐기물이라는 결론은 막히지 않게 한다:
+                # 같은 조건에 '번호를 모름이라고 답함'을 더한 코드 없는 결론(번호는 확인 필요)
+                parts = base_leaves + extra + [{"fact": "annex4_code", "op": "declared_unknown"}]
+                rules.append(
+                    {
+                        "rule_id": f"{mid}:{r['id']}:CODE_UNKNOWN",
+                        "source_rule": r["id"],
+                        "priority": P_DESIGNATED,
+                        "when": {"all": parts},
+                        "then": {
+                            "code": None,
+                            "category": "DESIGNATED",
+                            "outcome": "DESIGNATED_CODE_NEEDED",
+                            "name": r.get("item"),
+                        },
+                        "basis": self.basis(r),
+                        **self.rv(
+                            [
+                                r["id"],
+                                *uses[r["id"]],
+                                *ex_ids,
+                                CODE_MAP_UNIT,
+                                f"{MATERIAL_PREFIX}{mid}",
+                            ]
+                        ),
+                    }
+                )
 
         for r, folded in interpret:
             rules.append(
@@ -819,7 +854,7 @@ class Converter:
         out.append(
             {
                 "key": "annex4_code",
-                "label": "별표 4 분류번호",
+                "label": "분류번호(법정 폐기물 종류 번호)",
                 "type": "enum",
                 "values": {c["id"]: f"{c['id']} {c['name']}" for c in designated_or_general},
                 "domain": "referenced",
@@ -830,12 +865,12 @@ class Converter:
                 "legal_priority": 1,
                 # 질문 문구는 facts.yaml의 code 항목(사람이 고치는 원본)에서 가져온다
                 "question_hint": (self.facts.get("code") or {}).get("question")
-                or "이 폐기물에 해당하는 분류번호(시행규칙 별표 4)를 골라 주세요.",
+                or "법에서 정한 폐기물 종류 번호(분류번호) 중 이 폐기물에 맞는 것을 골라 주세요.",
                 "help": (
                     (self.help_text(self.facts["code"]) if "code" in self.facts else None)
                     or "기존 배출자신고서나 처리 계약서의 분류번호와 명칭을 대조하세요."
                 )
-                + " '그 밖의' 번호는 같은 분류의 다른 번호에 해당하지 않을 때만 고릅니다.",
+                + " '그 밖의'로 시작하는 번호는 다른 번호에 맞는 게 없을 때만 고릅니다.",
             }
         )
         return out
@@ -879,6 +914,15 @@ class Converter:
         dump(out / "sources.yaml", self.sources, hdr)
         # 경로추천 안내는 사람이 쓴 표 그대로 옮긴다(변환 없음)
         shutil.copyfile(self.src / "outcome_guidance.yaml", out / "outcome_guidance.yaml")
+        # 지정폐기물 다음 할 일도 그대로 옮긴다. source_id가 sources에 있는지 여기서도 검사한다
+        # (형식 전체 검증은 KB 로드가 한다: app/rules/loader.py parse_designated_guidance)
+        dg = yaml.safe_load((self.src / "designated_guidance.yaml").read_text(encoding="utf-8"))
+        for a in dg["next_actions"]:
+            if a.get("source_id") is not None and a["source_id"] not in self.sources:
+                raise SystemExit(
+                    f"designated_guidance.yaml: sources.yaml에 없는 source_id {a['source_id']!r}"
+                )
+        shutil.copyfile(self.src / "designated_guidance.yaml", out / "designated_guidance.yaml")
         # 용어집도 사람이 쓴 그대로 옮긴다(판정 무관, 질문 카드 terms)
         shutil.copyfile(self.src / "glossary.yaml", out / "glossary.yaml")
         # 문진 설명용(판정 무관): 원본 규칙의 쉬운 설명, 문진 진행 AI 지침

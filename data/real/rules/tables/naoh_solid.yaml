@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge e406ce79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge cd358b60). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: naoh_solid
 title: 고체 수산화나트륨
-version: 2026.11.0+kb-e406ce79
+version: 2026.11.0+kb-cd358b60
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -16,9 +16,13 @@ rules:
   source_rule: S3-2NA-ALKALI-NAOH-KOH
   priority: 500
   when:
-    fact: annex4_code
-    op: eq
-    value: 02-02-03
+    all:
+    - fact: annex4_code
+      op: eq
+      value: 02-02-03
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 02-02-03
     category: DESIGNATED
@@ -34,6 +38,29 @@ rules:
     excerpt: 02-02-03 폐수산화나트륨(고상)
     source_id: RULE-A4
     location: 02-02-03
+  review_units:
+  - S3-2NA-ALKALI-NAOH-KOH
+  - code_map
+  - material:naoh_solid
+  review: UNVERIFIED
+- rule_id: naoh_solid:S3-2NA-ALKALI-NAOH-KOH:CODE_UNKNOWN
+  source_rule: S3-2NA-ALKALI-NAOH-KOH
+  priority: 500
+  when:
+    all:
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐알칼리(수산화나트륨·수산화칼륨)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제2호나목
+    source_id: DEC-A1
+    location: 별표 1 제2호나목
+    excerpt: 폐알칼리(액체상태의 폐기물로서 수소이온 농도지수가 12.5 이상인 것으로 한정하며, 수산화칼륨 및 수산화나트륨을 포함한다)
   review_units:
   - S3-2NA-ALKALI-NAOH-KOH
   - code_map
@@ -63,6 +90,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 06-01-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-01
     category: DESIGNATED
@@ -95,6 +125,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 06-01-02
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-02
     category: DESIGNATED
@@ -127,6 +160,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 06-01-03
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-03
     category: DESIGNATED
@@ -159,6 +195,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 06-01-04
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-04
     category: DESIGNATED
@@ -191,6 +230,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 06-01-05
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-05
     category: DESIGNATED
@@ -223,6 +265,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 06-01-06
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-06
     category: DESIGNATED
@@ -255,6 +300,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 06-01-07
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-07
     category: DESIGNATED
@@ -287,6 +335,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 06-01-99
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-01-99
     category: DESIGNATED
@@ -319,6 +370,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 06-02-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-02-00
     category: DESIGNATED
@@ -351,6 +405,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 06-03-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 06-03-00
     category: DESIGNATED
@@ -372,18 +429,49 @@ rules:
   - code_map
   - material:naoh_solid
   review: UNVERIFIED
+- rule_id: naoh_solid:S3-6-OIL-5PCT:CODE_UNKNOWN
+  source_rule: S3-6-OIL-5PCT
+  priority: 500
+  when:
+    all:
+    - *id001
+    - *id002
+    - *id003
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐유(기름성분 5% 이상 함유)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제6호
+    source_id: DEC-A1
+    location: 별표 1 제6호
+    excerpt: 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며, 폴리클로리네이티드비페닐(PCBs)함유 폐기물, 폐식용유와 그 잔재물, 폐흡착제 및 폐흡수제는 제외한다]
+  review_units:
+  - S3-6-OIL-5PCT
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:naoh_solid
+  review: UNVERIFIED
 - rule_id: naoh_solid:S3-8NA-PCB-NONLIQUID:08-04-00
   source_rule: S3-8NA-PCB-NONLIQUID
   priority: 500
   when:
     all:
-    - fact: pcb_leach_mg_l
+    - &id004
+      fact: pcb_leach_mg_l
       op: gte
       value: 0.003
       min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 08-04-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 08-04-00
     category: DESIGNATED
@@ -409,16 +497,45 @@ rules:
   - code_map
   - material:naoh_solid
   review: UNVERIFIED
+- rule_id: naoh_solid:S3-8NA-PCB-NONLIQUID:CODE_UNKNOWN
+  source_rule: S3-8NA-PCB-NONLIQUID
+  priority: 500
+  when:
+    all:
+    - *id004
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: PCB 함유 폐기물
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호나목
+    source_id: DEC-A1
+    location: 별표 1 제8호나목
+    excerpt: 액체상태 외의 것(용출액 1리터당 0.003밀리그램 이상 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호
+    source_id: DEC-A1
+    location: 별표 1 제8호
+    excerpt: 폴리클로리네이티드비페닐 함유 폐기물
+  review_units:
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:naoh_solid
+  review: UNVERIFIED
 - rule_id: naoh_solid:S3-9-TOXIC:09-01-00
   source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
-    - &id004
+    - &id005
       fact: toxic_chemical_discard
       op: eq
       value: true
-    - &id005
+    - &id006
       not:
         any:
         - fact: material
@@ -431,6 +548,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 09-01-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 09-01-00
     category: DESIGNATED
@@ -458,11 +578,14 @@ rules:
   priority: 500
   when:
     all:
-    - *id004
     - *id005
+    - *id006
     - fact: annex4_code
       op: eq
       value: 09-02-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 09-02-00
     category: DESIGNATED
@@ -490,11 +613,14 @@ rules:
   priority: 500
   when:
     all:
-    - *id004
     - *id005
+    - *id006
     - fact: annex4_code
       op: eq
       value: 09-03-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 09-03-00
     category: DESIGNATED
@@ -522,11 +648,14 @@ rules:
   priority: 500
   when:
     all:
-    - *id004
     - *id005
+    - *id006
     - fact: annex4_code
       op: eq
       value: 09-04-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 09-04-00
     category: DESIGNATED
@@ -542,6 +671,33 @@ rules:
     excerpt: 09-04-00 「화학물질관리법」 제2조제3호 및 제4호에 따른 허가물질 및 제한물질
     source_id: RULE-A4
     location: 09-04-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-2NA-ALKALI-NAOH-KOH
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:naoh_solid
+  review: UNVERIFIED
+- rule_id: naoh_solid:S3-9-TOXIC:CODE_UNKNOWN
+  source_rule: S3-9-TOXIC
+  priority: 500
+  when:
+    all:
+    - *id005
+    - *id006
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐유독물질(또는 그 제외 조항이 가리키는 다른 지정폐기물)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
+    source_id: DEC-A1
+    location: 별표 1 제9호
+    excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   review_units:
   - S3-9-TOXIC
   - S3-2NA-ALKALI-NAOH-KOH

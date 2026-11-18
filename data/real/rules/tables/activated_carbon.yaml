@@ -1,7 +1,7 @@
-# 자동 생성: tools/build_kb.py (knowledge e406ce79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge cd358b60). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 table_id: activated_carbon
 title: 폐활성탄
-version: 2026.11.0+kb-e406ce79
+version: 2026.11.0+kb-cd358b60
 effective_from: '2026-10-02'
 hit_policy: PRIORITY
 applies_when:
@@ -17,7 +17,8 @@ rules:
   priority: 500
   when:
     all:
-    - fact: leach_pb
+    - &id001
+      fact: leach_pb
       op: gte
       value: 3
       min_status: EVIDENCED
@@ -25,6 +26,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 03-08-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 03-08-01
     category: DESIGNATED
@@ -60,12 +64,52 @@ rules:
   - code_map
   - material:activated_carbon
   review: UNVERIFIED
+- rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_PB:CODE_UNKNOWN
+  source_rule: S3-3A-ADSORBENT-LEACH_PB
+  priority: 500
+  when:
+    all:
+    - *id001
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐흡착제·폐흡수제
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
+    source_id: DEC-A1
+    location: 별표 1 제3호아목
+    excerpt: 폐흡착제 및 폐흡수제
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
+    source_id: DEC-A1
+    location: 별표 1 제3호
+    excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
+    source_id: RULE-A1
+    location: 별표 1 제1호
+    excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호가목
+    source_id: RULE-A1
+    location: 별표 1 제1호가목
+    excerpt: 용출액 1리터당 3밀리그램 이상의 납을 함유한 경우만 해당한다
+  review_units:
+  - S3-3A-ADSORBENT-LEACH_PB
+  - code_map
+  - material:activated_carbon
+  review: UNVERIFIED
 - rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_CU:03-08-01
   source_rule: S3-3A-ADSORBENT-LEACH_CU
   priority: 500
   when:
     all:
-    - fact: leach_cu
+    - &id002
+      fact: leach_cu
       op: gte
       value: 3
       min_status: EVIDENCED
@@ -73,6 +117,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 03-08-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 03-08-01
     category: DESIGNATED
@@ -108,12 +155,52 @@ rules:
   - code_map
   - material:activated_carbon
   review: UNVERIFIED
+- rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_CU:CODE_UNKNOWN
+  source_rule: S3-3A-ADSORBENT-LEACH_CU
+  priority: 500
+  when:
+    all:
+    - *id002
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐흡착제·폐흡수제
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
+    source_id: DEC-A1
+    location: 별표 1 제3호아목
+    excerpt: 폐흡착제 및 폐흡수제
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
+    source_id: DEC-A1
+    location: 별표 1 제3호
+    excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
+    source_id: RULE-A1
+    location: 별표 1 제1호
+    excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호나목
+    source_id: RULE-A1
+    location: 별표 1 제1호나목
+    excerpt: 용출액 1리터당 3밀리그램 이상의 구리를 함유한 경우만 해당한다
+  review_units:
+  - S3-3A-ADSORBENT-LEACH_CU
+  - code_map
+  - material:activated_carbon
+  review: UNVERIFIED
 - rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_AS:03-08-01
   source_rule: S3-3A-ADSORBENT-LEACH_AS
   priority: 500
   when:
     all:
-    - fact: leach_as
+    - &id003
+      fact: leach_as
       op: gte
       value: 1.5
       min_status: EVIDENCED
@@ -121,6 +208,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 03-08-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 03-08-01
     category: DESIGNATED
@@ -156,12 +246,52 @@ rules:
   - code_map
   - material:activated_carbon
   review: UNVERIFIED
+- rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_AS:CODE_UNKNOWN
+  source_rule: S3-3A-ADSORBENT-LEACH_AS
+  priority: 500
+  when:
+    all:
+    - *id003
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐흡착제·폐흡수제
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
+    source_id: DEC-A1
+    location: 별표 1 제3호아목
+    excerpt: 폐흡착제 및 폐흡수제
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
+    source_id: DEC-A1
+    location: 별표 1 제3호
+    excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
+    source_id: RULE-A1
+    location: 별표 1 제1호
+    excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호다목
+    source_id: RULE-A1
+    location: 별표 1 제1호다목
+    excerpt: 용출액 1리터당 1.5밀리그램 이상의 비소를 함유한 경우만 해당한다
+  review_units:
+  - S3-3A-ADSORBENT-LEACH_AS
+  - code_map
+  - material:activated_carbon
+  review: UNVERIFIED
 - rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_HG:03-08-01
   source_rule: S3-3A-ADSORBENT-LEACH_HG
   priority: 500
   when:
     all:
-    - fact: leach_hg
+    - &id004
+      fact: leach_hg
       op: gte
       value: 0.005
       min_status: EVIDENCED
@@ -169,6 +299,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 03-08-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 03-08-01
     category: DESIGNATED
@@ -204,12 +337,52 @@ rules:
   - code_map
   - material:activated_carbon
   review: UNVERIFIED
+- rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_HG:CODE_UNKNOWN
+  source_rule: S3-3A-ADSORBENT-LEACH_HG
+  priority: 500
+  when:
+    all:
+    - *id004
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐흡착제·폐흡수제
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
+    source_id: DEC-A1
+    location: 별표 1 제3호아목
+    excerpt: 폐흡착제 및 폐흡수제
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
+    source_id: DEC-A1
+    location: 별표 1 제3호
+    excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
+    source_id: RULE-A1
+    location: 별표 1 제1호
+    excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호라목
+    source_id: RULE-A1
+    location: 별표 1 제1호라목
+    excerpt: 용출액 1리터당 0.005밀리그램 이상의 수은을 함유한 경우만 해당한다
+  review_units:
+  - S3-3A-ADSORBENT-LEACH_HG
+  - code_map
+  - material:activated_carbon
+  review: UNVERIFIED
 - rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_CD:03-08-01
   source_rule: S3-3A-ADSORBENT-LEACH_CD
   priority: 500
   when:
     all:
-    - fact: leach_cd
+    - &id005
+      fact: leach_cd
       op: gte
       value: 0.3
       min_status: EVIDENCED
@@ -217,6 +390,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 03-08-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 03-08-01
     category: DESIGNATED
@@ -252,12 +428,52 @@ rules:
   - code_map
   - material:activated_carbon
   review: UNVERIFIED
+- rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_CD:CODE_UNKNOWN
+  source_rule: S3-3A-ADSORBENT-LEACH_CD
+  priority: 500
+  when:
+    all:
+    - *id005
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐흡착제·폐흡수제
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
+    source_id: DEC-A1
+    location: 별표 1 제3호아목
+    excerpt: 폐흡착제 및 폐흡수제
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
+    source_id: DEC-A1
+    location: 별표 1 제3호
+    excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
+    source_id: RULE-A1
+    location: 별표 1 제1호
+    excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호마목
+    source_id: RULE-A1
+    location: 별표 1 제1호마목
+    excerpt: 용출액 1리터당 0.3밀리그램 이상의 카드뮴을 함유한 경우만 해당한다
+  review_units:
+  - S3-3A-ADSORBENT-LEACH_CD
+  - code_map
+  - material:activated_carbon
+  review: UNVERIFIED
 - rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_CR6:03-08-01
   source_rule: S3-3A-ADSORBENT-LEACH_CR6
   priority: 500
   when:
     all:
-    - fact: leach_cr6
+    - &id006
+      fact: leach_cr6
       op: gte
       value: 1.5
       min_status: EVIDENCED
@@ -265,6 +481,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 03-08-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 03-08-01
     category: DESIGNATED
@@ -300,12 +519,52 @@ rules:
   - code_map
   - material:activated_carbon
   review: UNVERIFIED
+- rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_CR6:CODE_UNKNOWN
+  source_rule: S3-3A-ADSORBENT-LEACH_CR6
+  priority: 500
+  when:
+    all:
+    - *id006
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐흡착제·폐흡수제
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
+    source_id: DEC-A1
+    location: 별표 1 제3호아목
+    excerpt: 폐흡착제 및 폐흡수제
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
+    source_id: DEC-A1
+    location: 별표 1 제3호
+    excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
+    source_id: RULE-A1
+    location: 별표 1 제1호
+    excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호바목
+    source_id: RULE-A1
+    location: 별표 1 제1호바목
+    excerpt: 용출액 1리터당 1.5밀리그램 이상의 6가크롬을 함유한 경우만 해당한다
+  review_units:
+  - S3-3A-ADSORBENT-LEACH_CR6
+  - code_map
+  - material:activated_carbon
+  review: UNVERIFIED
 - rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_CN:03-08-01
   source_rule: S3-3A-ADSORBENT-LEACH_CN
   priority: 500
   when:
     all:
-    - fact: leach_cn
+    - &id007
+      fact: leach_cn
       op: gte
       value: 1
       min_status: EVIDENCED
@@ -313,6 +572,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 03-08-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 03-08-01
     category: DESIGNATED
@@ -348,12 +610,52 @@ rules:
   - code_map
   - material:activated_carbon
   review: UNVERIFIED
+- rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_CN:CODE_UNKNOWN
+  source_rule: S3-3A-ADSORBENT-LEACH_CN
+  priority: 500
+  when:
+    all:
+    - *id007
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐흡착제·폐흡수제
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
+    source_id: DEC-A1
+    location: 별표 1 제3호아목
+    excerpt: 폐흡착제 및 폐흡수제
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
+    source_id: DEC-A1
+    location: 별표 1 제3호
+    excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
+    source_id: RULE-A1
+    location: 별표 1 제1호
+    excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호사목
+    source_id: RULE-A1
+    location: 별표 1 제1호사목
+    excerpt: 용출액 1리터당 1밀리그램 이상의 시안화합물을 함유한 경우만 해당한다
+  review_units:
+  - S3-3A-ADSORBENT-LEACH_CN
+  - code_map
+  - material:activated_carbon
+  review: UNVERIFIED
 - rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_OP:03-08-01
   source_rule: S3-3A-ADSORBENT-LEACH_OP
   priority: 500
   when:
     all:
-    - fact: leach_op
+    - &id008
+      fact: leach_op
       op: gte
       value: 1
       min_status: EVIDENCED
@@ -361,6 +663,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 03-08-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 03-08-01
     category: DESIGNATED
@@ -396,12 +701,52 @@ rules:
   - code_map
   - material:activated_carbon
   review: UNVERIFIED
+- rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_OP:CODE_UNKNOWN
+  source_rule: S3-3A-ADSORBENT-LEACH_OP
+  priority: 500
+  when:
+    all:
+    - *id008
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐흡착제·폐흡수제
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
+    source_id: DEC-A1
+    location: 별표 1 제3호아목
+    excerpt: 폐흡착제 및 폐흡수제
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
+    source_id: DEC-A1
+    location: 별표 1 제3호
+    excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
+    source_id: RULE-A1
+    location: 별표 1 제1호
+    excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호아목
+    source_id: RULE-A1
+    location: 별표 1 제1호아목
+    excerpt: 용출액 1리터당 1밀리그램 이상의 유기인화합물을 함유한 경우만 해당한다
+  review_units:
+  - S3-3A-ADSORBENT-LEACH_OP
+  - code_map
+  - material:activated_carbon
+  review: UNVERIFIED
 - rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_PCE:03-08-01
   source_rule: S3-3A-ADSORBENT-LEACH_PCE
   priority: 500
   when:
     all:
-    - fact: leach_pce
+    - &id009
+      fact: leach_pce
       op: gte
       value: 0.1
       min_status: EVIDENCED
@@ -409,6 +754,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 03-08-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 03-08-01
     category: DESIGNATED
@@ -444,12 +792,52 @@ rules:
   - code_map
   - material:activated_carbon
   review: UNVERIFIED
+- rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_PCE:CODE_UNKNOWN
+  source_rule: S3-3A-ADSORBENT-LEACH_PCE
+  priority: 500
+  when:
+    all:
+    - *id009
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐흡착제·폐흡수제
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
+    source_id: DEC-A1
+    location: 별표 1 제3호아목
+    excerpt: 폐흡착제 및 폐흡수제
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
+    source_id: DEC-A1
+    location: 별표 1 제3호
+    excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
+    source_id: RULE-A1
+    location: 별표 1 제1호
+    excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호자목
+    source_id: RULE-A1
+    location: 별표 1 제1호자목
+    excerpt: 용출액 1리터당 0.1밀리그램 이상의 테트라클로로에틸렌을 함유한 경우만 해당한다
+  review_units:
+  - S3-3A-ADSORBENT-LEACH_PCE
+  - code_map
+  - material:activated_carbon
+  review: UNVERIFIED
 - rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_TCE:03-08-01
   source_rule: S3-3A-ADSORBENT-LEACH_TCE
   priority: 500
   when:
     all:
-    - fact: leach_tce
+    - &id010
+      fact: leach_tce
       op: gte
       value: 0.3
       min_status: EVIDENCED
@@ -457,6 +845,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 03-08-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 03-08-01
     category: DESIGNATED
@@ -492,12 +883,52 @@ rules:
   - code_map
   - material:activated_carbon
   review: UNVERIFIED
+- rule_id: activated_carbon:S3-3A-ADSORBENT-LEACH_TCE:CODE_UNKNOWN
+  source_rule: S3-3A-ADSORBENT-LEACH_TCE
+  priority: 500
+  when:
+    all:
+    - *id010
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐흡착제·폐흡수제
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
+    source_id: DEC-A1
+    location: 별표 1 제3호아목
+    excerpt: 폐흡착제 및 폐흡수제
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
+    source_id: DEC-A1
+    location: 별표 1 제3호
+    excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
+    source_id: RULE-A1
+    location: 별표 1 제1호
+    excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호차목
+    source_id: RULE-A1
+    location: 별표 1 제1호차목
+    excerpt: 용출액 1리터당 0.3밀리그램 이상의 트리클로로에틸렌을 함유한 경우만 해당한다
+  review_units:
+  - S3-3A-ADSORBENT-LEACH_TCE
+  - code_map
+  - material:activated_carbon
+  review: UNVERIFIED
 - rule_id: activated_carbon:S3-3A-ADSORBENT-OIL_CONTENT_PCT:03-08-01
   source_rule: S3-3A-ADSORBENT-OIL_CONTENT_PCT
   priority: 500
   when:
     all:
-    - fact: oil_content_pct
+    - &id011
+      fact: oil_content_pct
       op: gte
       value: 5
       min_status: EVIDENCED
@@ -505,6 +936,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 03-08-01
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 03-08-01
     category: DESIGNATED
@@ -540,21 +974,65 @@ rules:
   - code_map
   - material:activated_carbon
   review: UNVERIFIED
+- rule_id: activated_carbon:S3-3A-ADSORBENT-OIL_CONTENT_PCT:CODE_UNKNOWN
+  source_rule: S3-3A-ADSORBENT-OIL_CONTENT_PCT
+  priority: 500
+  when:
+    all:
+    - *id011
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐흡착제·폐흡수제
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호아목
+    source_id: DEC-A1
+    location: 별표 1 제3호아목
+    excerpt: 폐흡착제 및 폐흡수제
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제3호
+    source_id: DEC-A1
+    location: 별표 1 제3호
+    excerpt: 유해물질함유 폐기물(기후에너지환경부령으로 정하는 물질을 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호
+    source_id: RULE-A1
+    location: 별표 1 제1호
+    excerpt: 오니류·폐흡착제 및 폐흡수제에 함유된 유해물질
+  - type: LAW
+    ref: 폐기물관리법 시행규칙 별표 1(지정폐기물에 함유된 유해물질) 별표 1 제1호카목
+    source_id: RULE-A1
+    location: 별표 1 제1호카목
+    excerpt: 기름성분(중량비를 기준으로 하여 유해물질을 5퍼센트 이상 함유한 경우만 해당한다)
+  review_units:
+  - S3-3A-ADSORBENT-OIL_CONTENT_PCT
+  - code_map
+  - material:activated_carbon
+  review: UNVERIFIED
 - rule_id: activated_carbon:S3-8GA-PCB-LIQUID:08-03-00
   source_rule: S3-8GA-PCB-LIQUID
   priority: 500
   when:
     all:
-    - fact: physical_state
+    - &id012
+      fact: physical_state
       op: eq
       value: liquid
-    - fact: pcb_mg_l
+    - &id013
+      fact: pcb_mg_l
       op: gte
       value: 2
       min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 08-03-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 08-03-00
     category: DESIGNATED
@@ -580,23 +1058,58 @@ rules:
   - code_map
   - material:activated_carbon
   review: UNVERIFIED
+- rule_id: activated_carbon:S3-8GA-PCB-LIQUID:CODE_UNKNOWN
+  source_rule: S3-8GA-PCB-LIQUID
+  priority: 500
+  when:
+    all:
+    - *id012
+    - *id013
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: PCB 함유 폐기물
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호가목
+    source_id: DEC-A1
+    location: 별표 1 제8호가목
+    excerpt: 액체상태의 것(1리터당 2밀리그램 이상 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호
+    source_id: DEC-A1
+    location: 별표 1 제8호
+    excerpt: 폴리클로리네이티드비페닐 함유 폐기물
+  review_units:
+  - S3-8GA-PCB-LIQUID
+  - code_map
+  - material:activated_carbon
+  review: UNVERIFIED
 - rule_id: activated_carbon:S3-8NA-PCB-NONLIQUID:08-04-00
   source_rule: S3-8NA-PCB-NONLIQUID
   priority: 500
   when:
     all:
-    - fact: physical_state
+    - &id014
+      fact: physical_state
       op: in
-      value: &id001
+      value: &id016
       - solid
       - semisolid
-    - fact: pcb_leach_mg_l
+    - &id015
+      fact: pcb_leach_mg_l
       op: gte
       value: 0.003
       min_status: EVIDENCED
     - fact: annex4_code
       op: eq
       value: 08-04-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 08-04-00
     category: DESIGNATED
@@ -622,16 +1135,46 @@ rules:
   - code_map
   - material:activated_carbon
   review: UNVERIFIED
+- rule_id: activated_carbon:S3-8NA-PCB-NONLIQUID:CODE_UNKNOWN
+  source_rule: S3-8NA-PCB-NONLIQUID
+  priority: 500
+  when:
+    all:
+    - *id014
+    - *id015
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: PCB 함유 폐기물
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호나목
+    source_id: DEC-A1
+    location: 별표 1 제8호나목
+    excerpt: 액체상태 외의 것(용출액 1리터당 0.003밀리그램 이상 함유한 것으로 한정한다)
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제8호
+    source_id: DEC-A1
+    location: 별표 1 제8호
+    excerpt: 폴리클로리네이티드비페닐 함유 폐기물
+  review_units:
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:activated_carbon
+  review: UNVERIFIED
 - rule_id: activated_carbon:S3-9-TOXIC:09-01-00
   source_rule: S3-9-TOXIC
   priority: 500
   when:
     all:
-    - &id002
+    - &id017
       fact: toxic_chemical_discard
       op: eq
       value: true
-    - &id003
+    - &id018
       not:
         any:
         - all:
@@ -645,7 +1188,7 @@ rules:
         - all:
           - fact: physical_state
             op: in
-            value: *id001
+            value: *id016
           - fact: pcb_leach_mg_l
             op: gte
             value: 0.003
@@ -653,6 +1196,9 @@ rules:
     - fact: annex4_code
       op: eq
       value: 09-01-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 09-01-00
     category: DESIGNATED
@@ -680,11 +1226,14 @@ rules:
   priority: 500
   when:
     all:
-    - *id002
-    - *id003
+    - *id017
+    - *id018
     - fact: annex4_code
       op: eq
       value: 09-02-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 09-02-00
     category: DESIGNATED
@@ -712,11 +1261,14 @@ rules:
   priority: 500
   when:
     all:
-    - *id002
-    - *id003
+    - *id017
+    - *id018
     - fact: annex4_code
       op: eq
       value: 09-03-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 09-03-00
     category: DESIGNATED
@@ -744,11 +1296,14 @@ rules:
   priority: 500
   when:
     all:
-    - *id002
-    - *id003
+    - *id017
+    - *id018
     - fact: annex4_code
       op: eq
       value: 09-04-00
+    - not:
+        fact: annex4_code
+        op: declared_unknown
   then:
     code: 09-04-00
     category: DESIGNATED
@@ -764,6 +1319,33 @@ rules:
     excerpt: 09-04-00 「화학물질관리법」 제2조제3호 및 제4호에 따른 허가물질 및 제한물질
     source_id: RULE-A4
     location: 09-04-00
+  review_units:
+  - S3-9-TOXIC
+  - S3-8GA-PCB-LIQUID
+  - S3-8NA-PCB-NONLIQUID
+  - code_map
+  - material:activated_carbon
+  review: UNVERIFIED
+- rule_id: activated_carbon:S3-9-TOXIC:CODE_UNKNOWN
+  source_rule: S3-9-TOXIC
+  priority: 500
+  when:
+    all:
+    - *id017
+    - *id018
+    - fact: annex4_code
+      op: declared_unknown
+  then:
+    code: null
+    category: DESIGNATED
+    outcome: DESIGNATED_CODE_NEEDED
+    name: 폐유독물질(또는 그 제외 조항이 가리키는 다른 지정폐기물)
+  basis:
+  - type: LAW
+    ref: 폐기물관리법 시행령 별표 1(지정폐기물의 종류) 별표 1 제9호
+    source_id: DEC-A1
+    location: 별표 1 제9호
+    excerpt: 인체급성유해성물질, 인체만성유해성물질, 생태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경우로 한정하되
   review_units:
   - S3-9-TOXIC
   - S3-8GA-PCB-LIQUID
