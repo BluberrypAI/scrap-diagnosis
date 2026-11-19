@@ -77,10 +77,10 @@ baselines:
       registered: 'no'
       supplied_r41: 'yes'
 summary:
-  total: 75
+  total: 76
   by_kind:
     baseline: 3
-    mcdc: 51
+    mcdc: 52
     boundary: 4
     masking: 8
     metamorphic: 9
@@ -90,7 +90,7 @@ summary:
     INSUFFICIENT_INFO: 6
     EXCLUDED: 2
     CIRCULAR_RESOURCE: 3
-    OUT_OF_SCOPE: 14
+    OUT_OF_SCOPE: 15
     DESIGNATED_POSSIBLE: 10
     HOUSEHOLD: 3
 test_requirements:
@@ -336,14 +336,14 @@ test_requirements:
   kind: mcdc
   base: PP
   changes:
-    material: other
+    material: synthetic_rubber
   expected:
     outcome: OUT_OF_SCOPE
-    code: null
+    code: 51-03-02
     flags: []
   gate: G7
   covers:
-  - material=other
+  - material=synthetic_rubber
 - id: TR-022
   kind: mcdc
   base: PP
@@ -1125,3 +1125,15 @@ test_requirements:
   covers:
   - counterexample:bottle_not_packaging
   note: 병 제조사의 미사용 불량 병처럼 포장에 쓰이지 않은 병
+- id: TR-076
+  kind: mcdc
+  base: PP
+  changes:
+    material: other
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: null
+    flags: []
+  gate: G7
+  covers:
+  - material=other

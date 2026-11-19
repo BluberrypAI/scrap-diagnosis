@@ -1,0 +1,1298 @@
+# 골든 데이터셋 (동결본). 자동 생성: tools/build_golden.py — 직접 고치지 않는다.
+# 판정 규칙 작성자(사람·LLM)에게 보여 주지 않는다. 변경은 CHANGELOG.md에 사유를 남긴다.
+version: 1
+frozen_on: '2026-11-20'
+n: 76
+cases:
+- id: G-001
+  tr: TR-001
+  kind: baseline
+  covers:
+  - baseline:PP
+  situation: 저희는 대기 배출시설 허가를 받은 자동차 부품 사출 공장이고, 사출하면서 나오는 PP 자투리를 모아 재활용 업체에 위탁해 내보내고 있습니다. 하루 평균 50kg
+    정도 나옵니다. 단단한 고체 상태이고 기름은 묻지 않았으며 남은 내용물도 없고, 약품을 버리는 것도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 자투리입니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-002
+  tr: TR-002
+  kind: baseline
+  covers:
+  - baseline:PE_PACK
+  situation: 저희는 대기 배출시설 허가를 받은 화학 원료 배합 공장입니다. 원료 포대 안에 들어 있던 PE 포장 필름이 하루 평균 50kg 정도 나와서 처리업체에 넘기고 있습니다.
+    원료를 포장하는 데 쓰였던 필름이고, 고체 상태로 기름은 묻지 않았고 안에 남은 원료나 내용물도 없습니다. 약품 자체를 버리는 건 아니고 발포 제품도 아닙니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-07
+    flags:
+    - interpretation
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  - RULE-WASTE/별표4/51-03-07
+  - RULE-WASTE/제66조제3항
+  - RULE-WASTE/제10조제1호의2나목
+  - RULE-WASTE/별표5의3/R-3-3 재활용 기준 (1) 폐지·고철·폐포장재
+  - DEC-RESOURCE/제18조
+  - INTERP-ME-2026-STYROFOAM/회답
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-003
+  tr: TR-003
+  kind: baseline
+  covers:
+  - baseline:CAN
+  situation: 저희는 대기 배출시설 허가를 받은 식품 공장이고, 음료를 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 캔은 다 비워 내용물이 남지 않았고
+    기름도 묻지 않은 고체입니다. 이물질은 2% 이하로 관리하고, 다른 폐기물과 섞지 않으며, 압축까지 마쳤고 압축시설 승인·신고도 되어 있습니다. 철캔과 알루미늄캔은 나눠 두고
+    금속제품 제조 용도로 공급하지만, 순환자원정보센터 등록은 하지 않았습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-004
+  tr: TR-004
+  kind: mcdc
+  covers:
+  - discharged=no
+  situation: 저희는 대기 배출시설 허가를 받은 가전 부품 사출 공장입니다. 사출 때 나오는 PP 자투리는 밖으로 내보내지 않고 분쇄해서 같은 사출기에 다시 넣어 씁니다. 양은
+    하루 평균 50kg 정도이고, 고체 상태로 기름은 묻지 않았고 남은 내용물도 없으며 약품도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 자투리입니다.
+  expected:
+    outcome: NOT_WASTE
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제1호
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-005
+  tr: TR-005
+  kind: mcdc
+  covers:
+  - discharged=unknown
+  situation: 저희 공장은 대기 배출시설 허가를 받은 사출 공장인데, PP 자투리가 하루 평균 50kg 정도 나옵니다. 이걸 업체에 넘길지 공정에 다시 넣어 쓸지는 아직 정하지
+    못해 모르는 상태입니다. 고체이고 기름은 묻지 않았으며 남은 내용물도 없고 약품도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 자투리입니다.
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  basis: []
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-006
+  tr: TR-006
+  kind: mcdc
+  covers:
+  - law_exclusion=listed
+  situation: 저희는 대기 배출시설 허가를 받은 사출 공장이고, 냉각수 계통에서 걸러지는 PP 자투리는 공장 폐수에 섞여 폐수처리시설로 들어가 폐수로 관리·처리되고 있습니다.
+    양은 하루 평균 50kg 정도입니다. PP 자체는 고체 조각이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다. 발포 제품도 아니고 포장에 쓰인 적도 없습니다.
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제3조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-007
+  tr: TR-007
+  kind: mcdc
+  covers:
+  - law_exclusion=unknown
+  situation: 저희는 대기 배출시설 허가를 받은 생활용품 사출 공장이고, PP 자투리를 하루 평균 50kg 정도 처리업체에 위탁하고 있습니다. 다만 이 물질이 폐수나 다른 법에서
+    따로 관리하는 대상에 해당하는지는 잘 모르겠습니다. 고체이고 기름은 묻지 않았고 남은 내용물도 없으며 약품을 버리는 것도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 자투리입니다.
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  basis: []
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-008
+  tr: TR-008
+  kind: mcdc
+  covers:
+  - circular_recognized=yes
+  situation: 저희는 대기 배출시설 허가를 받은 사출 공장이고, PP 자투리에 대해 순환자원 인정서를 받아 두었습니다. 이걸 재생 원료 업체에 판매하고 있고 하루 평균 50kg
+    정도 나옵니다. 고체 상태로 기름은 묻지 않았고 남은 내용물도 없으며 약품도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 자투리입니다.
+  expected:
+    outcome: CIRCULAR_RESOURCE
+    code: null
+    flags: []
+  basis:
+  - ACT-CIRCULAR/제21조
+  - ACT-CIRCULAR/제23조
+  - NOTICE-CIRCULAR-DESIGNATION/제2조
+  - DEC-CIRCULAR/제11조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-009
+  tr: TR-009
+  kind: mcdc
+  covers:
+  - physical_state=nonsolid
+  situation: 저희는 대기 배출시설 허가를 받은 수지 가공 공장이고, PP 성분이 섞여 나오는 액체 상태의 공정 찌꺼기를 하루 평균 50kg 정도 처리업체에 위탁합니다. 기름은
+    섞이지 않았고 용기에 남은 내용물 같은 건 없으며 약품을 버리는 것도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적도 없습니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: null
+    flags: []
+  basis:
+  - DEC-WASTE/별표1제1호가목1)
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-010
+  tr: TR-010
+  kind: mcdc
+  covers:
+  - physical_state=nonsolid
+  situation: 저희 공장은 대기 배출시설 허가를 받은 사출 공장인데, PP 가루가 엉겨 붙어 끈적한 반고체 상태로 된 찌꺼기가 하루 평균 50kg 정도 나와 업체에 넘깁니다.
+    기름은 묻지 않았고 남은 내용물도 없으며 약품 자체를 버리는 것도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 부산물입니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: null
+    flags: []
+  basis:
+  - DEC-WASTE/별표1제1호가목1)
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-011
+  tr: TR-011
+  kind: mcdc
+  covers:
+  - physical_state=unknown
+  situation: 저희는 대기 배출시설 허가를 받은 사출 공장이고, PP 공정 부산물을 하루 평균 50kg 정도 위탁 처리하고 있습니다. 그런데 이게 고체인지 슬러지 같은 상태인지
+    제가 직접 보지 못해 모릅니다. 기름은 묻지 않았고 남은 내용물도 없으며 약품도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 자투리 종류입니다.
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  basis: []
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-012
+  tr: TR-012
+  kind: mcdc
+  covers:
+  - oil=present_without_evidence
+  situation: 저희는 대기 배출시설 허가를 받은 기계 부품 사출 공장이고, PP 자투리를 하루 평균 50kg 정도 업체에 넘깁니다. 금형 윤활유가 자투리에 묻어 나오는데, 기름
+    함량을 분석한 서류는 없습니다. 고체 상태이고 다른 내용물이 남은 건 없으며 약품도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 자투리입니다.
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제4호
+  - DEC-WASTE/제3조
+  - DEC-WASTE/별표1제6호
+  - RULE-WASTE/제17조의2
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-013
+  tr: TR-013
+  kind: mcdc
+  covers:
+  - oil=unknown
+  situation: 저희 공장은 대기 배출시설 허가를 받은 사출 공장이고, PP 자투리가 하루 평균 50kg 정도 나와 처리업체에 위탁합니다. 설비 주변에서 모은 거라 기름이 묻었는지
+    아닌지는 확인하지 못해 모릅니다. 고체이고 남은 내용물은 없으며 약품도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 자투리입니다.
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제4호
+  - DEC-WASTE/제3조
+  - DEC-WASTE/별표1제6호
+  - RULE-WASTE/제17조의2
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-014
+  tr: TR-014
+  kind: mcdc
+  covers:
+  - residue=paint_dried_within_6mm
+  situation: 저희는 대기 배출시설 허가를 받은 도장 공장이고, 도장 라인에서 페인트 받이로 쓰던 PP 통을 잘라 낸 스크랩을 하루 평균 50kg 정도 업체에 넘깁니다. 바닥에
+    페인트가 남아 있긴 한데 완전히 말라 굳었고 두께는 6mm를 넘지 않습니다. 고체이고 기름은 묻지 않았으며 약품 자체를 버리는 건 아닙니다. 발포 제품이 아니고 제품 포장에 쓰인
+    적 없는 작업용 통입니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - DEC-WASTE/별표1제5호
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-015
+  tr: TR-015
+  kind: mcdc
+  covers:
+  - residue=paint_other
+  situation: 저희 공장은 대기 배출시설 허가를 받은 가구 도장 공장이고, 작업용 PP 페인트 통을 잘라 낸 스크랩이 하루 평균 50kg 정도 나와 위탁 처리합니다. 통 안에
+    페인트가 덜 마른 채 남아 있습니다. 통 자체는 고체이고 기름은 묻지 않았으며 약품을 버리는 건 아닙니다. 발포 제품이 아니고 제품 포장에 쓰인 적 없는 작업용 통입니다.
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제4호
+  - DEC-WASTE/제3조
+  - DEC-WASTE/별표1제5호
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-016
+  tr: TR-016
+  kind: mcdc
+  covers:
+  - residue=other_contents
+  situation: 저희는 대기 배출시설 허가를 받은 전자부품 공장이고, 세척 공정에서 쓰던 PP 작업통을 잘라 낸 스크랩을 하루 평균 50kg 정도 업체에 넘깁니다. 통 안에 세척용
+    용제가 아직 남아 있습니다. 기름은 묻지 않았고 통은 고체 상태이며, 버리는 게 약품 그 자체는 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 작업용 통입니다.
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제4호
+  - DEC-WASTE/제3조
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-017
+  tr: TR-017
+  kind: mcdc
+  covers:
+  - residue=unknown
+  situation: 저희 공장은 대기 배출시설 허가를 받은 사출 공장이고, 창고에서 쓰던 PP 작업통을 잘라 낸 스크랩이 하루 평균 50kg 정도 나옵니다. 통 안에 원래 무엇이
+    담겼고 지금 뭐가 남아 있는지는 모릅니다. 고체이고 기름은 묻지 않았으며 약품 자체를 버리는 건 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 통이고, 처리업체에 위탁하려
+    합니다.
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제4호
+  - DEC-WASTE/제3조
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-018
+  tr: TR-018
+  kind: mcdc
+  covers:
+  - chemical_itself=yes
+  situation: 저희는 대기 배출시설 허가를 받은 수지 컴파운드 공장이고, 사용기한이 지난 PP 계열 고체 첨가제 약품을 그 자체로 버리려고 업체에 위탁하려 합니다. 하루 평균
+    50kg 정도 나옵니다. 기름은 묻지 않았고 용기에 남은 다른 내용물은 없습니다. 발포 제품이 아니고 포장에 쓰인 적도 없습니다.
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제4호
+  - DEC-WASTE/제3조
+  - DEC-WASTE/별표1제9호
+  - DEC-WASTE/별표1제2호
+  - DEC-WASTE/별표1제4호
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-019
+  tr: TR-019
+  kind: mcdc
+  covers:
+  - material=pvc
+  situation: 저희는 대기 배출시설 허가를 받은 창호 압출 공장이고, PVC 자투리가 하루 평균 50kg 정도 나와 처리업체에 넘기고 있습니다. 고체 상태이고 기름은 묻지 않았으며
+    남은 내용물도 없고 약품도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 자투리입니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-03
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  - RULE-WASTE/별표4/51-03-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-020
+  tr: TR-020
+  kind: mcdc
+  covers:
+  - material=other_resin
+  situation: 저희 공장은 대기 배출시설 허가를 받은 전자제품 외장 사출 공장이고, ABS 수지 자투리를 하루 평균 50kg 정도 업체에 위탁합니다. 고체이고 기름은 묻지 않았고
+    남은 내용물이나 약품은 없습니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 자투리입니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-01
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-021
+  tr: TR-021
+  kind: mcdc
+  covers:
+  - material=synthetic_rubber
+  situation: 저희는 대기 배출시설 허가를 받은 고무 부품 공장이고, 합성고무 자투리가 하루 평균 50kg 정도 나와 처리업체에 넘깁니다. 플라스틱이나 금속이 아닌 고무입니다.
+    고체 상태이고 기름은 묻지 않았으며 남은 내용물도 없고 약품도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 자투리입니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-02
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-02
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-022
+  tr: TR-022
+  kind: mcdc
+  covers:
+  - material=pe
+  situation: 저희는 대기 배출시설 허가를 받은 PE 파이프 압출 공장이고, 절단할 때 나오는 PE 자투리를 하루 평균 50kg 정도 재활용 업체에 판매합니다. 고체이고 기름은
+    묻지 않았으며 남은 내용물도 없고 약품도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 자투리입니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-023
+  tr: TR-023
+  kind: mcdc
+  covers:
+  - material=pet
+  situation: 저희 공장은 대기 배출시설 허가를 받은 PET 시트 생산 공장이고, 불량 시트를 분쇄한 PET 플레이크가 하루 평균 50kg 정도 나와 업체에 넘깁니다. 고체
+    상태이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 불량품입니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-024
+  tr: TR-024
+  kind: mcdc
+  covers:
+  - foamed=yes
+  situation: 저희는 대기 배출시설 허가를 받은 발포 PP 성형 공장이고, 스티로폼처럼 발포된 PP 자투리가 하루 평균 50kg 정도 나와 처리업체에 위탁합니다. 고체이고 기름은
+    묻지 않았으며 남은 내용물도 없고 약품도 아닙니다. 포장에 쓰인 적 없는 공정 자투리입니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-06
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-06
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-025
+  tr: TR-025
+  kind: mcdc
+  covers:
+  - fishery_origin=fishing_net
+  situation: 저희는 대기 배출시설 허가를 받은 어구 재생 공장이고, 어선에서 수거한 PP 폐어망을 잘라 정리한 스크랩을 하루 평균 50kg 정도 업체에 넘깁니다. 고체이고
+    기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다. 발포 제품이 아니고 포장에 쓰인 적도 없습니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-08
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-08
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-026
+  tr: TR-026
+  kind: mcdc
+  covers:
+  - fishery_origin=aquaculture_buoy
+  situation: 저희 공장은 대기 배출시설 허가를 받은 해양 수거물 선별장이고, 굴 양식장에서 쓰던 PP 양식용 부자를 잘라 낸 스크랩이 하루 평균 50kg 정도 나와 처리업체에
+    위탁합니다. 발포된 것이 아닌 PP이고 고체 상태이며, 기름은 묻지 않았고 남은 내용물이나 약품도 없습니다. 포장에 쓰인 적은 없습니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-05
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-05
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-027
+  tr: TR-027
+  kind: mcdc
+  covers:
+  - packaging_used=yes
+  situation: 저희는 대기 배출시설 허가를 받은 부품 조립 공장이고, 입고된 부품을 포장하는 데 쓰였던 PP 트레이와 밴드를 잘라 모은 스크랩이 하루 평균 50kg 정도 나와
+    업체에 넘깁니다. 고체이고 기름은 묻지 않았으며 남은 내용물도 없고 약품도 아닙니다. 발포 제품은 아닙니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-07
+    flags:
+    - interpretation
+  basis:
+  - RULE-WASTE/별표4/51-03-07
+  - RULE-WASTE/제66조제3항
+  - RULE-WASTE/제10조제1호의2나목
+  - RULE-WASTE/별표5의3/R-3-3 재활용 기준 (1) 폐지·고철·폐포장재
+  - DEC-RESOURCE/제18조
+  - INTERP-ME-2026-STYROFOAM/회답
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-028
+  tr: TR-028
+  kind: mcdc
+  covers:
+  - packaging_used=yes_excluded
+  situation: 저희 공장은 대기 배출시설 허가를 받은 수출 부품 공장이고, 수출용 제품을 포장하는 데 쓰였던 PP 포장재 자투리가 하루 평균 50kg 정도 나와 처리업체에 위탁합니다.
+    고체 상태이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다. 발포 제품은 아닙니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-03-01
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-029
+  tr: TR-029
+  kind: mcdc
+  covers:
+  - packaging_used=unknown
+  situation: 저희는 대기 배출시설 허가를 받은 사출 공장이고, 창고 정리하며 모은 PP 스크랩을 하루 평균 50kg 정도 업체에 넘기려 합니다. 섞여 들어온 것들이라 제품이나
+    원료 포장에 쓰였던 건지는 모르겠습니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없고, 발포 제품도 아닙니다.
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  basis: []
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-030
+  tr: TR-030
+  kind: mcdc
+  covers:
+  - packaging_used=no(film)
+  situation: 저희는 대기 배출시설 허가를 받은 PE 필름 생산 공장이고, 생산 중 나오는 불량 PE 필름이 하루 평균 50kg 정도 나와 처리업체에 넘깁니다. 포장에 쓰인
+    적 없는 공정 불량품입니다. 고체이고 기름은 묻지 않았으며 남은 내용물도 없고 약품도 아닙니다. 발포 제품도 아닙니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-031
+  tr: TR-031
+  kind: mcdc
+  covers:
+  - input_form=aluminium:scrap
+  situation: 저희는 대기 배출시설 허가를 받은 알루미늄 부품 가공 공장이고, 절삭·절단 후 남는 알루미늄 자투리를 하루 평균 50kg 정도 고철 업체에 판매합니다. 캔이 아니라
+    가공 스크랩입니다. 고체 상태이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-02
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-29-02
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-032
+  tr: TR-032
+  kind: mcdc
+  covers:
+  - input_form=steel:scrap
+  situation: 저희 공장은 대기 배출시설 허가를 받은 철 구조물 제작 공장이고, 철판을 자르고 남은 철 스크랩이 하루 평균 50kg 정도 나와 고철 업체에 넘깁니다. 캔이 아니라
+    가공 자투리입니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-01
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-29-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-033
+  tr: TR-033
+  kind: mcdc
+  covers:
+  - can_metal=steel
+  situation: 저희는 대기 배출시설 허가를 받은 통조림 공장이고, 식품을 담았던 철 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 다 비워 내용물이 남지 않았고 기름도
+    묻지 않은 고체입니다. 이물질 2% 이하, 다른 폐기물과 섞지 않음, 압축 완료, 압축시설 승인·신고, 철과 알루미늄 분리, 금속제품 제조 용도 공급은 모두 지키고 있지만, 순환자원정보센터
+    등록은 하지 않았습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags:
+    - route_unsupported
+  basis:
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-034
+  tr: TR-034
+  kind: mcdc
+  covers:
+  - can_contents=listed(butane)
+  situation: 저희 공장은 대기 배출시설 허가를 받은 공장이고, 구내식당과 작업장에서 쓴 부탄가스 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 넘깁니다. 가스는 완전히
+    빼서 남은 내용물이 없고, 기름은 묻지 않은 고체입니다. 이물질은 2% 이하이고 다른 폐기물과 섞지 않았으며, 압축했고 압축시설 승인·신고도 되어 있습니다. 철과 알루미늄은 나눠
+    두고 금속제품 제조 용도로 공급하지만 순환자원정보센터에는 등록하지 않았습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-035
+  tr: TR-035
+  kind: mcdc
+  covers:
+  - can_contents=other_product
+  situation: 저희는 대기 배출시설 허가를 받은 기계 조립 공장이고, 공업용 접착제를 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 처리업체에 넘깁니다. 내용물은 깨끗이
+    비워 남은 게 없고 기름도 묻지 않은 고체입니다. 이물질 2% 이하, 다른 폐기물과 섞지 않음, 압축 완료, 압축시설 승인·신고, 철·알루미늄 분리, 금속제품 제조 용도 공급은
+    되어 있고 순환자원정보센터 등록은 안 했습니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-04
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-29-04
+  - DEC-RESOURCE/제18조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-036
+  tr: TR-036
+  kind: mcdc
+  covers:
+  - can_contents=excluded
+  situation: 저희 공장은 대기 배출시설 허가를 받은 음료 공장이고, 수출용으로 만들었다가 반품되어 폐기하는 음료 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 넘깁니다.
+    내용물은 모두 비웠고 기름도 묻지 않은 고체입니다. 이물질 2% 이하로 관리하고 다른 폐기물과 섞지 않으며, 압축을 마쳤고 압축시설 승인·신고도 있습니다. 철·알루미늄은 분리하고
+    금속제품 제조 용도로 공급하지만 순환자원정보센터 등록은 하지 않았습니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-04
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-29-04
+  - DEC-RESOURCE/제18조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-037
+  tr: TR-037
+  kind: mcdc
+  covers:
+  - can_contents=unknown
+  situation: 저희는 대기 배출시설 허가를 받은 공장이고, 여기저기서 모인 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 원래 무엇을 담았던 캔인지는 모릅니다.
+    비어 있어 남은 내용물은 없고 기름도 묻지 않은 고체입니다. 이물질 2% 이하, 다른 폐기물과 섞지 않음, 압축 완료, 압축시설 승인·신고, 철·알루미늄 분리, 금속제품 제조
+    용도 공급은 지키고 있고, 순환자원정보센터 등록만 안 했습니다.
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  basis: []
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-038
+  tr: TR-038
+  kind: mcdc
+  covers:
+  - residue=other_contents(can)
+  situation: 저희 공장은 대기 배출시설 허가를 받은 공장인데, 원래 음료를 담았던 알루미늄 캔을 작업장에서 세척용 용제를 옮겨 담는 데 써서 캔 안에 용제가 남아 있습니다.
+    하루 평균 50kg 정도 나와 업체에 넘깁니다. 기름은 묻지 않았고 캔은 고체입니다. 이물질 2% 이하, 다른 폐기물과 섞지 않음, 압축 완료, 압축시설 승인·신고, 철·알루미늄
+    분리, 금속제품 제조 용도 공급은 되어 있고 순환자원정보센터 등록은 안 했습니다.
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제4호
+  - DEC-WASTE/제3조
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-039
+  tr: TR-039
+  kind: mcdc
+  covers:
+  - can_designation=all_yes
+  situation: 저희는 대기 배출시설 허가를 받은 음료 공장이고, 음료를 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 공급합니다. 내용물은 모두 비웠고 기름도 묻지
+    않은 고체입니다. 이물질 2% 이하로 관리하고 다른 폐기물과 섞지 않으며, 압축을 마쳤고 압축시설 승인·신고도 되어 있습니다. 철과 알루미늄을 분리했고 순환자원정보센터에도 등록했으며,
+    금속제품 제조 용도로 공급하고 있습니다.
+  expected:
+    outcome: CIRCULAR_RESOURCE
+    code: null
+    flags: []
+  basis:
+  - ACT-CIRCULAR/제21조
+  - ACT-CIRCULAR/제23조
+  - NOTICE-CIRCULAR-DESIGNATION/제2조
+  - NOTICE-CIRCULAR-CRITERIA/제2조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-040
+  tr: TR-040
+  kind: mcdc
+  covers:
+  - can_designation.foreign_matter_le_2pct=no
+  situation: 저희 공장은 대기 배출시설 허가를 받은 맥주 공장이고, 맥주를 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 넘깁니다. 비어 있고 기름도 묻지 않은
+    고체입니다. 라벨·뚜껑 같은 이물질이 2%를 넘게 섞여 있습니다. 그 밖에 다른 폐기물과 섞지 않음, 압축 완료, 압축시설 승인·신고, 철·알루미늄 분리, 순환자원정보센터 등록,
+    금속제품 제조 용도 공급은 모두 되어 있습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - NOTICE-CIRCULAR-CRITERIA/제2조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-041
+  tr: TR-041
+  kind: mcdc
+  covers:
+  - can_designation.unmixed=no
+  situation: 저희는 대기 배출시설 허가를 받은 식품 공장이고, 소스를 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 내용물은 비웠고 기름도 묻지 않은
+    고체입니다. 이물질은 2% 이하이지만 보관할 때 다른 폐기물과 섞여 버립니다. 압축 완료, 압축시설 승인·신고, 철·알루미늄 분리, 순환자원정보센터 등록, 금속제품 제조 용도
+    공급은 모두 되어 있습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - NOTICE-CIRCULAR-CRITERIA/제2조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-042
+  tr: TR-042
+  kind: mcdc
+  covers:
+  - can_designation.compressed=no
+  situation: 저희 공장은 대기 배출시설 허가를 받은 음료 공장이고, 음료 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 넘깁니다. 비어 있고 기름도 묻지 않은 고체입니다.
+    이물질 2% 이하, 다른 폐기물과 섞지 않음은 지키는데 압축은 하지 않은 채로 내보냅니다. 압축시설 승인·신고, 철·알루미늄 분리, 순환자원정보센터 등록, 금속제품 제조 용도
+    공급은 되어 있습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - NOTICE-CIRCULAR-CRITERIA/제2조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-043
+  tr: TR-043
+  kind: mcdc
+  covers:
+  - can_designation.compress_facility_ok=no
+  situation: 저희는 대기 배출시설 허가를 받은 커피 음료 공장이고, 커피를 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 다 비웠고 기름도 묻지 않은
+    고체입니다. 이물질 2% 이하, 다른 폐기물과 섞지 않음, 압축 완료는 되어 있지만 압축시설에 대해 필요한 승인·신고는 하지 않았습니다. 철·알루미늄 분리, 순환자원정보센터 등록,
+    금속제품 제조 용도 공급은 되어 있습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - NOTICE-CIRCULAR-CRITERIA/제2조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-044
+  tr: TR-044
+  kind: mcdc
+  covers:
+  - can_designation.sorted_by_metal=no
+  situation: 저희 공장은 대기 배출시설 허가를 받은 식품 공장이고, 통조림·음료를 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 넘깁니다. 비어 있고 기름도 묻지
+    않은 고체입니다. 이물질 2% 이하, 다른 폐기물과 섞지 않음, 압축 완료, 압축시설 승인·신고는 되어 있는데 철캔과 알루미늄캔을 나누지 않고 함께 내보냅니다. 순환자원정보센터
+    등록과 금속제품 제조 용도 공급은 되어 있습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - NOTICE-CIRCULAR-CRITERIA/제2조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-045
+  tr: TR-045
+  kind: mcdc
+  covers:
+  - can_designation.registered=no
+  situation: 저희는 대기 배출시설 허가를 받은 탄산음료 공장이고, 음료를 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 내용물은 비웠고 기름도 묻지
+    않은 고체입니다. 이물질 2% 이하, 다른 폐기물과 섞지 않음, 압축 완료, 압축시설 승인·신고, 철·알루미늄 분리, 금속제품 제조 용도 공급은 모두 지키지만 순환자원정보센터에는
+    등록하지 않았습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - NOTICE-CIRCULAR-CRITERIA/제2조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-046
+  tr: TR-046
+  kind: mcdc
+  covers:
+  - can_designation.supplied_r41=no
+  situation: 저희 공장은 대기 배출시설 허가를 받은 음료 공장이고, 음료 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 넘깁니다. 비어 있고 기름도 묻지 않은 고체입니다.
+    이물질 2% 이하, 다른 폐기물과 섞지 않음, 압축 완료, 압축시설 승인·신고, 철·알루미늄 분리, 순환자원정보센터 등록은 다 했지만, 넘기는 곳이 금속제품 제조 용도로 쓰는
+    곳은 아닙니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - NOTICE-CIRCULAR-CRITERIA/제2조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-047
+  tr: TR-047
+  kind: mcdc
+  covers:
+  - can_designation.registered=unknown
+  situation: 저희는 대기 배출시설 허가를 받은 식품 공장이고, 주스를 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 비어 있고 기름도 묻지 않은 고체입니다.
+    이물질 2% 이하, 다른 폐기물과 섞지 않음, 압축 완료, 압축시설 승인·신고, 철·알루미늄 분리, 금속제품 제조 용도 공급은 되어 있는데, 순환자원정보센터에 등록했는지는 담당자가
+    바뀌어 모르겠습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - NOTICE-CIRCULAR-CRITERIA/제2조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-048
+  tr: TR-048
+  kind: mcdc
+  covers:
+  - business_site=all_no
+  situation: 저희는 작은 소품 조립 공방입니다. 배출시설은 없고 공공처리시설을 운영하는 곳도 아니며, 공사나 작업으로 폐기물이 5톤 이상 나오는 일도 없고 다른 공정에서 따로
+    관리하는 위험 폐기물도 나오지 않습니다. PP 자투리가 하루 평균 50kg 정도 나와 수거 업체에 넘깁니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없고, 발포
+    제품이 아니며 포장에 쓰인 적 없는 자투리입니다.
+  expected:
+    outcome: HOUSEHOLD
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제2호
+  - ACT-WASTE/제2조제3호
+  - DEC-WASTE/제2조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-049
+  tr: TR-049
+  kind: mcdc
+  covers:
+  - business_site.emission_facility=yes
+  situation: 저희 공장은 대기 배출시설 허가를 받은 사출 공장입니다. 공공처리시설을 운영하지 않고, 공사·작업으로 5톤 이상 나오는 일도 없으며 다른 위험 폐기물도 나오지
+    않습니다. PP 자투리가 하루 평균 50kg 정도 나와 업체에 넘깁니다. 고체이고 기름은 묻지 않았고 남은 내용물이나 약품은 없으며, 발포 제품이 아니고 포장에 쓰인 적 없는
+    공정 자투리입니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - DEC-WASTE/제2조
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-050
+  tr: TR-050
+  kind: mcdc
+  covers:
+  - business_site.public_facility=yes
+  situation: 저희는 지자체 공공 하수처리시설을 운영하는 사업소입니다. 배출시설 허가 대상 시설은 없고 공사·작업으로 5톤 이상 나오는 일도, 다른 위험 폐기물이 나오는 일도
+    없습니다. 설비를 손보면서 나온 PP 배관 자투리가 하루 평균 50kg 정도 되어 업체에 위탁합니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없고, 발포 제품이
+    아니며 포장에 쓰인 적도 없습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - DEC-WASTE/제2조
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-051
+  tr: TR-051
+  kind: mcdc
+  covers:
+  - business_site.daily_avg_kg=yes
+  situation: 저희는 배출시설이 없는 PP 부품 조립 공장이고 공공처리시설을 운영하지도 않습니다. 공사·작업으로 5톤 이상 나오는 일은 없고 다른 위험 폐기물도 나오지 않지만,
+    PP 자투리가 하루 평균 500kg 정도 나와 업체에 넘깁니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없고, 발포 제품이 아니며 포장에 쓰인 적 없는 자투리입니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - DEC-WASTE/제2조
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-052
+  tr: TR-052
+  kind: mcdc
+  covers:
+  - business_site.construction_5t=yes
+  situation: 저희는 배출시설이 없고 공공처리시설도 운영하지 않는 인테리어 업체인데, 지금 진행 중인 리모델링 공사에서 폐기물이 5톤 이상 나옵니다. 그중 PP 자재 자투리가
+    하루 평균 50kg 정도 되어 처리업체에 넘깁니다. 다른 위험 폐기물은 나오지 않습니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없고, 발포 제품이 아니며 포장에
+    쓰인 적 없는 자투리입니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - DEC-WASTE/제2조
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-053
+  tr: TR-053
+  kind: mcdc
+  covers:
+  - business_site.site_emits_designated=yes
+  situation: 저희 공장은 배출시설이 없고 공공처리시설도 아니며, 공사·작업으로 5톤 이상 나오는 일도 없습니다. 다만 다른 공정에서 폐유와 폐산이 나와 따로 관리·위탁하고
+    있습니다. 이번에 여쭤보는 건 PP 자투리로, 하루 평균 50kg 정도 나와 업체에 넘깁니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없고, 발포 제품이 아니며
+    포장에 쓰인 적 없는 자투리입니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - DEC-WASTE/제2조
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-054
+  tr: TR-054
+  kind: mcdc
+  covers:
+  - business_site=unknown
+  situation: 저희는 작은 플라스틱 가공 공장입니다. 공공처리시설은 아니고 공사·작업으로 5톤 이상 나오지도 않으며 다른 위험 폐기물도 나오지 않는데, 저희 설비가 배출시설에
+    해당하는지는 잘 모르겠습니다. PP 자투리가 하루 평균 50kg 정도 나와 업체에 넘깁니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없고, 발포 제품이 아니며 포장에
+    쓰인 적 없는 자투리입니다.
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  basis:
+  - DEC-WASTE/제2조
+  - ACT-WASTE/제2조제3호
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-055
+  tr: TR-055
+  kind: boundary
+  covers:
+  - daily_avg_kg=299
+  situation: 저희는 배출시설이 없는 소규모 조립 공장이고 공공처리시설도 운영하지 않습니다. 공사·작업으로 5톤 이상 나오는 일도, 다른 위험 폐기물이 나오는 일도 없습니다.
+    PP 자투리가 하루 평균 299kg 나와 업체에 넘깁니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없고, 발포 제품이 아니며 포장에 쓰인 적 없는 자투리입니다.
+  expected:
+    outcome: HOUSEHOLD
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제2호
+  - ACT-WASTE/제2조제3호
+  - DEC-WASTE/제2조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-056
+  tr: TR-056
+  kind: boundary
+  covers:
+  - daily_avg_kg=300
+  situation: 저희 공장은 배출시설이 없는 PP 제품 조립 공장이고 공공처리시설이 아닙니다. 공사·작업으로 5톤 이상 나오지 않고 다른 위험 폐기물도 나오지 않습니다. PP
+    자투리가 하루 평균 300kg 나와 재활용 업체에 판매합니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없고, 발포 제품이 아니며 포장에 쓰인 적 없는 자투리입니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - DEC-WASTE/제2조
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-057
+  tr: TR-057
+  kind: boundary
+  covers:
+  - oil_pct_evidenced=4.9
+  situation: 저희는 대기 배출시설 허가를 받은 자동차 내장재 사출 공장이고, PP 자투리를 하루 평균 50kg 정도 업체에 넘깁니다. 금형 이형유가 조금 묻어 있어서 분석을
+    맡겼고, 분석성적서상 기름성분은 4.9%입니다. 고체이고 다른 내용물이 남은 건 없으며 약품도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 자투리입니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - DEC-WASTE/별표1제6호
+  - RULE-WASTE/제17조의2
+  - RULE-WASTE/별표4/51-03-01
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-058
+  tr: TR-058
+  kind: boundary
+  covers:
+  - oil_pct_evidenced=5.0
+  situation: 저희 공장은 대기 배출시설 허가를 받은 사출 공장이고, PP 자투리가 하루 평균 50kg 정도 나와 처리업체에 위탁합니다. 윤활유가 묻어 나와 분석을 받았는데
+    분석성적서상 기름성분이 5.0%로 나왔습니다. 고체이고 남은 내용물은 없으며 약품도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 자투리입니다.
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제4호
+  - DEC-WASTE/제3조
+  - DEC-WASTE/별표1제6호
+  - RULE-WASTE/제17조의2
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-059
+  tr: TR-059
+  kind: masking
+  covers:
+  - NOT_WASTE>DESIGNATED
+  situation: 저희는 대기 배출시설 허가를 받은 사출 공장인데, 윤활유가 묻은 PP 자투리가 하루 평균 50kg 정도 나옵니다. 기름 함량을 분석한 서류는 없습니다. 이 자투리는
+    밖으로 내보내지 않고 같은 공정에 다시 넣어 씁니다. 고체이고 다른 내용물이 남은 건 없으며 약품도 아니고, 발포 제품이 아니며 포장에 쓰인 적 없는 자투리입니다.
+  expected:
+    outcome: NOT_WASTE
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제1호
+  - DEC-WASTE/별표1제6호
+  - RULE-WASTE/제17조의2
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-060
+  tr: TR-060
+  kind: masking
+  covers:
+  - CIRCULAR>OUT_OF_SCOPE
+  situation: 저희 공장은 대기 배출시설 허가를 받은 PVC 바닥재 공장이고, PVC 자투리에 대해 순환자원 인정서를 받아 재생 원료 업체에 판매하고 있습니다. 하루 평균 50kg
+    정도 나옵니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 자투리입니다.
+  expected:
+    outcome: CIRCULAR_RESOURCE
+    code: null
+    flags: []
+  basis:
+  - ACT-CIRCULAR/제21조
+  - ACT-CIRCULAR/제23조
+  - NOTICE-CIRCULAR-DESIGNATION/제2조
+  - DEC-CIRCULAR/제11조
+  - RULE-WASTE/별표4/51-03-01
+  - RULE-WASTE/별표4/51-03-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-061
+  tr: TR-061
+  kind: masking
+  covers:
+  - EXCLUDED>DESIGNATED
+  situation: 저희는 대기 배출시설 허가를 받은 사출 공장이고, 설비 세척수에서 걸러지는 PP 자투리는 공장 폐수와 함께 폐수처리시설로 들어가 폐수로 관리·처리됩니다. 하루
+    평균 50kg 정도이고 기름이 묻어 있는데 함량 분석 서류는 없습니다. PP 조각은 고체이고 다른 내용물이 남은 건 없으며 약품도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적도
+    없습니다.
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제3조
+  - DEC-WASTE/별표1제6호
+  - RULE-WASTE/제17조의2
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-062
+  tr: TR-062
+  kind: masking
+  covers:
+  - HOUSEHOLD>OUT_OF_SCOPE
+  situation: 저희는 작은 간판 제작 공방입니다. 배출시설이 없고 공공처리시설도 아니며, 공사·작업으로 5톤 이상 나오는 일도, 다른 위험 폐기물이 나오는 일도 없습니다. PVC
+    자투리가 하루 평균 50kg 정도 나와 수거 업체에 넘깁니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없고, 발포 제품이 아니며 포장에 쓰인 적 없는 자투리입니다.
+  expected:
+    outcome: HOUSEHOLD
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제2호
+  - ACT-WASTE/제2조제3호
+  - DEC-WASTE/제2조
+  - RULE-WASTE/별표4/51-03-01
+  - RULE-WASTE/별표4/51-03-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-063
+  tr: TR-063
+  kind: masking
+  covers:
+  - DESIGNATED>OUT_OF_SCOPE
+  situation: 저희 공장은 대기 배출시설 허가를 받은 PVC 호스 압출 공장이고, PVC 자투리가 하루 평균 50kg 정도 나와 업체에 넘깁니다. 압출기 기름이 묻어 나오는데
+    기름 함량 분석 서류는 없습니다. 고체이고 다른 내용물이 남은 건 없으며 약품도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 자투리입니다.
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제4호
+  - DEC-WASTE/제3조
+  - RULE-WASTE/별표4/51-03-01
+  - RULE-WASTE/별표4/51-03-03
+  - DEC-WASTE/별표1제6호
+  - RULE-WASTE/제17조의2
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-064
+  tr: TR-064
+  kind: masking
+  covers:
+  - OUT_OF_SCOPE>GENERAL(foam pack)
+  situation: 저희는 대기 배출시설 허가를 받은 가전 조립 공장이고, 입고 부품을 포장하는 데 쓰였던 발포 PP 완충재 조각이 하루 평균 50kg 정도 나와 처리업체에 위탁합니다.
+    고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-06
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-06
+  - RULE-WASTE/별표4/51-03-07
+  - RULE-WASTE/제66조제3항
+  - RULE-WASTE/제10조제1호의2나목
+  - RULE-WASTE/별표5의3/R-3-3 재활용 기준 (1) 폐지·고철·폐포장재
+  - DEC-RESOURCE/제18조
+  - INTERP-ME-2026-STYROFOAM/회답
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-065
+  tr: TR-065
+  kind: masking
+  covers:
+  - OUT_OF_SCOPE>GENERAL(pvc pack)
+  situation: 저희 공장은 대기 배출시설 허가를 받은 소형가전 조립 공장이고, 부품을 포장하는 데 쓰였던 PVC 블리스터 포장재 자투리가 하루 평균 50kg 정도 나와 업체에
+    넘깁니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다. 발포 제품은 아닙니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-03
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  - RULE-WASTE/별표4/51-03-03
+  - RULE-WASTE/별표4/51-03-07
+  - RULE-WASTE/제66조제3항
+  - RULE-WASTE/제10조제1호의2나목
+  - RULE-WASTE/별표5의3/R-3-3 재활용 기준 (1) 폐지·고철·폐포장재
+  - DEC-RESOURCE/제18조
+  - INTERP-ME-2026-STYROFOAM/회답
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-066
+  tr: TR-066
+  kind: masking
+  covers:
+  - DESIGNATED via 시행령 제2조제6호 (household site + oil)
+  situation: 저희는 작은 기계 수리 공방입니다. 배출시설이 없고 공공처리시설도 아니며, 공사·작업으로 5톤 이상 나오는 일도 없고 다른 위험 폐기물도 나오지 않습니다. 수리하며
+    나오는 PP 부품 자투리가 하루 평균 50kg 정도인데 기름이 묻어 있고 함량을 분석한 서류는 없습니다. 고체이고 다른 내용물이 남은 건 없으며 약품도 아니고, 발포 제품이 아니며
+    포장에 쓰인 적 없는 자투리로 업체에 넘깁니다.
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제4호
+  - DEC-WASTE/제3조
+  - DEC-WASTE/제2조
+  - ACT-WASTE/제2조제3호
+  - DEC-WASTE/별표1제6호
+  - RULE-WASTE/제17조의2
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-067
+  tr: TR-067
+  kind: metamorphic
+  covers:
+  - invariant:pp:scrap→rigid
+  situation: 저희 공장은 대기 배출시설 허가를 받은 생활용품 사출 공장이고, 검사에서 떨어진 PP 성형품(바가지·바구니 같은 불량품)이 하루 평균 50kg 정도 나와 재활용
+    업체에 판매합니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다. 발포 제품이 아니고 포장에 쓰인 적 없는 불량 성형품입니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-068
+  tr: TR-068
+  kind: metamorphic
+  covers:
+  - invariant:pp:scrap→shredded
+  situation: 저희는 대기 배출시설 허가를 받은 사출 공장이고, PP 불량품을 분쇄기로 파쇄한 파쇄품이 하루 평균 50kg 정도 나와 업체에 넘깁니다. 고체이고 기름은 묻지
+    않았으며 남은 내용물이나 약품은 없습니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 불량품을 파쇄한 것입니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-069
+  tr: TR-069
+  kind: metamorphic
+  covers:
+  - invariant:pp:scrap→flake
+  situation: 저희 공장은 대기 배출시설 허가를 받은 PP 시트 공장이고, 불량 시트를 잘게 분쇄한 PP 플레이크가 하루 평균 50kg 정도 나와 재생 원료 업체에 판매합니다.
+    고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 불량품입니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-070
+  tr: TR-070
+  kind: metamorphic
+  covers:
+  - invariant:pp:scrap→pellet
+  situation: 저희는 대기 배출시설 허가를 받은 컴파운드 공장이고, 색이 맞지 않아 불량 처리된 PP 펠릿이 하루 평균 50kg 정도 나와 업체에 넘깁니다. 고체이고 기름은
+    묻지 않았으며 남은 내용물도 없고, 약품이 아닌 수지 알갱이입니다. 발포 제품이 아니고 포장에 쓰인 적도 없습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-071
+  tr: TR-071
+  kind: metamorphic
+  covers:
+  - counterexample:film_not_packaging
+  situation: 저희 공장은 대기 배출시설 허가를 받은 PP 필름 생산 공장이고, 두께 불량으로 걷어 낸 PP 필름이 하루 평균 50kg 정도 나와 처리업체에 위탁합니다. 생산
+    공정에서 바로 나온 불량 필름이라 포장에 쓰인 적은 없습니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없고, 발포 제품도 아닙니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-072
+  tr: TR-072
+  kind: metamorphic
+  covers:
+  - invariant:pet_packaging:bottle
+  situation: 저희는 대기 배출시설 허가를 받은 음료 공장이고, 음료를 담았던 PET 병이 하루 평균 50kg 정도 나와 업체에 넘깁니다. 제품 포장에 쓰였던 병이고, 다 비워
+    남은 내용물은 없습니다. 고체이고 기름은 묻지 않았으며 약품도 아니고, 발포 제품도 아닙니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-07
+    flags:
+    - interpretation
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  - RULE-WASTE/별표4/51-03-07
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-073
+  tr: TR-073
+  kind: metamorphic
+  covers:
+  - invariant:pet_packaging:bale
+  situation: 저희 공장은 대기 배출시설 허가를 받은 식품 공장이고, 소스·음료를 포장했던 PET 용기를 압축해서 묶은 압축 묶음이 하루 평균 50kg 정도 나와 재활용 업체에
+    판매합니다. 내용물은 비워 남은 게 없고 기름도 묻지 않은 고체입니다. 약품이 아니고 발포 제품도 아닙니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-07
+    flags:
+    - interpretation
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  - RULE-WASTE/별표4/51-03-07
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-074
+  tr: TR-074
+  kind: metamorphic
+  covers:
+  - invariant:pet_packaging:flake
+  situation: 저희는 대기 배출시설 허가를 받은 생수 공장이고, 제품 포장에 쓰였다가 회수된 PET 병을 분쇄한 플레이크가 하루 평균 50kg 정도 나와 업체에 넘깁니다. 고체이고
+    기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다. 발포 제품은 아닙니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-07
+    flags:
+    - interpretation
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  - RULE-WASTE/별표4/51-03-07
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-075
+  tr: TR-075
+  kind: metamorphic
+  covers:
+  - counterexample:bottle_not_packaging
+  situation: 저희 공장은 대기 배출시설 허가를 받은 PET 병 제조 공장이고, 성형 불량으로 한 번도 쓰지 않은 PET 병이 하루 평균 50kg 정도 나와 재활용 업체에 판매합니다.
+    제품을 담거나 포장하는 데 쓰인 적이 없는 병입니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없고, 발포 제품도 아닙니다.
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-076
+  tr: TR-076
+  kind: mcdc
+  covers:
+  - material=other
+  situation: 저희는 대기 배출시설 허가를 받은 가구 공장이고, 원목을 재단하고 남은 목재 자투리가 하루 평균 50kg 정도 나와 처리업체에 넘깁니다. 플라스틱이나 고무, 금속이
+    아닌 목재입니다. 고체 상태이고 기름은 묻지 않았으며 남은 내용물이나 약품도 없습니다. 포장에 쓰인 적 없는 공정 자투리입니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: null
+    flags: []
+  basis: []
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)

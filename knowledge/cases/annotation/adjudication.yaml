@@ -1,0 +1,23 @@
+# 판정 조정(adjudication) 기록. 불일치·가이드라인 지적마다 결정과 사유를 남긴다.
+# decision: expected(명세 유지) | annotator_b(B 채택) | rewrite(서술 고침) | spec(명세 고침) | guideline(가이드라인 보완)
+items:
+  - id: G-021
+    tr: TR-021
+    date: "2026-11-20"
+    decided_by: 사용자
+    disagreement: 명세는 OUT_OF_SCOPE(후보 코드 없음), Annotator B는 OUT_OF_SCOPE 51-03-02
+    decision: spec
+    reason: >-
+      서술은 합성고무 자투리다. 별표 4에 51-03-02 폐합성고무류가 있는데 입력 모델이 고무를
+      '기타 재질'로 묶어 후보 코드를 빠뜨렸다. 재질 도메인에 synthetic_rubber(후보 51-03-02)를
+      추가하고 TR-021을 그 값으로 바꿨다. '기타 재질' 파티션은 TR-076/G-076으로 새로 덮었다.
+    changed: [knowledge/cases/input_model.yaml, tools/cases_spec.py, tools/build_decision_table.py,
+              knowledge/cases/situations.yaml(G-076 추가), knowledge/cases/annotation/annotator_b.yaml(G-076 추가)]
+  - id: G-007
+    tr: TR-007
+    date: "2026-11-20"
+    decided_by: 사용자
+    disagreement: 없음(결과 일치). Annotator B가 '적용 제외 여부를 모를 때' 원칙이 가이드라인에 없다고 지적
+    decision: guideline
+    reason: 명세(INSUFFICIENT_INFO)와 같은 원칙을 가이드라인 1번에 명시했다
+    changed: [knowledge/cases/annotation/guideline.md]

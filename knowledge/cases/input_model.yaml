@@ -178,13 +178,16 @@ variables:
   # 6. 재질과 형태
   - id: material
     label: 재질
-    domain: [pp, pe, pet, pvc, other_resin, aluminium, steel, other]
+    domain: [pp, pe, pet, pvc, other_resin, synthetic_rubber, aluminium, steel, other]
     role: verdict
     partitions:
       - {values: [pp, pe, pet], effect: continue, grade: A, basis: [RULE-WASTE/별표4/51-03-01]}
       - {values: [pvc], effect: OUT_OF_SCOPE, candidate: "51-03-03", grade: A,
          basis: [RULE-WASTE/별표4/51-03-01, RULE-WASTE/별표4/51-03-03]}
       - {values: [other_resin], effect: OUT_OF_SCOPE, candidate: "51-03-01", grade: A}
+      - {values: [synthetic_rubber], effect: OUT_OF_SCOPE, candidate: "51-03-02", grade: A,
+         basis: [RULE-WASTE/별표4/51-03-02],
+         note: 판정 조정 2026-11-20(G-021) — 기타 재질에서 분리해 후보 코드를 붙임}
       - {values: [aluminium, steel], effect: continue, grade: A,
          note: 캔이면 캔 판단으로, 아니면 범위 밖(51-29-01·02)}
       - {values: [other], effect: OUT_OF_SCOPE, grade: A}

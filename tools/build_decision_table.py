@@ -115,7 +115,7 @@ def build() -> list[dict]:
         ("PP", {"chemical_itself": "yes"}, "chemical_itself=yes"),
         ("PP", {"material": "pvc"}, "material=pvc"),
         ("PP", {"material": "other_resin"}, "material=other_resin"),
-        ("PP", {"material": "other"}, "material=other"),
+        ("PP", {"material": "synthetic_rubber"}, "material=synthetic_rubber"),
         ("PP", {"material": "pe"}, "material=pe"),
         ("PP", {"material": "pet", "input_form": "flake"}, "material=pet"),
         ("PP", {"foamed": "yes"}, "foamed=yes"),
@@ -224,6 +224,9 @@ def build() -> list[dict]:
             note="병 제조사의 미사용 불량 병처럼 포장에 쓰이지 않은 병",
         )
     )
+
+    # 판정 조정 이후 추가(번호를 바꾸지 않도록 맨 끝에 붙임)
+    t.append(tr("mcdc", "PP", {"material": "other"}, ["material=other"]))
 
     for i, item in enumerate(t, 1):
         item["id"] = f"TR-{i:03d}"

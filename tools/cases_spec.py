@@ -115,6 +115,8 @@ def evaluate(f: dict) -> dict:
         out = "51-03-03"
     elif material == "other_resin":
         out = "51-03-01"
+    elif material == "synthetic_rubber":
+        out = "51-03-02"
     elif material == "other":
         out = ""
     elif material in ("aluminium", "steel") and not is_can(f):
