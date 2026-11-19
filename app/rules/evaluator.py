@@ -164,6 +164,15 @@ def eval_cond(c: Cond, facts: dict[str, Fact], catalog: dict[str, FactDef]) -> C
         min_status=c.min_status,
         falsify_min_status=c.falsify_min_status,
     )
+    if c.op == "declared_unknown":
+        # 사용자가 '모름'이라고 답했을 때만 참(미응답·값 있음은 거짓). 항상 참/거짓
+        declared = f is not None and f.status == FactStatus.DECLARED_UNKNOWN
+        return CondResult(
+            **base,
+            actual=None,
+            actual_status=f.status if f else None,
+            status=TV.TRUE if declared else TV.FALSE,
+        )
     if (
         f is None
         or f.status in (FactStatus.UNKNOWN, FactStatus.DECLARED_UNKNOWN)
@@ -180,6 +189,8 @@ def eval_cond(c: Cond, facts: dict[str, Fact], catalog: dict[str, FactDef]) -> C
             reason=reason,
         )
     base.update(actual=f.value, actual_status=f.status)
+    if c.op == "declared_unknown":  # 값이 있으면 '모름이라고 답함'이 아니다
+        return CondResult(**base, status=TV.FALSE)
     if c.op == "exists":
         matched = True
     else:

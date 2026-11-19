@@ -20,7 +20,7 @@ from app.agent.guard import validate_response
 from app.agent.orchestrator import DiagnosisSession
 from app.agent.responder import build_payload
 from app.agent.router import Branch
-from app.agent.templates import OUTCOME_TEXT
+from app.agent.templates import OUTCOME_TEXT, UNVERIFIED_NOTE
 from app.domain.handoff import ACTIONS, CONTRACT, OUTCOMES, REQUIRED_GUIDANCE
 from app.main import create_app
 from app.rules.loader import RuleDataError, build_kb, load_kb
@@ -40,6 +40,7 @@ CONTRACT_ACTIONS = {
     ("NO_CODE", "CODE_NEEDS_TEST"): "NEEDS_TEST",
     ("NO_CODE", "NO_GENERAL_CODE"): "MANUAL_CLASSIFICATION",
     ("NO_CODE", "NO_MIXTURE_RULE"): "MANUAL_CLASSIFICATION",
+    ("NO_CODE", "DESIGNATED_CODE_NEEDED"): "MANUAL_CLASSIFICATION",
 }
 HANDOFF_KEYS = {
     "recycling",
@@ -60,6 +61,7 @@ HANDOFF_KEYS = {
     "kb",
     "inputs",  # 기업 정보 입력 요약(추가 필드)
     "assumptions",  # 답변에서 추정한 사실 안내(추가 필드)
+    "designated",  # 지정폐기물 안내(추가 필드, 아니면 null)
 }
 # 실제 KB: 아직 공정에서 쓴다는 PP → 진술만으로 비폐기물 확정하지 않음, 해석 필요(코드 없는 결론)
 OUT = "INTERPRETATION_NEEDED"  # 이 사실들의 결론(D1 뒤: 진술만으로 비폐기물 확정 안 함)
@@ -181,7 +183,7 @@ def test_code_less_conclusion_is_final_review(real_kb):
     assert r.ui.can_confirm and r.ui.suggested_replies == ["확정", "다시 확인할게요"]
     # 템플릿 문구: 결론 + 확정 후 다음 단계 안내 + 참고 판정
     assert OUTCOME_TEXT[OUT] in r.message
-    assert "다음 단계" in r.message and "UNVERIFIED" in r.message
+    assert "다음 단계" in r.message and UNVERIFIED_NOTE in r.message
 
     step = s.last_step
     payload = build_payload(real_kb, step, s.rule_index)

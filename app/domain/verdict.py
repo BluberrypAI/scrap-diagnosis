@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from app.agent import templates
 from app.agent.router import Branch, EngineStep, blocking_view
 from app.domain.clock import seoul_iso
+from app.domain.designated import DesignatedGuidance, build_designated
 from app.domain.facts import Fact, FactStatus, document_id_of
 from app.domain.ranges import NumRange
 from app.rules.evaluator import TV
@@ -31,6 +32,7 @@ OP_TEXT = {
     "gt": "{v} 초과",
     "gte": "{v} 이상",
     "exists": "확인됨",
+    "declared_unknown": "모름이라고 답함",
 }
 
 
@@ -286,6 +288,8 @@ class ResultView(BaseModel):
     assumptions: list[str] = []
     # 이 결론에 이른 구체적 이유와 할 일(규칙 데이터의 고정 문장). 없으면 null
     reason: str | None = None
+    # 지정폐기물일 때만(아니면 null): 이유·경고·다음 할 일. docs/ui/ui-contract.md
+    designated: DesignatedGuidance | None = None
 
 
 class UI(BaseModel):
@@ -647,6 +651,7 @@ def build_result(
         category_label=templates.CATEGORY_LABEL.get(c.category or ""),
         review=review,
         assumptions=assumption_notes(kb, step.effective) if kb is not None else [],
+        designated=build_designated(kb, c, rule, step.effective) if kb is not None else None,
     )
     if c.code is not None:
         return ResultView(
@@ -654,19 +659,30 @@ def build_result(
             code=c.code,
             name=c.name,
             outcome=None,
-            conclusion=templates.code_conclusion(c.code, c.name),
+            conclusion=templates.code_conclusion(c.code, c.name, c.category),
             next_step=templates.WASTE_CODE_NEXT_STEP,
             **common,
         )
+    common["reason"] = common["reason"] or templates.outcome_reason(c.name)
     return ResultView(
         result_type="NO_CODE",
         code=None,
         name=None,
         outcome=c.outcome,
         conclusion=templates.OUTCOME_TEXT.get(c.outcome or "", ""),
-        next_step=templates.NO_CODE_NEXT_STEP,
+        next_step=templates.no_code_next_step(_guidance_action(kb, c.outcome)),
         **common,
     )
+
+
+def _guidance_action(kb: KnowledgeBase | None, outcome: str | None) -> str | None:
+    """확정하면 이어질 경로추천 안내의 행동(outcome_guidance.yaml의 action). 없으면 None."""
+    if kb is None:
+        return None
+    try:
+        return kb.guidance_for("NO_CODE", outcome).action
+    except KeyError:
+        return None
 
 
 def build_ui(

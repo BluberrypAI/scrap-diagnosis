@@ -48,6 +48,7 @@ SOURCE_FILES = (
     "code_map.yaml",
     "sources.yaml",
     "outcome_guidance.yaml",
+    "designated_guidance.yaml",
     "reviews.yaml",
     "definitions.yaml",
     "glossary.yaml",
@@ -63,6 +64,7 @@ GENERATED_FILES = (
     "codes.yaml",
     "sources.yaml",
     "outcome_guidance.yaml",
+    "designated_guidance.yaml",
     "glossary.yaml",
     "rule_notes.yaml",
     "skills/interviewer.md",
@@ -194,13 +196,38 @@ def top_parts(reduced: Any) -> list[Any]:
 
 
 def knowledge_rev(src: Path = KNOWLEDGE) -> str:
-    """원본 파일 내용의 sha256 앞 8자리. 테이블 버전·생성물 머리말에 쓴다."""
+    """원본 파일 내용의 sha256 앞 8자리. 테이블 버전·생성물 머리말에 쓴다.
+
+    줄바꿈은 LF로 통일해 계산한다. Windows 작업 사본(CRLF)과 CI(LF)에서 같은 값이 나와야 한다.
+    """
     h = hashlib.sha256()
     for name in SOURCE_FILES:
         h.update(name.encode())
         h.update(b"\0")
-        h.update((src / name).read_bytes())
+        h.update((src / name).read_bytes().replace(b"\r\n", b"\n"))
     return h.hexdigest()[:8]
+
+
+def basis_ref(title: str | None, location: str | None) -> str:
+    """근거 이름 = 문서 제목 + 조문 위치. 위치가 제목과 겹치는 앞부분은 한 번만 쓴다.
+
+    예) 제목 "폐기물관리법 시행령 별표 1(지정폐기물의 종류)" + 위치 "별표 1 제2호가목"
+        → "폐기물관리법 시행령 별표 1(지정폐기물의 종류) 제2호가목"
+        위치 "별표 1(지정폐기물의 종류)"처럼 제목에 이미 있으면 제목만 쓴다.
+    """
+    title = (title or "").strip()
+    loc = (location or "").strip()
+    if not loc:
+        return title
+    if not title:
+        return loc
+    if loc in title:
+        return title
+    m = re.match(r"(별표\s*\d+(?:의\d+)?)(?:\([^)]*\))?\s*(.*)$", loc)
+    if m and re.search(re.escape(m.group(1)) + r"(?![의\d])", title):
+        rest = m.group(2).strip()
+        return f"{title} {rest}" if rest else title
+    return f"{title} {loc}"
 
 
 class Converter:
@@ -274,7 +301,7 @@ class Converter:
         ] + list(rule.get("supporting") or [])
         for it in items:
             src = self.sources.get(it["source"], {})
-            ref = " ".join(x for x in (src.get("title"), it.get("location")) if x)
+            ref = basis_ref(src.get("title"), it.get("location"))
             b = {
                 "type": src.get("evidence", "LAW"),
                 "ref": ref or it["source"],
@@ -559,7 +586,12 @@ class Converter:
                 parts = base_leaves + extra
                 rid = f"{mid}:{r['id']}"
                 if need_choice:
-                    parts = parts + [{"fact": "annex4_code", "op": "eq", "value": code}]
+                    # '번호 모름'이면 번호별 규칙은 거짓(아래 CODE_UNKNOWN 규칙이 대신 결론)
+                    # 결론을 막지 않는다. 번호를 고르거나 아직 안 물었을 때는 아무 영향이 없다
+                    parts = parts + [
+                        {"fact": "annex4_code", "op": "eq", "value": code},
+                        {"not": {"fact": "annex4_code", "op": "declared_unknown"}},
+                    ]
                     rid = f"{rid}:{code}"
                 when = (
                     (parts[0] if len(parts) == 1 else {"all": parts})
@@ -591,6 +623,34 @@ class Converter:
                 )
                 if not need_choice:
                     break
+            if need_choice:
+                # 번호를 고르는 질문에 '모름'이라고 답해도 지정폐기물이라는 결론은 막히지 않게 한다:
+                # 같은 조건에 '번호를 모름이라고 답함'을 더한 코드 없는 결론(번호는 확인 필요)
+                parts = base_leaves + extra + [{"fact": "annex4_code", "op": "declared_unknown"}]
+                rules.append(
+                    {
+                        "rule_id": f"{mid}:{r['id']}:CODE_UNKNOWN",
+                        "source_rule": r["id"],
+                        "priority": P_DESIGNATED,
+                        "when": {"all": parts},
+                        "then": {
+                            "code": None,
+                            "category": "DESIGNATED",
+                            "outcome": "DESIGNATED_CODE_NEEDED",
+                            "name": r.get("item"),
+                        },
+                        "basis": self.basis(r),
+                        **self.rv(
+                            [
+                                r["id"],
+                                *uses[r["id"]],
+                                *ex_ids,
+                                CODE_MAP_UNIT,
+                                f"{MATERIAL_PREFIX}{mid}",
+                            ]
+                        ),
+                    }
+                )
 
         for r, folded in interpret:
             rules.append(
@@ -695,15 +755,16 @@ class Converter:
     # ---- 카탈로그 --------------------------------------------------------------------------
 
     def help_text(self, f: dict) -> str | None:
+        # 순서: 확인 방법 → 설명(note) → 시험 방법. 처음 쓰는 사람이 먼저 읽을 것을 앞에 둔다
         parts = [h["text"] for h in f.get("how_to_check") or [] if h.get("text")]
+        note = f.get("note")
+        if isinstance(note, dict) and note.get("text"):
+            parts.append(note["text"])
         t = f.get("test")
         if t:
             parts.append(f"시험: {t.get('item', '')} — {t.get('method', '')}".strip())
             if t.get("report"):
                 parts.append(f"성적서에서 확인할 값: {t['report']}")
-        note = f.get("note")
-        if isinstance(note, dict) and note.get("text"):
-            parts.append(note["text"])
         return "\n".join(parts) or None
 
     def material_group_fact(self, mats: dict[str, dict]) -> dict:
@@ -819,7 +880,7 @@ class Converter:
         out.append(
             {
                 "key": "annex4_code",
-                "label": "별표 4 분류번호",
+                "label": "분류번호(법정 폐기물 종류 번호)",
                 "type": "enum",
                 "values": {c["id"]: f"{c['id']} {c['name']}" for c in designated_or_general},
                 "domain": "referenced",
@@ -830,12 +891,12 @@ class Converter:
                 "legal_priority": 1,
                 # 질문 문구는 facts.yaml의 code 항목(사람이 고치는 원본)에서 가져온다
                 "question_hint": (self.facts.get("code") or {}).get("question")
-                or "이 폐기물에 해당하는 분류번호(시행규칙 별표 4)를 골라 주세요.",
+                or "법에서 정한 폐기물 종류 번호(분류번호) 중 이 폐기물에 맞는 것을 골라 주세요.",
                 "help": (
                     (self.help_text(self.facts["code"]) if "code" in self.facts else None)
                     or "기존 배출자신고서나 처리 계약서의 분류번호와 명칭을 대조하세요."
                 )
-                + " '그 밖의' 번호는 같은 분류의 다른 번호에 해당하지 않을 때만 고릅니다.",
+                + " '그 밖의'로 시작하는 번호는 다른 번호에 맞는 게 없을 때만 고릅니다.",
             }
         )
         return out
@@ -879,6 +940,15 @@ class Converter:
         dump(out / "sources.yaml", self.sources, hdr)
         # 경로추천 안내는 사람이 쓴 표 그대로 옮긴다(변환 없음)
         shutil.copyfile(self.src / "outcome_guidance.yaml", out / "outcome_guidance.yaml")
+        # 지정폐기물 다음 할 일도 그대로 옮긴다. source_id가 sources에 있는지 여기서도 검사한다
+        # (형식 전체 검증은 KB 로드가 한다: app/rules/loader.py parse_designated_guidance)
+        dg = yaml.safe_load((self.src / "designated_guidance.yaml").read_text(encoding="utf-8"))
+        for a in dg["next_actions"]:
+            if a.get("source_id") is not None and a["source_id"] not in self.sources:
+                raise SystemExit(
+                    f"designated_guidance.yaml: sources.yaml에 없는 source_id {a['source_id']!r}"
+                )
+        shutil.copyfile(self.src / "designated_guidance.yaml", out / "designated_guidance.yaml")
         # 용어집도 사람이 쓴 그대로 옮긴다(판정 무관, 질문 카드 terms)
         shutil.copyfile(self.src / "glossary.yaml", out / "glossary.yaml")
         # 문진 설명용(판정 무관): 원본 규칙의 쉬운 설명, 문진 진행 AI 지침
@@ -940,6 +1010,10 @@ class Converter:
             "하나로 정한다(기존은 선택지 여러 개).",
             "- 지정 기준 미만 산·알칼리: 기존은 일반 그룹·번호를 물었지만 "
             "NO_GENERAL_CODE로 안내한다.",
+            "- pH가 2.0 이하가 아닌 산은 먼저 유기용제 혼합 여부를 묻고, 섞였으면 "
+            "폐유기용제일 수 있어 해석 필요로 안내한다"
+            "(S3-4-ACID_SOLVENT_MIX, 원주청 질의회신 사례 56). "
+            "기존 판정표에는 이 사실이 없다.",
             "- 회귀 비교 결과는 regression/summary.md, "
             "허용 기준은 tests/test_legacy_regression.py.",
             "- 시험 수치 조건은 `min_status: EVIDENCED`다. 지정 판정에는 성적서가 필요하고, "

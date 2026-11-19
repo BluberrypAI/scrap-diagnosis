@@ -13,7 +13,7 @@
   "facts": ["designated_residue", "pcb_possible", "toxic_chemical_discard"],
   "options": [{"label": "모두 해당 없음", "value": {"…": "…"}, "kind": "none_all"},
               {"label": "해당하는 게 있어요 / 잘 모르겠어요", "value": null, "kind": "expand"}],
-  "text": "이 폐기물에 해당하는 것이 있나요? (기름·잔류물·PCB·유해화학물질)",
+  "text": "이 폐기물에 해당하는 것이 있나요? (기름·잔류물·PCB·유해화학물질·유기용제 혼합)",
   "help": "대부분의 제조 공정 폐기물은 '모두 해당 없음'입니다. …",
   "input": "group",
   "value_type": null,
@@ -34,9 +34,24 @@
 | `items` | group: 이번에 묻는 항목(라벨) |
 | `answered_items` | group: 같은 묶음에서 이미 답한 항목. 비었으면 [] |
 | `result.reason` | (2026-11-13) 결과 카드: 이 결론에 이른 구체적 이유와 할 일(규칙 데이터의 고정 문장, 예: 오니 유기성·무기성 기준이 없어 번호를 정하지 않음 → 소재를 다시 고르기). 없으면 null. 화면은 결론 바로 아래에 먼저 보여 준다 |
+| `result.designated` | (2026-11-18 추가) 지정폐기물(`category == "DESIGNATED"`)일 때만 오는 안내 객체, 아니면 null. `{reason, warning, next_actions[]}`. `reason`은 어떤 조건 때문에 지정폐기물인지 코드가 규칙의 만족한 조건과 사용자 값으로 만든 한 문장(예: "기름성분 함량 7.5% (기준 5% 이상)", 만들 수 없으면 null이며 이때 화면은 `result.reason`을 쓴다). `warning`은 고정 경고 문장(확인 메시지 `message` 끝에도 붙어 온다). `next_actions[]`는 `{id, text, source_id, source_title, source_ref, form}` 4개(licensed_only, plan_confirm, storage, recheck, 사람이 쓴 `knowledge/designated_guidance.yaml`). `source_ref`(추가 필드)는 근거 안의 조항 위치(예: "제18조의2", 없으면 null)이고, `text`는 결정된 분류번호 계열(앞 2자리)에 따라 배출량 기준·보관 기간이 달라진다. `form`은 `form12`(처리계획서 별지 제12호)이거나 null. 세부 분류번호를 '모름'이라고 답해 `outcome: "DESIGNATED_CODE_NEEDED"`(`result_type: "NO_CODE"`, `category: "DESIGNATED"`, `code: null`)로 끝난 경우에도 `designated`가 오고, 이때는 `code_check`가 하나 더 와서 5개다. 번호가 없으니 처리계획서(제12호) 버튼은 쓸 수 없고 초안으로만 본다. 화면은 결론 아래에 경고와 할 일 목록으로 보여 준다 |
 | `result.assumptions` | 결과 카드: 시험·서류가 아니라 사용자 답에서 추정한 사실의 안내 문장 목록(예: PCB 관련 없음 → 기준 미만 추정). 비었으면 []. 화면은 이유 아래에 참고로 보여 준다(참조 화면은 접어 둠) |
 | `terms` | 질문 글에 나온 전문용어의 쉬운 설명 `[{term, plain, example}]`(knowledge/glossary.yaml, 사람이 쓴 고정 설명). 비었으면 []. 화면은 "용어 설명" 접기 등으로 보여 주면 된다 |
 | `guide` | (2026-11-11 추가) 처음 쓰는 사람이 카드만 보고 답할 수 있게 하는 고정 안내 `{background, reason, actions[], if_unknown}`. `background` 말의 뜻·상황, `reason` 왜 묻는지(답에 따라 무엇이 달라지는지), `actions` "이렇게 확인하세요" 단계(볼 서류·항목·검색할 곳), `if_unknown` 모를 때 안내. 사람이 쓴 문구(knowledge/question_guide.yaml)라 판정에 쓰지 않는다. 자료가 없으면 null. 화면은 제목 아래 배경·이유를, 선택지 아래 확인 단계를 접지 않고 보여 준다. `actions`가 있으면 `help`(한 줄 도움말)는 감춰도 된다 |
+
+`result.designated` 예(지정폐기물일 때. `result.category == "DESIGNATED"`):
+```json
+"designated": {
+  "reason": "기름성분 함량 7.5% (기준 5% 이상)",
+  "warning": "지정폐기물은 지정폐기물 처리 허가를 받은 업체에만 맡길 수 있어요. 일반 재활용 업체에는 보낼 수 없어요.",
+  "next_actions": [
+    {"id": "licensed_only", "text": "지정폐기물 처리 허가를 받은 업체에만 맡겨야 해요. …", "source_id": "ACT-WASTE", "source_title": "폐기물관리법", "source_ref": "제18조제1항", "form": null},
+    {"id": "plan_confirm", "text": "처리하기 전에 지정폐기물 처리계획서(별지 제12호)를 …", "source_id": "RULE-WASTE", "source_title": "폐기물관리법 시행규칙", "source_ref": "제18조의2", "form": "form12"},
+    {"id": "storage", "text": "보관 기간과 보관 장소 기준이 …", "source_id": "RULE-A5", "source_title": "…", "source_ref": "제4호나목", "form": null},
+    {"id": "recheck", "text": "판정이 의심되면 …", "source_id": null, "source_title": null, "source_ref": null, "form": null}
+  ]
+}
+```
 
 `input`이 `material_group`/`material`인 기준: 질문 key가 카탈로그의 상위 분류(다른 사실의 `parent`)면 `material_group`, `parent`가 있는 사실이면 `material`.
 
@@ -79,10 +94,17 @@ NO_CANDIDATE 충돌은 `fact`에 원인 사실 목록의 첫 키, `facts`에 전
 ### 1.4 `ui.result` (FINAL_REVIEW일 때)
 ```json
 {"result_type": "WASTE_CODE", "code": "51-03-01", "name": "…", "category": "GENERAL",
- "outcome": null, "conclusion": "분류번호 51-03-01 …로 판정됩니다", "next_step": "확정하면 경로 추천으로 넘어갑니다",
- "review": "UNVERIFIED"}
+ "outcome": null, "conclusion": "분류번호는 51-03-01(사업장일반폐기물)입니다. 명칭: …", "next_step": "확정하면 경로 추천으로 넘어갑니다.",
+ "review": "UNVERIFIED", "assumptions": [], "reason": null}
 ```
 코드 없는 결론은 `result_type: "NO_CODE"`, `code: null`, `outcome`, `conclusion`(OUTCOME_TEXT)을 채운다.
+- `reason`(추가, 2026-11-10): 코드 없는 결론의 이유 한 줄(규칙 설명). 예: "법에서 폐기물은 '사업에 더 이상 필요 없게 된 물질'입니다. 아직 … 확정하지 않고, 관할 기관 확인을 안내합니다." 분류번호가 있으면 null. 화면은 결론 바로 아래에 보여 준다.
+- `next_step`: 코드 없는 결론이면 확정 **전에도** 확정하면 무엇으로 이어지는지 담는다(`outcome_guidance.yaml`의 action → 건 목록의 '다음 할 일' 이름). 예: "확정하면 다음 단계에서 '관할 기관 질의 안내'로 이어집니다."
+- `assumptions`: 같은 대리 질문에서 나온 추정은 한 문장으로 합친다(예: PCB 용출 농도·PCB 함량).
+
+### 1.5 판정 불가(UNSUPPORTED)일 때
+- `message`에 부족한 항목(최대 3개 + "외 n개"), 서류로 이어 갈 수 있으면 올릴 서류와 "시험성적서가 없으면 폐기물 분석전문기관에 시험을 의뢰하세요", '모름'으로 답한 항목이 있으면 "판정 보드에서 고치면 이어서 진행합니다"와 첫 항목의 확인 방법을 넣는다.
+- 서류로 이어 갈 수 있으면 `ui.board.documents_needed`가 채워져 있다. 화면은 판정 불가 카드에서도 서류 올리기를 보여 준다(참조 화면 `UnsupportedCard`).
 
 ## 1.6 추측 답변 (2026-11-11 추가)
 추측 답변("아마 ~일걸", "대충 ~ 정도"): 추출 AI가 확신 정도를 함께 표시하고, 추측한 값은 판정 보드 사실에 `hedged: true`·`source_label` "… · 추측"으로, 결과 `assumptions`에 "사용자가 추측으로 답한 값"으로 보인다. 지정폐기물 가능성을 지우는 추측(오염 확인 묶음의 '해당 없음', 말로 답한 수치)은 결론이 나도 확정 전에 한 번 다시 묻는다(`sub_branch: "CONFIRM_GUESS"`, 같은 질문 카드). 버튼으로 다시 답하면 추측 표시가 풀린다. 화면은 보드에서 추측 값을 구분해 보여 주고, `CONFIRM_GUESS` 질문은 평소 질문 카드처럼 그린다.

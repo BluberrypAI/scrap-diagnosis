@@ -13,7 +13,7 @@ uv run python tools/legacy_regression.py   # 기존 엔진 판정표와 비교(�
 | 파일 | 내용 | 법 판단을 담나 |
 |---|---|---|
 | `law_rules/scope_and_business.yaml` | 법 규칙 28개: 폐기물 해당 여부(S0), 법 적용 제외(S1), 사업장폐기물 여부(S2) | 예 |
-| `law_rules/designated.yaml` | 법 규칙 122개: 지정폐기물 기준(S3). 규칙마다 쉬운 설명(`plain`), 인용문(`quote`), 조문 위치(`location`) | 예 |
+| `law_rules/designated.yaml` | 법 규칙 123개: 지정폐기물 기준(S3). 규칙마다 쉬운 설명(`plain`), 인용문(`quote`), 조문 위치(`location`) | 예 |
 | `materials.yaml` | 소재 102개: 폐기물 종류, 소재가 정하는 사실, 별표 4 번호 후보 | 아니오 |
 | `code_map.yaml` | 법 규칙 → 별표 4 번호 범위 대응표(사람이 옮긴 것). 법의 예외는 여기 두지 않는다 | 예(대응) |
 | `definitions.yaml` | 공통 정의: 여러 규칙이 함께 쓰는 이름 붙은 조건(규칙이 `{ref: 이름}`으로 씀) | 예 |
@@ -22,6 +22,7 @@ uv run python tools/legacy_regression.py   # 기존 엔진 판정표와 비교(�
 | `facts.yaml` | 사실(질문 항목) 정의: 라벨, 값, 질문 문장, 확인 방법 | 아니오 |
 | `fact_settings.yaml` | 빌드 때 더하는 사실 설정: 사전확률, 법적 중요도, 묶음 질문, 증빙 문서 종류 | 아니오 |
 | `outcome_guidance.yaml` | 결론 → 경로추천 안내(`docs/handoff-contract.md`). 빌드가 그대로 복사 | 아니오 |
+| `designated_guidance.yaml` | 지정폐기물 판정 때 보여 줄 다음 할 일(분류번호 계열별 `variants`, 조항 위치 `source_ref`, 특정 결론에만 `only_outcome` 지원, `ui.result.designated`·인계 객체 `designated`). `source_id`는 `sources.yaml`에 있어야 한다(없으면 KB 로드 실패). 빌드가 그대로 복사 | 아니오 |
 | `glossary.yaml` | 용어집: 전문용어의 쉬운 설명. 질문 카드 `terms`와 검토 카드 "용어 풀이"에 붙는다. 판정에는 쓰지 않음. 빌드가 그대로 복사 | 아니오 |
 | `question_guide.yaml` | 질문 안내: 문진 질문·선택지마다 무엇을·왜 묻는지, 확인 방법, 해당 예시, FAQ, 출처. 질문 카드의 배경·왜 묻나요·이렇게 확인하세요(`background`·`reason`·`how_to_check`·`if_unknown`, 묶음은 `groups`)와 보충 설명("어떤 게 해당돼요?")에 씀. 모든 질문·선택지에 있어야 함(`tests/test_question_guide.py`). 판정에는 쓰지 않음 | 아니오 |
 | `skills/interviewer.md` | (초안) 문진 진행 AI의 지침·체크리스트. 판정에는 쓰지 않음(docs/design/agent-skill-harness.md). 사용자 검토 후 확정 | 아니오 |
@@ -101,7 +102,7 @@ when:                                   # 목록 = 모두 만족(AND). 기존 �
 
 ## 검토하는 방법
 
-검토 단위는 249개다: 법 규칙 150개(규칙 ID), 소재 98개(`material:<소재>`), 번호 대응표 1개(`code_map`).
+검토 단위는 251개다: 법 규칙 151개(규칙 ID), 소재 98개(`material:<소재>`), 번호 대응표 1개(`code_map`), 공통 정의 1개(`def:<이름>`).
 
 1. **카드 만들기(개발 담당):** `uv run python tools/review_kit.py export` → `build/review/검토카드.html`, `build/review/검토표.csv`. 두 파일을 전문가에게 보낸다(`build/`는 git에 올리지 않는다).
    - 카드에는 쉬운 설명, 조건을 문장으로 쓴 것, 결론과 별표 4 번호 범위, 근거 조문과 인용문, 확인하지 못한 점, 영향(생성 규칙 수, 소재 테이블 수)이 있다. 영향이 큰 것부터 나온다.

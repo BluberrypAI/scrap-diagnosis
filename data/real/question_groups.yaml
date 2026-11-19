@@ -1,14 +1,15 @@
-# 자동 생성: tools/build_kb.py (knowledge e406ce79). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
+# 자동 생성: tools/build_kb.py (knowledge 1a8224f4). 직접 고치지 말고 knowledge/를 고친 뒤 다시 빌드.
 groups:
 - group_id: scope_screen
-  title: 이 물질은 사업장에서 더 쓰지 않아 내보내는 것이고, 아래 어느 것에도 해당하지 않나요?
-  help: 제조 공정에서 나와 버리거나 위탁·판매하는 물질은 대부분 '그렇다'입니다. 순환자원 인정을 받았거나, 방사성 물질·폐수·가축분뇨처럼 다른 법을 따르는 물질이면 '아니다/잘 모르겠다'를 고르세요.
+  title: 이 물질은 더 쓰지 않아 버리거나 위탁·판매하는 일반적인 경우인가요?
+  help: 제조 공정에서 나와 버리거나 위탁·판매하는 물질은 대부분 '네'입니다. 아직 원료로 쓰거나, 순환자원 인정을 받았거나, 방사성 물질·폐수·가축분뇨처럼 다른 법을 따르는 물질이면 '아니요
+    / 잘 모르겠어요'를 고르세요. 하나씩 확인합니다.
   facts:
   - material_fate
   - circular_resource_recognized
   - law_exclusion
-  none_label: 그렇다 (내보내는 물질이고 해당 없음)
-  expand_label: 아니다 / 잘 모르겠다
+  none_label: 네, 내보내는 물질이에요
+  expand_label: 아니요 / 잘 모르겠어요
 - group_id: contamination_screen
   title: 아래 중 하나라도 해당하나요?
   help: 하나라도 해당하면 일반 폐기물이 아니라 지정폐기물이 될 수 있어 하나씩 확인합니다. 하나도 해당하지 않으면 다음 단계로 넘어갑니다.
@@ -17,10 +18,12 @@ groups:
   - oil_presence
   - pcb_possible
   - chemical_itself
+  - organic_solvent_mixed
   item_labels:
     designated_residue: 용기·포장재에 약품·페인트 같은 원래 내용물이 남아 있다
     oil_presence: 기름(절삭유·윤활유 등)이 묻었거나 섞여 있다
     pcb_possible: 변압기·콘덴서 같은 전기기기나 그 절연유에서 나왔다
     chemical_itself: 버리는 것이 쓰지 않았거나 쓰다 남은 약품·시약 그 자체다
+    organic_solvent_mixed: 산 폐액에 유기용매가 섞여 있다
   none_label: 하나도 해당 없어요
   expand_label: 해당하거나 잘 모르겠어요

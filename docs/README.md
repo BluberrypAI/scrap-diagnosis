@@ -24,7 +24,7 @@
 | [ui/](ui/) | 화면 설계(`ui-design.md`), 화면용 API 계약(`ui-contract.md`), 프론트 인수인계(`handover.md`) | 웹 |
 | [perf/sync-vs-async.md](perf/sync-vs-async.md) | 동기·비동기 서버 부하 측정 결과 | 서버·DB 결정 |
 | [perf/turn-latency.md](perf/turn-latency.md) | 실제 Azure로 잰 문진 한 턴의 지연, 서버 타임아웃 제안 | 서버 |
-| [rule-changes/](rule-changes/) | 규칙 내용 수정 기록(D1 비폐기물·적용 제외, D2 오니·PCB, D4 문구). 바뀐 조건·판정 영향·전문가 확인 항목 | 도메인 전문가·개발자 |
+| [rule-changes/](rule-changes/) | 규칙 내용 수정 기록(D1 비폐기물·적용 제외, D2 오니·PCB, D4 문구, D5 유기용매 섞인 산 폐액). 바뀐 조건·판정 영향·전문가 확인 항목 | 도메인 전문가·개발자 |
 | [../knowledge/README.md](../knowledge/README.md) | 규칙 원본 형식, 질문 전략, 용어집, 전문가 검토 카드(`tools/review_kit.py`) | 개발자·도메인 전문가 |
 | [agent-changelog.md](agent-changelog.md) | AI 코딩 도구 규칙(`AGENTS.md`, `CLAUDE.md`) 변경 기록 | 개발자 |
 | [history/](history/) | 개발 단계별 결과 보고(M3 AI 추출, M4 API·저장, 소재 2단계 질문) | 기록용 |
