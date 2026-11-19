@@ -1,6 +1,0 @@
-# 규칙 검토 기록. 검토 결과는 review_kit.py import로 넣는다(손으로 고치지 않는다).
-# unit: 검토 단위(법 규칙 ID, material:<소재>, code_map)
-# content_hash: 검토할 때의 내용 해시
-# status: VERIFIED(맞음) | NEEDS_CHANGE(고쳐야 함) | REJECTED(틀림)
-# 내용이 바뀌면 해시가 달라져 그 검토는 효력을 잃는다. 기록은 지우지 않고 아래에 더한다.
-reviews: []
