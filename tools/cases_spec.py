@@ -77,7 +77,8 @@ def evaluate(f: dict) -> dict:
     if f.get("circular_recognized") == "yes":
         return result("CIRCULAR_RESOURCE", gate="G2")
     # G3 순환자원(지정: 폐금속캔류, 준수사항 모두 충족)
-    if is_can(f) and f.get("can_contents") in CAN_LISTED:
+    medicine_ok = f.get("can_contents") != "medicine" or f.get("medicine_small") == "no"
+    if is_can(f) and f.get("can_contents") in CAN_LISTED and medicine_ok:
         d = f.get("can_designation") or {}
         if all(d.get(k) == "yes" for k in CAN_DESIGNATION):
             return result("CIRCULAR_RESOURCE", gate="G3")
@@ -111,8 +112,10 @@ def evaluate(f: dict) -> dict:
     # G7 범위
     material = f.get("material")
     out = None  # 범위 밖이면 후보 코드("" = 후보 없음)
+    packaging_yes = f.get("packaging_used") == "yes"
     if material == "pvc":
-        out = "51-03-03"
+        # D13: PVC 포장재는 51-03-03과 51-03-07이 겹쳐 후보 코드를 정하지 않는다
+        out = "" if packaging_yes else "51-03-03"
     elif material == "other_resin":
         out = "51-03-01"
     elif material == "synthetic_rubber":
@@ -122,12 +125,16 @@ def evaluate(f: dict) -> dict:
     elif material in ("aluminium", "steel") and not is_can(f):
         out = "51-29-02" if material == "aluminium" else "51-29-01"
     elif material in PLASTICS and f.get("foamed") == "yes":
-        out = "51-03-06"
+        # D13: 발포 포장재는 51-03-06과 51-03-07이 겹쳐 후보 코드를 정하지 않는다
+        out = "" if packaging_yes else "51-03-06"
     elif material in PLASTICS and f.get("fishery_origin") == "fishing_net":
         out = "51-03-08"
     elif material in PLASTICS and f.get("fishery_origin") == "aquaculture_buoy":
         out = "51-03-05"
     elif is_can(f) and f.get("can_contents") in ("other_product", "excluded_export_return"):
+        out = "51-29-04"
+    elif is_can(f) and f.get("can_contents") == "medicine" and f.get("medicine_small") == "yes":
+        # D14: 내용량 30mL(30g) 이하 의약품 캔은 제18조제1호 마목에서 제외
         out = "51-29-04"
     if out is not None:
         return result("OUT_OF_SCOPE", code=out or None, gate="G7")
@@ -138,7 +145,7 @@ def evaluate(f: dict) -> dict:
 
     # G8 코드
     if is_can(f):
-        if f.get("can_contents") not in CAN_LISTED:
+        if f.get("can_contents") not in CAN_LISTED or not medicine_ok:
             return result("INSUFFICIENT_INFO", gate="G8")
         flags = ["route_unsupported"] if f.get("can_metal") == "steel" else []
         return result("GENERAL", "51-29-03", flags, gate="G8")

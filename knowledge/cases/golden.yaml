@@ -1,8 +1,8 @@
 # 골든 데이터셋 (동결본). 자동 생성: tools/build_golden.py — 직접 고치지 않는다.
 # 판정 규칙 작성자(사람·LLM)에게 보여 주지 않는다. 변경은 CHANGELOG.md에 사유를 남긴다.
-version: 2
+version: 3
 frozen_on: '2026-11-20'
-n: 96
+n: 98
 cases:
 - id: G-001
   tr: TR-001
@@ -1086,7 +1086,7 @@ cases:
     고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다.
   expected:
     outcome: OUT_OF_SCOPE
-    code: 51-03-06
+    code: null
     flags: []
   basis:
   - RULE-WASTE/별표4/51-03-06
@@ -1107,7 +1107,7 @@ cases:
     넘깁니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다. 발포 제품은 아닙니다.
   expected:
     outcome: OUT_OF_SCOPE
-    code: 51-03-03
+    code: null
     flags: []
   basis:
   - RULE-WASTE/별표4/51-03-01
@@ -1487,9 +1487,9 @@ cases:
   kind: enumeration
   covers:
   - can_contents=medicine
-  situation: 저희는 대기 배출시설 허가를 받은 제약 공장이고, 의약품과 의약외품을 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 캔은 다 비워 내용물이
-    남지 않았고 기름도 묻지 않은 고체입니다. 이물질은 2% 이하로 관리하고, 다른 폐기물과 섞지 않으며, 압축까지 마쳤고 압축시설 승인·신고도 되어 있습니다. 철캔과 알루미늄캔은
-    나눠 두고 금속제품 제조 용도로 공급하지만, 순환자원정보센터 등록은 하지 않았습니다.
+  situation: 저희는 대기 배출시설 허가를 받은 제약 공장이고, 내용량이 200mL인 의약외품 스프레이를 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다.
+    캔은 다 비워 내용물이 남지 않았고 기름도 묻지 않은 고체입니다. 이물질은 2% 이하로 관리하고, 다른 폐기물과 섞지 않으며, 압축까지 마쳤고 압축시설 승인·신고도 되어 있습니다.
+    철캔과 알루미늄캔은 나눠 두고 금속제품 제조 용도로 공급하지만, 순환자원정보센터 등록은 하지 않았습니다.
   expected:
     outcome: GENERAL
     code: 51-29-03
@@ -1618,4 +1618,39 @@ cases:
   - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
   - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
   grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-097
+  tr: TR-097
+  kind: mcdc
+  covers:
+  - medicine_small=yes
+  situation: 저희는 대기 배출시설 허가를 받은 제약 공장이고, 내용량 20mL짜리 소형 의약품(병이 아닌 알루미늄 캔 용기)을 담았던 빈 캔이 하루 평균 50kg 정도 나와
+    업체에 판매합니다. 캔은 다 비워 내용물이 남지 않았고 기름도 묻지 않은 고체입니다. 이물질은 2% 이하로 관리하고, 다른 폐기물과 섞지 않으며, 압축까지 마쳤고 압축시설 승인·신고도
+    되어 있습니다. 철캔과 알루미늄캔은 나눠 두고 금속제품 제조 용도로 공급하지만, 순환자원정보센터 등록은 하지 않았습니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-04
+    flags: []
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+  - RULE-WASTE/별표4/51-29-04
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-098
+  tr: TR-098
+  kind: mcdc
+  covers:
+  - medicine_small=unknown
+  situation: 저희는 대기 배출시설 허가를 받은 의약품 유통 창고이고, 의약품을 담았던 빈 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 여러 제품이 섞여
+    있어 원래 내용량이 몇 mL였는지는 모릅니다. 캔은 다 비워 내용물이 남지 않았고 기름도 묻지 않은 고체입니다. 이물질은 2% 이하로 관리하고, 다른 폐기물과 섞지 않으며, 압축까지
+    마쳤고 압축시설 승인·신고도 되어 있습니다. 철캔과 알루미늄캔은 나눠 두고 금속제품 제조 용도로 공급하지만, 순환자원정보센터 등록은 하지 않았습니다.
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+  grade: C
   source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)

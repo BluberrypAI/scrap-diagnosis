@@ -197,6 +197,12 @@ facts:
       unknown: 모름
     source: user
     role: verdict
+  - id: medicine_small
+    label: 캔에 담겼던 의약품·의약외품이 내용량 30mL(또는 30g) 이하 제품이었나
+    type: bool3
+    source: user
+    role: verdict
+    note: can_contents가 medicine일 때만 묻는다
   - id: can_metal
     label: 캔 재질
     type: enum

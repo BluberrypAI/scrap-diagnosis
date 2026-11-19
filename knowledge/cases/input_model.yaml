@@ -183,7 +183,8 @@ variables:
     partitions:
       - {values: [pp, pe, pet], effect: continue, grade: A, basis: [RULE-WASTE/별표4/51-03-01]}
       - {values: [pvc], effect: OUT_OF_SCOPE, candidate: "51-03-03", grade: A,
-         basis: [RULE-WASTE/별표4/51-03-01, RULE-WASTE/별표4/51-03-03]}
+         basis: [RULE-WASTE/별표4/51-03-01, RULE-WASTE/별표4/51-03-03],
+         note: PVC 포장재(packaging_used=yes)는 51-03-07과 겹쳐 후보 코드를 정하지 않는다(D13, 2026-11-20)}
       - {values: [other_resin], effect: OUT_OF_SCOPE, candidate: "51-03-01", grade: A}
       - {values: [synthetic_rubber], effect: OUT_OF_SCOPE, candidate: "51-03-02", grade: A,
          basis: [RULE-WASTE/별표4/51-03-02],
@@ -216,7 +217,8 @@ variables:
     role: verdict
     partitions:
       - {values: [yes], effect: OUT_OF_SCOPE, candidate: "51-03-06", grade: A,
-         basis: [RULE-WASTE/별표4/51-03-06]}
+         basis: [RULE-WASTE/별표4/51-03-06],
+         note: 발포 포장재(packaging_used=yes)는 51-03-07과 겹쳐 후보 코드를 정하지 않는다(D13, 2026-11-20)}
       - {values: [no], effect: continue, grade: A}
   - id: fishery_origin
     label: 어망·양식용 부자에서 나왔나
@@ -262,6 +264,16 @@ variables:
          candidate: "51-29-04", grade: A,
          basis: [RULE-WASTE/별표4/51-29-04, DEC-RESOURCE/제18조],
          note: 페인트·공업용 캔 등은 제18조제1호 금속캔이 아니라 폐금속용기류}
+      - {values: [unknown], effect: INSUFFICIENT_INFO, grade: C}
+  - id: medicine_small
+    label: 캔에 담겼던 의약품이 내용량 30mL(30g) 이하 제품이었나
+    domain: [yes, no, unknown]
+    role: verdict
+    partitions:
+      - {values: [no], effect: "51-29-03 후보 유지", grade: A, basis: [DEC-RESOURCE/제18조]}
+      - {values: [yes], effect: OUT_OF_SCOPE, candidate: "51-29-04", grade: A,
+         basis: [DEC-RESOURCE/제18조, RULE-WASTE/별표4/51-29-04],
+         note: 제18조제1호 마목 괄호(병 제품이 아닌 30mL·30g 이하 제품 제외). 판정 조정 2026-11-20(D14)}
       - {values: [unknown], effect: INSUFFICIENT_INFO, grade: C}
   - id: can_metal
     label: 캔 재질

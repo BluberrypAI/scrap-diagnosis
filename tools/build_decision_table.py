@@ -252,7 +252,8 @@ def build() -> list[dict]:
         "paper_product",
         "rubber_glove",
     ):
-        t.append(tr("enumeration", "CAN", {"can_contents": v}, [f"can_contents={v}"]))
+        ch = {"can_contents": v, **({"medicine_small": "no"} if v == "medicine" else {})}
+        t.append(tr("enumeration", "CAN", ch, [f"can_contents={v}"]))
     t.append(tr("mcdc", "PP", {"material": "pe", "foamed": "yes"}, ["foamed=yes(pe)"]))
     t.append(
         tr(
@@ -275,6 +276,10 @@ def build() -> list[dict]:
             " 아니다",
         )
     )
+
+    # v3 판정 조정(2026-11-20, D14): 소용량 의약품 캔
+    for v, cov in (("yes", "medicine_small=yes"), ("unknown", "medicine_small=unknown")):
+        t.append(tr("mcdc", "CAN", {"can_contents": "medicine", "medicine_small": v}, [cov]))
 
     for i, item in enumerate(t, 1):
         item["id"] = f"TR-{i:03d}"

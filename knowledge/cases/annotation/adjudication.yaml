@@ -31,3 +31,26 @@ items:
       TR-087의 사실은 can_contents=detergent(세제 제품)인데 서술이 '원료'라고 써서 다른 해석 여지가 생겼다.
       서술을 '시판 세탁세제 제품을 다 쓰고 남은 빈 캔'으로 고치고, 기존 B 라벨을 지운 뒤 블라인드로 다시 라벨링했다.
     changed: [knowledge/cases/situations.yaml(G-087), knowledge/cases/annotation/annotator_b.yaml(G-087 재라벨)]
+  - id: G-064, G-065
+    tr: TR-064, TR-065
+    date: "2026-11-20"
+    decided_by: 사용자
+    disagreement: >-
+      규칙 초안 두 벌(opus·sonnet)이 모두 골든셋과 다르게 판정(발포 포장재·PVC 포장재의 후보 코드).
+      별표 4에서 51-03-06·51-03-03과 51-03-07이 겹치고 우선순위 규정이 없다
+    decision: spec
+    reason: 범위 밖으로 안내하고 후보 코드는 정하지 않는다(decisions.md D13). 기대 결과를 code=null로 고치고 B를 다시 라벨링했다
+    changed: [tools/cases_spec.py, knowledge/cases/input_model.yaml, knowledge/cases/annotation/guideline.md(11)]
+  - id: G-089, G-097, G-098
+    tr: TR-089, TR-097, TR-098
+    date: "2026-11-20"
+    decided_by: 사용자
+    disagreement: >-
+      규칙 초안 sonnet이 자원재활용법 시행령 제18조제1호 마목 괄호(병이 아닌 30mL·30g 이하 제품 제외)를 찾았고,
+      골든셋은 이를 놓쳤다(골든셋 결함)
+    decision: spec
+    reason: >-
+      소용량 여부 질문(medicine_small)을 더한다(D14). TR-089에 medicine_small=no를 더하고 서술을 200mL 제품으로 고쳤다.
+      소용량(TR-097 → OUT_OF_SCOPE 51-29-04)과 모름(TR-098 → INSUFFICIENT_INFO) 케이스를 추가했다
+    changed: [knowledge/flow/facts.yaml, tools/cases_spec.py, tools/build_decision_table.py, knowledge/cases/input_model.yaml,
+              knowledge/cases/situations.yaml, knowledge/cases/annotation/guideline.md(12)]

@@ -1,0 +1,253 @@
+stage: 60_scope
+title: "다루는 범위인가 (D1: PP·PE·PET 51-03-01·51-03-07, 금속캔 51-29-03)"
+order: 60
+on_no_match: continue
+# 순서 근거
+# - 지정폐기물 가능성(50단계)을 먼저 본 뒤 범위를 가린다(D12).
+# - 비고체 합성수지(D4)를 재질별 코드보다 앞에 둔다: 고체가 아니면 코드 판단 자체를 하지 않는다.
+# - 범위 밖 코드는 별표 4에서 후보가 분명할 때만 적는다(D1). 두 코드가 겹쳐 분명하지 않으면 code를 비운다.
+# - 합성수지 안에서는 품목 코드(어망·양식용 부자) → PVC → 발포 → 그 밖의 수지 → PP·PE·PET 순으로 본다(undecided U4).
+rules:
+  - id: SCO-NONSOLID-RESIN
+    when:
+      all:
+        - {fact: material, in: [pp, pe, pet, pvc, other_resin]}
+        - {fact: physical_state, in: [liquid, semisolid]}
+    then: {outcome: OUT_OF_SCOPE}
+    basis:
+      - unit: DEC-WASTE/별표1제1호가목1)
+        quote: "1) 폐합성 수지(고체상태의 것은 제외한다)"
+    decision: D4
+    grade: C
+    note: >-
+      고체가 아닌 폐합성수지는 "특정시설"에서 나오면 지정폐기물이지만 특정시설의 정의가 법령에 없어 판단하지 않는다(D4).
+      합성수지인데 physical_state가 모름이면 여기서 막힌다(D11).
+
+  - id: SCO-RUBBER
+    when: {fact: material, eq: synthetic_rubber}
+    then: {outcome: OUT_OF_SCOPE, code: "51-03-02"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-02
+        quote: "51-03-02 폐합성고무류"
+    decision: D1
+    grade: C
+
+  - id: SCO-OTHER-MATERIAL
+    when: {fact: material, eq: other}
+    then: {outcome: OUT_OF_SCOPE}
+    basis:
+      - unit: RULE-WASTE/제4조의2
+        quote: "법 제2조의2에 따른 폐기물의 종류별 세부분류는 별표 4와 같다."
+    decision: D1
+    grade: C
+    note: 합성수지·고무·금속이 아닌 물질은 적재한 별표 4 범위로 후보 코드를 정할 수 없어 code를 비운다.
+
+  - id: SCO-STEEL-SCRAP
+    when:
+      all:
+        - {fact: material, eq: steel}
+        - {fact: input_form, eq: scrap}
+    then: {outcome: OUT_OF_SCOPE, code: "51-29-01"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-29-01
+        quote: "51-29-01 고철"
+    decision: D1
+    grade: C
+
+  - id: SCO-ALUMINIUM-SCRAP
+    when:
+      all:
+        - {fact: material, eq: aluminium}
+        - {fact: input_form, eq: scrap}
+    then: {outcome: OUT_OF_SCOPE, code: "51-29-02"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-29-02
+        quote: "51-29-02 비철금속"
+    decision: D1
+    grade: C
+
+  # 캔이 자원재활용법 시행령 제18조제1호의 금속캔인지. 금속캔은 제1호 가~차목 제품의 포장에 쓰인 것이다
+  # (카·타목은 합성수지재질 포장재로 한정). 단서의 수출용·연구용 견본·반품 폐기 포장재는 제외.
+  # 마목 괄호: 내용량 30mL(30g) 이하 의약품 제품의 포장은 제18조제1호 대상이 아니다(D14로 질문 추가).
+  # medicine_small이 모름이면 여기서 막힌다(D11).
+  - id: SCO-CAN-MEDICINE-SMALL
+    when:
+      all:
+        - {fact: material, in: [aluminium, steel]}
+        - {fact: input_form, eq: can}
+        - {fact: can_contents, eq: medicine}
+        - {fact: medicine_small, eq: "yes"}
+    then: {outcome: OUT_OF_SCOPE, code: "51-29-04"}
+    basis:
+      - unit: DEC-RESOURCE/제18조
+        quote: "병 제품이 아닌 것으로서 내용량이 30밀리리터 이하 또는 30그램 이하인 제품 중 살충ㆍ살균제를 제외한 제품"
+      - unit: RULE-WASTE/별표4/51-29-04
+        quote: "51-29-04 폐금속용기류(폐금속캔류는 제외한다)"
+    decision: D14
+    grade: A
+    note: 소용량 의약품 캔은 제18조제1호 금속캔이 아니어서 51-29-03이 아니라 폐금속용기류(51-29-04) 후보로 범위 밖이다.
+
+  # can_contents가 모름이면 여기서 막힌다(D11).
+  - id: SCO-CAN-R18
+    when:
+      all:
+        - {fact: material, in: [aluminium, steel]}
+        - {fact: input_form, eq: can}
+        - {fact: can_contents, in: [food_beverage, agri_product, detergent, cosmetics, medicine, butane, insecticide, clothing, paper_product, rubber_glove]}
+    then: continue
+    basis:
+      - unit: RULE-WASTE/별표4/51-29-03
+        quote: "51-29-03 폐금속캔류(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조제1호에 해당하는 것을 말한다)"
+      - unit: DEC-RESOURCE/제18조
+        quote: "다음 각 목의 제품의 포장에 사용되는 종이팩[합성수지 또는 알루미늄박이 부착된 종이팩만 해당한다], 유리병, 금속캔"
+      - unit: DEC-RESOURCE/제18조
+        quote: "카. 부동액ㆍ브레이크액 및 제6호에 따른 윤활유(합성수지재질의 포장재로 한정한다)"
+    grade: A
+    note: 의약품 캔의 소용량 제외(마목 괄호)와 농약 제외(사목 괄호)는 can_contents 값으로 가리지 못한다(undecided U5).
+
+  - id: SCO-CAN-NON-R18
+    when:
+      all:
+        - {fact: material, in: [aluminium, steel]}
+        - {fact: input_form, eq: can}
+        - {fact: can_contents, in: [other_product, excluded_export_return]}
+    then: {outcome: OUT_OF_SCOPE, code: "51-29-04"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-29-04
+        quote: "51-29-04 폐금속용기류(폐금속캔류는 제외한다)"
+      - unit: DEC-RESOURCE/제18조
+        quote: "다만, 제조업자 또는 수입업자가 수출을 목적으로 제조 또는 수입한 제품ㆍ포장재, 「기초연구진흥 및 기술개발지원에 관한 법률」 제14조제1항에 따른 기관이나 단체가 수입하는 연구용 제품ㆍ포장재의 견본품 및 반품되어 폐기된 제품ㆍ포장재는 제외한다."
+    decision: D1
+    grade: C
+    note: 제18조제1호에 해당하지 않는 금속캔은 51-29-03이 아니고 폐금속용기류(51-29-04)가 후보다.
+
+  - id: SCO-FISHING-NET
+    when:
+      all:
+        - {fact: material, in: [pp, pe, pet, pvc, other_resin]}
+        - {fact: fishery_origin, eq: fishing_net}
+    then: {outcome: OUT_OF_SCOPE, code: "51-03-08"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-08
+        quote: "51-03-08 폐어망"
+    decision: D1
+    grade: C
+    note: 품목 코드를 재질 코드보다 앞에 둔 것은 해석 선택이다(undecided U4). 결론(범위 밖)은 같고 code 후보만 달라진다.
+
+  - id: SCO-AQUACULTURE-BUOY
+    when:
+      all:
+        - {fact: material, in: [pp, pe, pet, pvc, other_resin]}
+        - {fact: fishery_origin, eq: aquaculture_buoy}
+    then: {outcome: OUT_OF_SCOPE, code: "51-03-05"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-05
+        quote: "51-03-05 양식용폐부자"
+    decision: D1
+    grade: C
+    note: 발포 부자도 여기서 51-03-05로 낸다(undecided U4).
+
+  # PVC: 51-03-01이 PVC를 명시적으로 빼므로 51-03-03. 다만 PVC 포장재(D7상 51-03-07 후보)와
+  # 발포 PVC(51-03-06 후보)는 겹쳐 분명하지 않으니 코드 없이 범위 밖으로 낸다(undecided U3).
+  # "모름이 아님"을 함께 물어, 모름이면 막히지 않고 코드 없는 다음 규칙으로 간다.
+  - id: SCO-PVC-PLAIN
+    when:
+      all:
+        - {fact: material, eq: pvc}
+        - {not: {fact: foamed, eq: unknown}}
+        - {fact: foamed, eq: "no"}
+        - {not: {fact: packaging_used, eq: unknown}}
+        - {fact: packaging_used, in: ["no", yes_excluded]}
+    then: {outcome: OUT_OF_SCOPE, code: "51-03-03"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-03
+        quote: "51-03-03 폐폴리염화비닐수지류"
+      - unit: RULE-WASTE/별표4/51-03-01
+        quote: "51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)"
+    decision: D1
+    grade: C
+
+  - id: SCO-PVC
+    when: {fact: material, eq: pvc}
+    then: {outcome: OUT_OF_SCOPE}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-03
+        quote: "51-03-03 폐폴리염화비닐수지류"
+    decision: D1
+    grade: C
+    note: PVC는 D1 범위(PP·PE·PET) 밖이다. 포장재·발포·모름이면 후보 코드가 분명하지 않아 비운다.
+
+  # 발포 합성수지. foamed가 모름이면 아래 두 규칙 중 하나에서 막힌다(D11).
+  - id: SCO-FOAMED-NONPACKAGING
+    when:
+      all:
+        - {fact: material, in: [pp, pe, pet, other_resin]}
+        - {fact: foamed, eq: "yes"}
+        - {not: {fact: packaging_used, eq: unknown}}
+        - {fact: packaging_used, in: ["no", yes_excluded]}
+    then: {outcome: OUT_OF_SCOPE, code: "51-03-06"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-06
+        quote: "51-03-06 폐발포합성수지"
+    decision: D1
+    grade: C
+    note: 포장재가 아닌 발포 수지는 51-03-06이고 D1 범위(51-03-01·51-03-07) 밖이다.
+
+  - id: SCO-FOAMED-PACKAGING
+    when:
+      all:
+        - {fact: material, in: [pp, pe, pet, other_resin]}
+        - {fact: foamed, eq: "yes"}
+        - {fact: packaging_used, eq: "yes"}
+    then: {outcome: OUT_OF_SCOPE}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-06
+        quote: "51-03-06 폐발포합성수지"
+      - unit: RULE-WASTE/별표4/51-03-07
+        quote: "51-03-07 플라스틱폐포장재"
+      - unit: INTERP-ME-2026-STYROFOAM/회답
+        quote: "음식료품류, 농수축산물, 세제류 등을 포장하는 합성수지재질의 포장재[용기류, 필름ㆍ시트형 포장재 및 쟁반형 용기(tray)를 포함하며, 제2호 각 목의 제품의 포장재는 제외한다]의 경우 같은 법 제16조에 따른 재활용의무 대상이며"
+    decision: D13
+    grade: C
+    note: >-
+      발포 합성수지 포장재는 51-03-06(폐발포합성수지)과 51-03-07(D7 포장재)에 함께 해당하고 별표 4에 우선순위가 없다.
+      판정 조정(2026-11-20, D13)으로 범위 밖으로 안내하고 후보 코드는 정하지 않는다.
+
+  - id: SCO-OTHER-RESIN-PACKAGING
+    when:
+      all:
+        - {fact: material, eq: other_resin}
+        - {fact: packaging_used, eq: "yes"}
+    then: {outcome: OUT_OF_SCOPE, code: "51-03-07"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-07
+        quote: "51-03-07 플라스틱폐포장재"
+      - unit: DEC-RESOURCE/제18조
+        quote: "타. 가목부터 카목까지 외의 제품(합성수지재질의 포장재로 한정하되"
+    decision: D7
+    grade: C
+    note: ABS·PS·PC 등은 D1 범위(PP·PE·PET) 밖이다. 포장재면 D7 해석으로 51-03-07이 후보다.
+
+  - id: SCO-OTHER-RESIN
+    when:
+      all:
+        - {fact: material, eq: other_resin}
+        - {fact: packaging_used, in: ["no", yes_excluded]}
+    then: {outcome: OUT_OF_SCOPE, code: "51-03-01"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-01
+        quote: "51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)"
+    decision: D1
+    grade: C
+
+  - id: SCO-IN-SCOPE-RESIN
+    when: {fact: material, in: [pp, pe, pet]}
+    then: continue
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-01
+        quote: "51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)"
+      - unit: RULE-WASTE/별표4/51-03-07
+        quote: "51-03-07 플라스틱폐포장재"
+    decision: D1
+    grade: C
+    note: 고체, 어망·부자 아님, 발포 아님인 PP·PE·PET만 여기 닿는다.

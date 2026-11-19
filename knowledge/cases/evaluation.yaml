@@ -1,13 +1,13 @@
 # 자동 생성: tools/evaluate_golden.py — 골든셋 품질 평가(커버리지·뮤테이션)
-golden_cases: 96
+golden_cases: 98
 coverage:
   partition:
-    covered: 42
-    total: 42
+    covered: 45
+    total: 45
     missing: []
   domain_value:
-    covered: 73
-    total: 76
+    covered: 76
+    total: 79
     missing:
     - public_facility=unknown
     - construction_5t=unknown
@@ -24,22 +24,22 @@ coverage:
     total: 8
     missing: []
 mutation:
-  mutants: 142
-  killed: 142
+  mutants: 152
+  killed: 152
   score: 1.0
   by_operator:
     BOR:
-      killed: 13
-      total: 13
+      killed: 16
+      total: 16
     BRD:
-      killed: 58
-      total: 58
+      killed: 60
+      total: 60
     CRP:
       killed: 4
       total: 4
     ROR:
-      killed: 37
-      total: 37
+      killed: 42
+      total: 42
     SER:
       killed: 30
       total: 30

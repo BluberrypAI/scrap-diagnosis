@@ -77,10 +77,10 @@ baselines:
       registered: 'no'
       supplied_r41: 'yes'
 summary:
-  total: 96
+  total: 98
   by_kind:
     baseline: 3
-    mcdc: 54
+    mcdc: 56
     boundary: 4
     masking: 9
     metamorphic: 9
@@ -88,10 +88,10 @@ summary:
   by_outcome:
     GENERAL: 43
     NOT_WASTE: 2
-    INSUFFICIENT_INFO: 6
+    INSUFFICIENT_INFO: 7
     EXCLUDED: 11
     CIRCULAR_RESOURCE: 3
-    OUT_OF_SCOPE: 18
+    OUT_OF_SCOPE: 19
     DESIGNATED_POSSIBLE: 10
     HOUSEHOLD: 3
 test_requirements:
@@ -973,7 +973,7 @@ test_requirements:
     packaging_used: 'yes'
   expected:
     outcome: OUT_OF_SCOPE
-    code: 51-03-06
+    code: null
     flags: []
   gate: G7
   covers:
@@ -986,7 +986,7 @@ test_requirements:
     packaging_used: 'yes'
   expected:
     outcome: OUT_OF_SCOPE
-    code: 51-03-03
+    code: null
     flags: []
   gate: G7
   covers:
@@ -1287,6 +1287,7 @@ test_requirements:
   base: CAN
   changes:
     can_contents: medicine
+    medicine_small: 'no'
   expected:
     outcome: GENERAL
     code: 51-29-03
@@ -1390,3 +1391,29 @@ test_requirements:
   covers:
   - designation_requires_listed_can
   note: 제18조 품목이 아닌 캔은 준수사항을 모두 지켜도 지정 순환자원(폐금속캔류)이 아니다
+- id: TR-097
+  kind: mcdc
+  base: CAN
+  changes:
+    can_contents: medicine
+    medicine_small: 'yes'
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-04
+    flags: []
+  gate: G7
+  covers:
+  - medicine_small=yes
+- id: TR-098
+  kind: mcdc
+  base: CAN
+  changes:
+    can_contents: medicine
+    medicine_small: unknown
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  gate: G8
+  covers:
+  - medicine_small=unknown
