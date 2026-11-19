@@ -1,0 +1,117 @@
+stage: 50_designated
+title: 지정폐기물 가능성 (법 제2조제4호, 시행령 별표 1, 시행규칙 제17조의2)
+order: 50
+on_no_match: continue
+# 순서 근거
+# - 지정폐기물은 "사업장폐기물 중"에서 정해지므로 40단계(사업장) 뒤에 둔다.
+# - 범위 밖(60단계)보다 앞에 둔다(D12 안전 우선).
+# - 단계 안에서는 모름을 직접 묻는 규칙을 그 사실의 값 비교보다 앞에 둔다(모름이 막힘이 아니라 D5·D6의 보수적 결론이 되도록).
+# - 지정폐기물 종류·코드는 정하지 않고 가능성에서 멈춘다(D2).
+rules:
+  - id: DES-RESIDUE-UNKNOWN
+    when: {fact: residue, eq: unknown}
+    then: {outcome: DESIGNATED_POSSIBLE}
+    basis:
+      - unit: DEC-WASTE/별표1제5호
+        quote: "다. 폐페인트 용기(용기 안에 남아 있는 페인트가 건조되어 있고, 그 잔존량이 용기 바닥에서 6밀리미터를 넘지 아니하는 것은 제외한다)"
+      - unit: DEC-WASTE/별표1제6호
+        quote: "6. 폐유"
+    decision: D5
+    grade: C
+    note: 내용물이 남았는지 모르면 멈춘다. 비우거나 세척한 뒤 다시 판정하도록 안내한다.
+
+  - id: DES-PAINT-CONTAINER
+    when: {fact: residue, eq: paint_other}
+    then: {outcome: DESIGNATED_POSSIBLE}
+    basis:
+      - unit: DEC-WASTE/별표1제5호
+        quote: "다. 폐페인트 용기(용기 안에 남아 있는 페인트가 건조되어 있고, 그 잔존량이 용기 바닥에서 6밀리미터를 넘지 아니하는 것은 제외한다)"
+    grade: A
+    note: >-
+      페인트가 말라 있고 6mm 이하(paint_dried_within_6mm)인 용기는 문언상 제외되어 이 규칙에 걸리지 않는다.
+      그 밖의 페인트 잔존은 폐페인트 용기에 해당한다(D2에 따라 가능성으로만 낸다).
+
+  - id: DES-RESIDUE-OTHER
+    when: {fact: residue, eq: other_contents}
+    then: {outcome: DESIGNATED_POSSIBLE}
+    basis:
+      - unit: DEC-WASTE/별표1제6호
+        quote: "6. 폐유"
+      - unit: DEC-WASTE/별표1제4호
+        quote: "4. 폐유기용제"
+      - unit: DEC-WASTE/별표1제2호
+        quote: "2. 부식성 폐기물"
+      - unit: DEC-WASTE/별표1제9호
+        quote: "9. 폐유독물질"
+    decision: D5
+    grade: C
+    note: 남은 내용물(기름·용제·약품·가스 등)이 별표 1 제2·4·6·9호 중 어디에 해당할지 정할 사실이 없어 멈춘다.
+
+  - id: DES-OIL-UNKNOWN
+    when: {fact: oil_presence, eq: unknown}
+    then: {outcome: DESIGNATED_POSSIBLE}
+    basis:
+      - unit: DEC-WASTE/별표1제6호
+        quote: "기름성분을 5퍼센트 이상 함유한 것을 포함하며"
+      - unit: RULE-WASTE/제17조의2
+        quote: "별표 1에 따른 유해물질, 기름성분, 석면 또는 폴리클로리네이티드비페닐을 말한다."
+    decision: D6
+    grade: C
+
+  - id: DES-OIL-NO-EVIDENCE
+    when:
+      all:
+        - {fact: oil_presence, eq: present}
+        - {not: {fact: oil_pct_evidenced, exists: true}}
+    then: {outcome: DESIGNATED_POSSIBLE}
+    basis:
+      - unit: DEC-WASTE/별표1제6호
+        quote: "기름성분을 5퍼센트 이상 함유한 것을 포함하며"
+      - unit: RULE-WASTE/제17조의2
+        quote: "사업장에서 발생하는 폐기물이 지정폐기물에 해당되는지를 미리 확인해야 한다."
+    decision: D6
+    grade: C
+    note: 기름성분은 확인대상이라 분석 서류 없이 말만으로 5% 미만을 확정하지 않는다.
+
+  - id: DES-OIL-GE5
+    when:
+      all:
+        - {fact: oil_pct_evidenced, exists: true}
+        - {fact: oil_pct_evidenced, gte: 5}
+    then: {outcome: DESIGNATED_POSSIBLE}
+    basis:
+      - unit: DEC-WASTE/별표1제6호
+        quote: "6. 폐유[기름성분을 5퍼센트 이상 함유한 것을 포함하며"
+    grade: A
+    note: 서류로 5% 이상이 확인되면 폐유에 해당한다. 5% 미만이 서류로 확인되면 이 단계를 통과한다.
+
+  # chemical_itself가 모름이면 여기서 막혀 INSUFFICIENT_INFO(blocking: chemical_itself)가 된다(D11).
+  - id: DES-CHEMICAL-ITSELF
+    when: {fact: chemical_itself, eq: "yes"}
+    then: {outcome: DESIGNATED_POSSIBLE}
+    basis:
+      - unit: DEC-WASTE/별표1제9호
+        quote: "인체급성유해성물질, 인체만성유해성물질, 생 태유해성물질, 허가물질, 제한물질, 금지물질 및 사고대비물질을 폐기하는 경 우로 한정하되"
+      - unit: DEC-WASTE/별표1제2호
+        quote: "2. 부식성 폐기물"
+      - unit: DEC-WASTE/별표1제4호
+        quote: "4. 폐유기용제"
+    decision: D2
+    grade: C
+    note: >-
+      약품·시약 자체를 버리면 폐유독물질·부식성 폐기물·폐유기용제에 해당할 수 있다. 어느 물질인지(화학물질관리법 제2조 각 호)
+      정할 사실이 없으므로 가능성에서 멈춘다.
+
+  - id: DES-NONE
+    when:
+      all:
+        - {fact: residue, in: [none, paint_dried_within_6mm]}
+        - {fact: chemical_itself, eq: "no"}
+    then: continue
+    basis:
+      - unit: ACT-WASTE/제2조제4호
+        quote: "대통령령으로 정하는 폐기물을 말한다."
+    grade: A
+    note: >-
+      위 규칙에 모두 걸리지 않으면(기름 없음 또는 서류로 5% 미만, 내용물 없음, 약품 아님) 지정폐기물 지표가 없다.
+      비고체 합성수지(별표 1 제1호가목1)의 특정시설 폐합성수지)는 D4에 따라 60단계에서 범위 밖으로 낸다.

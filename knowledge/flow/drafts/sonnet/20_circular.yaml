@@ -1,0 +1,84 @@
+stage: 20_circular
+title: 순환자원
+order: 20
+on_no_match: continue
+rules:
+  # 인정서를 받았으면 폐기물로 보지 않는다(순환경제사회 전환 촉진법 제21조제5항).
+  # D9: 받았는지 모르면 받지 않은 것으로 본다. 그래서 "yes이면서 unknown이 아님"으로 써서
+  # unknown일 때 조건이 거짓이 되게 한다(모름으로 단계가 막히지 않게).
+  - id: CIR-RECOGNIZED
+    when:
+      all:
+        - {fact: circular_recognized, eq: "yes"}
+        - {not: {fact: circular_recognized, eq: unknown}}
+    then: {outcome: CIRCULAR_RESOURCE}
+    basis:
+      - unit: ACT-CIRCULAR/제21조
+        quote: "기후에너지환경부장관의 인정을 받은 순환자원은 폐기물로 보지 아니한다"
+    grade: A
+    note: 조문 문언으로 정해지는 부분은 yes일 때다. unknown을 no로 보는 부분은 D9.
+
+  # 지정 순환자원(폐금속캔류)은 내용물이 남은 캔이면 순환자원으로 보지 않고 다음 단계(지정폐기물 가능성)로 보낸다.
+  # 고시는 폐페인트·폐유 등을 담았던 용기가 섞였으면 분리·제거하라고 한다. 남은 내용물이 있거나 모르면 이 단계를 건너뛴다.
+  - id: CIR-CAN-RESIDUE-SKIP
+    when:
+      all:
+        - {fact: material, in: [aluminium, steel]}
+        - {fact: input_form, eq: can}
+        - any:
+            - {fact: residue, eq: other_contents}
+            - {fact: residue, eq: paint_other}
+            - {fact: residue, eq: unknown}
+    then: continue
+    basis:
+      - unit: NOTICE-CIRCULAR-CRITERIA/제2조
+        quote: "이를 담았던 용기가 혼합된 경우에는 이를 분리ㆍ제거하여야 한다"
+    decision: D5
+    grade: C
+    note: 이 규칙이 참이면 이 단계의 뒤 규칙을 건너뛰고 40, 50 단계로 간다. 50에서 지정폐기물 가능성으로 멈춘다.
+
+  # 폐금속캔류(51-29-03)는 순환자원으로 지정되어 있고, 준수사항을 모두 지키면 폐기물로 보지 않는다.
+  # 하나라도 안 지켰으면(no) 조건이 거짓이 되어 폐기물로 다음 단계로 간다. 모름이 남으면(거짓 없이) 막힌다(D11).
+  # 의약품 캔은 제18조제1호마목의 소량 제외 여부를 알 수 없어 목록에서 뺐다(undecided.md).
+  - id: CIR-CAN-DESIGNATED-COMPLIED
+    when:
+      all:
+        - {fact: material, in: [aluminium, steel]}
+        - {fact: input_form, eq: can}
+        - fact: can_contents
+          in: [food_beverage, agri_product, detergent, cosmetics, butane, insecticide, clothing, paper_product, rubber_glove]
+        - {fact: can_designation.foreign_matter_le_2pct, eq: "yes"}
+        - {fact: can_designation.unmixed, eq: "yes"}
+        - {fact: can_designation.compressed, eq: "yes"}
+        - {fact: can_designation.compress_facility_ok, eq: "yes"}
+        - {fact: can_designation.sorted_by_metal, eq: "yes"}
+        - {fact: can_designation.registered, eq: "yes"}
+        - {fact: can_designation.supplied_r41, eq: "yes"}
+    then: {outcome: CIRCULAR_RESOURCE}
+    basis:
+      - unit: NOTICE-CIRCULAR-DESIGNATION/별표1
+        quote: "폐금속캔류"
+      - unit: ACT-CIRCULAR/제23조
+        quote: "그와 함께 고시한 순환이용의 용도, 방법 및 기준 등을 준수하는 범위에서 폐기물로 보지 아니한다"
+      - unit: NOTICE-CIRCULAR-DESIGNATION/제2조
+        quote: "순환이용의 용도, 방법 및 기준 등을 준수하지 아니하는 경우에는 해당 순환자원을 폐기물로 본다"
+      - unit: NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+        quote: "다른 종류의 폐기물과 혼합되지 아니하고"
+      - unit: NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+        quote: "전자적 방식으로 등록하여야 한다"
+      - unit: NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+        quote: "정보 등록을 완료하기 전까지는 폐기물로 보고"
+      - unit: NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+        quote: "R-4-1(금속성 제품을 제조하는 유형)에 해당하는 용도로 공급하여야 한다"
+      - unit: NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+        quote: "압축시설을 이용하여 일정한 규격으로 압축을 완료하여야 한다"
+      - unit: NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+        quote: "폐기물처리시설 설치승인을 받거나 신고를 하여야 한다"
+      - unit: NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+        quote: "폐금속캔류는 재질별(철 또는 알루미늄)로 분리를 완료하여야 한다"
+      - unit: NOTICE-CIRCULAR-CRITERIA/제2조
+        quote: "폐금속류: 무게기준으로 2퍼센트 이하"
+    grade: A
+    note: >-
+      이 단계가 사업장 판정(40)보다 앞인 이유는 순환자원이면 폐기물 자체가 아니어서 사업장·지정폐기물 판단이 필요 없기 때문이다.
+      캔 종류 제한(can_contents)은 51-29-03이 시행령 제18조제1호에 해당하는 것만 가리키기 때문이다.
