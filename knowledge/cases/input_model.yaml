@@ -1,0 +1,323 @@
+# 골든 데이터셋 Step 1: 입력 공간 모델 (Input Space Model)
+#
+# 판정 결과에 영향을 주는 입력 변수, 각 변수의 도메인(가능한 값), 동등 분할(partition),
+# 파티션별 효과와 근거 조문을 적는다. 근거는 knowledge/law/articles의 단위 ID("문서키/단위ID")다.
+# 판정 엔진 설계와 독립적으로, 적재한 조문만 보고 작성했다(기존 엔진 참조 없음).
+#
+# 등급(grade): A 조문 문언만으로 정해짐 / B 공식 해석·판례 / C 우리 해석 결정(2026-11-19)
+# 효과(effect): continue(다음 판단으로) 또는 결과 클래스(outcomes의 id)
+
+version: 1
+scope:
+  materials: [pp, pe, pet, aluminium_can]
+  codes: ["51-03-01", "51-03-07", "51-29-03"]
+  designated: 지정폐기물은 "가능성"까지만 판단하고 멈춘다
+
+# ---- 출력 클래스 -----------------------------------------------------------------------------
+# precedence: 숫자가 작을수록 먼저 적용된다(상위 결론이 하위 조건을 가림, masking).
+outcomes:
+  - id: NOT_WASTE
+    label: 폐기물 아님(내보내지 않음)
+    precedence: 1
+    basis: [ACT-WASTE/제2조제1호]
+  - id: CIRCULAR_RESOURCE
+    label: 순환자원(폐기물로 보지 않음)
+    precedence: 2
+    basis: [ACT-CIRCULAR/제21조, ACT-CIRCULAR/제23조, NOTICE-CIRCULAR-DESIGNATION/제2조]
+  - id: EXCLUDED
+    label: 폐기물관리법 적용 제외
+    precedence: 3
+    basis: [ACT-WASTE/제3조]
+  - id: HOUSEHOLD
+    label: 생활폐기물(범위 밖 안내)
+    precedence: 4
+    basis: [ACT-WASTE/제2조제2호, ACT-WASTE/제2조제3호, DEC-WASTE/제2조]
+    note: 지정폐기물은 "사업장폐기물 중"에서만 성립하므로(법 제2조제4호) 생활폐기물이면 지정 판단을 하지 않는다
+  - id: DESIGNATED_POSSIBLE
+    label: 지정폐기물 가능성(멈춤, 분석·기관 확인 안내)
+    precedence: 5
+    basis: [ACT-WASTE/제2조제4호, DEC-WASTE/제3조]
+  - id: OUT_OF_SCOPE
+    label: 범위 밖(후보 코드가 있으면 함께 안내)
+    precedence: 6
+  - id: GENERAL
+    label: 사업장일반폐기물 + 분류 코드
+    precedence: 7
+    flags:
+      interpretation: 직접 정의가 없어 법령 내 용례에 따른 해석으로 정한 코드(51-03-07)
+      route_unsupported: 법적 코드는 맞지만 업체 추천 공정 자료가 없음(철 캔)
+  - id: INSUFFICIENT_INFO
+    label: 정보 부족(추가 질문·서류 필요)
+    precedence: 8
+    note: 판정에 필요한 변수가 '모름'이고 보수적 기본값도 정하지 않은 경우
+
+# ---- 입력 변수 --------------------------------------------------------------------------------
+variables:
+
+  # 1. 폐기물 여부
+  - id: discharged
+    label: 사업장 밖으로 내보내는(더 이상 필요 없는) 물질인가
+    domain: [yes, no, unknown]
+    role: verdict
+    partitions:
+      - {values: [yes], effect: continue, grade: A, basis: [ACT-WASTE/제2조제1호]}
+      - {values: [no], effect: NOT_WASTE, grade: C, basis: [ACT-WASTE/제2조제1호],
+         note: 같은 공정에 다시 넣는 불량품처럼 내보내지 않으면 문진 대상이 아님(결정 ③)}
+      - {values: [unknown], effect: INSUFFICIENT_INFO, grade: C}
+
+  # 2. 법 적용 제외
+  - id: law_exclusion
+    label: 다른 법 대상 물질인가
+    domain: [none, radioactive, uncontained_gas, wastewater, livestock_manure, sewage_nightsoil,
+             livestock_disease, aquatic_disease, ammunition, pet_funeral, fishery_byproduct_unmixed,
+             unknown]
+    role: verdict
+    partitions:
+      - {values: [none], effect: continue, grade: A, basis: [ACT-WASTE/제3조]}
+      - {values: [radioactive, uncontained_gas, wastewater, livestock_manure, sewage_nightsoil,
+                  livestock_disease, aquatic_disease, ammunition, pet_funeral,
+                  fishery_byproduct_unmixed],
+         effect: EXCLUDED, grade: A, basis: [ACT-WASTE/제3조]}
+      - {values: [unknown], effect: INSUFFICIENT_INFO, grade: C}
+
+  # 3. 순환자원 인정
+  - id: circular_recognized
+    label: 순환자원 인정서를 받았나
+    domain: [yes, no]
+    role: verdict
+    partitions:
+      - {values: [yes], effect: CIRCULAR_RESOURCE, grade: A,
+         basis: [ACT-CIRCULAR/제21조, DEC-CIRCULAR/제11조]}
+      - {values: [no], effect: continue, grade: C, basis: [ACT-CIRCULAR/제21조],
+         note: 인정은 신청과 인정서 발급이 있는 행정행위라 '모름'은 받지 않은 것으로 본다}
+
+  # 4. 사업장 여부 (하나라도 yes면 사업장, 모두 no면 생활폐기물)
+  - id: emission_facility
+    label: 대기·물·소음진동 배출시설을 설치·운영하는 사업장인가
+    domain: [yes, no, unknown]
+    role: verdict
+    group: business_site
+    basis: [ACT-WASTE/제2조제3호]
+  - id: public_facility
+    label: 공공폐수·공공하수·분뇨·가축분뇨 공공처리·폐기물처리시설을 운영하는 사업장인가
+    domain: [yes, no, unknown]
+    role: verdict
+    group: business_site
+    basis: [DEC-WASTE/제2조]
+  - id: daily_avg_kg
+    label: 폐기물 1일 평균 배출량(kg)
+    domain: {type: number, min: 0, unit: kg/day, allow_unknown: true}
+    role: verdict
+    group: business_site
+    partitions:
+      - {range: "[0, 300)", effect: 이 기준으로는 사업장 아님}
+      - {range: "[300, inf)", effect: 사업장}
+    boundary_values: [299, 300]
+    basis: [DEC-WASTE/제2조]
+  - id: construction_5t
+    label: 건설공사나 일련의 공사·작업으로 폐기물을 5톤 이상 배출하나
+    domain: [yes, no, unknown]
+    role: verdict
+    group: business_site
+    basis: [DEC-WASTE/제2조]
+  - id: site_emits_designated
+    label: 이 사업장이 (다른 것이라도) 지정폐기물을 배출하나
+    domain: [yes, no, unknown]
+    role: verdict
+    group: business_site
+    basis: [DEC-WASTE/제2조]
+    note: 이번 폐기물이 지정폐기물 가능성이면 그 자체로 이 조건을 충족한다(제2조제6호)
+
+  # 5. 지정폐기물 가능성 (하나라도 해당하면 DESIGNATED_POSSIBLE)
+  - id: physical_state
+    label: 물리 상태
+    domain: [solid, liquid, semisolid, unknown]
+    role: verdict
+    partitions:
+      - {values: [solid], effect: continue, grade: A, basis: [DEC-WASTE/별표1제1호가목1)]}
+      - {values: [liquid, semisolid], effect: OUT_OF_SCOPE, grade: C,
+         basis: [DEC-WASTE/별표1제1호가목1)],
+         note: 비고체 합성수지는 '특정시설' 정의가 없어 판단하지 않고 범위 밖으로 안내(결정 ②)}
+      - {values: [unknown], effect: INSUFFICIENT_INFO, grade: C}
+  - id: oil_presence
+    label: 기름(절삭유·윤활유 등)이 묻었거나 섞였나
+    domain: [none, present, unknown]
+    role: verdict
+    basis: [DEC-WASTE/별표1제6호, RULE-WASTE/제17조의2]
+  - id: oil_pct_evidenced
+    label: 분석 서류로 확인한 기름성분 함량(%)
+    domain: {type: number, min: 0, max: 100, unit: "%", allow_unavailable: true}
+    role: verdict
+    partitions:
+      - {range: "[0, 5)", effect: 폐유 기준 미만}
+      - {range: "[5, 100]", effect: DESIGNATED_POSSIBLE}
+    boundary_values: [4.9, 5.0]
+    basis: [DEC-WASTE/별표1제6호]
+  - id: residue
+    label: 용기·물건에 원래 내용물이 남아 있나
+    domain: [none, paint_dried_within_6mm, paint_other, other_contents, unknown]
+    role: verdict
+    partitions:
+      - {values: [none], effect: continue, grade: A}
+      - {values: [paint_dried_within_6mm], effect: continue, grade: A,
+         basis: [DEC-WASTE/별표1제5호]}
+      - {values: [paint_other], effect: DESIGNATED_POSSIBLE, grade: A,
+         basis: [DEC-WASTE/별표1제5호]}
+      - {values: [other_contents], effect: DESIGNATED_POSSIBLE, grade: C,
+         note: 기름·용제·약품·가스 등. 조문에 직접 규정이 없어 멈추고 세척 후 재판정 안내(결정 ④)}
+      - {values: [unknown], effect: DESIGNATED_POSSIBLE, grade: C}
+  - id: chemical_itself
+    label: 버리는 것이 약품·시약 그 자체인가
+    domain: [yes, no]
+    role: verdict
+    partitions:
+      - {values: [yes], effect: DESIGNATED_POSSIBLE, grade: A,
+         basis: [DEC-WASTE/별표1제9호, DEC-WASTE/별표1제2호, DEC-WASTE/별표1제4호]}
+      - {values: [no], effect: continue, grade: A}
+
+  # 6. 재질과 형태
+  - id: material
+    label: 재질
+    domain: [pp, pe, pet, pvc, other_resin, aluminium, steel, other]
+    role: verdict
+    partitions:
+      - {values: [pp, pe, pet], effect: continue, grade: A, basis: [RULE-WASTE/별표4/51-03-01]}
+      - {values: [pvc], effect: OUT_OF_SCOPE, candidate: "51-03-03", grade: A,
+         basis: [RULE-WASTE/별표4/51-03-01, RULE-WASTE/별표4/51-03-03]}
+      - {values: [other_resin], effect: OUT_OF_SCOPE, candidate: "51-03-01", grade: A}
+      - {values: [aluminium, steel], effect: continue, grade: A,
+         note: 캔이면 캔 판단으로, 아니면 범위 밖(51-29-01·02)}
+      - {values: [other], effect: OUT_OF_SCOPE, grade: A}
+  - id: input_form
+    label: 현재 형태
+    domain:
+      pp: [scrap, rigid, film, shredded, flake, pellet]
+      pe: [scrap, rigid, film, shredded, flake, pellet]
+      pet: [bottle, bale, flake]
+      aluminium: [can, scrap]
+      steel: [can, scrap]
+    role: verdict_and_handoff
+    partitions:
+      - {values: [can], effect: 캔 판단(can_contents, can_designation)으로, grade: A,
+         basis: [RULE-WASTE/별표4/51-29-03]}
+      - {values: [film, bottle], effect: 포장재 여부 확인이 필수, grade: A,
+         note: 형태만으로 포장재를 추정하지 않는다. 결과는 packaging_used가 정한다}
+      - {values: [scrap, rigid, shredded, flake, pellet, bale], effect: invariant,
+         note: 판정 불변. 인계 객체로 route에 전달}
+      - {values: ["aluminium:scrap", "steel:scrap"], effect: OUT_OF_SCOPE,
+         candidate: "51-29-02 / 51-29-01"}
+    metamorphic: 불변 파티션 안에서 형태만 바꾸면 결과가 같아야 한다
+  - id: foamed
+    label: 발포수지(스티로폼 등)인가
+    domain: [yes, no]
+    role: verdict
+    partitions:
+      - {values: [yes], effect: OUT_OF_SCOPE, candidate: "51-03-06", grade: A,
+         basis: [RULE-WASTE/별표4/51-03-06]}
+      - {values: [no], effect: continue, grade: A}
+  - id: fishery_origin
+    label: 어망·양식용 부자에서 나왔나
+    domain: [none, fishing_net, aquaculture_buoy]
+    role: verdict
+    partitions:
+      - {values: [none], effect: continue, grade: A}
+      - {values: [fishing_net], effect: OUT_OF_SCOPE, candidate: "51-03-08", grade: A,
+         basis: [RULE-WASTE/별표4/51-03-08]}
+      - {values: [aquaculture_buoy], effect: OUT_OF_SCOPE, candidate: "51-03-05", grade: A,
+         basis: [RULE-WASTE/별표4/51-03-05]}
+
+  # 7. 플라스틱 포장재 여부 (pp·pe·pet)
+  - id: packaging_used
+    label: 제품·원료를 포장하는 데 쓰였던 것인가
+    domain: [yes, yes_excluded, no, unknown]
+    role: verdict
+    partitions:
+      - {values: [yes], effect: "GENERAL 51-03-07 [interpretation]", grade: C,
+         basis: [RULE-WASTE/별표4/51-03-07, RULE-WASTE/제66조제3항, RULE-WASTE/제10조제1호의2나목,
+                 "RULE-WASTE/별표5의3/R-3-3 재활용 기준 (1) 폐지·고철·폐포장재",
+                 DEC-RESOURCE/제18조, INTERP-ME-2026-STYROFOAM/회답],
+         note: 별표 4에 직접 정의가 없어 시행규칙 내 용례(제18조 재활용의무 대상 포장재)로 해석(결정 ①)}
+      - {values: [yes_excluded], effect: "GENERAL 51-03-01", grade: C,
+         basis: [DEC-RESOURCE/제18조],
+         note: 수출용·연구용 견본·반품 폐기 포장재는 제18조 단서로 제외}
+      - {values: [no], effect: "GENERAL 51-03-01", grade: A, basis: [RULE-WASTE/별표4/51-03-01]}
+      - {values: [unknown], effect: INSUFFICIENT_INFO, grade: C}
+
+  # 8. 캔 (input_form = can)
+  - id: can_contents
+    label: 캔에 원래 담겼던 제품
+    domain: [food_beverage, agri_product, detergent, cosmetics, medicine, butane, insecticide,
+             clothing, paper_product, rubber_glove, excluded_export_return, other_product, unknown]
+    role: verdict
+    partitions:
+      - {values: [food_beverage, agri_product, detergent, cosmetics, medicine, butane, insecticide,
+                  clothing, paper_product, rubber_glove],
+         effect: "51-29-03 후보", grade: A,
+         basis: [DEC-RESOURCE/제18조, RULE-WASTE/별표4/51-29-03],
+         note: 제18조제1호 가목~차목. 카·타목은 합성수지 포장재로 한정이라 금속캔이 아님}
+      - {values: [other_product, excluded_export_return], effect: OUT_OF_SCOPE,
+         candidate: "51-29-04", grade: A,
+         basis: [RULE-WASTE/별표4/51-29-04, DEC-RESOURCE/제18조],
+         note: 페인트·공업용 캔 등은 제18조제1호 금속캔이 아니라 폐금속용기류}
+      - {values: [unknown], effect: INSUFFICIENT_INFO, grade: C}
+  - id: can_metal
+    label: 캔 재질
+    domain: [aluminium, steel]
+    role: verdict
+    partitions:
+      - {values: [aluminium], effect: "GENERAL 51-29-03", grade: A}
+      - {values: [steel], effect: "GENERAL 51-29-03 [route_unsupported]", grade: A}
+  - id: can_designation
+    label: 순환자원 지정 준수사항(폐금속캔류)을 모두 지켰나
+    role: verdict
+    sub_conditions:
+      - {id: foreign_matter_le_2pct, label: 이물질 2% 이하,
+         basis: [NOTICE-CIRCULAR-CRITERIA/제2조, NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항]}
+      - {id: unmixed, label: 다른 종류의 폐기물과 섞이지 않음,
+         basis: [NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항]}
+      - {id: compressed, label: 압축시설로 일정 규격 압축 완료,
+         basis: [NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류]}
+      - {id: compress_facility_ok, label: 압축시설이 폐기물처리시설이면 설치승인·신고 완료(해당 없으면 충족),
+         basis: [NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류]}
+      - {id: sorted_by_metal, label: 철·알루미늄 재질별 분리 완료,
+         basis: [NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류]}
+      - {id: registered, label: 순환자원정보센터에 정보 등록,
+         basis: [NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항]}
+      - {id: supplied_r41, label: 금속제품 제조 용도(R-4-1)로 공급,
+         basis: [NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류]}
+    sub_domain: [yes, no, unknown]
+    rule:
+      all_yes: CIRCULAR_RESOURCE
+      otherwise: continue
+    grade: A
+    note: 조치와 등록을 마치기 전까지는 폐기물로 본다(일반적 준수사항 마목). 그래서 '모름'은 미충족이다
+
+# ---- 여러 변수를 묶는 규칙 ---------------------------------------------------------------------
+group_rules:
+  business_site:
+    variables: [emission_facility, public_facility, daily_avg_kg, construction_5t,
+                site_emits_designated]
+    any_yes: continue            # daily_avg_kg는 300 이상이면 yes
+    all_no: HOUSEHOLD
+    otherwise: INSUFFICIENT_INFO
+    grade: A
+  oil:
+    variables: [oil_presence, oil_pct_evidenced]
+    none: continue
+    present_and_evidenced_below_5: continue
+    present_and_evidenced_5_or_more: DESIGNATED_POSSIBLE
+    present_without_evidence: DESIGNATED_POSSIBLE
+    unknown: DESIGNATED_POSSIBLE
+    grade: C
+    note: >-
+      기름성분은 확인대상(시행규칙 제17조의2제1항)이라 말만으로 5% 미만을 확정하지 않는다.
+      서류가 없거나 모르면 보수적으로 멈춘다
+
+# ---- 인계 속성 (판정에 쓰지 않음, 골든셋 대상 아님) --------------------------------------------
+handoff_only:
+  - {id: input_form, note: 위 변수와 같은 값을 인계 객체로 전달}
+  - {id: color}
+  - {id: mass_kg, note: 물량 등록 단계(서버)에서 받음}
+  - {id: purity_percent, note: 물량 등록 단계}
+  - {id: condition, note: 물량 등록 단계}
+  - {id: photos, note: 물량 등록 단계}
