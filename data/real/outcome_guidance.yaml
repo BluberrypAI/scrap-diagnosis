@@ -59,3 +59,10 @@ guidance:
     summary: "여러 소재가 섞인 폐기물이라 소재별로 나눠 따로 문진하거나 관할 기관에 확인하도록 안내합니다."
     notes:
       - "나눌 수 있는 소재는 소재별로 새 건을 만들어 문진하도록 안내한다."
+  - result_type: NO_CODE
+    outcome: DESIGNATED_CODE_NEEDED
+    action: MANUAL_CLASSIFICATION
+    summary: "지정폐기물이므로 지정폐기물 처리 허가 업체에만 맡겨야 하고, 세부 분류번호는 이전 신고서·인계서나 관할 기관에서 확인하도록 안내합니다."
+    notes:
+      - "일반 재활용 경로를 추천하지 않는다."
+      - "분류번호가 정해질 때까지 법정 서식(제12호 등)은 제출 전 초안으로만 본다."

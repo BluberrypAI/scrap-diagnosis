@@ -106,6 +106,7 @@ def _outcome(kb: KnowledgeBase, r: Rule) -> str:
         "NO_GENERAL_CODE": "일반 번호 없음",
         "CODE_NEEDS_TEST": "시험 필요",
         "NO_MIXTURE_RULE": "혼합물 규칙 없음",
+        "DESIGNATED_CODE_NEEDED": "지정폐기물(세부 번호 확인 필요)",
     }.get(t.outcome or "", t.outcome or "")
 
 

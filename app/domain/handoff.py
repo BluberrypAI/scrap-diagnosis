@@ -13,6 +13,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from app.domain.clock import seoul_iso
+from app.domain.designated import DesignatedGuidance, build_designated
 from app.domain.facts import Fact, document_id_of
 from app.domain.recycling import RecyclingAssessment, assess_recycling
 from app.rules.evaluator import Candidate
@@ -35,6 +36,7 @@ OUTCOMES = (
     "NO_GENERAL_CODE",
     "CODE_NEEDS_TEST",
     "NO_MIXTURE_RULE",
+    "DESIGNATED_CODE_NEEDED",
 )
 
 ACTIONS = (
@@ -121,6 +123,8 @@ class Handoff(BaseModel):
     # 시험·서류가 아니라 사용자 답에서 추정한 사실의 안내(추가 필드, 없으면 [])
     assumptions: list[str] = []
     recycling: RecyclingAssessment | None = None
+    # 지정폐기물일 때만(아니면 null): 이유·경고·다음 할 일(추가 필드)
+    designated: DesignatedGuidance | None = None
 
 
 def build_handoff(
@@ -166,6 +170,7 @@ def build_handoff(
         outcome=outcome,
         route_guidance=RouteGuidanceOut(action=g.action, summary=g.summary, notes=list(g.notes)),
         assumptions=assumption_notes(kb, effective),
+        designated=build_designated(kb, decided, rule, effective),
         facts=facts,
         evidence=evidence,
         basis=basis,

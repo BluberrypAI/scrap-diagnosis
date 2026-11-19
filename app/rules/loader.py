@@ -31,6 +31,7 @@ from app.rules.model import (
     Basis,
     CodeEntry,
     Cond,
+    DesignatedAction,
     Expr,
     FactDef,
     KnowledgeBase,
@@ -250,7 +251,7 @@ def parse_expr(raw: Any, where: str) -> Expr:
         if not isinstance(value, list) or not value:
             raise RuleDataError(f"{where}: {op}에는 비지 않은 목록 값이 필요합니다")
         value = tuple(value)
-    elif op == "exists":
+    elif op in ("exists", "declared_unknown"):
         value = None
     elif value is None:
         raise RuleDataError(f"{where}: {op}에는 value가 필요합니다")
@@ -267,7 +268,7 @@ def _check_cond(c: Cond, catalog: dict[str, FactDef], where: str) -> None:
     fd = catalog.get(c.fact)
     if fd is None:
         raise RuleDataError(f"{where}: 카탈로그에 없는 사실 키 '{c.fact}'")
-    if c.op == "exists":
+    if c.op in ("exists", "declared_unknown"):
         return
     vals = c.value if c.op in LIST_OPS else (c.value,)
     if c.op in NUMERIC_OPS and fd.type != "number":
@@ -413,8 +414,18 @@ def _numeric_bounds(expr: Expr) -> dict[str, tuple[float, bool, float, bool]]:
     return out
 
 
+def _top_level_declared_unknown(expr: Expr) -> set[str]:
+    """최상위 all 안에서 '모름이라고 답함'이어야 하는 사실(declared_unknown)."""
+    items = expr.items if isinstance(expr, All) else (expr,)
+    return {x.fact for x in items if isinstance(x, Cond) and x.op == "declared_unknown"}
+
+
 def _provably_disjoint(a: Rule, b: Rule) -> bool:
     da, db = _top_level_domains(a.when), _top_level_domains(b.when)
+    # '모름이라고 답함'은 값이 있어야 하는(eq/in) 규칙과 동시에 성립할 수 없다
+    ua, ub = _top_level_declared_unknown(a.when), _top_level_declared_unknown(b.when)
+    if (ua & db.keys()) or (ub & da.keys()):
+        return True
     for k in da.keys() & db.keys():
         if not (da[k] & db[k]):
             return True
@@ -575,6 +586,99 @@ def parse_outcome_guidance(raw: Any) -> dict[tuple[str, str | None], RouteGuidan
     return out
 
 
+DESIGNATED_FILE = "designated_guidance.yaml"
+_DESIGNATED_KEYS = frozenset(
+    {"id", "text", "source_id", "source_ref", "form", "variants", "only_outcome"}
+)
+_VARIANT_KEYS = frozenset({"families", "text"})
+DESIGNATED_FORMS = frozenset({"form12"})
+
+
+def _parse_variants(raw: Any, where: str) -> tuple[tuple[tuple[str, ...], str], ...]:
+    """분류번호 계열(앞 2자리)별 문장. 같은 계열이 두 변형에 나오면 오류."""
+    if raw is None:
+        return ()
+    if not isinstance(raw, list) or not raw:
+        raise RuleDataError(f"{where}: variants는 비지 않은 목록이어야 합니다")
+    out: list[tuple[tuple[str, ...], str]] = []
+    seen: set[str] = set()
+    for j, v in enumerate(raw):
+        w = f"{where}.variants[{j}]"
+        if not isinstance(v, dict):
+            raise RuleDataError(f"{w}: 항목은 매핑이어야 합니다")
+        extra = set(v) - _VARIANT_KEYS
+        if extra:
+            raise RuleDataError(f"{w}: 모르는 키 {sorted(extra)}")
+        fams, text = v.get("families"), v.get("text")
+        if not isinstance(fams, list) or not fams:
+            raise RuleDataError(f"{w}: families(분류번호 앞 2자리 목록)가 필요합니다")
+        for f in fams:
+            if not isinstance(f, str) or len(f) != 2 or not f.isdigit():
+                raise RuleDataError(f"{w}: families는 '06' 같은 2자리 숫자 문자열: {f!r}")
+            if f in seen:
+                raise RuleDataError(f"{w}: 계열 {f}가 여러 변형에 있습니다")
+            seen.add(f)
+        if not isinstance(text, str) or not text.strip():
+            raise RuleDataError(f"{w}: text가 필요합니다")
+        out.append((tuple(fams), text))
+    return tuple(out)
+
+
+def parse_designated_guidance(
+    raw: Any, sources: dict[str, Any] | None
+) -> tuple[DesignatedAction, ...]:
+    """지정폐기물 판정 때의 다음 할 일. source_id는 sources에 있어야 하고 제목은 거기서 채운다."""
+    items = raw.get("next_actions") if isinstance(raw, dict) else None
+    if not isinstance(items, list) or not items:
+        raise RuleDataError(f"{DESIGNATED_FILE}: next_actions 목록이 필요합니다")
+    out: list[DesignatedAction] = []
+    seen: set[str] = set()
+    for i, a in enumerate(items):
+        where = f"{DESIGNATED_FILE}[{i}]"
+        if not isinstance(a, dict):
+            raise RuleDataError(f"{where}: 항목은 매핑이어야 합니다")
+        extra = set(a) - _DESIGNATED_KEYS
+        if extra:
+            raise RuleDataError(f"{where}: 모르는 키 {sorted(extra)}")
+        aid, text = a.get("id"), a.get("text")
+        if not isinstance(aid, str) or not aid.strip():
+            raise RuleDataError(f"{where}: id가 필요합니다")
+        if aid in seen:
+            raise RuleDataError(f"{where}: 중복 id {aid}")
+        seen.add(aid)
+        if not isinstance(text, str) or not text.strip():
+            raise RuleDataError(f"{where}: text(한국어 안내 문장)가 필요합니다")
+        form = a.get("form")
+        if form is not None and form not in DESIGNATED_FORMS:
+            raise RuleDataError(f"{where}: form은 {sorted(DESIGNATED_FORMS)} 또는 null: {form!r}")
+        sid = a.get("source_id")
+        title = None
+        if sid is not None:
+            src = (sources or {}).get(sid)
+            if not isinstance(src, dict):
+                raise RuleDataError(f"{where}: sources에 없는 source_id {sid!r}")
+            title = src.get("title")
+        ref = a.get("source_ref")
+        if ref is not None and (not isinstance(ref, str) or not ref.strip()):
+            raise RuleDataError(f"{where}: source_ref는 조항 위치 문자열 또는 null")
+        only = a.get("only_outcome")
+        if only is not None and only not in OUTCOMES:
+            raise RuleDataError(f"{where}: 알 수 없는 only_outcome {only!r}")
+        out.append(
+            DesignatedAction(
+                id=aid,
+                text=text,
+                source_id=sid,
+                source_title=title,
+                form=form,
+                source_ref=ref,
+                variants=_parse_variants(a.get("variants"), where),
+                only_outcome=only,
+            )
+        )
+    return tuple(out)
+
+
 def validate_guidance(
     guidance: dict[tuple[str, str | None], RouteGuidance], tables: list[Table]
 ) -> None:
@@ -633,6 +737,12 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
         raise RuleDataError(f"{guidance_path}: 결론 → 경로추천 안내 파일이 없습니다")
     guidance = parse_outcome_guidance(_read_yaml(guidance_path))
     validate_guidance(guidance, tables)
+    designated_path = data_dir / DESIGNATED_FILE
+    sources_path = data_dir / "sources.yaml"
+    designated = ()
+    if designated_path.exists():
+        sources = _read_yaml(sources_path) if sources_path.exists() else {}
+        designated = parse_designated_guidance(_read_yaml(designated_path), sources)
     from app.rules.glossary import GLOSSARY_FILE, parse_glossary  # 순환 import 방지
 
     glossary_path = data_dir / GLOSSARY_FILE
@@ -653,6 +763,7 @@ def load_kb(data_dir: Path | str, rules_dir: str = "rules/tables") -> KnowledgeB
         codes=codes,
         warnings=tuple(warnings),
         guidance=guidance,
+        designated_actions=designated,
         glossary=glossary,
         recycling=recycling,
         rule_notes={str(k): dict(v) for k, v in notes.items()},

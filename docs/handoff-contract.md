@@ -20,7 +20,7 @@
   "waste_code": "51-03-01 | null",
   "waste_name": "폐합성수지류(…) | null",
   "category": "GENERAL | DESIGNATED | OUT_OF_SCOPE | NEEDS_INTERPRETATION | null",
-  "outcome": "NOT_WASTE | CIRCULAR_RESOURCE | EXCLUDED | HOUSEHOLD | INTERPRETATION_NEEDED | NO_GENERAL_CODE | CODE_NEEDS_TEST | NO_MIXTURE_RULE | null",
+  "outcome": "NOT_WASTE | CIRCULAR_RESOURCE | EXCLUDED | HOUSEHOLD | INTERPRETATION_NEEDED | NO_GENERAL_CODE | CODE_NEEDS_TEST | NO_MIXTURE_RULE | DESIGNATED_CODE_NEEDED | null",
   "route_guidance": {
     "action": "RECOMMEND_ROUTE | NO_ROUTE_NEEDED | REFER_OTHER_LAW | REFER_MUNICIPALITY | REFER_AUTHORITY | NEEDS_TEST | MANUAL_CLASSIFICATION",
     "summary": "경로추천 AI가 사용자에게 안내할 한 줄 요지(한국어)",
@@ -37,7 +37,8 @@
   },
   "kb": {"kb_version": "…", "table_id": "pp", "table_version": "2026.11.0+re-2f1355a"},
   "inputs": {"company_profile_version": "p7 | null", "confirmed_profile_keys": ["emission_facility"]},
-  "assumptions": ["PCB 함량(액체): 시험값이 아니라 'PCB 관련 기기·절연유' 답에서 기준 미만으로 추정했습니다. …"]
+  "assumptions": ["'PCB 사용 기기·절연유 관련' 답을 근거로 PCB 용출 농도·PCB 함량(액체)은 시험 없이 기준 미만으로 추정했습니다. …"],
+  "designated": null
 }
 ```
 
@@ -50,6 +51,8 @@
 - `facts[].source_type`에 `PROFILE_CONFIRMED`가 더해졌다(서버가 확인한 기업 정보).
 - `assumptions`에는 사용자가 추측으로 답한 값("아마 ~일걸")의 안내도 들어간다(2026-11-11).
 - `assumptions`(추가 필드, 없으면 `[]`): 시험·서류가 아니라 사용자 답(대리 질문)에서 추정한 사실의 안내 문장이다. 경로추천 AI는 이 목록이 비어 있지 않으면 처리 업체 안내 때 "시험으로 확인하지 않은 항목"으로 함께 알린다. 같은 사실은 `facts`에 `source_type: DERIVED`로도 있다.
+- `assumptions`(추가 필드, 없으면 `[]`): 시험·서류가 아니라 사용자 답(대리 질문)에서 추정한 사실의 안내 문장이다. 같은 대리 질문에서 나온 추정은 한 문장으로 합친다(2026-11-10). 경로추천 AI는 이 목록이 비어 있지 않으면 처리 업체 안내 때 "시험으로 확인하지 않은 항목"으로 함께 알린다. 같은 사실은 `facts`에 `source_type: DERIVED`로도 있다.
+- `designated`(추가 필드, 지정폐기물이 아니면 `null`): `category == "DESIGNATED"`일 때 `{reason, warning, next_actions[]}`. `reason`은 지정폐기물이 된 조건을 사용자 값과 기준으로 쓴 한 문장(못 만들면 null), `warning`은 "지정폐기물 처리 허가를 받은 업체에만 맡길 수 있다"는 고정 문장, `next_actions[]`는 `{id, text, source_id, source_title, source_ref, form}`(id: licensed_only·plan_confirm·storage·recheck, 결론이 `DESIGNATED_CODE_NEEDED`일 때만 code_check가 더해진다. `source_ref`는 근거 안의 조항 위치(예: 제18조의2) 또는 null, `form`은 `form12` 또는 null. 문장은 결정된 분류번호 계열(앞 2자리)에 따라 달라진다. 번호가 없으면 기본 문장). 경로추천 AI는 지정폐기물이면 처리 허가를 받은 업체만 추천한다. 화면의 `ui.result.designated`와 같은 내용이다.
 
 ## result_type / outcome → route_guidance.action
 | result_type | outcome | action | 경로추천 AI가 할 일 |
@@ -63,6 +66,7 @@
 | NO_CODE | CODE_NEEDS_TEST | NEEDS_TEST | 분석기관에서 필요한 시험을 받도록 안내한다. 결과가 나오면 문진을 재개하게 한다 |
 | NO_CODE | NO_GENERAL_CODE | MANUAL_CLASSIFICATION | 지정폐기물은 아님을 알리고, 일반폐기물 세부 번호는 담당자 확인이 필요하다고 안내한다 |
 | NO_CODE | NO_MIXTURE_RULE | MANUAL_CLASSIFICATION | 소재별로 분리해 따로 문진하거나, 관할 기관에 확인하도록 안내한다 |
+| NO_CODE | DESIGNATED_CODE_NEEDED | MANUAL_CLASSIFICATION | 지정폐기물임은 정해졌고 세부 분류번호만 미정(번호 질문에 '모름'). 일반 재활용 경로를 추천하지 않고 지정폐기물 처리 허가 업체에만 맡기도록, 번호는 이전 신고서·인계서나 관할 기관에서 확인하도록 안내한다. `category`는 `DESIGNATED`, `code`는 null, `designated`가 채워진다 |
 
 이 표는 데이터 파일(`data/<kb>/outcome_guidance.yaml`)로 두고, 코드에 하드코딩하지 않는다.
 
