@@ -141,16 +141,18 @@ facts:
       pellet: 펠릿
       bottle: 병
       bale: 압축 묶음
+      film-bale: 필름 압축 묶음
       can: 캔
     allowed_by_material:
-      pp: [scrap, rigid, film, shredded, flake, pellet]
-      pe: [scrap, rigid, film, shredded, flake, pellet]
+      pp: [scrap, rigid, film, shredded, flake, pellet, bale]
+      pe: [scrap, rigid, film, shredded, flake, pellet, bale, film-bale]
       pet: [bottle, bale, flake]
       aluminium: [can, scrap]
       steel: [can, scrap]
     source: user
     role: verdict_and_handoff
-    note: 업체 추천(route)이 같은 값을 쓴다. 인계 객체에 그대로 넣는다
+    note: 서버(scrap-server develop)의 공정 자료가 받는 재질·형태 조합과 같다. 인계 객체에 그대로 넣는다.
+      재질을 먼저 묻고 그 재질의 형태만 선택지로 보여 준다(문진 계획 단계에서 정함)
   - id: foamed
     label: 발포된 수지(스티로폼, PE 폼 등)인가
     type: bool3
