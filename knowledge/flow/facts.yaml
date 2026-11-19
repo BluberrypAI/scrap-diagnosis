@@ -143,12 +143,13 @@ facts:
       bale: 압축 묶음
       film-bale: 필름 압축 묶음
       can: 캔
+      other: 위 형태가 아님(액체·반고체 등)
     allowed_by_material:
-      pp: [scrap, rigid, film, shredded, flake, pellet, bale]
-      pe: [scrap, rigid, film, shredded, flake, pellet, bale, film-bale]
-      pet: [bottle, bale, flake]
-      aluminium: [can, scrap]
-      steel: [can, scrap]
+      pp: [scrap, rigid, film, shredded, flake, pellet, bale, other]
+      pe: [scrap, rigid, film, shredded, flake, pellet, bale, film-bale, other]
+      pet: [bottle, bale, flake, other]
+      aluminium: [can, scrap, other]
+      steel: [can, scrap, other]
     source: user
     role: verdict_and_handoff
     note: 서버(scrap-server develop)의 공정 자료가 받는 재질·형태 조합과 같다. 인계 객체에 그대로 넣는다.

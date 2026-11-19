@@ -194,6 +194,7 @@ test_requirements:
   base: PP
   changes:
     physical_state: liquid
+    input_form: other
   expected:
     outcome: OUT_OF_SCOPE
     code: null
@@ -206,6 +207,7 @@ test_requirements:
   base: PP
   changes:
     physical_state: semisolid
+    input_form: other
   expected:
     outcome: OUT_OF_SCOPE
     code: null
@@ -218,6 +220,7 @@ test_requirements:
   base: PP
   changes:
     physical_state: unknown
+    input_form: other
   expected:
     outcome: INSUFFICIENT_INFO
     code: null

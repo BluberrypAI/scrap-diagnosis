@@ -195,18 +195,20 @@ variables:
   - id: input_form
     label: 현재 형태
     domain:
-      pp: [scrap, rigid, film, shredded, flake, pellet]
-      pe: [scrap, rigid, film, shredded, flake, pellet]
-      pet: [bottle, bale, flake]
-      aluminium: [can, scrap]
-      steel: [can, scrap]
+      pp: [scrap, rigid, film, shredded, flake, pellet, bale, other]
+      pe: [scrap, rigid, film, shredded, flake, pellet, bale, film-bale, other]
+      pet: [bottle, bale, flake, other]
+      aluminium: [can, scrap, other]
+      steel: [can, scrap, other]
     role: verdict_and_handoff
     partitions:
       - {values: [can], effect: 캔 판단(can_contents, can_designation)으로, grade: A,
          basis: [RULE-WASTE/별표4/51-29-03]}
       - {values: [film, bottle], effect: 포장재 여부 확인이 필수, grade: A,
          note: 형태만으로 포장재를 추정하지 않는다. 결과는 packaging_used가 정한다}
-      - {values: [scrap, rigid, shredded, flake, pellet, bale], effect: invariant,
+      - {values: [other], effect: 물리 상태를 따로 확인, grade: C,
+         note: 형태 선택지 밖(액체·반고체 등). 2026-11-20 문진 계획 평가에서 추가}
+      - {values: [scrap, rigid, shredded, flake, pellet, bale, film-bale], effect: invariant,
          note: 판정 불변. 인계 객체로 route에 전달}
       - {values: ["aluminium:scrap", "steel:scrap"], effect: OUT_OF_SCOPE,
          candidate: "51-29-02 / 51-29-01"}

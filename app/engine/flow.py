@@ -94,7 +94,17 @@ def lookup(facts: dict, path: str) -> Any:
     return cur
 
 
+UNASKED = "__unasked__"
+"""아직 묻지 않은 사실. '모름'(unknown)과 달리 어떤 비교도 참·거짓으로 정하지 않는다.
+
+판정 규칙은 '모름'을 직접 묻기도 한다(예: 내용물이 남았는지 모르면 멈춤). 문진 중에는
+'아직 안 물어봄'과 '모른다고 답함'을 구분해야 질문하기도 전에 결론을 내지 않는다.
+"""
+
+
 def compare(op: str, value: Any, target: Any) -> TV:
+    if value == UNASKED:
+        return TV.UNKNOWN
     if op == "exists":
         present = value is not None and value != "unknown"
         return TV.TRUE if present == bool(target) else TV.FALSE
