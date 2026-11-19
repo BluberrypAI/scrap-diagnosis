@@ -1,0 +1,24 @@
+# 자동 생성: tools/annotation_agreement.py score
+# adjudication에 판정 조정 결과를 적는다:
+#   expected | annotator_b | rewrite(서술 고침) | spec(명세 고침)
+report:
+  n: 75
+  outcome_agreement: 1.0
+  cohen_kappa_outcome: 1.0
+  exact_agreement: 0.9867
+  disagreements: 1
+items:
+- id: G-021
+  tr: TR-021
+  situation: 저희는 대기 배출시설 허가를 받은 고무 부품 공장이고, 합성고무 자투리가 하루 평균 50kg 정도 나와 처리업체에 넘깁니다. 플라스틱이나 금속이 아닌 고무입니다.
+    고체 상태이고 기름은 묻지 않았으며 남은 내용물도 없고 약품도 아닙니다. 발포 제품이 아니고 포장에 쓰인 적 없는 공정 자투리입니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: null
+    flags: []
+  annotator_b:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-02
+    flags: []
+    rationale: 합성고무라 범위 밖이다.
+  adjudication: null
