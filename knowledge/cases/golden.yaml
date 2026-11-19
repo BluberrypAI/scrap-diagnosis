@@ -1,8 +1,8 @@
 # 골든 데이터셋 (동결본). 자동 생성: tools/build_golden.py — 직접 고치지 않는다.
 # 판정 규칙 작성자(사람·LLM)에게 보여 주지 않는다. 변경은 CHANGELOG.md에 사유를 남긴다.
-version: 1
+version: 2
 frozen_on: '2026-11-20'
-n: 76
+n: 96
 cases:
 - id: G-001
   tr: TR-001
@@ -1294,5 +1294,328 @@ cases:
     code: null
     flags: []
   basis: []
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-077
+  tr: TR-077
+  kind: enumeration
+  covers:
+  - law_exclusion=radioactive
+  situation: 저희는 대기 배출시설 허가를 받은 비파괴검사 장비 정비 공장이고, 방사성 동위원소를 다루는 작업장에서 쓴 PP 재질 덮개와 받침판이 방사성 물질에 오염되어 하루
+    평균 50kg 정도 나옵니다. 이걸 밖으로 내보내 처리하려고 합니다. 고체이고 기름은 묻지 않았으며 남은 내용물은 없고, 약품을 버리는 것도 아닙니다.
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제3조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-078
+  tr: TR-078
+  kind: enumeration
+  covers:
+  - law_exclusion=uncontained_gas
+  situation: 저희 공장은 대기 배출시설 허가를 받은 사출 공장인데, 공정에서 나오는 기체를 용기에 담지 않은 상태로 배관을 통해 밖으로 내보내고 있습니다. 양은 하루 평균
+    50kg 정도입니다. 기름이나 남은 내용물은 없고, 약품 자체를 버리는 것도 아닙니다.
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제3조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-079
+  tr: TR-079
+  kind: enumeration
+  covers:
+  - law_exclusion=livestock_manure
+  situation: 저희는 대기 배출시설 허가를 받은 축산 가공 사업장이고, 사육 중인 가축에서 나오는 분뇨가 하루 평균 50kg 정도 나와 밖으로 내보내 처리업체에 맡깁니다. 기름이
+    섞이지 않았고 다른 잔류물도 없으며, 약품도 아닙니다.
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제3조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-080
+  tr: TR-080
+  kind: enumeration
+  covers:
+  - law_exclusion=sewage_nightsoil
+  situation: 저희 공장은 대기 배출시설 허가를 받은 제조 공장이고, 사업장 화장실과 하수관에서 나오는 하수·분뇨가 하루 평균 50kg 정도 됩니다. 이걸 수거업체를 통해 밖으로
+    내보내고 있습니다. 기름이나 다른 잔류물은 없고, 약품도 아닙니다.
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제3조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-081
+  tr: TR-081
+  kind: enumeration
+  covers:
+  - law_exclusion=livestock_disease
+  situation: 저희는 대기 배출시설 허가를 받은 축산물 가공 사업장인데, 가축전염병이 발생해 처분 대상이 된 가축의 사체와 그에 오염된 PP 재질 깔판·용기가 하루 평균 50kg
+    정도 나옵니다. 이걸 밖으로 내보내 처리하려고 합니다. 기름은 묻지 않았고 남은 내용물이나 약품은 없습니다.
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제3조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-082
+  tr: TR-082
+  kind: enumeration
+  covers:
+  - law_exclusion=aquatic_disease
+  situation: 저희는 대기 배출시설 허가를 받은 수산물 가공 공장이고, 수산생물 질병으로 처분 대상이 된 양식 어류 사체와 그에 오염된 PP 재질 상자가 하루 평균 50kg
+    정도 나옵니다. 이걸 밖으로 내보내 처리하려고 합니다. 기름은 묻지 않았고 남은 내용물이나 약품은 없습니다.
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제3조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-083
+  tr: TR-083
+  kind: enumeration
+  covers:
+  - law_exclusion=ammunition
+  situation: 저희는 대기 배출시설 허가를 받은 군 납품 정비 사업장이고, 군에서 폐기하기로 한 탄약을 넘겨받아 하루 평균 50kg 정도를 밖으로 내보내 처리하고 있습니다.
+    고체이고 기름은 묻지 않았으며 남은 내용물은 없고, 약품을 버리는 것도 아닙니다.
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제3조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-084
+  tr: TR-084
+  kind: enumeration
+  covers:
+  - law_exclusion=pet_funeral
+  situation: 저희는 대기 배출시설 허가를 받은 동물병원 겸 관리 시설이고, 반려동물 사체가 하루 평균 50kg 정도 나옵니다. 이 사체는 밖으로 내보내 허가받은 동물장묘시설에서
+    화장 처리합니다. 기름이나 다른 잔류물은 없고, 약품도 아닙니다.
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제3조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-085
+  tr: TR-085
+  kind: enumeration
+  covers:
+  - law_exclusion=fishery_byproduct_unmixed
+  situation: 저희는 대기 배출시설 허가를 받은 수산물 가공 공장이고, 생선을 손질하고 남은 머리·뼈·내장 같은 수산부산물이 하루 평균 50kg 정도 나옵니다. 다른 폐기물과
+    섞지 않고 수산부산물만 따로 모아 밖으로 내보냅니다. 기름이나 약품이 섞이지 않았고 다른 잔류물도 없습니다.
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제3조
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-086
+  tr: TR-086
+  kind: enumeration
+  covers:
+  - can_contents=agri_product
+  situation: 저희는 대기 배출시설 허가를 받은 농산물 유통 사업장이고, 가공하지 않은 견과류·곡물 원물을 담아 들여온 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다.
+    캔은 다 비워 내용물이 남지 않았고 기름도 묻지 않은 고체입니다. 이물질은 2% 이하로 관리하고, 다른 폐기물과 섞지 않으며, 압축까지 마쳤고 압축시설 승인·신고도 되어 있습니다.
+    철캔과 알루미늄캔은 나눠 두고 금속제품 제조 용도로 공급하지만, 순환자원정보센터 등록은 하지 않았습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-087
+  tr: TR-087
+  kind: enumeration
+  covers:
+  - can_contents=detergent
+  situation: 저희는 대기 배출시설 허가를 받은 세탁 대행 공장이고, 시판 세탁세제 제품을 다 쓰고 남은 빈 알루미늄 세제 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다.
+    캔은 다 비워 내용물이 남지 않았고 기름도 묻지 않은 고체입니다. 이물질은 2% 이하로 관리하고, 다른 폐기물과 섞지 않으며, 압축까지 마쳤고 압축시설 승인·신고도 되어 있습니다.
+    철캔과 알루미늄캔은 나눠 두고 금속제품 제조 용도로 공급하지만, 순환자원정보센터 등록은 하지 않았습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-088
+  tr: TR-088
+  kind: enumeration
+  covers:
+  - can_contents=cosmetics
+  situation: 저희는 대기 배출시설 허가를 받은 화장품 공장이고, 화장품과 애완동물 샴푸를 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 캔은 다 비워
+    내용물이 남지 않았고 기름도 묻지 않은 고체입니다. 이물질은 2% 이하로 관리하고, 다른 폐기물과 섞지 않으며, 압축까지 마쳤고 압축시설 승인·신고도 되어 있습니다. 철캔과 알루미늄캔은
+    나눠 두고 금속제품 제조 용도로 공급하지만, 순환자원정보센터 등록은 하지 않았습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-089
+  tr: TR-089
+  kind: enumeration
+  covers:
+  - can_contents=medicine
+  situation: 저희는 대기 배출시설 허가를 받은 제약 공장이고, 의약품과 의약외품을 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 캔은 다 비워 내용물이
+    남지 않았고 기름도 묻지 않은 고체입니다. 이물질은 2% 이하로 관리하고, 다른 폐기물과 섞지 않으며, 압축까지 마쳤고 압축시설 승인·신고도 되어 있습니다. 철캔과 알루미늄캔은
+    나눠 두고 금속제품 제조 용도로 공급하지만, 순환자원정보센터 등록은 하지 않았습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-090
+  tr: TR-090
+  kind: enumeration
+  covers:
+  - can_contents=insecticide
+  situation: 저희는 대기 배출시설 허가를 받은 생활화학제품 공장이고, 가정용 살충제·살균제를 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 캔은 다
+    비워 내용물이 남지 않았고 기름도 묻지 않은 고체입니다. 이물질은 2% 이하로 관리하고, 다른 폐기물과 섞지 않으며, 압축까지 마쳤고 압축시설 승인·신고도 되어 있습니다. 철캔과
+    알루미늄캔은 나눠 두고 금속제품 제조 용도로 공급하지만, 순환자원정보센터 등록은 하지 않았습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-091
+  tr: TR-091
+  kind: enumeration
+  covers:
+  - can_contents=clothing
+  situation: 저희는 대기 배출시설 허가를 받은 의류 공장이고, 의류 제품을 담아 포장했던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 캔은 다 비워 내용물이
+    남지 않았고 기름도 묻지 않은 고체입니다. 이물질은 2% 이하로 관리하고, 다른 폐기물과 섞지 않으며, 압축까지 마쳤고 압축시설 승인·신고도 되어 있습니다. 철캔과 알루미늄캔은
+    나눠 두고 금속제품 제조 용도로 공급하지만, 순환자원정보센터 등록은 하지 않았습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-092
+  tr: TR-092
+  kind: enumeration
+  covers:
+  - can_contents=paper_product
+  situation: 저희는 대기 배출시설 허가를 받은 위생용품 공장이고, 물티슈·화장지 같은 위생용 종이제품을 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다.
+    캔은 다 비워 내용물이 남지 않았고 기름도 묻지 않은 고체입니다. 이물질은 2% 이하로 관리하고, 다른 폐기물과 섞지 않으며, 압축까지 마쳤고 압축시설 승인·신고도 되어 있습니다.
+    철캔과 알루미늄캔은 나눠 두고 금속제품 제조 용도로 공급하지만, 순환자원정보센터 등록은 하지 않았습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-093
+  tr: TR-093
+  kind: enumeration
+  covers:
+  - can_contents=rubber_glove
+  situation: 저희는 대기 배출시설 허가를 받은 생활용품 공장이고, 가정용 고무장갑을 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 캔은 다 비워 내용물이
+    남지 않았고 기름도 묻지 않은 고체입니다. 이물질은 2% 이하로 관리하고, 다른 폐기물과 섞지 않으며, 압축까지 마쳤고 압축시설 승인·신고도 되어 있습니다. 철캔과 알루미늄캔은
+    나눠 두고 금속제품 제조 용도로 공급하지만, 순환자원정보센터 등록은 하지 않았습니다.
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-094
+  tr: TR-094
+  kind: mcdc
+  covers:
+  - foamed=yes(pe)
+  situation: 저희는 대기 배출시설 허가를 받은 완충재 제조 공장이고, 발포된 PE 폼을 재단하고 남은 자투리가 하루 평균 50kg 정도 나와 재활용 업체에 넘깁니다. 고체이고
+    기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다. 실제 포장에 쓰인 적은 없는 공정 자투리입니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-06
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-06
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-095
+  tr: TR-095
+  kind: mcdc
+  covers:
+  - foamed=yes(pet)
+  situation: 저희는 대기 배출시설 허가를 받은 단열재 공장이고, 발포된 PET 폼 단열재를 재단하고 남은 자투리를 분쇄한 플레이크가 하루 평균 50kg 정도 나와 업체에 넘깁니다.
+    고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다. 포장에 쓰인 적 없는 공정 자투리입니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-06
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-03-06
+  - RULE-WASTE/별표4/51-03-01
+  grade: A
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-096
+  tr: TR-096
+  kind: masking
+  covers:
+  - designation_requires_listed_can
+  situation: 저희는 대기 배출시설 허가를 받은 도장 공장이고, 공업용 페인트를 담았던 알루미늄 캔이 하루 평균 50kg 정도 나와 업체에 판매합니다. 캔은 다 비워 내용물이
+    남지 않았고 기름도 묻지 않은 고체입니다. 이물질은 2% 이하로 관리하고, 다른 폐기물과 섞지 않으며, 압축까지 마쳤고 압축시설 승인·신고도 되어 있습니다. 철캔과 알루미늄캔은
+    나눠 두고 금속제품 제조 용도로 공급하며, 순환자원정보센터 등록도 해 두었습니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-04
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-29-04
+  - DEC-RESOURCE/제18조
+  - NOTICE-CIRCULAR-CRITERIA/제2조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
   grade: A
   source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)

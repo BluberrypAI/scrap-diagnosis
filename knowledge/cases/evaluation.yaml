@@ -1,34 +1,17 @@
 # 자동 생성: tools/evaluate_golden.py — 골든셋 품질 평가(커버리지·뮤테이션)
-golden_cases: 76
+golden_cases: 96
 coverage:
   partition:
     covered: 42
     total: 42
     missing: []
   domain_value:
-    covered: 56
+    covered: 73
     total: 76
     missing:
-    - law_exclusion=radioactive
-    - law_exclusion=uncontained_gas
-    - law_exclusion=livestock_manure
-    - law_exclusion=sewage_nightsoil
-    - law_exclusion=livestock_disease
-    - law_exclusion=aquatic_disease
-    - law_exclusion=ammunition
-    - law_exclusion=pet_funeral
-    - law_exclusion=fishery_byproduct_unmixed
     - public_facility=unknown
     - construction_5t=unknown
     - site_emits_designated=unknown
-    - can_contents=agri_product
-    - can_contents=detergent
-    - can_contents=cosmetics
-    - can_contents=medicine
-    - can_contents=insecticide
-    - can_contents=clothing
-    - can_contents=paper_product
-    - can_contents=rubber_glove
   boundary:
     covered: 4
     total: 4
@@ -42,14 +25,14 @@ coverage:
     missing: []
 mutation:
   mutants: 142
-  killed: 121
-  score: 0.8521
+  killed: 142
+  score: 1.0
   by_operator:
     BOR:
-      killed: 12
+      killed: 13
       total: 13
     BRD:
-      killed: 57
+      killed: 58
       total: 58
     CRP:
       killed: 4
@@ -58,27 +41,6 @@ mutation:
       killed: 37
       total: 37
     SER:
-      killed: 11
+      killed: 30
       total: 30
-  survivors:
-  - BRD L80 if-조건→True
-  - BOR L80 And 교체
-  - SER EXCLUSIONS에서 'radioactive' 제거
-  - SER EXCLUSIONS에서 'uncontained_gas' 제거
-  - SER EXCLUSIONS에서 'livestock_manure' 제거
-  - SER EXCLUSIONS에서 'sewage_nightsoil' 제거
-  - SER EXCLUSIONS에서 'livestock_disease' 제거
-  - SER EXCLUSIONS에서 'aquatic_disease' 제거
-  - SER EXCLUSIONS에서 'ammunition' 제거
-  - SER EXCLUSIONS에서 'pet_funeral' 제거
-  - SER EXCLUSIONS에서 'fishery_byproduct_unmixed' 제거
-  - SER CAN_LISTED에서 'agri_product' 제거
-  - SER CAN_LISTED에서 'detergent' 제거
-  - SER CAN_LISTED에서 'cosmetics' 제거
-  - SER CAN_LISTED에서 'medicine' 제거
-  - SER CAN_LISTED에서 'insecticide' 제거
-  - SER CAN_LISTED에서 'clothing' 제거
-  - SER CAN_LISTED에서 'paper_product' 제거
-  - SER CAN_LISTED에서 'rubber_glove' 제거
-  - SER PLASTICS에서 'pe' 제거
-  - SER PLASTICS에서 'pet' 제거
+  survivors: []

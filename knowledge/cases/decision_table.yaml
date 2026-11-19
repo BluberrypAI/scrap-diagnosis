@@ -77,20 +77,21 @@ baselines:
       registered: 'no'
       supplied_r41: 'yes'
 summary:
-  total: 76
+  total: 96
   by_kind:
     baseline: 3
-    mcdc: 52
+    mcdc: 54
     boundary: 4
-    masking: 8
+    masking: 9
     metamorphic: 9
+    enumeration: 17
   by_outcome:
-    GENERAL: 35
+    GENERAL: 43
     NOT_WASTE: 2
     INSUFFICIENT_INFO: 6
-    EXCLUDED: 2
+    EXCLUDED: 11
     CIRCULAR_RESOURCE: 3
-    OUT_OF_SCOPE: 15
+    OUT_OF_SCOPE: 18
     DESIGNATED_POSSIBLE: 10
     HOUSEHOLD: 3
 test_requirements:
@@ -1137,3 +1138,255 @@ test_requirements:
   gate: G7
   covers:
   - material=other
+- id: TR-077
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: radioactive
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=radioactive
+- id: TR-078
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: uncontained_gas
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=uncontained_gas
+- id: TR-079
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: livestock_manure
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=livestock_manure
+- id: TR-080
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: sewage_nightsoil
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=sewage_nightsoil
+- id: TR-081
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: livestock_disease
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=livestock_disease
+- id: TR-082
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: aquatic_disease
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=aquatic_disease
+- id: TR-083
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: ammunition
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=ammunition
+- id: TR-084
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: pet_funeral
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=pet_funeral
+- id: TR-085
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: fishery_byproduct_unmixed
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=fishery_byproduct_unmixed
+- id: TR-086
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: agri_product
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=agri_product
+- id: TR-087
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: detergent
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=detergent
+- id: TR-088
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: cosmetics
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=cosmetics
+- id: TR-089
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: medicine
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=medicine
+- id: TR-090
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: insecticide
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=insecticide
+- id: TR-091
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: clothing
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=clothing
+- id: TR-092
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: paper_product
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=paper_product
+- id: TR-093
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: rubber_glove
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=rubber_glove
+- id: TR-094
+  kind: mcdc
+  base: PP
+  changes:
+    material: pe
+    foamed: 'yes'
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-06
+    flags: []
+  gate: G7
+  covers:
+  - foamed=yes(pe)
+- id: TR-095
+  kind: mcdc
+  base: PP
+  changes:
+    material: pet
+    input_form: flake
+    foamed: 'yes'
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-06
+    flags: []
+  gate: G7
+  covers:
+  - foamed=yes(pet)
+- id: TR-096
+  kind: masking
+  base: CAN
+  changes:
+    can_contents: other_product
+    can_designation:
+      foreign_matter_le_2pct: 'yes'
+      unmixed: 'yes'
+      compressed: 'yes'
+      compress_facility_ok: 'yes'
+      sorted_by_metal: 'yes'
+      registered: 'yes'
+      supplied_r41: 'yes'
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-04
+    flags: []
+  gate: G7
+  covers:
+  - designation_requires_listed_can
+  note: 제18조 품목이 아닌 캔은 준수사항을 모두 지켜도 지정 순환자원(폐금속캔류)이 아니다

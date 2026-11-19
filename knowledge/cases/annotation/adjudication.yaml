@@ -21,3 +21,13 @@ items:
     decision: guideline
     reason: 명세(INSUFFICIENT_INFO)와 같은 원칙을 가이드라인 1번에 명시했다
     changed: [knowledge/cases/annotation/guideline.md]
+  - id: G-087
+    tr: TR-087
+    date: "2026-11-20"
+    decided_by: 조정자(사용자 위임: "보강하고 골든셋 완성")
+    disagreement: 없음(결과 일치). Annotator B가 '세제·비누 원료를 담았던 캔'이 제18조 다목(세제 제품)인지 모호하다고 지적
+    decision: rewrite
+    reason: >-
+      TR-087의 사실은 can_contents=detergent(세제 제품)인데 서술이 '원료'라고 써서 다른 해석 여지가 생겼다.
+      서술을 '시판 세탁세제 제품을 다 쓰고 남은 빈 캔'으로 고치고, 기존 B 라벨을 지운 뒤 블라인드로 다시 라벨링했다.
+    changed: [knowledge/cases/situations.yaml(G-087), knowledge/cases/annotation/annotator_b.yaml(G-087 재라벨)]

@@ -228,6 +228,54 @@ def build() -> list[dict]:
     # 판정 조정 이후 추가(번호를 바꾸지 않도록 맨 끝에 붙임)
     t.append(tr("mcdc", "PP", {"material": "other"}, ["material=other"]))
 
+    # v2 보강(2026-11-20): 뮤테이션 테스팅에서 살아남은 변형을 잡는 케이스.
+    # 목록 기반 규칙은 항목 하나 누락이 흔한 구현 결함이라 항목마다 케이스를 둔다.
+    for v in (
+        "radioactive",
+        "uncontained_gas",
+        "livestock_manure",
+        "sewage_nightsoil",
+        "livestock_disease",
+        "aquatic_disease",
+        "ammunition",
+        "pet_funeral",
+        "fishery_byproduct_unmixed",
+    ):
+        t.append(tr("enumeration", "PP", {"law_exclusion": v}, [f"law_exclusion={v}"]))
+    for v in (
+        "agri_product",
+        "detergent",
+        "cosmetics",
+        "medicine",
+        "insecticide",
+        "clothing",
+        "paper_product",
+        "rubber_glove",
+    ):
+        t.append(tr("enumeration", "CAN", {"can_contents": v}, [f"can_contents={v}"]))
+    t.append(tr("mcdc", "PP", {"material": "pe", "foamed": "yes"}, ["foamed=yes(pe)"]))
+    t.append(
+        tr(
+            "mcdc",
+            "PP",
+            {"material": "pet", "input_form": "flake", "foamed": "yes"},
+            ["foamed=yes(pet)"],
+        )
+    )
+    t.append(
+        tr(
+            "masking",
+            "CAN",
+            {
+                "can_contents": "other_product",
+                "can_designation": dict.fromkeys(CAN_DESIGNATION, "yes"),
+            },
+            ["designation_requires_listed_can"],
+            note="제18조 품목이 아닌 캔은 준수사항을 모두 지켜도 지정 순환자원(폐금속캔류)이"
+            " 아니다",
+        )
+    )
+
     for i, item in enumerate(t, 1):
         item["id"] = f"TR-{i:03d}"
     return [{"id": x.pop("id"), **x} for x in t]
