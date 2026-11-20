@@ -116,6 +116,13 @@ class Runner:
         created = self.post("/cases", json={"memo": memo})
         cid, turn = created["case"]["id"], created["turn"]
         clicks = 0
+        # 묻지 않는 기본값(가정)이 실제와 다르면 판정 보드에서 고친다(한 번 누름)
+        for a in self.c.app.state.kb.plan.assume:
+            for k, v in a["set"].items():
+                t = norm(truth(facts, k))
+                if t is not None and str(t) != str(v):
+                    turn = self.reply(cid, {"key": k, "kind": "value", "value": t})
+                    clicks += 1
         for _ in range(60):
             if turn["branch"] not in ("ASK_FACT", "REQUEST_EVIDENCE"):
                 break

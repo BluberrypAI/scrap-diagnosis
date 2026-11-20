@@ -15,7 +15,7 @@ from typing import Any
 
 from app.engine.flow import TV, UNASKED, Result, evaluate, lookup
 from app.engine.kb import KB
-from app.engine.planner import Next, next_question, set_path, with_unasked
+from app.engine.planner import Next, next_question, question_facts, set_path, with_unasked
 from app.interview import catalog as cat
 
 KST = timezone(timedelta(hours=9))
@@ -27,6 +27,7 @@ SOURCE_LABELS = {
     "PROFILE_CONFIRMED": "기업 정보(확인됨)",
     "DERIVED": "자동",
     "DOCUMENT": "서류",
+    "ASSUMED": "기본값(고칠 수 있음)",
 }
 NONE_ALL_LABEL = "모두 해당 없음"
 EXPAND_LABEL = "해당하는 게 있어요 / 잘 모르겠어요"
@@ -366,12 +367,17 @@ def public_code(result: Result) -> str | None:
     return result.code if result.outcome == "GENERAL" else None
 
 
-def assumptions(kb: KB, result: Result) -> list[str]:
+def assumptions(kb: KB, result: Result, states: dict | None = None) -> list[str]:
+    """결과에 붙일 안내: 플래그 문장 + 묻지 않고 둔 기본값(가정) 문장."""
     texts = kb.outcomes.get("flags") or {}
-    return [texts.get(f, f) for f in result.flags]
+    out = [texts.get(f, f) for f in result.flags]
+    for a in kb.plan.assume:
+        if states is not None and not any(k in states for k in a["set"]) and a.get("note"):
+            out.append(a["note"])
+    return out
 
 
-def result_card(kb: KB, result: Result) -> dict:
+def result_card(kb: KB, result: Result, states: dict | None = None) -> dict:
     info = outcome_info(kb, result)
     code = public_code(result)
     name = kb.outcomes["codes"].get(code) if code else None
@@ -387,7 +393,7 @@ def result_card(kb: KB, result: Result) -> dict:
         "conclusion": conclusion,
         "next_step": info.get("next_step"),
         "review": "UNVERIFIED",
-        "assumptions": assumptions(kb, result),
+        "assumptions": assumptions(kb, result, states),
         "reason": None if code else reason,
         "designated": None,
     }
@@ -424,18 +430,49 @@ def iso(dt: datetime | None) -> str | None:
     return dt.astimezone(KST).isoformat(timespec="seconds")
 
 
+def assumed_keys(kb: KB) -> set[str]:
+    return {k for a in kb.plan.assume for k in a["set"]}
+
+
+def irrelevant(kb: KB, facts: dict) -> set[str]:
+    """질문 조건(ask_if)이 거짓이 되어 더는 해당 없는 사실(예: 형태를 캔에서 바꾼 뒤 캔 내용물)."""
+    out: set[str] = set()
+    for q in kb.plan.questions:
+        if q.get("ask_if") and evaluate(q["ask_if"], facts, set()) is TV.FALSE:
+            out |= set(question_facts(q))
+    return out
+
+
+def edit_options(kb: KB, path: str, facts: dict) -> list[dict]:
+    allowed = None
+    if path == "input_form":  # 형태는 재질에 맞는 것만 고를 수 있다
+        material = lookup(facts, "material")
+        allowed = (kb.plan.catalog["input_form"].get("allowed_by_material") or {}).get(material)
+    return [
+        {"label": o["label"], "value": o["value"]}
+        for o in cat.options(kb.plan.catalog, path, allowed)
+        if o["kind"] == "value"
+    ]
+
+
 def known_facts(kb: KB, states: dict[str, FactState], facts: dict) -> list[dict]:
-    """값이 정해진 사실: 답한 것 + 자동으로 채운 것. 카탈로그 순서."""
+    """값이 정해진 사실: 답한 것 + 자동으로 채운 것 + 기본값(가정). 카탈로그 순서.
+
+    더는 해당 없는 답(질문 조건이 거짓이 된 사실)은 보이지 않는다.
+    """
     catalog = kb.plan.catalog
+    hidden, assumed = irrelevant(kb, facts), assumed_keys(kb)
     out = []
     for path in cat.all_paths(catalog):
         v = lookup(facts, path)
         st = states.get(path)
         if st is None and (v is None or v == UNASKED):
             continue
+        if path in hidden:
+            continue
         s = cat.spec(catalog, path) or {}
         status = st.status if st else "DERIVED"
-        source = st.source_type if st else "DERIVED"
+        source = st.source_type if st else ("ASSUMED" if path in assumed else "DERIVED")
         out.append(
             {
                 "key": path,
@@ -452,11 +489,7 @@ def known_facts(kb: KB, states: dict[str, FactState], facts: dict) -> list[dict]
                     "input": cat.input_kind(s) if s else "choice",
                     "value_type": cat.value_type(s) if s else None,
                     "unit": s.get("unit"),
-                    "options": [
-                        {"label": o["label"], "value": o["value"]}
-                        for o in cat.options(catalog, path)
-                        if o["kind"] == "value"
-                    ],
+                    "options": edit_options(kb, path, facts),
                 },
             }
         )
@@ -524,7 +557,7 @@ def handoff(
 ) -> dict:
     info = outcome_info(kb, result)
     code = public_code(result)
-    notes = assumptions(kb, result)
+    notes = assumptions(kb, result, states)
     known = {
         f["key"]: {
             "value": f["value"],

@@ -26,6 +26,7 @@ class Plan:
     questions: list[dict]
     derive: list[dict]
     catalog: dict[str, dict]
+    assume: list[dict] = field(default_factory=list)  # 묻지 않고 두는 기본값(가정)
 
 
 @dataclass
@@ -41,7 +42,12 @@ class Next:
 def load_plan(directory: Path = FLOW_DIR) -> Plan:
     doc = yaml.safe_load((directory / "plan.yaml").read_text(encoding="utf-8"))
     cat = yaml.safe_load((directory / "facts.yaml").read_text(encoding="utf-8"))["facts"]
-    return Plan(doc["questions"], doc.get("derive") or [], {f["id"]: f for f in cat})
+    return Plan(
+        doc["questions"],
+        doc.get("derive") or [],
+        {f["id"]: f for f in cat},
+        doc.get("assume") or [],
+    )
 
 
 def all_fact_paths(plan: Plan) -> list[str]:
@@ -72,6 +78,11 @@ def with_unasked(plan: Plan, answers: dict) -> dict:
         set_path(facts, path, UNASKED)
     for path, v in flatten(answers).items():
         set_path(facts, path, v)
+    # 기본값(가정): 문진 목적상 묻지 않는 값. 사용자가 답하거나 보드에서 고치면 그 값이 이긴다
+    for a in plan.assume:
+        for k, v in a["set"].items():
+            if lookup(facts, k) == UNASKED:
+                set_path(facts, k, v)
     for d in plan.derive:
         if evaluate(d["when"], facts, set()) is TV.TRUE:
             for k, v in d["set"].items():

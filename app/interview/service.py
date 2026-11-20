@@ -228,7 +228,7 @@ class CaseService(DocumentMixin, UnderstandMixin):
                 "board": pr.board(
                     self.kb, step, states, case.questions_asked, self.settings.max_questions
                 ),
-                "result": pr.result_card(self.kb, step.next.result) if final else None,
+                "result": pr.result_card(self.kb, step.next.result, states) if final else None,
                 "can_confirm": final and case.status != "CODE_CONFIRMED",
                 "suggested_replies": [],
                 "requested_documents": step.requested_documents,
@@ -385,6 +385,7 @@ class CaseService(DocumentMixin, UnderstandMixin):
                 )
             if kind == "retract":
                 self.record(case, key, "retract", "UTTERANCE", turn_id)
+                self.drop_dependents(case, key, None, turn_id)
                 return f"'{cat.spec(self.catalog, key)['label']}' 답을 지웠어요"
             if kind == "value" and cat.is_document_fact(self.catalog, key):
                 raise ApiError(
@@ -396,6 +397,7 @@ class CaseService(DocumentMixin, UnderstandMixin):
             value = self.validate_facts({key: "unknown" if kind == "unknown" else qr.get("value")})
             v = value[key]
             self.record(case, key, v, "UTTERANCE", turn_id)
+            self.drop_dependents(case, key, v, turn_id)
             case.questions_asked += 1
             return cat.value_label(self.catalog, key, v)
         if kind not in ("none_all", "expand", "some"):
@@ -455,6 +457,17 @@ class CaseService(DocumentMixin, UnderstandMixin):
             return q.get("not_all_label") or pr.EXPAND_LABEL
         case.expanded = sorted({*case.expanded, q["id"]})
         return pr.EXPAND_LABEL
+
+    def drop_dependents(self, case: Case, key: str, value: Any, turn_id: str) -> None:
+        """재질을 바꾸거나 지우면, 새 재질에 없는 형태 답을 지워 다시 묻게 한다."""
+        if key != "material":
+            return
+        form = self.states(case).get("input_form")
+        if form is None or form.status != "CLAIMED":
+            return
+        allowed = (self.catalog["input_form"].get("allowed_by_material") or {}).get(value)
+        if value is None or not allowed or form.value not in allowed:
+            self.record(case, "input_form", "retract", "UTTERANCE", turn_id)
 
     def answer_confirm(self, case: Case, fact: str, qr: dict, turn_id: str) -> str:
         """확인 카드: 예(그 값으로 기록) / 아니요(원래 질문으로) / 모름."""

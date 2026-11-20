@@ -74,6 +74,16 @@ def test_golden_cases_through_api(client):
         h = headers(f"golden-{i}")  # 건마다 새 기업(회사 기억 없음)
         res = client.post("/internal/v1/cases", json={}, headers=h)
         cid, turn = res.json()["case"]["id"], res.json()["turn"]
+        # 묻지 않는 기본값(가정)이 실제와 다르면 판정 보드에서 고친다
+        for a in client.app.state.kb.plan.assume:
+            for k, v in a["set"].items():
+                t = norm(truth(facts, k))
+                if t is not None and str(t) != str(v):
+                    turn = client.post(
+                        f"/internal/v1/cases/{cid}/diagnosis/messages",
+                        json={"quick_reply": {"key": k, "kind": "value", "value": t}},
+                        headers=h,
+                    ).json()
         for _ in range(40):
             if turn["branch"] not in ("ASK_FACT", "REQUEST_EVIDENCE"):
                 break

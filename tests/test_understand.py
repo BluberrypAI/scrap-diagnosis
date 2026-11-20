@@ -40,7 +40,7 @@ def test_memo_facts_skip_first_questions(client, llm):
     )
     d = new_case(client, memo="PP 사출하고 남은 자투리예요")
     turn = d["turn"]
-    assert turn["ui"]["question"]["key"] == "discharged"
+    assert turn["ui"]["question"]["key"] == "Q-PLASTIC-KIND"
     assert turn["message"].startswith("알겠어요.")
     facts = {f["key"]: f for f in turn["ui"]["board"]["facts"]}
     assert facts["material"]["quote"] == "PP" and facts["input_form"]["value"] == "scrap"

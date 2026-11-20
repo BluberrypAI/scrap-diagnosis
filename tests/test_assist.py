@@ -140,7 +140,8 @@ def test_off_topic_is_answered_briefly_and_returns_to_question(client, llm):
     assert turn["assist"]["intent"] == "off_topic" and turn["assist"]["sources"] == []
     assert turn["assist"]["text"].startswith("배고프시죠")
     assert turn["message"].startswith("이어서 볼게요.")
-    assert turn["ui"]["question"]["key"] == "material" and turn["ui"]["board"]["facts"] == []
+    assert turn["ui"]["question"]["key"] == "material"
+    assert all(f["source_type"] == "ASSUMED" for f in turn["ui"]["board"]["facts"])  # 기록 없음
     guard_call = [c for c in llm.calls if c.name == "assist"][-1]
     assert "문진과 무관하거나" in guard_call.system  # 가드레일 지침이 붙는다
 

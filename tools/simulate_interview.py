@@ -62,6 +62,16 @@ def simulate(stages, plan, facts: dict, prefill_company: bool) -> dict:
             if k in facts:
                 answers[k] = facts[k]
     log, clicks, company_clicks, missing, unplanned = [], 0, 0, 0, 0
+    # 묻지 않는 기본값(가정, D17)이 실제와 다르면 사용자가 판정 보드에서 고친다(한 번 누름)
+    for a in plan.assume:
+        for k, v in a["set"].items():
+            t = truth(facts, k)
+            if t is not None and str(
+                t if not isinstance(t, bool) else ("yes" if t else "no")
+            ) != str(v):
+                set_path(answers, k, t)
+                clicks += 1
+                log.append(f"보드에서 고침:{k}={t}")
     for _ in range(60):
         nxt = next_question(stages, plan, answers)
         if nxt.done:

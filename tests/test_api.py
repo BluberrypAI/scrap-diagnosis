@@ -414,3 +414,42 @@ def test_law_exclusion_only_asks_radioactive_for_in_scope_solids(client):
         ("none", "아니요"),
         ("radioactive", "예"),
     ]
+
+
+def test_material_change_drops_form_that_does_not_fit(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(client, cid, PP_SCRAP)
+    turn = reply(client, cid, "material", "pet").json()  # PET에는 '자투리'가 없다
+    assert turn["ui"]["question"]["key"] == "input_form"
+    assert [o["value"] for o in turn["ui"]["question"]["options"] if o["kind"] == "value"] == [
+        "flake",
+        "bottle",
+        "bale",
+        "other",
+    ]
+    turn = reply(client, cid, "material", "pe").json()  # PE는 형태를 다시 고른 뒤라 유지
+    form = next(f for f in turn["ui"]["board"]["facts"] if f["key"] == "material")
+    assert form["value"] == "pe"
+
+
+def test_board_hides_answers_that_no_longer_apply(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(
+        client,
+        cid,
+        [("material", "aluminium"), ("input_form", "can"), ("can_contents", "food_beverage")],
+    )
+    turn = reply(client, cid, "input_form", "scrap").json()
+    keys = [f["key"] for f in turn["ui"]["board"]["facts"]]
+    assert "can_contents" not in keys
+    form = next(f for f in turn["ui"]["board"]["facts"] if f["key"] == "input_form")
+    assert [o["value"] for o in form["edit"]["options"]] == ["scrap", "can", "other"]
+
+
+def test_discharged_is_assumed_and_editable(client):
+    turn = new_case(client)["turn"]
+    fact = next(f for f in turn["ui"]["board"]["facts"] if f["key"] == "discharged")
+    assert (fact["value"], fact["source_type"], fact["editable"]) == ("yes", "ASSUMED", True)
+    cid = turn["case_id"]
+    turn = run_answers(client, cid, PP_SCRAP[:2] + [("discharged", "no")])
+    assert turn["ui"]["result"]["outcome"] == "NOT_WASTE"
