@@ -123,7 +123,7 @@ def test_identifiers_are_masked_before_ai(client, llm):
     cid = new_case(client)["case"]["id"]
     llm.push("extract", said(facts=[("material", "pp", "stated", "PP")]))
     text(client, cid, "PP예요. 연락은 010-1234-5678로 주세요")
-    sent = llm.calls[-1].user
+    sent = next(c for c in reversed(llm.calls) if c.name == "extract").user
     assert "010-1234-5678" not in sent and "[전화번호]" in sent
     events = client.get(f"/internal/v1/cases/{cid}/trace", headers=H).json()["events"]
     call = next(e for e in events if e["kind"] == "LLM")["payload"]
@@ -144,3 +144,27 @@ def test_without_llm_buttons_still_work(client):
     cid = new_case(client)["case"]["id"]
     turn = text(client, cid, "PP예요")
     assert "버튼" in turn["message"] and turn["ui"]["question"]["key"] == "material"
+
+
+def test_question_phrasing_changes_message_only(client, llm):
+    from app.llm import phrase
+
+    phrase._cache.clear()
+    llm.push("phrase", {"text": "어떤 재질로 만든 건가요? 제품 표시를 보면 알 수 있어요."})
+    llm.push("extract", said(facts=[]))
+    cid = new_case(client)["case"]["id"]
+    turn = text(client, cid, "음")
+    q = turn["ui"]["question"]
+    assert q["text"] == "어떤 재질인가요?"  # 카드 문장은 고정
+    assert "어떤 재질로 만든 건가요?" in turn["message"]
+
+
+def test_phrasing_with_new_numbers_is_dropped(client, llm):
+    from app.llm import phrase
+
+    phrase._cache.clear()
+    cid = new_case(client)["case"]["id"]
+    llm.push("extract", said(facts=[("material", "pp", "stated", "PP")]))
+    llm.push("phrase", {"text": "기름성분이 3% 넘나요?"})  # 원문에 없는 숫자
+    turn = text(client, cid, "PP예요")
+    assert "3%" not in turn["message"]

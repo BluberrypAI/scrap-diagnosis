@@ -25,6 +25,7 @@ from app.interview import present as pr
 from app.interview.documents import DocumentMixin
 from app.interview.present import FactState, Step
 from app.interview.understand import UnderstandMixin
+from app.llm.phrase import phrase
 from app.persistence.models import (
     Case,
     Company,
@@ -320,6 +321,7 @@ class CaseService(DocumentMixin, UnderstandMixin):
             case, turn_id, "CREATE", {"memo": case.memo}, prefix=prefix, assist=assist
         )
         self.commit()
+        self.polish(case, turn)
         return {"case": self.case_out(case), "turn": turn}
 
     def message(self, company: Company, case_id: str, body: dict) -> dict:
@@ -337,12 +339,35 @@ class CaseService(DocumentMixin, UnderstandMixin):
             prefix, kind, payload, assist = self.understand(case, text, turn_id)
             turn = self.finish_turn(case, turn_id, kind, payload, prefix=prefix, assist=assist)
             self.commit()
-            return turn
+            return self.polish(case, turn)
         label = self.answer(case, qr, turn_id)
         self.log(case, turn_id, "user", label, quick_reply=qr)
         kind = "RETRACT" if qr.get("kind") == "retract" else "ANSWER"
         turn = self.finish_turn(case, turn_id, kind, {"quick_reply": qr})
         self.commit()
+        return self.polish(case, turn)
+
+    def polish(self, case: Case, turn: dict) -> dict:
+        """확정한 턴의 질문 문장을 쉬운 말로 다듬는다(커밋 뒤, 실패하면 고정 문장 그대로)."""
+        q = turn["ui"]["question"]
+        if self.llm is None or not self.settings.phrase_questions or not q:
+            return turn
+        if turn["branch"] != "ASK_FACT" or turn.get("sub_branch"):
+            return turn
+        text, call = phrase(self.llm, q, self.settings.prompt_version)
+        if call is not None:
+            self.trace_llm(case, turn["turn_id"], call, call.user)
+        if text:
+            msg = turn["message"]
+            turn["message"] = msg.replace(q["text"], text) if q["text"] in msg else text
+            row = self.db.scalar(
+                select(Message).where(
+                    Message.turn_id == turn["turn_id"], Message.role == "assistant"
+                )
+            )
+            if row is not None:
+                row.text = turn["message"]
+        self.db.commit()
         return turn
 
     def answer(self, case: Case, qr: dict, turn_id: str) -> str:

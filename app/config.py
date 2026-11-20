@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     extract_reasoning_effort: Literal["minimal", "low", "medium", "high"] | None = "medium"
     respond_reasoning_effort: Literal["minimal", "low", "medium", "high"] | None = None
     assist_max_tool_calls: int = 3  # 질의응답 agent의 도구 호출 상한
+    phrase_questions: bool = (
+        True  # 질문 문장 다듬기(LLM이 켜져 있을 때만, 같은 질문은 한 번만 부름)
+    )
     trace_store_prompts: bool = False  # Trace에 가린 프롬프트 원문을 남길지(기본은 해시·길이만)
     prompt_version: str = "v2.1"
 
