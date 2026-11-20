@@ -1,53 +1,59 @@
-from __future__ import annotations
+import os
 
-from datetime import UTC, date, datetime, timedelta
-from pathlib import Path
+# app.main을 import할 때 만드는 기본 앱이 작업 폴더에 DB 파일을 만들지 않게 한다
+os.environ.setdefault("DATABASE_URL", "sqlite://")
+os.environ.setdefault("ENGINE_SERVICE_TOKEN", "")
 
-import pytest
+import uuid  # noqa: E402
 
-from app.domain.facts import Fact, FactStatus
-from app.rules.loader import load_kb
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+from sqlalchemy import create_engine, text  # noqa: E402
 
-DATA = Path(__file__).resolve().parents[1] / "data" / "sample"
-REAL = Path(__file__).resolve().parents[1] / "data" / "real"
-AS_OF = date(2026, 11, 8)
-_T0 = datetime(2026, 11, 8, tzinfo=UTC)
+from app.config import Settings  # noqa: E402
+from app.main import create_app  # noqa: E402
+from app.persistence.db import normalize_url  # noqa: E402
+
+TOKEN = "test-token"
+# 설정하면 PostgreSQL에서 테스트마다 새 데이터베이스를 만든다(CI). 없으면 SQLite 파일
+PG_URL = os.environ.get("TEST_DATABASE_URL")
+_created: list[str] = []
 
 
-def F(key, value, status=FactStatus.CLAIMED, t: int = 0, ref: str = "") -> Fact:  # noqa: N802
-    return Fact(
-        key=key, value=value, status=status, source_ref=ref, recorded_at=_T0 + timedelta(seconds=t)
+def _database_url(tmp_path) -> str:
+    if not PG_URL:
+        return f"sqlite:///{tmp_path / 'engine.db'}"
+    base = normalize_url(PG_URL)
+    name = f"t_{uuid.uuid4().hex[:12]}"
+    with create_engine(base, isolation_level="AUTOCOMMIT").connect() as conn:
+        conn.execute(text(f'CREATE DATABASE "{name}"'))
+    _created.append(name)
+    return base.rsplit("/", 1)[0] + f"/{name}"
+
+
+def pytest_sessionfinish(session, exitstatus):
+    if not _created:
+        return
+    with create_engine(normalize_url(PG_URL), isolation_level="AUTOCOMMIT").connect() as conn:
+        for name in _created:
+            conn.execute(text(f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)'))
+
+
+def make_client(tmp_path, **overrides) -> TestClient:
+    settings = Settings(
+        _env_file=None,
+        database_url=_database_url(tmp_path),
+        engine_service_token=overrides.pop("token", TOKEN),
+        **overrides,
     )
+    return TestClient(create_app(settings), raise_server_exceptions=False)
 
 
-def facts(**kv) -> dict[str, Fact]:
-    """facts(material="PP", oil_content_pct=(3, "EVIDENCED"))"""
-    out = {}
-    for k, v in kv.items():
-        if isinstance(v, tuple):
-            out[k] = F(k, v[0], FactStatus(v[1]))
-        else:
-            out[k] = F(k, v)
-    return out
+@pytest.fixture
+def client(tmp_path):
+    with make_client(tmp_path) as c:
+        yield c
 
 
-CLEAN = dict(pcb_related=False, hazardous_residue=False, toxic_chemical=False)
-
-
-@pytest.fixture(scope="session")
-def kb():
-    return load_kb(DATA)
-
-
-@pytest.fixture(scope="session")
-def real_kb():
-    return load_kb(REAL)
-
-
-@pytest.fixture(scope="session", autouse=True)
-def _drop_test_databases():
-    """TEST_DATABASE_URL(PostgreSQL)로 돌릴 때 만든 테스트 DB를 끝나고 지운다."""
-    from tests.dbutil import drop_all
-
-    yield
-    drop_all()
+def headers(company: str = "co-1") -> dict:
+    return {"Authorization": f"Bearer {TOKEN}", "X-Company-Id": company}

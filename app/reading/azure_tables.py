@@ -26,7 +26,8 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from app.config import Settings
-from app.domain.tables import (
+from app.reading.common import link_continuations, parse_footnote_line, split_cell_marks
+from app.reading.tables import (
     BBox,
     Footnote,
     PageInfo,
@@ -35,7 +36,6 @@ from app.domain.tables import (
     TableGrid,
     TableRef,
 )
-from app.reading.common import link_continuations, parse_footnote_line, split_cell_marks
 
 SUPPORTED_CONTENT_TYPES = frozenset(
     {"application/pdf", "image/jpeg", "image/png", "image/tiff", "image/bmp", "image/heif"}

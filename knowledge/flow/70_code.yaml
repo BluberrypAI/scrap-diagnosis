@@ -1,0 +1,83 @@
+stage: 70_code
+title: 분류 코드 (시행규칙 별표 4, 자원재활용법 시행령 제18조)
+order: 70
+on_no_match: continue
+# 60단계를 continue로 통과한 것은 제18조제1호 금속캔이거나, 고체·비발포·어망/부자 아닌 PP·PE·PET다.
+# 합성수지 안에서 51-03-07(플라스틱폐포장재)을 51-03-01(폐합성수지류)보다 앞에 둔다:
+# 51-03-07이 포장재라는 더 좁은 범위이기 때문이다(D7).
+rules:
+  - id: COD-CAN-ALUMINIUM
+    when:
+      all:
+        - {fact: material, eq: aluminium}
+        - {fact: input_form, eq: can}
+    then: {outcome: GENERAL, code: "51-29-03"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-29-03
+        quote: "51-29-03 폐금속캔류(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조제1호에 해당하는 것을 말한다)"
+    grade: A
+
+  - id: COD-CAN-STEEL
+    when:
+      all:
+        - {fact: material, eq: steel}
+        - {fact: input_form, eq: can}
+    then: {outcome: GENERAL, code: "51-29-03", flags: [route_unsupported]}
+    basis:
+      - unit: RULE-WASTE/별표4/51-29-03
+        quote: "51-29-03 폐금속캔류(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조제1호에 해당하는 것을 말한다)"
+    decision: D10
+    grade: C
+    note: 법적 코드는 같고, 업체 추천이 알루미늄 캔만 지원하므로 route_unsupported를 붙인다.
+
+  # packaging_used가 모름이면 여기서 막힌다. 형태(필름·병)로 포장재를 추정하지 않는다(D8, D11).
+  - id: COD-RESIN-PACKAGING
+    when:
+      all:
+        - {fact: material, in: [pp, pe, pet]}
+        - {fact: packaging_used, eq: "yes"}
+    then: {outcome: GENERAL, code: "51-03-07", flags: [interpretation]}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-07
+        quote: "51-03-07 플라스틱폐포장재"
+      - unit: DEC-RESOURCE/제18조
+        quote: "합성수지재질의 포장재[용기류, 필름ㆍ시트형 포장재 및 쟁반형 용기(tray)를 포함하며, 제2호 각 목의 제품의 포장재는 제외한다]"
+      - unit: RULE-WASTE/제66조제3항
+        quote: "3. 폐포장재[「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조제1호(같은 호 마목은 제외한다)부터 제3호의2까지에 따른 재활용의무 대상인 종이팩, 유리병, 금속캔, 합성수지 재질의 포장재, 1회용 봉투ㆍ쇼핑백 및 합성수지 재질의 필름류만 해당한다]"
+      - unit: RULE-WASTE/제10조제1호의2나목
+        quote: "폐포장재(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조에 따른 재활용 의무대상인 종이팩ㆍ금속캔 및 합성수지 재질의 포장재 중 용기류만 해당한다)"
+      - unit: RULE-WASTE/별표5의3/R-3-3 재활용 기준 (1) 폐지·고철·폐포장재
+        quote: "폐포장재(「자원의 절약과 재활용촉진에 관한 법 률」 제16조제1항에 따른 재활용의무 대상인 종이팩, 유리병, 금속캔, 합성수지 재질의 포장재 및 1회용 봉투ㆍ쇼핑백만 해당한다)"
+    decision: D7
+    grade: C
+    note: >-
+      51-03-07은 별표 4에 정의가 없어 시행규칙 제10조·제66조·별표 5의3의 용례대로 제18조의 재활용의무 대상
+      합성수지 포장재로 본다(D7). 포장재 여부는 packaging_used로만 정한다(D8).
+      제18조제1호 타목 단서(플라스틱용기·체외진단 의료기기)와 제2호 제품의 경질 포장재는 가릴 사실이 없다(undecided U5).
+      원재료 포장재를 뺀 2018 법제처 해석은 근거 문구가 삭제되어 적용하지 않는다.
+
+  - id: COD-RESIN-EXCLUDED-PACKAGING
+    when:
+      all:
+        - {fact: material, in: [pp, pe, pet]}
+        - {fact: packaging_used, eq: yes_excluded}
+    then: {outcome: GENERAL, code: "51-03-01"}
+    basis:
+      - unit: DEC-RESOURCE/제18조
+        quote: "다만, 제조업자 또는 수입업자가 수출을 목적으로 제조 또는 수입한 제품ㆍ포장재, 「기초연구진흥 및 기술개발지원에 관한 법률」 제14조제1항에 따른 기관이나 단체가 수입하는 연구용 제품ㆍ포장재의 견본품 및 반품되어 폐기된 제품ㆍ포장재는 제외한다."
+      - unit: RULE-WASTE/별표4/51-03-01
+        quote: "51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)"
+    decision: D7
+    grade: C
+    note: 제18조 단서로 재활용의무 대상에서 빠지는 포장재는 D7의 51-03-07 정의에 들지 않아 폐합성수지류로 낸다.
+
+  - id: COD-RESIN-NONPACKAGING
+    when:
+      all:
+        - {fact: material, in: [pp, pe, pet]}
+        - {fact: packaging_used, eq: "no"}
+    then: {outcome: GENERAL, code: "51-03-01"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-01
+        quote: "51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)"
+    grade: A

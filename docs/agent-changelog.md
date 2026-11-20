@@ -1,9 +1,5 @@
 # 에이전트 문서 변경 기록
 
-`AGENTS.md`, `CLAUDE.md`를 바꿀 때 한 줄씩 남긴다(날짜, 바꾼 것, 이유).
-
-| 날짜 | 변경 | 이유 |
-| --- | --- | --- |
-| 2026-11-09 | `AGENTS.md`, `CLAUDE.md` 처음 작성 | 팀 규칙 8장(레포마다 AI 도구 규칙 문서). 사용자 요청 |
-| 2026-11-09 | `AGENTS.md` 1·2·3·4·5장: 규칙 원본 `knowledge/`와 빌드 `tools/build_kb.py`(`--check`) 반영, 옛 변환기·`legacy_overrides.yaml` 언급 제거 | P1(규칙 원본 이관)로 구조가 바뀜. 사용자 승인 |
-| 2026-11-09 | `AGENTS.md` 1·4장: 규칙 수정 기록(`docs/rule-changes/`)과 검토 카드 명령(`tools/review_kit.py export`) 추가 | 개발 상황을 문서에 반영. 사용자 요청 |
+- 2026-11-20 AGENTS.md·CLAUDE.md를 v2 구조로 다시 씀(기존 엔진 경로·명령 제거, 법령 API 수집·골든셋 동결·규칙 근거 원칙 추가). 사용자 요청
+- 2026-11-20 AGENTS.md에 서류(검수 후 EVIDENCED) 규칙과 app/reading 구조를 더함. 사용자 요청(성적서 기능 복원)
+- 2026-11-20 AGENTS.md·CLAUDE.md에 LLM 단계 규칙(검사기·확인 버튼·읽기 전용 agent·가리기)과 평가 스크립트를 더함. 사용자 요청(자유 문장 이해)

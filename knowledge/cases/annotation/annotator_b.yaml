@@ -1,0 +1,810 @@
+# 골든 데이터셋 Step 5: Annotator B 블라인드 라벨
+labels:
+- id: G-001
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 대기 배출시설 사업장이 내보내는 포장 아닌 PP 공정 자투리라 일반 합성수지류다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+- id: G-002
+  outcome: GENERAL
+  code: 51-03-07
+  flags:
+  - interpretation
+  rationale: 원료를 포장하는 데 쓴 PE 필름이라 재활용의무 대상 합성수지 포장재로 본다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-03-07
+- id: G-003
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 음료 알루미늄 캔이나 순환자원정보센터 등록을 하지 않아 준수사항을 다 지키지 못해 폐기물이다.
+  basis:
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+- id: G-004
+  outcome: NOT_WASTE
+  code: null
+  flags: []
+  rationale: 사업장 밖으로 내보내지 않고 같은 사출기에 다시 넣어 쓰므로 폐기물이 아니다.
+  basis:
+  - ACT-WASTE/제2조제1호
+- id: G-005
+  outcome: INSUFFICIENT_INFO
+  code: null
+  flags: []
+  rationale: 업체에 넘길지 공정에 다시 넣을지 정하지 않아 밖으로 내보내는지 알 수 없다.
+  basis:
+  - ACT-WASTE/제2조제1호
+- id: G-006
+  outcome: EXCLUDED
+  code: null
+  flags: []
+  rationale: 폐수처리시설로 유입되어 폐수로 관리되므로 법 제3조 적용 제외다.
+  basis:
+  - ACT-WASTE/제3조
+- id: G-007
+  outcome: INSUFFICIENT_INFO
+  code: null
+  flags: []
+  rationale: 폐수 등 다른 법의 관리 대상인지 모른다고 하여 적용 제외 여부를 판정할 수 없다.
+  basis:
+  - ACT-WASTE/제3조
+- id: G-008
+  outcome: CIRCULAR_RESOURCE
+  code: null
+  flags: []
+  rationale: 순환자원 인정서를 받았다.
+  basis:
+  - ACT-CIRCULAR/제21조
+- id: G-009
+  outcome: OUT_OF_SCOPE
+  code: null
+  flags: []
+  rationale: 액체 상태라 고체 합성수지 범위 밖이다.
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+- id: G-010
+  outcome: OUT_OF_SCOPE
+  code: null
+  flags: []
+  rationale: 반고체 상태라 고체 합성수지 범위 밖이다.
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+- id: G-011
+  outcome: INSUFFICIENT_INFO
+  code: null
+  flags: []
+  rationale: 고체인지 슬러지 상태인지 몰라 물리 상태를 판정할 수 없다.
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+- id: G-012
+  outcome: DESIGNATED_POSSIBLE
+  code: null
+  flags: []
+  rationale: 금형 윤활유가 묻었는데 분석 서류로 5% 미만을 확인하지 못했다.
+  basis:
+  - DEC-WASTE/별표1제6호
+  - RULE-WASTE/제17조의2
+- id: G-013
+  outcome: DESIGNATED_POSSIBLE
+  code: null
+  flags: []
+  rationale: 기름이 묻었는지 확인하지 못해 모르므로 지정폐기물 가능성으로 멈춘다.
+  basis:
+  - DEC-WASTE/별표1제6호
+  - RULE-WASTE/제17조의2
+- id: G-014
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 페인트가 말라 있고 6mm를 넘지 않아 지정폐기물이 아니며 제품 포장이 아닌 작업용 PP 통 스크랩이다.
+  basis:
+  - DEC-WASTE/별표1제5호
+  - RULE-WASTE/별표4/51-03-01
+- id: G-015
+  outcome: DESIGNATED_POSSIBLE
+  code: null
+  flags: []
+  rationale: 용기에 덜 마른 페인트가 남아 있다.
+  basis:
+  - DEC-WASTE/별표1제5호
+- id: G-016
+  outcome: DESIGNATED_POSSIBLE
+  code: null
+  flags: []
+  rationale: 용기에 세척용 용제가 남아 있다.
+  basis:
+  - DEC-WASTE/별표1제4호
+- id: G-017
+  outcome: DESIGNATED_POSSIBLE
+  code: null
+  flags: []
+  rationale: 통에 무엇이 남았는지 몰라 지정폐기물 가능성으로 멈춘다.
+  basis:
+  - DEC-WASTE/별표1제5호
+  - DEC-WASTE/별표1제4호
+- id: G-018
+  outcome: DESIGNATED_POSSIBLE
+  code: null
+  flags: []
+  rationale: 약품 자체를 버리는 것이다.
+  basis:
+  - DEC-WASTE/별표1제9호
+- id: G-019
+  outcome: OUT_OF_SCOPE
+  code: 51-03-03
+  flags: []
+  rationale: PVC 재질이라 폐폴리염화비닐수지류다.
+  basis:
+  - RULE-WASTE/별표4/51-03-03
+- id: G-020
+  outcome: OUT_OF_SCOPE
+  code: 51-03-01
+  flags: []
+  rationale: ABS는 PP·PE·PET 외 수지라 범위 밖이다.
+  basis:
+  - RULE-WASTE/별표4/51-03-01
+- id: G-021
+  outcome: OUT_OF_SCOPE
+  code: 51-03-02
+  flags: []
+  rationale: 합성고무라 범위 밖이다.
+  basis:
+  - RULE-WASTE/별표4/51-03-02
+- id: G-022
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 포장 아닌 PE 공정 자투리다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+- id: G-023
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 포장에 쓰인 적 없는 PET 불량 시트 파쇄물이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+- id: G-024
+  outcome: OUT_OF_SCOPE
+  code: 51-03-06
+  flags: []
+  rationale: 발포 PP라 폐발포합성수지다.
+  basis:
+  - RULE-WASTE/별표4/51-03-06
+  - INTERP-ME-2026-STYROFOAM/회신
+- id: G-025
+  outcome: OUT_OF_SCOPE
+  code: 51-03-08
+  flags: []
+  rationale: 폐어망이다.
+  basis:
+  - RULE-WASTE/별표4/51-03-08
+- id: G-026
+  outcome: OUT_OF_SCOPE
+  code: 51-03-05
+  flags: []
+  rationale: 양식용 부자다.
+  basis:
+  - RULE-WASTE/별표4/51-03-05
+- id: G-027
+  outcome: GENERAL
+  code: 51-03-07
+  flags:
+  - interpretation
+  rationale: 부품을 포장하는 데 쓴 PP 트레이와 밴드라 합성수지 포장재다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-03-07
+- id: G-028
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 수출용 제품 포장재는 제18조 단서로 제외되어 일반 합성수지류다.
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-03-01
+- id: G-029
+  outcome: INSUFFICIENT_INFO
+  code: null
+  flags: []
+  rationale: 포장에 쓰였는지 모른다.
+  basis:
+  - DEC-RESOURCE/제18조
+- id: G-030
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 포장에 쓰인 적 없는 PE 불량 필름이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+- id: G-031
+  outcome: OUT_OF_SCOPE
+  code: 51-29-02
+  flags: []
+  rationale: 캔이 아닌 알루미늄 가공 스크랩이다.
+  basis:
+  - RULE-WASTE/별표4/51-29-02
+- id: G-032
+  outcome: OUT_OF_SCOPE
+  code: 51-29-01
+  flags: []
+  rationale: 캔이 아닌 철 스크랩이다.
+  basis:
+  - RULE-WASTE/별표4/51-29-01
+- id: G-033
+  outcome: GENERAL
+  code: 51-29-03
+  flags:
+  - route_unsupported
+  rationale: 음식료품 철 캔이고 센터 등록을 하지 않아 폐기물이며 철 캔 경로는 미지원이다.
+  basis:
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+- id: G-034
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 부탄가스 캔이 제18조 대상이나 센터 등록을 하지 않아 폐기물이다.
+  basis:
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+- id: G-035
+  outcome: OUT_OF_SCOPE
+  code: 51-29-04
+  flags: []
+  rationale: 공업용 접착제 캔은 제18조 대상 제품이 아니다.
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-04
+- id: G-036
+  outcome: OUT_OF_SCOPE
+  code: 51-29-04
+  flags: []
+  rationale: 수출용 반품 폐기 캔은 제18조 단서로 제외된다.
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-04
+- id: G-037
+  outcome: INSUFFICIENT_INFO
+  code: null
+  flags: []
+  rationale: 무엇을 담았던 캔인지 몰라 금속캔 여부를 판정할 수 없다.
+  basis:
+  - DEC-RESOURCE/제18조
+- id: G-038
+  outcome: DESIGNATED_POSSIBLE
+  code: null
+  flags: []
+  rationale: 캔 안에 세척용 용제가 남아 있다.
+  basis:
+  - DEC-WASTE/별표1제4호
+- id: G-039
+  outcome: CIRCULAR_RESOURCE
+  code: null
+  flags: []
+  rationale: 지정 순환자원 준수사항을 모두 지켰다.
+  basis:
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - ACT-CIRCULAR/제23조
+- id: G-040
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 이물질 2% 초과로 준수사항을 어겨 폐기물이다.
+  basis:
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+- id: G-041
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 다른 폐기물과 섞여 준수사항을 어겨 폐기물이다.
+  basis:
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+- id: G-042
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 압축을 하지 않아 준수사항을 어겨 폐기물이다.
+  basis:
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+- id: G-043
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 압축시설 승인·신고를 하지 않아 폐기물이다.
+  basis:
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+- id: G-044
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 철·알루미늄 분리를 하지 않아 폐기물이다.
+  basis:
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+- id: G-045
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 센터 등록을 하지 않아 폐기물이다.
+  basis:
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+- id: G-046
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 금속제품 제조 용도로 공급하지 않아 폐기물이다.
+  basis:
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+- id: G-047
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 센터 등록 여부를 모르면 지키지 않은 것으로 보아 폐기물이다.
+  basis:
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+- id: G-048
+  outcome: HOUSEHOLD
+  code: null
+  flags: []
+  rationale: 배출시설·공공처리시설·300kg·5톤·지정폐기물 모두 해당하지 않아 사업장이 아니다.
+  basis:
+  - ACT-WASTE/제2조제2호
+  - DEC-WASTE/제2조
+- id: G-049
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 대기 배출시설 사업장이라 사업장일반폐기물이고 포장 아닌 PP 자투리다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+- id: G-050
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 공공하수처리시설 운영 사업장이라 사업장폐기물이다.
+  basis:
+  - DEC-WASTE/제2조
+  - RULE-WASTE/별표4/51-03-01
+- id: G-051
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 하루 300kg 이상이라 사업장폐기물이다.
+  basis:
+  - DEC-WASTE/제2조
+  - RULE-WASTE/별표4/51-03-01
+- id: G-052
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 공사에서 5톤 이상 배출하는 사업장이다.
+  basis:
+  - DEC-WASTE/제2조
+  - RULE-WASTE/별표4/51-03-01
+- id: G-053
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 지정폐기물을 배출하는 사업장이라 사업장폐기물이고 PP 자투리는 일반 합성수지류다.
+  basis:
+  - DEC-WASTE/제2조
+  - RULE-WASTE/별표4/51-03-01
+- id: G-054
+  outcome: INSUFFICIENT_INFO
+  code: null
+  flags: []
+  rationale: 배출시설 해당 여부를 모르고 다른 사업장 요건도 없어 사업장 여부를 판정할 수 없다.
+  basis:
+  - DEC-WASTE/제2조
+  - ACT-WASTE/제2조제3호
+- id: G-055
+  outcome: HOUSEHOLD
+  code: null
+  flags: []
+  rationale: 하루 299kg으로 300kg 미만이고 다른 사업장 요건도 없다.
+  basis:
+  - DEC-WASTE/제2조
+- id: G-056
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 하루 300kg이라 사업장폐기물이다.
+  basis:
+  - DEC-WASTE/제2조
+  - RULE-WASTE/별표4/51-03-01
+- id: G-057
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 기름성분 4.9%로 5% 미만이 확인되어 지정폐기물이 아니다.
+  basis:
+  - DEC-WASTE/별표1제6호
+  - RULE-WASTE/별표4/51-03-01
+- id: G-058
+  outcome: DESIGNATED_POSSIBLE
+  code: null
+  flags: []
+  rationale: 기름성분 5.0%로 5% 이상이다.
+  basis:
+  - DEC-WASTE/별표1제6호
+- id: G-059
+  outcome: NOT_WASTE
+  code: null
+  flags: []
+  rationale: 밖으로 내보내지 않고 같은 공정에 다시 넣어 쓴다.
+  basis:
+  - ACT-WASTE/제2조제1호
+- id: G-060
+  outcome: CIRCULAR_RESOURCE
+  code: null
+  flags: []
+  rationale: 순환자원 인정서를 받았다.
+  basis:
+  - ACT-CIRCULAR/제21조
+- id: G-061
+  outcome: EXCLUDED
+  code: null
+  flags: []
+  rationale: 폐수처리시설로 유입되어 폐수로 처리되므로 법 제3조 적용 제외다.
+  basis:
+  - ACT-WASTE/제3조
+- id: G-062
+  outcome: HOUSEHOLD
+  code: null
+  flags: []
+  rationale: 사업장 요건에 모두 해당하지 않는다.
+  basis:
+  - ACT-WASTE/제2조제2호
+  - DEC-WASTE/제2조
+- id: G-063
+  outcome: DESIGNATED_POSSIBLE
+  code: null
+  flags: []
+  rationale: 기름이 묻었는데 분석 서류가 없어 5% 미만을 확인하지 못했다.
+  basis:
+  - DEC-WASTE/별표1제6호
+- id: G-066
+  outcome: DESIGNATED_POSSIBLE
+  code: null
+  flags: []
+  rationale: 기름 함량 분석 서류가 없어 지정폐기물 가능성이며 그 자체로 사업장이다.
+  basis:
+  - DEC-WASTE/별표1제6호
+  - DEC-WASTE/제2조
+- id: G-067
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 포장에 쓰인 적 없는 PP 불량 성형품이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+- id: G-068
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 포장 아닌 PP 불량품 파쇄품이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+- id: G-069
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 포장 아닌 PP 불량 시트 플레이크다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+- id: G-070
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 포장 아닌 PP 불량 펠릿이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+- id: G-071
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 포장에 쓰인 적 없는 PP 불량 필름이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+- id: G-072
+  outcome: GENERAL
+  code: 51-03-07
+  flags:
+  - interpretation
+  rationale: 제품 포장에 쓰인 PET 병이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-03-07
+- id: G-073
+  outcome: GENERAL
+  code: 51-03-07
+  flags:
+  - interpretation
+  rationale: 소스·음료 포장에 쓰인 PET 용기 압축 묶음이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-03-07
+- id: G-074
+  outcome: GENERAL
+  code: 51-03-07
+  flags:
+  - interpretation
+  rationale: 제품 포장에 쓰인 PET 병 플레이크다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-03-07
+- id: G-075
+  outcome: GENERAL
+  code: 51-03-01
+  flags: []
+  rationale: 포장에 쓰인 적 없는 PET 불량 병이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-01
+- id: G-076
+  outcome: OUT_OF_SCOPE
+  code: null
+  flags: []
+  rationale: 배출시설 사업장의 고체 목재 자투리로, 합성수지·금속캔 범위가 아니며 제공된 조문에 후보 코드가 없다.
+  basis:
+  - ACT-WASTE/제2조제3호
+- id: G-077
+  outcome: EXCLUDED
+  code: null
+  flags: []
+  rationale: 방사성 물질에 오염된 물질이라 제3조제1항제1호로 법 적용 제외다.
+  basis:
+  - ACT-WASTE/제3조
+- id: G-078
+  outcome: EXCLUDED
+  code: null
+  flags: []
+  rationale: 용기에 들어 있지 않은 기체상태 물질이라 제3조제1항제2호로 적용 제외다.
+  basis:
+  - ACT-WASTE/제3조
+- id: G-079
+  outcome: EXCLUDED
+  code: null
+  flags: []
+  rationale: 가축분뇨라 제3조제1항제4호로 적용 제외다.
+  basis:
+  - ACT-WASTE/제3조
+- id: G-080
+  outcome: EXCLUDED
+  code: null
+  flags: []
+  rationale: 하수·분뇨라 제3조제1항제5호로 적용 제외다.
+  basis:
+  - ACT-WASTE/제3조
+- id: G-081
+  outcome: EXCLUDED
+  code: null
+  flags: []
+  rationale: 가축전염병 처분 대상 사체와 오염 물건이라 제3조제1항제6호로 적용 제외다.
+  basis:
+  - ACT-WASTE/제3조
+- id: G-082
+  outcome: EXCLUDED
+  code: null
+  flags: []
+  rationale: 수산생물질병 처분 대상 사체와 오염 물건이라 제3조제1항제7호로 적용 제외다.
+  basis:
+  - ACT-WASTE/제3조
+- id: G-083
+  outcome: EXCLUDED
+  code: null
+  flags: []
+  rationale: 군수품관리법에 따라 폐기되는 탄약이라 제3조제1항제8호로 적용 제외다.
+  basis:
+  - ACT-WASTE/제3조
+- id: G-084
+  outcome: EXCLUDED
+  code: null
+  flags: []
+  rationale: 허가받은 동물장묘시설에서 처리되는 동물 사체라 제3조제1항제9호로 적용 제외다.
+  basis:
+  - ACT-WASTE/제3조
+- id: G-085
+  outcome: EXCLUDED
+  code: null
+  flags: []
+  rationale: 다른 폐기물과 섞이지 않은 수산부산물만 배출하므로 제3조제3항으로 적용 제외다.
+  basis:
+  - ACT-WASTE/제3조
+- id: G-086
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 가공하지 않은 견과류·곡물(1차 생산물)을 담은 캔이라 제18조제1호 나목 품목이나, 순환자원정보센터 등록을 하지 않아 준수사항을 모두 지키지 못했으므로 폐기물이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+- id: G-088
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 화장품·애완동물 샴푸를 담았던 캔(라목)이나, 순환자원정보센터 등록을 하지 않아 준수사항을 모두 지키지 못했으므로 폐기물이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+- id: G-090
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 가정용 살충·살균제를 담았던 캔(사목)이나, 순환자원정보센터 등록을 하지 않아 준수사항을 모두 지키지 못했으므로 폐기물이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+- id: G-091
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 의류 제품을 담았던 캔(아목)이나, 순환자원정보센터 등록을 하지 않아 준수사항을 모두 지키지 못했으므로 폐기물이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+- id: G-092
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 위생용 종이제품을 담았던 캔(자목)이나, 순환자원정보센터 등록을 하지 않아 준수사항을 모두 지키지 못했으므로 폐기물이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+- id: G-093
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 가정용 고무장갑을 담았던 캔(차목)이나, 순환자원정보센터 등록을 하지 않아 준수사항을 모두 지키지 못했으므로 폐기물이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+- id: G-094
+  outcome: OUT_OF_SCOPE
+  code: 51-03-06
+  flags: []
+  rationale: 발포 PE 폼 자투리는 발포수지라 합성수지 51-03-06 범위 밖이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-06
+- id: G-095
+  outcome: OUT_OF_SCOPE
+  code: 51-03-06
+  flags: []
+  rationale: 발포 PET 폼 단열재 자투리는 발포수지라 51-03-06 범위 밖이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - RULE-WASTE/별표4/51-03-06
+- id: G-096
+  outcome: OUT_OF_SCOPE
+  code: 51-29-04
+  flags: []
+  rationale: 공업용 페인트를 담았던 캔은 제18조 품목이 아니라 51-29-04이고, 금속캔 순환자원 지정은 51-29-03에만 적용되어 등록을 해도 폐기물이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-04
+- id: G-087
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 세제를 담았던 알루미늄 캔(제18조 품목)이나, 순환자원정보센터 등록을 하지 않아 준수사항을 모두 지키지 못했으므로 폐기물이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류
+  - RULE-WASTE/별표4/51-29-03
+- id: G-064
+  outcome: OUT_OF_SCOPE
+  code: null
+  flags: []
+  rationale: 발포 PP 포장 완충재는 발포수지(51-03-06)와 포장재(51-03-07) 두 코드에 함께 해당하여 코드를 하나로 정할 수 없다.
+  basis:
+  - RULE-WASTE/별표4/51-03-06
+  - RULE-WASTE/별표4/51-03-07
+- id: G-065
+  outcome: OUT_OF_SCOPE
+  code: null
+  flags: []
+  rationale: PVC 포장재는 PVC(51-03-03)와 포장재(51-03-07) 두 코드에 함께 해당하여 코드를 하나로 정할 수 없다.
+  basis:
+  - RULE-WASTE/별표4/51-03-03
+  - RULE-WASTE/별표4/51-03-07
+- id: G-089
+  outcome: GENERAL
+  code: 51-29-03
+  flags: []
+  rationale: 내용량 200mL 의약외품 캔은 제18조제1호 마목의 30mL 이하 제외에 해당하지 않아 51-29-03이나, 순환자원정보센터 등록을 하지 않아 준수사항을 모두 지키지 못했으므로 폐기물이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+  - RULE-WASTE/별표4/51-29-03
+- id: G-097
+  outcome: OUT_OF_SCOPE
+  code: 51-29-04
+  flags: []
+  rationale: 병이 아닌 내용량 20mL 의약품 캔은 제18조제1호 마목 제외 대상이라 제18조 품목이 아니므로 51-29-04이다.
+  basis:
+  - ACT-WASTE/제2조제3호
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-04
+- id: G-098
+  outcome: INSUFFICIENT_INFO
+  code: null
+  flags: []
+  rationale: 의약품 캔의 내용량이 30mL 이하인지 모르면 제18조 마목 적용 여부를 정할 수 없어 51-29-03과 51-29-04를 가를 수 없다.
+  basis:
+  - DEC-RESOURCE/제18조
+  - RULE-WASTE/별표4/51-29-03
+  - RULE-WASTE/별표4/51-29-04

@@ -1,0 +1,95 @@
+stage: 30_exclusion
+title: 폐기물관리법 적용 제외 (법 제3조)
+order: 30
+on_no_match: continue
+# law_exclusion이 모름이면 첫 규칙에서 막혀 INSUFFICIENT_INFO(blocking: law_exclusion)가 된다(D11).
+# 제1항 각 호와 제3항은 서로 겹치지 않는 물질이라 순서는 조문 순서를 따른다.
+rules:
+  - id: EXC-RADIOACTIVE
+    when: {fact: law_exclusion, eq: radioactive}
+    then: {outcome: EXCLUDED}
+    basis:
+      - unit: ACT-WASTE/제3조
+        quote: "1. 「원자력안전법」에 따른 방사성 물질과 이로 인하여 오염된 물질"
+    grade: A
+
+  - id: EXC-UNCONTAINED-GAS
+    when: {fact: law_exclusion, eq: uncontained_gas}
+    then: {outcome: EXCLUDED}
+    basis:
+      - unit: ACT-WASTE/제3조
+        quote: "2. 용기에 들어 있지 아니한 기체상태의 물질"
+    grade: A
+
+  - id: EXC-WASTEWATER
+    when: {fact: law_exclusion, eq: wastewater}
+    then: {outcome: EXCLUDED}
+    basis:
+      - unit: ACT-WASTE/제3조
+        quote: "3. 「물환경보전법」에 따른 수질 오염 방지시설에 유입되거나 공공 수역(水域)으로 배출되는 폐수"
+    grade: A
+
+  - id: EXC-LIVESTOCK-MANURE
+    when: {fact: law_exclusion, eq: livestock_manure}
+    then: {outcome: EXCLUDED}
+    basis:
+      - unit: ACT-WASTE/제3조
+        quote: "4. 「가축분뇨의 관리 및 이용에 관한 법률」에 따른 가축분뇨"
+    grade: A
+
+  - id: EXC-SEWAGE-NIGHTSOIL
+    when: {fact: law_exclusion, eq: sewage_nightsoil}
+    then: {outcome: EXCLUDED}
+    basis:
+      - unit: ACT-WASTE/제3조
+        quote: "5. 「하수도법」에 따른 하수ㆍ분뇨"
+    grade: A
+
+  - id: EXC-LIVESTOCK-DISEASE
+    when: {fact: law_exclusion, eq: livestock_disease}
+    then: {outcome: EXCLUDED}
+    basis:
+      - unit: ACT-WASTE/제3조
+        quote: "6. 「가축전염병예방법」 제22조제2항, 제23조, 제33조 및 제44조가 적용되는 가축의 사체, 오염 물건, 수입 금지 물건 및 검역 불합격품"
+    grade: A
+
+  - id: EXC-AQUATIC-DISEASE
+    when: {fact: law_exclusion, eq: aquatic_disease}
+    then: {outcome: EXCLUDED}
+    basis:
+      - unit: ACT-WASTE/제3조
+        quote: "7. 「수산생물질병 관리법」 제17조제2항, 제18조, 제25조제1항 각 호 및 제34조제1항이 적용되는 수산동물의 사체, 오염된 시설 또는 물건, 수입금지물건 및 검역 불합격품"
+    grade: A
+
+  - id: EXC-AMMUNITION
+    when: {fact: law_exclusion, eq: ammunition}
+    then: {outcome: EXCLUDED}
+    basis:
+      - unit: ACT-WASTE/제3조
+        quote: "8. 「군수품관리법」 제13조의2에 따라 폐기되는 탄약"
+    grade: A
+
+  - id: EXC-PET-FUNERAL
+    when: {fact: law_exclusion, eq: pet_funeral}
+    then: {outcome: EXCLUDED}
+    basis:
+      - unit: ACT-WASTE/제3조
+        quote: "9. 「동물보호법」 제69조제1항에 따른 동물장묘업의 허가를 받은 자가 설치ㆍ운영하는 동물장묘시설에서 처리되는 동물의 사체"
+    grade: A
+
+  - id: EXC-FISHERY-BYPRODUCT
+    when: {fact: law_exclusion, eq: fishery_byproduct_unmixed}
+    then: {outcome: EXCLUDED}
+    basis:
+      - unit: ACT-WASTE/제3조
+        quote: "다른 폐기물과 혼합되지 않아 수산부산물만 배출ㆍ수집ㆍ운반ㆍ재활용하는 경우에는 이 법을 적용하지 아니한다."
+    grade: A
+    note: 제3항. 다른 폐기물과 섞인 수산부산물은 이 법을 적용하므로 law_exclusion은 none으로 답한다.
+
+  - id: EXC-NONE
+    when: {fact: law_exclusion, eq: none}
+    then: continue
+    basis:
+      - unit: ACT-WASTE/제3조
+        quote: "이 법은 다음 각 호의 어느 하나에 해당하는 물질에 대하여는 적용하지 아니한다."
+    grade: A

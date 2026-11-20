@@ -1,543 +1,273 @@
-"""HTTP 라우터 (docs/api/api-spec.md). 비즈니스 로직은 service.py에 있다."""
+"""서버(scrap-server)가 부르는 내부 API /internal/v1.
+
+인증: Authorization: Bearer <ENGINE_SERVICE_TOKEN>(상수 시간 비교)
++ X-Company-Id(서버가 인증한 기업 ID).
+처음 보는 기업 ID는 엔진에 자동으로 만든다. 건은 기업별로 격리된다(다른 기업의 건은 404).
+서류는 업로드 → 검수 대기 후보 → 서버 검수(apply) → EVIDENCED 사실로만 판정에 들어간다.
+"""
 
 from __future__ import annotations
 
+import hmac
+from collections.abc import Iterator
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, Query, Request, Response, UploadFile
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm.exc import StaleDataError
+from fastapi import APIRouter, Depends, File, Form, Header, Path, Query, Request, UploadFile
+from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import JSONResponse
+from sqlalchemy.orm import Session
 
-from app.api.deletion import DeletionFailed, delete_company_data, latest_deletion
-from app.api.deps import (
-    CompanyDep,
-    DbDep,
-    KBDep,
-    KBInfoDep,
-    LLMsDep,
-    SettingsDep,
-    TodayDep,
-    is_internal,
-    require_dev_endpoint,
-)
-from app.api.documents import UnsupportedDocument
-from app.api.errors import ERROR_RESPONSES, ErrorResponse, api_error
-from app.api.profile import ProfileOptions, profile_options
-from app.api.schemas import (
-    ApplyIn,
-    CaseCreate,
-    CaseCreated,
-    CaseDetail,
-    CaseListPage,
-    CaseOut,
-    CatalogFact,
-    CatalogValue,
-    CompanyCreate,
-    CompanyOut,
-    CompanyProfileUpdate,
-    ConfirmIn,
-    ConfirmOut,
-    DeletionOut,
-    DocumentOut,
-    DocumentTurn,
-    DocumentValueOut,
-    MessageIn,
-    PagingInfo,
-    ReopenIn,
-    ReopenOut,
-    RevokeIn,
-    TraceOut,
-    TraceRowOut,
-    TraceSessionOut,
-    VerdictOut,
-)
-from app.api.service import CaseService, ServiceError
+from app.api.errors import ApiError
+from app.api.schemas import ApplyIn, CaseCreateIn, ConfirmIn, MessageIn, ReopenIn, RevokeIn
 from app.config import Settings
-from app.domain.case import CaseStatus
-from app.domain.recycling import assess_recycling
-from app.domain.verdict import TurnResponse
-from app.persistence.models import Company, Document, WasteCase, new_id
+from app.engine.kb import KB
+from app.interview import catalog as cat
+from app.interview.service import CaseService
+from app.persistence.models import Company
 
-# 라우터 구성
-# - dev_router: 개발용 기업 API. 루트 경로에만 둔다(prod에서는 404).
-# - case_router: 건·문진·카탈로그. 루트(참조 화면)와 `/internal/v1`(scrap-server) 양쪽에 올린다.
-# - root_list_router / internal_list_router: 목록만 응답 모양이 달라 따로 둔다.
-dev_router = APIRouter(responses=ERROR_RESPONSES)
-case_router = APIRouter(responses=ERROR_RESPONSES)
-root_list_router = APIRouter(responses=ERROR_RESPONSES)
-internal_list_router = APIRouter(responses=ERROR_RESPONSES)
-company_data_router = APIRouter(responses=ERROR_RESPONSES)  # /internal/v1 전용(루트에는 없음)
-router = dev_router  # 하위 호환 이름
-DEFAULT_PAGE_SIZE = 20
-MAX_PAGE_SIZE = 100
-STALE_MESSAGE = "다른 요청이 같은 문진을 먼저 갱신했습니다. 다시 시도하세요"
+router = APIRouter(prefix="/internal/v1")
+
+_ID = r"^[A-Za-z0-9_-]{1,64}$"
+CaseId = Annotated[str, Path(pattern=_ID)]
 
 
-def get_service(
-    db: DbDep,
-    kb: KBDep,
-    kb_info: KBInfoDep,
-    llms: LLMsDep,
-    settings: SettingsDep,
-    today: TodayDep,
-    company: CompanyDep,
+def settings_dep(request: Request) -> Settings:
+    return request.app.state.settings
+
+
+def kb_dep(request: Request) -> KB:
+    return request.app.state.kb
+
+
+def db_dep(request: Request) -> Iterator[Session]:
+    yield from request.app.state.db.session()
+
+
+def auth(
+    settings: Annotated[Settings, Depends(settings_dep)],
+    authorization: Annotated[str | None, Header()] = None,
+) -> None:
+    token = settings.engine_service_token.get_secret_value()
+    if not token:
+        if settings.app_env == "prod":
+            raise ApiError(401, "AUTH_REQUIRED", "엔진 인증 설정이 없습니다")
+        return  # 로컬 개발 편의: 토큰을 안 정했으면 통과
+    scheme, _, value = (authorization or "").partition(" ")
+    if scheme.lower() != "bearer" or not hmac.compare_digest(value.encode(), token.encode()):
+        raise ApiError(401, "AUTH_REQUIRED", "인증이 필요합니다")
+
+
+def service_dep(
     request: Request,
+    db: Annotated[Session, Depends(db_dep)],
+    kb: Annotated[KB, Depends(kb_dep)],
+    settings: Annotated[Settings, Depends(settings_dep)],
 ) -> CaseService:
-    """요청 하나 = DB 트랜잭션 하나. 커밋하지 않고 끝나면 세션을 닫으면서 되돌린다.
-
-    엔진 자체 기업 정보(PROFILE) 시딩은 개발·참조 화면(루트 경로, prod 아님)에서만 한다.
-    """
-    return CaseService(
-        db,
-        kb,
-        kb_info,
-        llms,
-        settings,
-        today,
-        company,
-        seed_local_profile=not is_internal(request),
-        azure_client=getattr(request.app.state.container, "azure_client", None),
-    )
+    return CaseService(db, kb, settings, getattr(request.app.state, "llm", None))
 
 
-ServiceDep = Annotated[CaseService, Depends(get_service)]
+Service = Annotated[CaseService, Depends(service_dep)]
 
 
-def _commit(svc: CaseService) -> None:
-    try:
-        svc.db.commit()
-    except (StaleDataError, IntegrityError) as exc:
-        # 같은 세션에 동시 요청: revision(낙관적 잠금) 또는 (session_id, seq) 유일 제약 충돌
-        svc.db.rollback()
-        raise api_error(409, STALE_MESSAGE, "CONCURRENT_UPDATE") from exc
+def company_dep(
+    svc: Service,
+    x_company_id: Annotated[str | None, Header(max_length=128)] = None,
+) -> Company:
+    if not x_company_id:
+        raise ApiError(400, "COMPANY_REQUIRED", "X-Company-Id가 필요합니다")
+    return svc.company(x_company_id)
 
 
-def _case_out(svc: CaseService, case: WasteCase) -> CaseOut:
-    rec = svc.repo.latest_for_case(case.id)
-    return CaseOut.model_validate(
-        {
-            "id": case.id,
-            "company_id": case.company_id,
-            "memo": case.memo,
-            "quantity": case.quantity,
-            "unit": case.unit,
-            "period": case.period,
-            "status": case.status,
-            "session_id": rec.id if rec else None,
-            "created_at": case.created_at,
-            "updated_at": case.updated_at,
-            "diagnosis_started_at": rec.started_at if rec else None,
-            "last_activity_at": rec.last_activity_at if rec else None,
-            "as_of": rec.as_of if rec else None,
-            "summary": svc.summary(case, rec),
-            "kb_changed": svc.repo.kb_changed(rec),
-        }
-    )
+CompanyDep = Annotated[Company, Depends(company_dep)]
+deps = [Depends(auth)]
 
 
-def _doc_out(svc: CaseService, doc: Document) -> DocumentOut:
-    out = DocumentOut.model_validate(doc)
-    out.values = [DocumentValueOut.model_validate(v) for v in svc.document_values(doc)]
-    return out
+@router.post("/cases", status_code=201, dependencies=deps, summary="건 만들기 + 첫 질문")
+def create_case(body: CaseCreateIn, svc: Service, company: CompanyDep) -> JSONResponse:
+    return JSONResponse(svc.create_case(company, body.model_dump()), status_code=201)
 
 
-def _run(svc: CaseService, fn, *args, **kwargs):  # noqa: ANN001, ANN202
-    try:
-        return fn(*args, **kwargs)
-    except ServiceError as exc:
-        svc.db.rollback()
-        raise api_error(exc.status, exc.message, exc.code, **exc.extra) from exc
-    except UnsupportedDocument as exc:
-        svc.db.rollback()
-        raise api_error(415, str(exc), "UNSUPPORTED_DOCUMENT") from exc
-    except (StaleDataError, IntegrityError) as exc:
-        svc.db.rollback()
-        raise api_error(409, STALE_MESSAGE, "CONCURRENT_UPDATE") from exc
-
-
-# ---- 기업 (개발용 최소 API) --------------------------------------------------------------
-
-
-@dev_router.post(
-    "/companies",
-    response_model=CompanyOut,
-    status_code=201,
-    tags=["companies"],
-    dependencies=[Depends(require_dev_endpoint)],
-)
-def create_company(body: CompanyCreate, db: DbDep) -> Company:
-    # TODO(auth): 가입·로그인 흐름에서 만든다. 지금은 개발용으로 열어 둔다.
-    company = Company(id=new_id(), name=body.name, profile=body.profile.stored())
-    db.add(company)
-    db.commit()
-    return company
-
-
-@dev_router.get("/companies/profile-options", response_model=ProfileOptions, tags=["companies"])
-def get_profile_options() -> ProfileOptions:
-    """기업 정보 화면의 선택지(배출시설 종류). 인증 없이 부른다."""
-    return profile_options()
-
-
-@dev_router.get("/companies/me", response_model=CompanyOut, tags=["companies"])
-def get_my_company(company: CompanyDep) -> Company:
-    return company
-
-
-@dev_router.put(
-    "/companies/me/profile",
-    response_model=CompanyOut,
-    tags=["companies"],
-    dependencies=[Depends(require_dev_endpoint)],
-)
-def update_profile(body: CompanyProfileUpdate, company: CompanyDep, db: DbDep) -> Company:
-    company.profile = body.profile.stored()  # 이후 새로 만드는 건부터 적용
-    db.commit()
-    return company
-
-
-# ---- 카탈로그 ----------------------------------------------------------------------------
-
-
-@case_router.get("/catalog/facts", response_model=list[CatalogFact], tags=["catalog"])
-def get_catalog_facts(kb: KBDep) -> list[CatalogFact]:
-    """보드 편집·라벨용 사실 카탈로그 요약(카탈로그 순서). 내부 사실은 뺀다. 인증 없이 부른다."""
-    out = []
-    for fd in kb.catalog.values():
-        if fd.internal:
-            continue
-        if fd.type == "enum":
-            values = [
-                CatalogValue(
-                    value=v,
-                    label=fd.value_labels.get(v, v),
-                    parent_value=fd.value_parent.get(v) if fd.parent else None,
-                )
-                for v in fd.values or ()
-            ]
-        elif fd.type == "bool":
-            values = [
-                CatalogValue(value=True, label="예"),
-                CatalogValue(value=False, label="아니오"),
-            ]
-        else:
-            values = []
-        out.append(
-            CatalogFact(
-                key=fd.key,
-                label=fd.label or fd.question_hint or fd.key,
-                type=fd.type,
-                unit=fd.unit,
-                values=values,
-                parent=fd.parent,
-            )
-        )
-    return out
-
-
-# ---- 건 ----------------------------------------------------------------------------------
-
-
-@case_router.post("/cases", response_model=CaseCreated, status_code=201, tags=["cases"])
-def create_case(body: CaseCreate, svc: ServiceDep) -> CaseCreated:
-    case, turn = _run(
-        svc,
-        svc.create_case,
-        memo=body.memo,
-        quantity=body.quantity,
-        unit=body.unit,
-        period=body.period,
-        confirmed_facts=body.confirmed_facts,
-        company_profile_version=body.company_profile_version,
-    )
-    _commit(svc)
-    return CaseCreated(case=_case_out(svc, case), turn=turn)
-
-
-@root_list_router.get("/cases", response_model=list[CaseOut], tags=["cases"])
+@router.get("/cases", dependencies=deps, summary="기업의 건 목록(최근 갱신순)")
 def list_cases(
-    svc: ServiceDep,
-    response: Response,
-    status: Annotated[CaseStatus | None, Query()] = None,
-    page: Annotated[int | None, Query(ge=1)] = None,
-    size: Annotated[int | None, Query(ge=1, le=MAX_PAGE_SIZE)] = None,
-) -> list[CaseOut]:
-    """참조 화면용: 기존처럼 배열을 돌려준다. page·size를 주면 그 쪽만 자른다
-    (page만 주면 size=20). 전체 건수는 `X-Total-Count` 헤더."""
-    if page is not None or size is not None:
-        page, size = page or 1, size or DEFAULT_PAGE_SIZE
-    cases, total = svc.list_cases(status, page=page, size=size)
-    response.headers["X-Total-Count"] = str(total)
-    return [_case_out(svc, c) for c in cases]
-
-
-@internal_list_router.get("/cases", response_model=CaseListPage, tags=["cases"])
-def list_cases_paged(
-    svc: ServiceDep,
-    status: Annotated[CaseStatus | None, Query()] = None,
+    svc: Service,
+    company: CompanyDep,
+    status: str | None = None,
     page: Annotated[int, Query(ge=1)] = 1,
-    size: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = DEFAULT_PAGE_SIZE,
-) -> CaseListPage:
-    """서버용: `{items, pagingInfo}`. 최근 갱신순."""
-    cases, total = svc.list_cases(status, page=page, size=size)
-    return CaseListPage(
-        items=[_case_out(svc, c) for c in cases],
-        pagingInfo=PagingInfo(
-            currentPageNumber=page,
-            pageSize=size,
-            totalCount=total,
-            totalPages=-(-total // size),
-        ),
-    )
+    size: Annotated[int, Query(ge=1, le=100)] = 20,
+) -> dict:
+    out = svc.list_cases(company, status, page, size)
+    svc.db.commit()  # 처음 보는 기업 행 저장
+    return out
 
 
-@case_router.get("/cases/{case_id}", response_model=CaseDetail, tags=["cases"])
-def get_case(case_id: str, svc: ServiceDep) -> CaseDetail:
-    case = _run(svc, svc.get_case, case_id)
-    current = svc.repo.current_verdict(case.id)
-    return CaseDetail(
-        case=_case_out(svc, case),
-        current_verdict=VerdictOut.model_validate(current) if current else None,
-        verdicts=[VerdictOut.model_validate(v) for v in svc.repo.verdicts(case.id)],
-        latest_turn=svc.latest_turn(case),
-        documents=[_doc_out(svc, d) for d in svc.documents(case)],
-        handoff=current.handoff if current else None,
-        recycling=assess_recycling(svc.kb.recycling, current.handoff).model_dump(mode="json")
-        if current and current.handoff
-        else None,
-        conversation=svc.conversation(case),
-    )
+@router.get("/cases/{case_id}", dependencies=deps, summary="건 상세")
+def get_case(case_id: CaseId, svc: Service, company: CompanyDep) -> dict:
+    return svc.detail(company, case_id)
 
 
-# ---- 문진 --------------------------------------------------------------------------------
+@router.post("/cases/{case_id}/diagnosis/messages", dependencies=deps, summary="문진 답변")
+def send_message(case_id: CaseId, body: MessageIn, svc: Service, company: CompanyDep) -> dict:
+    return svc.message(company, case_id, body.model_dump(exclude_none=True))
 
 
-@case_router.post(
-    "/cases/{case_id}/diagnosis/messages", response_model=TurnResponse, tags=["diagnosis"]
-)
-def post_message(case_id: str, body: MessageIn, svc: ServiceDep) -> TurnResponse:
-    case = _run(svc, svc.get_case, case_id)
-    resp = _run(
-        svc,
-        svc.message,
-        case,
-        text=body.text,
-        quick_reply=body.quick_reply,
-        confirmed_facts=body.confirmed_facts,
-        company_profile_version=body.company_profile_version,
-    )
-    _commit(svc)
-    return resp
+@router.post("/cases/{case_id}/confirm", dependencies=deps, summary="판정 확정 + 인계 객체")
+def confirm(
+    case_id: CaseId, svc: Service, company: CompanyDep, body: ConfirmIn | None = None
+) -> dict:
+    return svc.confirm(company, case_id, body.expected_code if body else None)
 
 
-DOCUMENT_UPLOAD_RESPONSES: dict[int | str, dict] = {
-    413: {"model": ErrorResponse, "description": "파일이 너무 큼"},
-    415: {"model": ErrorResponse, "description": "지원하지 않는 파일 형식"},
-    422: {"model": ErrorResponse, "description": "facts 값 형식 오류: details.problems"},
-}
+@router.post("/cases/{case_id}/reopen", dependencies=deps, summary="확정 건 다시 열기")
+def reopen(
+    case_id: CaseId, svc: Service, company: CompanyDep, body: ReopenIn | None = None
+) -> dict:
+    return svc.reopen(company, case_id, body.reason if body else None)
 
 
-def _read_upload(file: UploadFile, settings: Settings) -> bytes:
-    data = file.file.read(settings.max_upload_bytes + 1)
-    if len(data) > settings.max_upload_bytes:
-        raise api_error(413, f"파일이 너무 큽니다(최대 {settings.max_upload_bytes} bytes)")
+@router.post("/cases/{case_id}/rebase", dependencies=deps, summary="바뀐 규칙으로 다시 평가")
+def rebase(case_id: CaseId, svc: Service, company: CompanyDep) -> dict:
+    return svc.rebase(company, case_id)
+
+
+DocId = Annotated[str, Path(pattern=_ID)]
+
+
+async def _read(file: UploadFile, limit: int) -> bytes:
+    data = await file.read(limit + 1)
+    if len(data) > limit:
+        raise ApiError(413, "FILE_TOO_LARGE", "파일이 너무 큽니다")
     return data
 
 
-@case_router.post(
+@router.post(
     "/cases/{case_id}/documents",
-    response_model=DocumentTurn,
     status_code=201,
-    tags=["diagnosis"],
-    responses=DOCUMENT_UPLOAD_RESPONSES,
+    dependencies=deps,
+    summary="서류 업로드(값은 검수 대기 후보로만 저장)",
 )
-def upload_document(
-    case_id: str,
-    svc: ServiceDep,
-    settings: SettingsDep,
+async def upload_document(
+    case_id: CaseId,
+    request: Request,
     file: Annotated[UploadFile, File()],
     facts: Annotated[str | None, Form()] = None,
-) -> DocumentTurn:
-    """서류 업로드. `facts`(JSON 객체)는 검수 대기 후보(UNVERIFIED)로만 저장한다(판정 불변).
-
-    판정에 쓰려면 검수 뒤 `…/documents/{doc}/values/apply`로 적용한다.
-    """
-    # 일반 def로 둔다: 아래 서비스는 동기 DB 호출이라 async def 안에서 부르면
-    # 그동안 서버의 다른 모든 요청이 멈춘다. def는 FastAPI가 스레드에서 실행한다.
-    data = _read_upload(file, settings)
-    case = _run(svc, svc.get_case, case_id)
-    doc, turn, values = _run(
-        svc,
-        svc.upload_document,
-        case,
-        filename=file.filename or "document",
-        content_type=file.content_type,
-        data=data,
-        manual_facts=facts,
-    )
-    _commit(svc)
-    return DocumentTurn(
-        document=_doc_out(svc, doc),
-        turn=turn,
-        values=[DocumentValueOut.model_validate(v) for v in values],
+) -> JSONResponse:
+    settings = request.app.state.settings
+    data = await _read(file, settings.max_upload_bytes)
+    # DB·표 읽기(Azure 포함)는 동기 작업이라 스레드에서 한다(async 안에서 막지 않음)
+    return JSONResponse(
+        await run_in_threadpool(
+            _with_service,
+            request,
+            "upload_document",
+            case_id,
+            filename=file.filename or "document",
+            content_type=file.content_type,
+            data=data,
+            facts=facts,
+        ),
+        status_code=201,
     )
 
 
-@case_router.post(
-    "/cases/{case_id}/documents/{document_id}/versions",
-    response_model=DocumentTurn,
+@router.post(
+    "/cases/{case_id}/documents/{doc_id}/versions",
     status_code=201,
-    tags=["diagnosis"],
-    responses=DOCUMENT_UPLOAD_RESPONSES,
+    dependencies=deps,
+    summary="서류 파일 교체(새 버전, 이전 값은 효력 해제)",
 )
-def replace_document(
-    case_id: str,
-    document_id: str,
-    svc: ServiceDep,
-    settings: SettingsDep,
+async def replace_document(
+    case_id: CaseId,
+    doc_id: DocId,
+    request: Request,
     file: Annotated[UploadFile, File()],
     facts: Annotated[str | None, Form()] = None,
-) -> DocumentTurn:
-    """같은 서류의 파일 교체(새 버전). 이전 버전에서 적용된 값은 자동으로 효력이 해제된다."""
-    data = _read_upload(file, settings)
-    case = _run(svc, svc.get_case, case_id)
-    doc, turn, values = _run(
-        svc,
-        svc.replace_document,
-        case,
-        document_id,
-        filename=file.filename or "document",
-        content_type=file.content_type,
-        data=data,
-        manual_facts=facts,
-    )
-    _commit(svc)
-    return DocumentTurn(
-        document=_doc_out(svc, doc),
-        turn=turn,
-        values=[DocumentValueOut.model_validate(v) for v in values],
+) -> JSONResponse:
+    settings = request.app.state.settings
+    data = await _read(file, settings.max_upload_bytes)
+    return JSONResponse(
+        await run_in_threadpool(
+            _with_service,
+            request,
+            "replace_document",
+            case_id,
+            doc_id,
+            filename=file.filename or "document",
+            content_type=file.content_type,
+            data=data,
+            facts=facts,
+        ),
+        status_code=201,
     )
 
 
-@case_router.post(
-    "/cases/{case_id}/documents/{document_id}/values/apply",
-    response_model=TurnResponse,
-    tags=["diagnosis"],
+def _with_service(request: Request, method: str, *args, **kwargs):
+    """async 라우트에서 쓰는 동기 서비스 호출: 세션을 열고 인증한 기업으로 부른다."""
+    company_id = request.headers.get("x-company-id")
+    if not company_id:
+        raise ApiError(400, "COMPANY_REQUIRED", "X-Company-Id가 필요합니다")
+    app = request.app
+    for db in app.state.db.session():
+        svc = CaseService(db, app.state.kb, app.state.settings, getattr(app.state, "llm", None))
+        svc.azure_client = getattr(app.state, "azure_client", None)  # 시험용 주입(기본 None)
+        return getattr(svc, method)(svc.company(company_id), *args, **kwargs)
+
+
+@router.post(
+    "/cases/{case_id}/documents/{doc_id}/values/apply",
+    dependencies=deps,
+    summary="검수한 서류 값을 판정에 반영",
 )
-def apply_document_values(
-    case_id: str, document_id: str, body: ApplyIn, svc: ServiceDep
-) -> TurnResponse:
-    """검수 완료된 서류 값을 EVIDENCED로 적용하고 다시 평가한다(원문 대조 없음, 형식만 검사)."""
-    case = _run(svc, svc.get_case, case_id)
-    turn, _ = _run(svc, svc.apply_values, case, document_id, body.values)
-    _commit(svc)
-    return turn
+def apply_values(
+    case_id: CaseId, doc_id: DocId, body: ApplyIn, svc: Service, company: CompanyDep
+) -> dict:
+    items = [v.model_dump() for v in body.values]
+    return svc.apply_values(company, case_id, doc_id, items)
 
 
-@case_router.post(
-    "/cases/{case_id}/documents/{document_id}/revoke",
-    response_model=TurnResponse,
-    tags=["diagnosis"],
+@router.post(
+    "/cases/{case_id}/documents/{doc_id}/revoke", dependencies=deps, summary="서류 효력 해제"
 )
 def revoke_document(
-    case_id: str, document_id: str, svc: ServiceDep, body: RevokeIn | None = None
-) -> TurnResponse:
-    """서류(또는 그 버전)에서 온 증빙의 효력을 해제하고 다시 평가한다. 이력은 남는다."""
-    case = _run(svc, svc.get_case, case_id)
-    turn, _ = _run(
-        svc,
-        svc.revoke_document,
-        case,
-        document_id,
-        reason=body.reason if body else None,
-        version=body.document_version if body else None,
-    )
-    _commit(svc)
-    return turn
-
-
-@case_router.post("/cases/{case_id}/rebase", response_model=TurnResponse, tags=["diagnosis"])
-def rebase(case_id: str, svc: ServiceDep) -> TurnResponse:
-    """저장된 규칙 버전이 바뀐 건(KB_CHANGED)을 지금 규칙으로 다시 평가한다. 확정 건은 409."""
-    case = _run(svc, svc.get_case, case_id)
-    turn = _run(svc, svc.rebase, case)
-    _commit(svc)
-    return turn
-
-
-@case_router.post("/cases/{case_id}/confirm", response_model=ConfirmOut, tags=["diagnosis"])
-def confirm(case_id: str, svc: ServiceDep, body: ConfirmIn | None = None) -> ConfirmOut:
-    case = _run(svc, svc.get_case, case_id)
-    verdict, frozen = _run(svc, svc.confirm, case, body.expected_code if body else None)
-    _commit(svc)
-    return ConfirmOut(
-        case=_case_out(svc, case),
-        verdict=VerdictOut.model_validate(verdict),
-        handoff=verdict.handoff,
-        frozen_trace_rows=frozen,
+    case_id: CaseId, doc_id: DocId, svc: Service, company: CompanyDep, body: RevokeIn | None = None
+) -> dict:
+    body = body or RevokeIn()
+    return svc.revoke_document(
+        company, case_id, doc_id, reason=body.reason, document_version=body.document_version
     )
 
 
-@case_router.post("/cases/{case_id}/reopen", response_model=ReopenOut, tags=["diagnosis"])
-def reopen(case_id: str, svc: ServiceDep, body: ReopenIn | None = None) -> ReopenOut:
-    case = _run(svc, svc.get_case, case_id)
-    old, turn = _run(svc, svc.reopen, case, body.reason if body else None)
-    _commit(svc)
-    return ReopenOut(
-        case=_case_out(svc, case),
-        superseded_verdict=VerdictOut.model_validate(old) if old else None,
-        turn=turn,
-    )
+@router.get("/cases/{case_id}/trace", dependencies=deps, summary="판정 근거 추적")
+def trace(case_id: CaseId, svc: Service, company: CompanyDep) -> dict:
+    return svc.trace_out(company, case_id)
 
 
-@case_router.get("/cases/{case_id}/trace", response_model=TraceOut, tags=["diagnosis"])
-def get_trace(case_id: str, svc: ServiceDep) -> TraceOut:
-    case = _run(svc, svc.get_case, case_id)
-    sessions = [
-        TraceSessionOut(
-            session_id=rec.id,
-            as_of=rec.as_of,
-            kb_dir=rec.kb_dir,
-            kb_version=rec.kb_version,
-            table_versions=rec.table_versions,
-            facts=svc.fact_rows(rec.id),
-            turns=[TraceRowOut.model_validate(r) for r in rows],
+@router.get("/catalog/facts", dependencies=deps, summary="사실 카탈로그(라벨·선택지)")
+def catalog_facts(kb: Annotated[KB, Depends(kb_dep)]) -> list[dict]:
+    out = []
+    for path in cat.all_paths(kb.plan.catalog):
+        s = cat.spec(kb.plan.catalog, path)
+        out.append(
+            {
+                "key": path,
+                "label": s["label"],
+                "type": cat.value_type(s),
+                "unit": s.get("unit"),
+                "values": [
+                    {"value": v, "label": label}
+                    for v, label in cat.value_map(s).items()
+                    if v != "unknown"
+                ],
+                "parent": None,
+            }
         )
-        for rec, rows in svc.trace_sessions(case)
-    ]
-    return TraceOut(
-        case_id=case.id,
-        sessions=sessions,
-        verdicts=[VerdictOut.model_validate(v) for v in svc.repo.verdicts(case.id)],
-    )
+    return out
 
 
-# ---- 기업 데이터 삭제 (CORP-009, /internal/v1 전용) -------------------------------------------
+@router.delete("/companies/{external_id}/data", dependencies=deps, summary="기업 데이터 삭제")
+def delete_company(external_id: Annotated[str, Path(max_length=128)], svc: Service) -> dict:
+    return svc.delete_company(external_id)
 
 
-@company_data_router.delete(
-    "/companies/{external_id}/data", response_model=DeletionOut, tags=["companies"]
-)
-def delete_company(external_id: str, db: DbDep) -> DeletionOut:
-    """탈퇴한 기업의 데이터 삭제(멱등). 서버 기업 ID는 경로로 받는다(`X-Company-Id` 불필요)."""
-    try:
-        log = delete_company_data(db, external_id)
-    except DeletionFailed as exc:
-        raise api_error(
-            500,
-            "기업 데이터 삭제에 실패했습니다. 다시 시도하세요",
-            "DELETION_FAILED",
-            attempts=exc.log.attempts,
-        ) from exc
-    return DeletionOut.model_validate(log, from_attributes=True)
-
-
-@company_data_router.get(
-    "/companies/{external_id}/data/deletion", response_model=DeletionOut, tags=["companies"]
-)
-def get_company_deletion(external_id: str, db: DbDep) -> DeletionOut:
-    """가장 최근 삭제 이력. 없으면 404 DELETION_NOT_FOUND."""
-    log = latest_deletion(db, external_id)
-    if log is None:
-        raise api_error(404, "삭제 이력이 없습니다", "DELETION_NOT_FOUND")
-    return DeletionOut.model_validate(log, from_attributes=True)
+@router.get("/companies/{external_id}/data/deletion", dependencies=deps, summary="최근 삭제 이력")
+def deletion(external_id: Annotated[str, Path(max_length=128)], svc: Service) -> dict:
+    return svc.deletion(external_id)

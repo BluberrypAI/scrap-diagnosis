@@ -5,8 +5,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from app.domain.tables import CellRef, TableGrid
 from app.reading.columns import ColumnInfo, ColumnRole, TableLayout
+from app.reading.tables import CellRef, TableGrid
 from app.reading.test_items import Group, TestItem, group_hint, match_items
 from app.reading.units import find_unit, unit_rule
 from app.reading.values import normalize_unit_cell

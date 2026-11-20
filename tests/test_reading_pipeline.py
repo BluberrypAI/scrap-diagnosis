@@ -5,7 +5,10 @@ from __future__ import annotations
 import pytest
 
 from app.config import Settings
-from app.domain.document import (
+from app.engine.ranges import NumRange
+from app.reading import azure_tables
+from app.reading.columns import ColumnRole, analyze_table, analyze_tables
+from app.reading.contract import (
     DocumentContent,
     ErrorCode,
     ExtractedFactItem,
@@ -13,13 +16,10 @@ from app.domain.document import (
     WarningCode,
     item_to_value,
 )
-from app.domain.ranges import NumRange
-from app.domain.tables import CellRef, Footnote, PageInfo, TableCell, TableExtraction, TableGrid
-from app.reading import azure_tables
-from app.reading.columns import ColumnRole, analyze_table, analyze_tables
 from app.reading.mapper import map_test_report
 from app.reading.pipeline import read_test_report
 from app.reading.table_guard import validate_table_item
+from app.reading.tables import CellRef, Footnote, PageInfo, TableCell, TableExtraction, TableGrid
 from app.reading.values import parse_value
 from tests.pdf_fixtures import _build, _table, scanned_like_pdf, simple_report_pdf
 
@@ -334,7 +334,7 @@ def test_guard_rejects_bad_coordinates_and_bad_conversion():
 def test_guard_rejects_detection_limit_not_in_source():
     t = grid(BASIC, footnotes=[Footnote(mark="※", text="검출한계 0.01 mg/L")])
     layouts = analyze_tables([t])
-    from app.domain.tables import FootnoteRef
+    from app.reading.tables import FootnoteRef
 
     bad = _found(
         key="leach_cd",

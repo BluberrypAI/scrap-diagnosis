@@ -10,15 +10,14 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from app.domain.document import (
+from app.reading.columns import ColumnInfo, ColumnRole, TableLayout, role_of_header
+from app.reading.contract import (
     Comparator,
     ExtractedFactItem,
     ExtractionWarning,
     ItemStatus,
     WarningCode,
 )
-from app.domain.tables import CellRef, FootnoteRef, TableGrid
-from app.reading.columns import ColumnInfo, ColumnRole, TableLayout, role_of_header
 from app.reading.rows import (
     RowInfo,
     candidate_items,
@@ -28,6 +27,7 @@ from app.reading.rows import (
     row_info,
     section_groups,
 )
+from app.reading.tables import CellRef, FootnoteRef, TableGrid
 from app.reading.test_items import BY_KEY, TestItem, match_items
 from app.reading.units import UnitRule, convert, find_unit, unit_rule
 from app.reading.values import numbers_in, parse_value, to_float

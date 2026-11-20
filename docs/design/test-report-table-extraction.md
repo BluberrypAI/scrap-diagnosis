@@ -1,5 +1,7 @@
 # 시험성적서 표 인식 설계 (제안)
 
+> 기존 엔진 문서(2026-11-20 복원). 표 읽기 설계는 그대로 유효하다. 파일 경로는 v2에서 `app/domain/document.py` → `app/reading/contract.py`, `app/domain/tables.py` → `app/reading/tables.py`, `app/domain/ranges.py` → `app/engine/ranges.py`로 옮겼고, 판정 연결은 `app/interview/documents.py`가 한다.
+
 시험성적서를 읽을 때 글자만 뽑지 않고 **표 구조(행·열·병합 칸)까지 인식**해서, 값이 어느 칸에서 왔는지를 검증할 수 있게 하는 설계다.
 [서류 읽기 계약](../document-extraction-contract.md)(`document-extraction-v1`)의 "읽기 구성요소"를 어떻게 만들지에 대한 제안이며, 계약은 선택 필드 추가로만 넓힌다.
 

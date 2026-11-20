@@ -1,4 +1,4 @@
-# waste-diagnosis 엔진 이미지(포트 8030).
+# scrap-diagnosis 엔진 이미지(포트 8030).
 # 운영 필수 환경변수: APP_ENV=prod, ENGINE_SERVICE_TOKEN, DATABASE_URL(postgresql+psycopg://…), DB_CREATE_ALL=false
 # DB 스키마는 컨테이너를 띄우기 전에 `alembic upgrade head`로 만든다.
 FROM python:3.12-slim
@@ -15,7 +15,8 @@ RUN uv sync --frozen --no-dev
 COPY app ./app
 COPY alembic ./alembic
 COPY alembic.ini ./
-COPY data ./data
+# 판정 규칙·문진 계획·법령 목록(엔진이 실행 중에 읽는다)
+COPY knowledge ./knowledge
 
 ENV PATH="/srv/.venv/bin:$PATH" APP_ENV=prod
 EXPOSE 8030

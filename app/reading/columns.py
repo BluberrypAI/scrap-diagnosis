@@ -10,7 +10,7 @@ import re
 from dataclasses import dataclass, field
 from enum import StrEnum
 
-from app.domain.tables import TableGrid, TableRef
+from app.reading.tables import TableGrid, TableRef
 from app.reading.units import find_unit
 
 

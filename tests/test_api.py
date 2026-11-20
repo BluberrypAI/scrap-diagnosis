@@ -1,382 +1,455 @@
-"""M4 API: 응답 스키마 계약(docs/engine/algorithm.md 7절), 상태 전이, 문서 증빙,
-confirm/reopen, Trace, 기업 격리.
-"""
+"""내부 API(/internal/v1) 테스트: 실제 knowledge/flow 규칙과 SQLite DB를 쓴다."""
 
-from __future__ import annotations
+from conftest import headers, make_client
 
-import json
-
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import select
-
-from app.agent.golden import normalize_extract
-from app.persistence.db import ImmutableTraceError
-from app.persistence.models import Document, FactRecord, TraceRecord
-from tests.api_support import Api, build_app, fake_llm, minimal_pdf, to_film_oil_question
-
-TURN_KEYS = {"case_id", "session_id", "turn_id", "branch", "message", "verdict", "ui"}
-TURN_KEYS |= {"case_status"}
-VERDICT_KEYS = {
-    "status",
-    "waste_code",
-    "waste_name",
-    "category",
-    "candidates",
-    "conditions",
-    "rationale",
-    "failure_reason",
-}
-UI_KEYS = {"can_confirm", "suggested_replies", "requested_documents"}
-BRANCHES = {"RESOLVE_CONFLICT", "UNSUPPORTED", "ASK_FACT", "REQUEST_EVIDENCE", "FINAL_REVIEW"}
-VERDICT_STATUSES = {"CONFIRMABLE", "NEEDS_EVIDENCE", "UNDETERMINABLE", "IN_PROGRESS"}
+H = headers()
+PP_SCRAP = [
+    ("material", "pp"),
+    ("input_form", "scrap"),
+    ("discharged", "yes"),
+    ("Q-PLASTIC-KIND", "none_all"),
+    ("packaging_used", "no"),
+    ("Q-CONTAMINATION", "none_all"),
+    ("law_exclusion", "none"),
+    ("circular_recognized", "no"),
+    ("emission_facility", "yes"),
+]
 
 
-def assert_turn_contract(t: dict, case_id: str | None = None) -> None:
-    assert set(t) >= TURN_KEYS
-    assert set(t["verdict"]) >= VERDICT_KEYS
-    assert set(t["ui"]) >= UI_KEYS
-    assert t["branch"] in BRANCHES
-    assert t["verdict"]["status"] in VERDICT_STATUSES
-    assert isinstance(t["message"], str) and t["message"]
-    assert isinstance(t["ui"]["can_confirm"], bool)
-    for c in t["verdict"]["candidates"]:
-        assert set(c) >= {"code", "rule_ids"}
-    for c in t["verdict"]["conditions"]:
-        assert set(c) >= {"fact", "text", "satisfied", "evidence"}
-    if case_id is not None:
-        assert t["case_id"] == case_id
+# 남은 질문에 답할 때의 기본 답(대부분 '예', 아래 사실은 흔한 답)
+DEFAULT = {"law_exclusion": "none", "circular_recognized": "no"}
 
 
-@pytest.fixture
-def api(kb, tmp_path) -> Api:
-    llm = fake_llm()
-    app = build_app(kb, tmp_path / "api.db", llm)
-    a = Api(client=TestClient(app), app=app, llm=llm, db_path=tmp_path / "api.db")
-    return a.use(a.company())
+def typical(q):
+    """질문 카드에 대한 흔한 답: 묶음은 '모두 해당 없음', 단일은 DEFAULT 또는 '예'."""
+    return "none_all" if q["unit"] == "group" else DEFAULT.get(q["key"], "yes")
 
 
-def finish_with_document(api: Api, case_id: str) -> dict:
-    to_film_oil_question(api, case_id)
-    return api.submit_document(case_id, {"oil_content_pct": 2}, b"oil 2%")["turn"]
-
-
-# ---- 응답 스키마·생성 --------------------------------------------------------------------
-
-
-def test_create_case_schema_and_memo_extraction(api):
-    api.llm.push(
-        "extract", normalize_extract({"facts": [{"key": "material", "value": "PP", "quote": "PP"}]})
+def reply(client, case_id, key, value=None, kind=None, h=H):
+    if kind is None:
+        kind = value if value in ("none_all", "expand", "unknown", "retract") else "value"
+    qr = {"key": key, "kind": kind}
+    if kind == "value":
+        qr["value"] = value
+    return client.post(
+        f"/internal/v1/cases/{case_id}/diagnosis/messages", json={"quick_reply": qr}, headers=h
     )
-    body = api.create_case(memo="PP 필름 자투리", period="2026-11")
-    case, turn = body["case"], body["turn"]
-    assert case["status"] == "DIAGNOSING" and case["session_id"] == turn["session_id"]
-    assert case["memo"] == "PP 필름 자투리" and case["quantity"] == 1.5 and case["unit"] == "t"
-    assert_turn_contract(turn, case["id"])
-    assert turn["branch"] == "ASK_FACT" and turn["case_status"] == "DIAGNOSING"
-    assert turn["ui"]["question"]["key"] != "material"  # 메모에서 소재를 뽑았으므로 다시 묻지 않음
-
-    trace = api.get(f"/cases/{case['id']}/trace").json()
-    facts = trace["sessions"][0]["facts"]
-    by_key = {f["key"]: f for f in facts}
-    assert by_key["emission_facility"]["source_type"] == "PROFILE"  # 기업 프로필 사실
-    assert "not_in_catalog" not in by_key  # 카탈로그 밖 키는 무시
-    assert by_key["material"]["source_type"] == "UTTERANCE" and by_key["material"]["quote"] == "PP"
-    first = trace["sessions"][0]["turns"][0]
-    assert first["kind"] == "TURN" and first["payload"]["input_text"] == "PP 필름 자투리"
-    assert first["payload"]["llm_calls"][0]["name"] == "extract"
 
 
-def test_message_validation(api):
-    cid = api.create_case()["case"]["id"]
-    url = f"/cases/{cid}/diagnosis/messages"
-    assert api.post(url, json={}).status_code == 422
-    assert api.post(url, json={"text": "  "}).status_code == 422
-    both = {"text": "PP", "quick_reply": {"key": "material", "value": "PP"}}
-    assert api.post(url, json=both).status_code == 422
+def new_case(client, h=H, **body):
+    res = client.post("/internal/v1/cases", json=body, headers=h)
+    assert res.status_code == 201, res.text
+    return res.json()
 
 
-def test_quick_reply_flow_and_contract(api):
-    cid = api.create_case()["case"]["id"]
-    t = api.reply(cid, "material", "PP")
-    assert_turn_contract(t, cid)
-    t = to_film_oil_question(api, cid)
-    assert t["branch"] == "ASK_FACT" and t["ui"]["question"]["key"] == "oil_content_pct"
-    assert t["ui"]["suggested_replies"] and not t["ui"]["can_confirm"]
-    detail = api.get(f"/cases/{cid}").json()
-    assert detail["latest_turn"]["turn_id"] == t["turn_id"]
-    assert detail["current_verdict"] is None and detail["verdicts"] == []
+def run_answers(client, case_id, answers, h=H):
+    turn = None
+    for key, value in answers:
+        res = reply(client, case_id, key, value, h=h)
+        assert res.status_code == 200, res.text
+        turn = res.json()
+    return turn
 
 
-# ---- 상태 전이 ---------------------------------------------------------------------------
+def test_first_question_is_material(client):
+    d = new_case(client, memo="PP 사출 자투리")
+    q = d["turn"]["ui"]["question"]
+    assert d["turn"]["branch"] == "ASK_FACT"
+    assert q["key"] == "material" and q["input"] == "choice"
+    assert {"pp", "pe", "pet", "aluminium"} <= {o["value"] for o in q["options"]}
+    assert d["case"]["status"] == "DIAGNOSING"
+    assert d["case"]["summary"]["title"] == "PP 사출 자투리"
 
 
-def test_status_transitions_and_list_filter(api):
-    cid = api.create_case()["case"]["id"]
-    to_film_oil_question(api, cid)
-    t = api.reply(cid, "oil_content_pct", kind="unknown")  # 모름 → 성적서 요청
-    assert t["branch"] == "REQUEST_EVIDENCE" and t["case_status"] == "NEEDS_INFO"
-    assert t["verdict"]["status"] == "NEEDS_EVIDENCE"
-    assert {d["evidence_type"] for d in t["ui"]["requested_documents"]} == {"TEST_REPORT"}
-
-    other = api.create_case()["case"]["id"]  # 진행 중인 건
-    ids = lambda q: {c["id"] for c in api.get(f"/cases{q}").json()}  # noqa: E731
-    assert ids("?status=NEEDS_INFO") == {cid}
-    assert ids("?status=DIAGNOSING") == {other}
-    assert ids("") == {cid, other}
-    assert api.get("/cases?status=BOGUS").status_code == 422
-
-    # 증빙 업로드(후보) → 검수 완료 적용 → EVIDENCED → FINAL_REVIEW, 건은 확정 전까지 DIAGNOSING
-    t = api.submit_document(cid, {"oil_content_pct": 2}, b"oil 2%")["turn"]
-    assert t["branch"] == "FINAL_REVIEW" and t["case_status"] == "DIAGNOSING"
-    assert api.get(f"/cases/{cid}").json()["case"]["status"] == "DIAGNOSING"
-
-
-def test_unsupported_needs_info_then_back_to_diagnosing(api):
-    cid = api.create_case()["case"]["id"]
-    t = api.reply(cid, "material", "OTHER")  # 샘플 KB에 테이블 없음
-    assert t["branch"] == "UNSUPPORTED" and t["case_status"] == "NEEDS_INFO"
-    assert t["verdict"]["status"] == "UNDETERMINABLE" and t["verdict"]["failure_reason"]
-    # NEEDS_INFO 건도 정보를 고치면 문진을 이어 간다
-    t = api.reply(cid, "material", "PE")
-    assert t["branch"] == "ASK_FACT" and t["case_status"] == "DIAGNOSING"
-
-
-# ---- 문서 --------------------------------------------------------------------------------
-
-
-def test_document_upload_does_not_call_llm_or_add_facts(api):
-    """자동 읽기는 하지 않는다: 원문은 저장만 하고 AI에 보내지 않으며, 판정도 바뀌지 않는다."""
-    cid = api.create_case()["case"]["id"]
-    before = to_film_oil_question(api, cid)
-    calls = len(api.llm.calls)
-    text = "시험성적서\n시료: PP 필름\n유분 함량: 2.0 %\n"
-    r = api.upload(cid, text.encode("utf-8"), filename="성적서.txt")
-    assert r.status_code == 201, r.text
-    body = r.json()
-    doc, turn = body["document"], body["turn"]
-    assert_turn_contract(turn, cid)
-    assert len(api.llm.calls) == calls  # 문서 원문을 AI에 보내지 않음
-    assert turn["branch"] == before["branch"] == "ASK_FACT"
-    assert turn["ui"]["question"]["key"] == "oil_content_pct"
-    assert doc["extracted_facts"]["method"] == "none" and doc["extracted_facts"]["accepted"] == {}
-    assert doc["version"] == 1 and body["values"] == []
-    assert doc["sha256"] and doc["size"] == len(text.encode("utf-8"))
-    trace = api.get(f"/cases/{cid}/trace").json()["sessions"][0]
-    assert not [f for f in trace["facts"] if f["source_type"] == "DOCUMENT"]
-    assert [t["kind"] for t in trace["turns"]][-2:] == ["DOCUMENT", "TURN"]
-    with api.container().sessionmaker() as db:
-        row = db.get(Document, doc["id"])
-        assert row.extracted_text == text and row.case_id == cid
-
-
-def test_document_pdf_text_extraction(api):
-    cid = api.create_case()["case"]["id"]
-    to_film_oil_question(api, cid)
-    r = api.upload(cid, minimal_pdf("Oil content 7 percent"), "report.pdf", "application/pdf")
-    assert r.status_code == 201, r.text
-    assert r.json()["turn"]["branch"] == "ASK_FACT"  # 원문만 저장, 판정 불변
-    with api.container().sessionmaker() as db:
-        row = db.get(Document, r.json()["document"]["id"])
-        assert "Oil content 7" in row.extracted_text
-
-
-def test_document_errors(api):
-    cid = api.create_case()["case"]["id"]
-    bad_key = api.upload(cid, b"x", facts=json.dumps({"nope": 1}))
-    assert bad_key.status_code == 422
-    assert bad_key.json()["detail"]["problems"][0]["key"] == "nope"
-    bad_val = api.upload(cid, b"x", facts=json.dumps({"material": "WOOD"}))
-    assert bad_val.status_code == 422
-    assert api.upload(cid, b"x", facts="[1, 2]").status_code == 422
-    assert api.upload(cid, b"MZ\x90", "tool.exe", "application/octet-stream").status_code == 415
-    # 실패한 업로드는 문서를 남기지 않는다
-    assert api.get(f"/cases/{cid}").json()["documents"] == []
-
-
-def test_document_without_facts_reevaluates(api):
-    cid = api.create_case()["case"]["id"]
-    to_film_oil_question(api, cid)
-    r = api.upload(cid, "참고 사진 설명".encode())  # FakeLLM 기본값: 뽑은 것 없음
-    assert r.status_code == 201
-    assert r.json()["turn"]["branch"] == "ASK_FACT"
-    assert r.json()["document"]["extracted_facts"]["accepted"] == {}
-
-
-# ---- confirm / reopen --------------------------------------------------------------------
-
-
-def test_confirm_rejected_when_not_confirmable(api):
-    cid = api.create_case()["case"]["id"]
-    to_film_oil_question(api, cid)
-    r = api.post(f"/cases/{cid}/confirm")
-    assert r.status_code == 409
-    assert r.json()["detail"]["branch"] == "ASK_FACT"
-    # 유분을 진술(CLAIMED)만 하면 증빙이 필요해 여전히 확정 불가
-    api.reply(cid, "oil_content_pct", {"hi": 5, "hi_inc": False})
-    assert api.post(f"/cases/{cid}/confirm").status_code == 409
-    assert api.get(f"/cases/{cid}").json()["case"]["status"] != "CODE_CONFIRMED"
-
-
-def test_confirm_freezes_verdict_and_trace(api):
-    cid = api.create_case()["case"]["id"]
-    turn = finish_with_document(api, cid)
-    assert turn["ui"]["can_confirm"]
-
-    mismatch = api.post(f"/cases/{cid}/confirm", json={"expected_code": "SAMPLE-B"})
-    assert mismatch.status_code == 409 and mismatch.json()["detail"]["server_code"] == "SAMPLE-A"
-
-    r = api.post(f"/cases/{cid}/confirm", json={"expected_code": "SAMPLE-A"})
-    assert r.status_code == 200, r.text
-    body = r.json()
-    v = body["verdict"]
-    assert body["case"]["status"] == "CODE_CONFIRMED"
-    assert v["version"] == 1 and v["code"] == "SAMPLE-A" and v["rule_ids"] == ["PW-001"]
-    assert v["table_id"] == "plastic_waste" and v["table_version"] == "2026.11.0"
-    assert v["kb_version"] and v["superseded_at"] is None
-    assert v["facts_snapshot"]["oil_content_pct"]["status"] == "EVIDENCED"
-    assert v["verdict"]["status"] == "CONFIRMABLE" and v["verdict"]["rationale"]
-    assert v["trace_turn_id"] == turn["turn_id"]
-
-    trace = api.get(f"/cases/{cid}/trace").json()
-    turns = trace["sessions"][0]["turns"]
-    assert turns[-1]["kind"] == "CONFIRM" and all(t["immutable"] for t in turns)
-    assert body["frozen_trace_rows"] == len(turns)
-    assert trace["verdicts"][0]["version"] == 1
-
-    # 확정 뒤에는 문진·업로드·재확정 불가(reopen 필요)
-    url = f"/cases/{cid}/diagnosis/messages"
-    assert api.post(url, json={"text": "PE예요"}).status_code == 409
-    assert api.upload(cid, b"x", facts=json.dumps({"oil_content_pct": 9})).status_code == 409
-    assert api.post(f"/cases/{cid}/confirm").status_code == 409
-    assert api.get("/cases?status=CODE_CONFIRMED").json()[0]["id"] == cid
-
-    # 불변 Trace는 ORM으로도 고칠 수 없다
-    with api.container().sessionmaker() as db:
-        row = db.scalars(select(TraceRecord).order_by(TraceRecord.id)).first()
-        row.payload = {"tampered": True}
-        with pytest.raises(ImmutableTraceError):
-            db.flush()
-        db.rollback()
-        row = db.scalars(select(TraceRecord).order_by(TraceRecord.id)).first()
-        db.delete(row)
-        with pytest.raises(ImmutableTraceError):
-            db.flush()
-
-
-def test_reopen_only_from_confirmed_and_keeps_versions(api):
-    cid = api.create_case()["case"]["id"]
-    assert api.post(f"/cases/{cid}/reopen").status_code == 409  # DIAGNOSING
-    finish_with_document(api, cid)
-    assert api.post(f"/cases/{cid}/confirm").status_code == 200
-
-    r = api.post(f"/cases/{cid}/reopen", json={"reason": "성적서 재발급"})
-    assert r.status_code == 200, r.text
-    body = r.json()
-    assert body["case"]["status"] == "DIAGNOSING"
-    assert body["superseded_verdict"]["version"] == 1
-    assert body["superseded_verdict"]["superseded_at"] is not None
-    assert_turn_contract(body["turn"], cid)
-    assert body["turn"]["branch"] == "FINAL_REVIEW"  # 같은 사실로 이어 감
-    assert api.post(f"/cases/{cid}/reopen").status_code == 409  # 이미 열림
-
-    detail = api.get(f"/cases/{cid}").json()
-    assert detail["current_verdict"] is None and len(detail["verdicts"]) == 1
-
-    # 새 성적서(유분 7%) → 다른 판정으로 다시 확정 → 버전 2, 버전 1은 보존
-    t = api.submit_document(cid, {"oil_content_pct": 7}, b"oil 7%")["turn"]
-    assert t["verdict"]["waste_code"] == "SAMPLE-B"
-    v2 = api.post(f"/cases/{cid}/confirm").json()["verdict"]
-    assert v2["version"] == 2 and v2["code"] == "SAMPLE-B"
-    detail = api.get(f"/cases/{cid}").json()
-    assert [(v["version"], v["code"]) for v in detail["verdicts"]] == [
-        (1, "SAMPLE-A"),
-        (2, "SAMPLE-B"),
+def test_form_options_follow_material(client):
+    cid = new_case(client)["case"]["id"]
+    turn = reply(client, cid, "material", "pet").json()
+    q = turn["ui"]["question"]
+    assert q["key"] == "input_form"
+    assert [o["value"] for o in q["options"] if o["kind"] == "value"] == [
+        "flake",
+        "bottle",
+        "bale",
+        "other",
     ]
-    assert detail["verdicts"][0]["superseded_at"] and detail["verdicts"][1]["superseded_at"] is None
-    assert detail["current_verdict"]["version"] == 2
-
-    turns = api.get(f"/cases/{cid}/trace").json()["sessions"][0]["turns"]
-    kinds = [t["kind"] for t in turns]
-    assert kinds.count("CONFIRM") == 2 and kinds.count("REOPEN") == 1
-    assert all(t["immutable"] for t in turns)  # 두 번째 확정까지 모두 고정
 
 
-def test_reopen_trace_rows_mutable_until_next_confirm(api):
-    cid = api.create_case()["case"]["id"]
-    finish_with_document(api, cid)
-    api.post(f"/cases/{cid}/confirm")
-    api.post(f"/cases/{cid}/reopen")
-    turns = api.get(f"/cases/{cid}/trace").json()["sessions"][0]["turns"]
-    i = next(i for i, t in enumerate(turns) if t["kind"] == "REOPEN")
-    assert all(t["immutable"] for t in turns[:i])
-    assert not any(t["immutable"] for t in turns[i:])
-
-
-# ---- 기업 격리 ---------------------------------------------------------------------------
-
-
-def test_company_isolation(api):
-    cid = api.create_case()["case"]["id"]
-    mine = dict(api.headers)
-    other = api.company("다른기업")
-    api.use(other)
-    for method, url in [
-        ("get", f"/cases/{cid}"),
-        ("get", f"/cases/{cid}/trace"),
-        ("post", f"/cases/{cid}/confirm"),
-        ("post", f"/cases/{cid}/reopen"),
-    ]:
-        assert getattr(api, method)(url).status_code == 404, url
-    r = api.post(f"/cases/{cid}/diagnosis/messages", json={"text": "PP"})
-    assert r.status_code == 404
-    assert api.upload(cid, b"x").status_code == 404
-    assert api.get("/cases").json() == []
-    assert api.get("/companies/me").json()["name"] == "다른기업"
-
-    api.headers = {}
-    assert api.get("/cases").status_code == 401
-    api.headers = {"X-Company-Id": "nope"}
-    assert api.get("/cases").status_code == 401
-    api.headers = mine
-    assert api.get(f"/cases/{cid}").status_code == 200
-
-
-def test_profile_update_applies_to_new_cases(api):
-    r = api.client.put(
-        "/companies/me/profile",
-        headers=api.headers,
-        json={"profile": {"facts": {"material": "PE", "form": "FILM"}}},
+def test_pp_scrap_to_confirmed_handoff(client):
+    cid = new_case(client)["case"]["id"]
+    turn = run_answers(client, cid, PP_SCRAP)
+    assert turn["branch"] == "FINAL_REVIEW"
+    assert turn["ui"]["can_confirm"] is True
+    assert turn["ui"]["result"]["code"] == "51-03-01"
+    res = client.post(
+        f"/internal/v1/cases/{cid}/confirm", json={"expected_code": "51-03-01"}, headers=H
     )
-    assert r.status_code == 200
-    turn = api.create_case()["turn"]
-    assert turn["ui"]["question"]["key"] == "contamination_screen"
+    assert res.status_code == 200, res.text
+    h = res.json()["handoff"]
+    # 서버(scrap-server treatment.py)가 읽는 필드
+    assert h["contract"] == "diagnosis-handoff-v1" and h["case_id"] == cid
+    assert (h["result_type"], h["category"], h["waste_code"]) == (
+        "WASTE_CODE",
+        "GENERAL",
+        "51-03-01",
+    )
+    assert h["route_guidance"]["action"] == "RECOMMEND_ROUTE"
+    assert h["facts"]["material"]["value"] == "pp"
+    assert h["facts"]["input_form"] == {
+        "value": "scrap",
+        "status": "CLAIMED",
+        "source_type": "UTTERANCE",
+    }
+    assert h["facts"]["physical_state"]["value"] == "solid"
+    assert h["timestamps"]["as_of"] and h["basis"]
+    detail = client.get(f"/internal/v1/cases/{cid}", headers=H).json()
+    assert detail["case"]["status"] == "CODE_CONFIRMED"
+    assert detail["handoff"] == h
+    assert detail["case"]["summary"]["next_action"] == "경로 추천 대기"
 
 
-# ---- 저장·복원 ---------------------------------------------------------------------------
+def test_company_facts_remembered_for_next_case(client):
+    first = new_case(client)["case"]["id"]
+    run_answers(client, first, PP_SCRAP)
+    second = new_case(client)["case"]["id"]
+    turn = run_answers(client, second, PP_SCRAP[:-1])  # 사업장 질문 없이 끝나야 한다
+    assert turn["branch"] == "FINAL_REVIEW"
+    sources = {f["key"]: f["source_type"] for f in turn["ui"]["board"]["facts"]}
+    assert sources["emission_facility"] == "PROFILE"
+    # 다른 기업에는 기억이 넘어가지 않는다
+    other = new_case(client, h=headers("co-2"))["case"]["id"]
+    turn = run_answers(client, other, PP_SCRAP[:-1], h=headers("co-2"))
+    assert turn["ui"]["question"]["key"] == "emission_facility"
 
 
-def test_fact_rows_are_append_only_in_seq_order(api):
-    cid = api.create_case()["case"]["id"]
-    api.reply(cid, "material", "PE")
-    api.reply(cid, "material", "PP")  # 정정도 덮어쓰지 않고 append
-    with api.container().sessionmaker() as db:
-        rows = db.scalars(select(FactRecord).order_by(FactRecord.seq)).all()
-        assert [r.seq for r in rows] == list(range(len(rows)))
-        assert [r.value for r in rows if r.key == "material"] == ["PE", "PP"]
-        assert all(r.recorded_at.tzinfo is not None for r in rows)
+def test_unknown_blocks_and_cannot_confirm(client):
+    cid = new_case(client)["case"]["id"]
+    answers = PP_SCRAP[:3] + [("packaging_used", "unknown")]
+    turn = run_answers(client, cid, answers)
+    while turn["branch"] == "ASK_FACT":
+        q = turn["ui"]["question"]
+        turn = reply(client, cid, q["key"], typical(q)).json()
+    assert turn["branch"] == "UNSUPPORTED"
+    assert [p["key"] for p in turn["ui"]["board"]["pending"]] == ["packaging_used"]
+    res = client.post(f"/internal/v1/cases/{cid}/confirm", headers=H)
+    assert res.status_code == 409 and res.json()["detail"]["code"] == "NOT_CONFIRMABLE"
+    assert (
+        client.get(f"/internal/v1/cases/{cid}", headers=H).json()["case"]["status"] == "NEEDS_INFO"
+    )
+    # 보드에서 답을 고치면 이어서 진행한다
+    turn = reply(client, cid, "packaging_used", "no").json()
+    assert turn["branch"] == "FINAL_REVIEW"
 
 
-def test_real_kb_boots_and_answers(real_kb, tmp_path):
-    """실제 KB로도 건 생성·한 턴이 계약을 지킨다(질문 키는 고정하지 않는다)."""
-    app = build_app(real_kb, tmp_path / "real.db", fake_llm())
-    a = Api(client=TestClient(app), app=app, llm=None, db_path=tmp_path / "real.db")
-    a.use(a.company(profile={"facts": {}}))
-    body = a.create_case(memo="폐합성수지")
-    assert_turn_contract(body["turn"], body["case"]["id"])
-    assert body["case"]["status"] in {"DIAGNOSING", "NEEDS_INFO"}
-    q = body["turn"]["ui"]["question"]
-    if q is not None and q["options"]:
-        opt = q["options"][0]
-        t = a.reply(body["case"]["id"], q["key"], opt.get("value"), opt.get("kind", "value"))
-        assert_turn_contract(t, body["case"]["id"])
+def test_group_expand_asks_items_one_by_one(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(client, cid, PP_SCRAP[:5])
+    turn = reply(client, cid, "Q-CONTAMINATION", "expand").json()
+    q = turn["ui"]["question"]
+    assert (q["key"], q["unit"], q["group"]) == ("oil_presence", "fact", "Q-CONTAMINATION")
+    turn = reply(client, cid, "oil_presence", "none").json()
+    assert turn["ui"]["question"]["key"] == "residue"
+    assert turn["ui"]["question"]["answered_items"][0]["key"] == "oil_presence"
+
+
+def test_oil_without_document_is_designated_possible(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(client, cid, PP_SCRAP[:5])
+    reply(client, cid, "Q-CONTAMINATION", "expand")
+    reply(client, cid, "oil_presence", "present")
+    reply(client, cid, "residue", "none")
+    reply(client, cid, "chemical_itself", "no")
+    turn = reply(client, cid, "oil_pct_evidenced", "unknown").json()
+    turn = (
+        run_answers(client, cid, [("law_exclusion", "none"), ("circular_recognized", "no")])
+        if turn["branch"] == "ASK_FACT"
+        else turn
+    )
+    assert turn["branch"] == "FINAL_REVIEW"
+    r = turn["ui"]["result"]
+    assert (r["outcome"], r["code"], r["category"]) == (
+        "DESIGNATED_POSSIBLE",
+        None,
+        "DESIGNATED_POSSIBLE",
+    )
+    assert "성적서" in r["reason"]
+    h = client.post(f"/internal/v1/cases/{cid}/confirm", headers=H).json()["handoff"]
+    assert h["route_guidance"]["action"] == "NEEDS_TEST" and h["waste_code"] is None
+
+
+def test_out_of_scope_hides_candidate_code(client):
+    cid = new_case(client)["case"]["id"]
+    turn = run_answers(client, cid, [("material", "aluminium"), ("input_form", "scrap")])
+    while turn["branch"] == "ASK_FACT":
+        q = turn["ui"]["question"]
+        turn = reply(client, cid, q["key"], typical(q)).json()
+    r = turn["ui"]["result"]
+    assert (r["outcome"], r["code"]) == ("OUT_OF_SCOPE", None)
+    assert "지원 예정" in r["conclusion"]
+
+
+def test_can_circular_not_all_done_is_one_click(client):
+    cid = new_case(client)["case"]["id"]
+    turn = run_answers(client, cid, [("material", "aluminium"), ("input_form", "can")])
+    seen = []
+    while turn["branch"] == "ASK_FACT":
+        q = turn["ui"]["question"]
+        seen.append(q["key"])
+        if q["key"] == "can_contents":
+            turn = reply(client, cid, "can_contents", "food_beverage").json()
+        elif q["key"] == "Q-CAN-CIRCULAR":
+            assert q["options"][1]["kind"] == "expand"
+            turn = reply(client, cid, "Q-CAN-CIRCULAR", "expand").json()
+        else:
+            turn = reply(client, cid, q["key"], typical(q)).json()
+    assert seen.count("Q-CAN-CIRCULAR") == 1
+    assert turn["ui"]["result"]["code"] == "51-29-03"
+
+
+def test_retract_returns_fact_to_unasked(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(client, cid, [("material", "pp")])
+    turn = reply(client, cid, "material", kind="retract").json()
+    assert turn["ui"]["question"]["key"] == "material"
+
+
+def test_text_message_is_logged_and_question_repeats(client):
+    cid = new_case(client)["case"]["id"]
+    res = client.post(
+        f"/internal/v1/cases/{cid}/diagnosis/messages", json={"text": "PP예요"}, headers=H
+    )
+    assert res.status_code == 200
+    assert res.json()["ui"]["question"]["key"] == "material"
+    conv = client.get(f"/internal/v1/cases/{cid}", headers=H).json()["conversation"]
+    assert [m["role"] for m in conv] == ["assistant", "user", "assistant"]
+
+
+def test_validation_errors(client):
+    cid = new_case(client)["case"]["id"]
+    res = reply(client, cid, "material", "wood")
+    assert res.status_code == 422
+    assert res.json()["detail"]["details"]["problems"][0]["reason"] == "선택지 밖 값"
+    res = reply(client, cid, "nope", "x")
+    assert res.status_code == 422
+    res = client.post(f"/internal/v1/cases/{cid}/diagnosis/messages", json={}, headers=H)
+    assert res.status_code == 422
+
+
+def test_confirmed_case_is_locked_until_reopen(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(client, cid, PP_SCRAP)
+    client.post(f"/internal/v1/cases/{cid}/confirm", headers=H)
+    res = reply(client, cid, "material", "pe")
+    assert res.status_code == 409 and res.json()["detail"]["code"] == "CASE_NOT_DIAGNOSABLE"
+    again = client.post(f"/internal/v1/cases/{cid}/confirm", headers=H)
+    assert again.json()["detail"]["code"] == "ALREADY_CONFIRMED"
+    res = client.post(f"/internal/v1/cases/{cid}/reopen", json={"reason": "재질 확인"}, headers=H)
+    assert res.status_code == 200
+    assert res.json()["superseded_verdict"]["version"] == 1
+    assert client.get(f"/internal/v1/cases/{cid}", headers=H).json()["handoff"] is None
+    res = client.post(f"/internal/v1/cases/{cid}/confirm", headers=H)
+    assert res.json()["verdict"]["version"] == 2
+
+
+def test_code_mismatch(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(client, cid, PP_SCRAP)
+    res = client.post(
+        f"/internal/v1/cases/{cid}/confirm", json={"expected_code": "51-03-07"}, headers=H
+    )
+    assert res.status_code == 409 and res.json()["detail"]["code"] == "CODE_MISMATCH"
+
+
+def test_auth_and_isolation(tmp_path):
+    with make_client(tmp_path) as c:
+        res = c.post("/internal/v1/cases", json={}, headers={"X-Company-Id": "co-1"})
+        assert res.status_code == 401 and res.json()["detail"]["code"] == "AUTH_REQUIRED"
+        res = c.post(
+            "/internal/v1/cases", json={}, headers={"Authorization": f"Bearer {'test-token'}"}
+        )
+        assert res.status_code == 400 and res.json()["detail"]["code"] == "COMPANY_REQUIRED"
+        cid = new_case(c)["case"]["id"]
+        res = c.get(f"/internal/v1/cases/{cid}", headers=headers("co-2"))
+        assert res.status_code == 404 and res.json()["detail"]["code"] == "CASE_NOT_FOUND"
+
+
+def test_prod_without_token_is_closed(tmp_path):
+    with make_client(tmp_path, token="", app_env="prod") as c:
+        res = c.post("/internal/v1/cases", json={}, headers={"X-Company-Id": "co-1"})
+        assert res.status_code == 401
+
+
+def test_kb_changed_and_rebase(client):
+    cid = new_case(client)["case"]["id"]
+    db = client.app.state.db
+    with db.sessions() as s:
+        from app.persistence.models import Case
+
+        s.get(Case, cid).kb_version = "old"
+        s.commit()
+    res = reply(client, cid, "material", "pp")
+    assert res.status_code == 409 and res.json()["detail"]["code"] == "KB_CHANGED"
+    assert client.get(f"/internal/v1/cases/{cid}", headers=H).json()["case"]["kb_changed"] is True
+    assert client.post(f"/internal/v1/cases/{cid}/rebase", headers=H).status_code == 200
+    assert reply(client, cid, "material", "pp").status_code == 200
+
+
+def test_list_and_paging(client):
+    for _ in range(3):
+        new_case(client)
+    res = client.get("/internal/v1/cases?page=2&size=2", headers=H).json()
+    assert res["pagingInfo"] == {
+        "currentPageNumber": 2,
+        "pageSize": 2,
+        "totalCount": 3,
+        "totalPages": 2,
+    }
+    assert len(res["items"]) == 1
+
+
+def test_delete_company_data_is_idempotent(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(client, cid, PP_SCRAP)
+    client.post(f"/internal/v1/cases/{cid}/confirm", headers=H)
+    auth = {"Authorization": H["Authorization"]}
+    first = client.delete("/internal/v1/companies/co-1/data", headers=auth).json()
+    assert first["status"] == "DONE" and first["counts"]["cases"] == 1
+    assert first["counts"]["company_facts"] == 1
+    again = client.delete("/internal/v1/companies/co-1/data", headers=auth).json()
+    assert again == first
+    assert client.get(f"/internal/v1/cases/{cid}", headers=H).status_code == 404
+    log = client.get("/internal/v1/companies/co-1/data/deletion", headers=auth).json()
+    assert log["status"] == "DONE"
+
+
+def test_catalog_and_health(client):
+    facts = client.get("/internal/v1/catalog/facts", headers=H).json()
+    keys = {f["key"] for f in facts}
+    assert {"material", "input_form", "can_designation.registered"} <= keys
+    assert client.get("/health").json()["status"] == "ok"
+
+
+def test_recycling_types_in_handoff(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(client, cid, PP_SCRAP)
+    h = client.post(f"/internal/v1/cases/{cid}/confirm", headers=H).json()["handoff"]
+    r = h["recycling"]
+    assert (r["contract"], r["status"], r["waste_code"]) == (
+        "recycling-types-v1",
+        "table_listed",
+        "51-03-01",
+    )
+    assert r["case_id"] == cid and r["verdict_version"] == h["verdict_version"]
+    assert r["as_of"] == h["timestamps"]["as_of"]
+    assert r["types"]["free"][:2] == ["R-1", "R-2"]
+    assert "R-8-1" in r["types"]["analysis"]
+    assert r["source"]["url"].startswith("https://www.law.go.kr/")
+    assert r["facility_permit_verified"] is False and r["version"] and r["checksum"]
+    assert len(r["notes"]) == 4
+    assert client.get(f"/internal/v1/cases/{cid}", headers=H).json()["recycling"] == r
+
+
+def test_recycling_not_applicable_without_route(client):
+    cid = new_case(client)["case"]["id"]
+    turn = run_answers(client, cid, [("material", "aluminium"), ("input_form", "scrap")])
+    while turn["branch"] == "ASK_FACT":
+        q = turn["ui"]["question"]
+        turn = reply(client, cid, q["key"], typical(q)).json()
+    h = client.post(f"/internal/v1/cases/{cid}/confirm", headers=H).json()["handoff"]
+    assert h["recycling"]["status"] == "not_applicable"
+
+
+def test_group_pick_asks_only_picked_items(client):
+    cid = new_case(client)["case"]["id"]
+    turn = run_answers(client, cid, PP_SCRAP[:5])
+    q = turn["ui"]["question"]
+    assert q["key"] == "Q-CONTAMINATION" and q["allow_pick"] is True
+    res = client.post(
+        f"/internal/v1/cases/{cid}/diagnosis/messages",
+        json={"quick_reply": {"key": "Q-CONTAMINATION", "kind": "some", "value": ["residue"]}},
+        headers=H,
+    )
+    turn = res.json()
+    q = turn["ui"]["question"]
+    assert q["key"] == "residue"  # 세부 값이 여럿인 항목만 묻는다
+    assert q["text"] == "어떤 내용물이 남아 있나요?"
+    assert "none" not in [o["value"] for o in q["options"]]  # '남은 것 없음'은 뺀다
+    facts = {f["key"]: f["value"] for f in turn["ui"]["board"]["facts"]}
+    assert facts["oil_presence"] == "none" and facts["chemical_itself"] == "no"
+    bad = client.post(
+        f"/internal/v1/cases/{cid}/diagnosis/messages",
+        json={"quick_reply": {"key": "Q-CONTAMINATION", "kind": "some", "value": ["material"]}},
+        headers=H,
+    )
+    assert bad.status_code == 422
+
+
+def test_group_pick_records_single_value_items_without_asking_again(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(client, cid, PP_SCRAP[:5])
+    res = client.post(
+        f"/internal/v1/cases/{cid}/diagnosis/messages",
+        json={"quick_reply": {"key": "Q-CONTAMINATION", "kind": "some", "value": ["oil_presence"]}},
+        headers=H,
+    )
+    turn = res.json()
+    facts = {f["key"]: f["value"] for f in turn["ui"]["board"]["facts"]}
+    assert facts["oil_presence"] == "present"  # 체크한 순간 '있음'으로 기록
+    assert turn["branch"] == "REQUEST_EVIDENCE"  # 기름을 다시 묻지 않고 성적서로 넘어간다
+
+
+def test_question_has_why_and_basis(client):
+    turn = new_case(client)["turn"]
+    q = turn["ui"]["question"]
+    assert q["guide"]["reason"].startswith("재질에 따라")
+    assert q["basis"] and all(b["ref"] and b["excerpt"] for b in q["basis"])
+
+
+def test_law_exclusion_only_asks_radioactive_for_in_scope_solids(client):
+    cid = new_case(client)["case"]["id"]
+    turn = run_answers(client, cid, PP_SCRAP[:6])
+    q = turn["ui"]["question"]
+    assert q["key"] == "law_exclusion"
+    assert q["text"] == "방사성 물질에 오염됐거나 그럴 가능성이 있나요?"
+    assert [(o["value"], o["label"]) for o in q["options"] if o["kind"] == "value"] == [
+        ("none", "아니요"),
+        ("radioactive", "예"),
+    ]
+
+
+def test_material_change_drops_form_that_does_not_fit(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(client, cid, PP_SCRAP)
+    turn = reply(client, cid, "material", "pet").json()  # PET에는 '자투리'가 없다
+    assert turn["ui"]["question"]["key"] == "input_form"
+    assert [o["value"] for o in turn["ui"]["question"]["options"] if o["kind"] == "value"] == [
+        "flake",
+        "bottle",
+        "bale",
+        "other",
+    ]
+    turn = reply(client, cid, "material", "pe").json()  # PE는 형태를 다시 고른 뒤라 유지
+    form = next(f for f in turn["ui"]["board"]["facts"] if f["key"] == "material")
+    assert form["value"] == "pe"
+
+
+def test_board_hides_answers_that_no_longer_apply(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(
+        client,
+        cid,
+        [("material", "aluminium"), ("input_form", "can"), ("can_contents", "food_beverage")],
+    )
+    turn = reply(client, cid, "input_form", "scrap").json()
+    keys = [f["key"] for f in turn["ui"]["board"]["facts"]]
+    assert "can_contents" not in keys
+    form = next(f for f in turn["ui"]["board"]["facts"] if f["key"] == "input_form")
+    assert [o["value"] for o in form["edit"]["options"]] == ["scrap", "can", "other"]
+
+
+def test_discharged_is_assumed_and_editable(client):
+    turn = new_case(client)["turn"]
+    fact = next(f for f in turn["ui"]["board"]["facts"] if f["key"] == "discharged")
+    assert (fact["value"], fact["source_type"], fact["editable"]) == ("yes", "ASSUMED", True)
+    cid = turn["case_id"]
+    turn = run_answers(client, cid, PP_SCRAP[:2] + [("discharged", "no")])
+    assert turn["ui"]["result"]["outcome"] == "NOT_WASTE"

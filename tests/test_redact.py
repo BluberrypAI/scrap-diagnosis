@@ -1,16 +1,11 @@
-"""AI 전송 정책: 가리기·fail-closed·문서 차단·Trace 최소화 (CORP-008, OPS-010, OPS-003)."""
+"""기존 엔진 참조(복원): 가리기 단위 테스트만 남겼다(세션·추출기 테스트는 v2에서 새로 쓴다).
+AI 전송 정책: 가리기·fail-closed·문서 차단·Trace 최소화 (CORP-008, OPS-010, OPS-003)."""
 
-import json
 from datetime import date
 
 import pytest
 
-from app.agent import redact as R
-from app.agent.extractor import extract
-from app.agent.golden import normalize_extract
-from app.agent.llm_client import FakeLLMClient
-from app.agent.orchestrator import DiagnosisSession
-from app.config import Settings
+from app.llm import redact as R
 
 AS_OF = date(2026, 11, 8)
 RAW = [
@@ -91,111 +86,3 @@ def test_fail_closed_on_residual(monkeypatch):
     monkeypatch.setattr(R, "_PATTERNS", [])  # 가리기가 아무것도 못 하는 상황
     with pytest.raises(R.RedactionError):
         R.redact("연락처 010-1234-5678")
-
-
-# ---- 추출기·세션 연동 ---------------------------------------------------------
-
-
-def _fake():
-    return FakeLLMClient(default=lambda n, s, u: normalize_extract({}))
-
-
-def _run(kb, text, llm, settings=None, source="user", recent=()):
-    return extract(
-        llm,
-        kb,
-        text,
-        effective={},
-        last_question=None,
-        recent=list(recent),
-        message_id="m1",
-        prompt_version="t",
-        source=source,
-        settings=settings or Settings(_env_file=None),
-    )
-
-
-def test_llm_payload_has_no_identifiers(kb):
-    llm = _fake()
-    text = (
-        "PP 폐기물이고 담당 010-1234-5678, 사업자 123-45-67890, kim@a.com, "
-        "서울시 강남구 테헤란로 152 수분 5% 미만 51-03-01"
-    )
-    recent = [{"role": "user", "text": "전화는 02-345-6789"}]
-    res, calls = _run(kb, text, llm, recent=recent)
-    assert res.llm_blocked is None
-    seen = llm.calls[0].user
-    for raw in ("010-1234-5678", "123-45-67890", "kim@a.com", "테헤란로 152", "02-345-6789"):
-        assert raw not in seen
-    for keep in ("[전화번호]", "[사업자번호]", "[이메일]", "[주소]", "51-03-01", "5% 미만"):
-        assert keep in seen
-    # Trace용 호출 기록에도 원문이 없다
-    dumped = json.dumps([c.model_dump() for c in calls], ensure_ascii=False)
-    for raw in ("010-1234-5678", "123-45-67890", "kim@a.com", "테헤란로 152"):
-        assert raw not in dumped
-    assert calls[0].user_sha256 and calls[0].user_len
-
-
-def test_guard_checks_masked_text_and_keeps_masked_quote(kb):
-    text = "PP입니다 연락처 010-1234-5678"
-    llm = FakeLLMClient(
-        default=lambda n, s, u: normalize_extract(
-            {"facts": [{"key": "material", "value": "PP", "quote": "PP입니다 연락처 [전화번호]"}]}
-        )
-    )
-    res, _ = _run(kb, text, llm)
-    assert not res.rejected
-    f = [x for x in res.facts if x.key == "material"][0]
-    assert "[전화번호]" in f.quote and "010" not in f.quote
-
-
-def test_fail_closed_blocks_llm(kb, monkeypatch):
-    monkeypatch.setattr(R, "_PATTERNS", [])
-    llm = _fake()
-    res, calls = _run(kb, "PP예요 010-1234-5678", llm)
-    assert res.llm_blocked and "redaction_failed" in res.llm_blocked
-    assert llm.calls == [] and calls == []
-
-
-def test_session_blocked_turn_goes_on_without_llm(kb, monkeypatch):
-    monkeypatch.setattr(R, "_PATTERNS", [])
-    ex = _fake()
-    rs = FakeLLMClient(default=lambda n, s, u: {"message": "x", "cited_basis_ids": []})
-    s = DiagnosisSession(kb, extractor_llm=ex, responder_llm=rs, case_id="c1", as_of=AS_OF)
-    r = s.handle(text="PP예요 010-1234-5678")
-    assert r.message
-    t = s.traces[-1]
-    assert t.extraction["llm_blocked"].startswith("redaction_failed")
-    assert ex.calls == []
-    assert t.responder["used_template"] is True
-
-
-def test_document_gate(kb):
-    llm = _fake()
-    res, calls = _run(kb, "서류 원문 PP", llm, source="document")
-    assert res.llm_blocked == "document_llm_not_allowed"
-    assert llm.calls == []
-    cfg = Settings(_env_file=None, allow_document_llm=True)
-    res, _ = _run(kb, "서류 원문 PP", llm, cfg, "document")
-    assert res.llm_blocked is None and len(llm.calls) == 1
-
-
-def test_trace_store_prompts_false_keeps_only_hashes(kb):
-    llm = _fake()
-    cfg = Settings(_env_file=None, trace_store_prompts=False)
-    _, calls = _run(kb, "PP예요 010-1234-5678", llm, cfg)
-    c = calls[0]
-    assert c.user == "" and c.raw is None and c.parsed is None
-    assert c.user_sha256 and c.user_len and c.raw_sha256
-
-
-def test_session_trace_has_no_raw_identifiers(kb):
-    ex = FakeLLMClient(by_name={"extract": [normalize_extract({})]})
-    rs = FakeLLMClient(default=lambda n, s, u: {"message": "네", "cited_basis_ids": []})
-    s = DiagnosisSession(kb, extractor_llm=ex, responder_llm=rs, case_id="c1", as_of=AS_OF)
-    s.handle(text="PP예요 담당 010-1234-5678 사업자 123-45-67890")
-    dumped = json.dumps(
-        [[x.model_dump() for x in t.llm_calls] for t in s.traces], ensure_ascii=False
-    )
-    assert "010-1234-5678" not in dumped and "123-45-67890" not in dumped
-    assert "[전화번호]" in dumped

@@ -1,0 +1,63 @@
+stage: 40_business
+title: 사업장폐기물과 생활폐기물
+order: 40
+on_no_match: continue
+rules:
+  # 사업장폐기물 = 배출시설 설치·운영 사업장 또는 대통령령 사업장(시행령 제2조)에서 나온 폐기물.
+  # 하나라도 참이면 사업장폐기물이므로 다음 단계로 간다. (any는 하나라도 참이면 다른 모름과 상관없이 참)
+  # 맨 아래 세 묶음(기름·내용물·약품)은 이 물질 자체가 지정폐기물일 수 있는 경우다. 지정폐기물을 배출하는 사업장은
+  # 시행령 제2조제6호로 사업장이 되므로 생활폐기물로 빠지면 안 된다(D12 안전 우선). 50단계 조건과 같게 맞춘다.
+  - id: BIZ-IS-BUSINESS
+    when:
+      any:
+        - {fact: emission_facility, eq: "yes"}
+        - {fact: public_facility, eq: "yes"}
+        - {fact: site_emits_designated, eq: "yes"}
+        - {fact: daily_avg_kg, gte: 300}
+        - {fact: construction_5t, eq: "yes"}
+        - {fact: oil_presence, eq: unknown}
+        - all:
+            - {fact: oil_presence, eq: present}
+            - {fact: oil_pct_evidenced, exists: true}
+            - {fact: oil_pct_evidenced, gte: 5}
+        - all:
+            - {fact: oil_presence, eq: present}
+            - {not: {fact: oil_pct_evidenced, exists: true}}
+        - {fact: residue, eq: other_contents}
+        - {fact: residue, eq: paint_other}
+        - {fact: residue, eq: unknown}
+        - {fact: chemical_itself, eq: "yes"}
+    then: continue
+    basis:
+      - unit: ACT-WASTE/제2조제3호
+        quote: "배출시설을 설치ㆍ운영하는 사업장이나 그 밖에 대통령령으로 정하는 사업장에서 발생하는 폐기물을 말한다"
+      - unit: DEC-WASTE/제2조
+        quote: "공공폐수처리시설을 설치ㆍ운영하는 사업장"
+      - unit: DEC-WASTE/제2조
+        quote: "법 제2조제4호에 따른 지정폐기물을 배출하는 사업장"
+      - unit: DEC-WASTE/제2조
+        quote: "폐기물을 1일 평균 300킬로그램 이상 배출하는 사업장"
+      - unit: DEC-WASTE/제2조
+        quote: "건설공사로 폐기물을 5톤(공사를 착공할 때부터 마칠 때까지 발생되는 폐기물의 양을 말한다)이상 배출하는 사업장"
+      - unit: DEC-WASTE/제2조
+        quote: "일련의 공사(제8호에 따른 건설공사는 제외한다) 또는 작업으로 폐기물을 5톤"
+    grade: A
+    note: >-
+      public_facility는 시행령 제2조제1호~제5호(공공폐수·공공하수·분뇨·가축분뇨 공공처리시설, 폐기물처리시설)를 한데 묻는 사실이다.
+      지정폐기물은 "사업장폐기물 중"에서 정해지므로(법 제2조제4호) 이 단계(사업장 여부)가 50단계(지정폐기물)보다 앞이다.
+
+  # 사업장이 아니면 사업장폐기물 외의 폐기물, 곧 생활폐기물이다. 위 규칙이 거짓이면 다섯 사실이 모두 확정된 아니오다.
+  # 하나라도 모르면 위 규칙이 모름이 되어 여기까지 오지 못하고 막힌다.
+  - id: BIZ-HOUSEHOLD
+    when:
+      all:
+        - {fact: emission_facility, eq: "no"}
+        - {fact: public_facility, eq: "no"}
+        - {fact: site_emits_designated, eq: "no"}
+        - {fact: daily_avg_kg, lt: 300}
+        - {fact: construction_5t, eq: "no"}
+    then: {outcome: HOUSEHOLD}
+    basis:
+      - unit: ACT-WASTE/제2조제2호
+        quote: "사업장폐기물 외의 폐기물을 말한다"
+    grade: A

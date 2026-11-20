@@ -1,0 +1,1422 @@
+# 자동 생성: tools/build_decision_table.py — 직접 고치지 않는다.
+# 골든 데이터셋 Step 2: 결정 테이블과 테스트 요구사항(TR).
+# 기대 결과는 명세 오라클(tools/cases_spec.py)로 계산한다.
+version: 1
+procedure:
+- 'G1 discharged: no→NOT_WASTE, unknown→INSUFFICIENT_INFO'
+- G2 circular_recognized=yes → CIRCULAR_RESOURCE
+- G3 can + 제18조 품목 + 지정 준수사항 7개 모두 yes → CIRCULAR_RESOURCE
+- 'G4 law_exclusion: 해당→EXCLUDED, unknown→INSUFFICIENT_INFO'
+- 'G5 business_site: 하나라도 yes→통과, 모두 no→HOUSEHOLD, 그 외→INSUFFICIENT_INFO (지정 가능성이면 제2조제6호로 사업장)'
+- G6 chemical_itself·residue·oil 중 하나라도 → DESIGNATED_POSSIBLE
+- G7 PVC·기타수지·발포·어망·부표·비캔 금속·비고체·제18조 외 캔 → OUT_OF_SCOPE
+- G8 캔→51-29-03(철은 route_unsupported), 포장재→51-03-07(interpretation), 아니면 51-03-01
+baselines:
+  PP:
+    discharged: 'yes'
+    circular_recognized: 'no'
+    law_exclusion: none
+    emission_facility: 'yes'
+    public_facility: 'no'
+    daily_avg_kg: 50
+    construction_5t: 'no'
+    site_emits_designated: 'no'
+    physical_state: solid
+    oil_presence: none
+    oil_pct_evidenced: null
+    residue: none
+    chemical_itself: 'no'
+    material: pp
+    input_form: scrap
+    foamed: 'no'
+    fishery_origin: none
+    packaging_used: 'no'
+  PE_PACK:
+    discharged: 'yes'
+    circular_recognized: 'no'
+    law_exclusion: none
+    emission_facility: 'yes'
+    public_facility: 'no'
+    daily_avg_kg: 50
+    construction_5t: 'no'
+    site_emits_designated: 'no'
+    physical_state: solid
+    oil_presence: none
+    oil_pct_evidenced: null
+    residue: none
+    chemical_itself: 'no'
+    material: pe
+    input_form: film
+    foamed: 'no'
+    fishery_origin: none
+    packaging_used: 'yes'
+  CAN:
+    discharged: 'yes'
+    circular_recognized: 'no'
+    law_exclusion: none
+    emission_facility: 'yes'
+    public_facility: 'no'
+    daily_avg_kg: 50
+    construction_5t: 'no'
+    site_emits_designated: 'no'
+    physical_state: solid
+    oil_presence: none
+    oil_pct_evidenced: null
+    residue: none
+    chemical_itself: 'no'
+    material: aluminium
+    input_form: can
+    can_contents: food_beverage
+    can_metal: aluminium
+    can_designation:
+      foreign_matter_le_2pct: 'yes'
+      unmixed: 'yes'
+      compressed: 'yes'
+      compress_facility_ok: 'yes'
+      sorted_by_metal: 'yes'
+      registered: 'no'
+      supplied_r41: 'yes'
+summary:
+  total: 98
+  by_kind:
+    baseline: 3
+    mcdc: 56
+    boundary: 4
+    masking: 9
+    metamorphic: 9
+    enumeration: 17
+  by_outcome:
+    GENERAL: 43
+    NOT_WASTE: 2
+    INSUFFICIENT_INFO: 7
+    EXCLUDED: 11
+    CIRCULAR_RESOURCE: 3
+    OUT_OF_SCOPE: 19
+    DESIGNATED_POSSIBLE: 10
+    HOUSEHOLD: 3
+test_requirements:
+- id: TR-001
+  kind: baseline
+  base: PP
+  changes: {}
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - baseline:PP
+- id: TR-002
+  kind: baseline
+  base: PE_PACK
+  changes: {}
+  expected:
+    outcome: GENERAL
+    code: 51-03-07
+    flags:
+    - interpretation
+  gate: G8
+  covers:
+  - baseline:PE_PACK
+- id: TR-003
+  kind: baseline
+  base: CAN
+  changes: {}
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - baseline:CAN
+- id: TR-004
+  kind: mcdc
+  base: PP
+  changes:
+    discharged: 'no'
+  expected:
+    outcome: NOT_WASTE
+    code: null
+    flags: []
+  gate: G1
+  covers:
+  - discharged=no
+- id: TR-005
+  kind: mcdc
+  base: PP
+  changes:
+    discharged: unknown
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  gate: G1
+  covers:
+  - discharged=unknown
+- id: TR-006
+  kind: mcdc
+  base: PP
+  changes:
+    law_exclusion: wastewater
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=listed
+- id: TR-007
+  kind: mcdc
+  base: PP
+  changes:
+    law_exclusion: unknown
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=unknown
+- id: TR-008
+  kind: mcdc
+  base: PP
+  changes:
+    circular_recognized: 'yes'
+  expected:
+    outcome: CIRCULAR_RESOURCE
+    code: null
+    flags: []
+  gate: G2
+  covers:
+  - circular_recognized=yes
+- id: TR-009
+  kind: mcdc
+  base: PP
+  changes:
+    physical_state: liquid
+    input_form: other
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: null
+    flags: []
+  gate: G7
+  covers:
+  - physical_state=nonsolid
+- id: TR-010
+  kind: mcdc
+  base: PP
+  changes:
+    physical_state: semisolid
+    input_form: other
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: null
+    flags: []
+  gate: G7
+  covers:
+  - physical_state=nonsolid
+- id: TR-011
+  kind: mcdc
+  base: PP
+  changes:
+    physical_state: unknown
+    input_form: other
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  gate: G7
+  covers:
+  - physical_state=unknown
+- id: TR-012
+  kind: mcdc
+  base: PP
+  changes:
+    oil_presence: present
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  gate: G6
+  covers:
+  - oil=present_without_evidence
+- id: TR-013
+  kind: mcdc
+  base: PP
+  changes:
+    oil_presence: unknown
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  gate: G6
+  covers:
+  - oil=unknown
+- id: TR-014
+  kind: mcdc
+  base: PP
+  changes:
+    residue: paint_dried_within_6mm
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - residue=paint_dried_within_6mm
+- id: TR-015
+  kind: mcdc
+  base: PP
+  changes:
+    residue: paint_other
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  gate: G6
+  covers:
+  - residue=paint_other
+- id: TR-016
+  kind: mcdc
+  base: PP
+  changes:
+    residue: other_contents
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  gate: G6
+  covers:
+  - residue=other_contents
+- id: TR-017
+  kind: mcdc
+  base: PP
+  changes:
+    residue: unknown
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  gate: G6
+  covers:
+  - residue=unknown
+- id: TR-018
+  kind: mcdc
+  base: PP
+  changes:
+    chemical_itself: 'yes'
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  gate: G6
+  covers:
+  - chemical_itself=yes
+- id: TR-019
+  kind: mcdc
+  base: PP
+  changes:
+    material: pvc
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-03
+    flags: []
+  gate: G7
+  covers:
+  - material=pvc
+- id: TR-020
+  kind: mcdc
+  base: PP
+  changes:
+    material: other_resin
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-01
+    flags: []
+  gate: G7
+  covers:
+  - material=other_resin
+- id: TR-021
+  kind: mcdc
+  base: PP
+  changes:
+    material: synthetic_rubber
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-02
+    flags: []
+  gate: G7
+  covers:
+  - material=synthetic_rubber
+- id: TR-022
+  kind: mcdc
+  base: PP
+  changes:
+    material: pe
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - material=pe
+- id: TR-023
+  kind: mcdc
+  base: PP
+  changes:
+    material: pet
+    input_form: flake
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - material=pet
+- id: TR-024
+  kind: mcdc
+  base: PP
+  changes:
+    foamed: 'yes'
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-06
+    flags: []
+  gate: G7
+  covers:
+  - foamed=yes
+- id: TR-025
+  kind: mcdc
+  base: PP
+  changes:
+    fishery_origin: fishing_net
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-08
+    flags: []
+  gate: G7
+  covers:
+  - fishery_origin=fishing_net
+- id: TR-026
+  kind: mcdc
+  base: PP
+  changes:
+    fishery_origin: aquaculture_buoy
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-05
+    flags: []
+  gate: G7
+  covers:
+  - fishery_origin=aquaculture_buoy
+- id: TR-027
+  kind: mcdc
+  base: PP
+  changes:
+    packaging_used: 'yes'
+  expected:
+    outcome: GENERAL
+    code: 51-03-07
+    flags:
+    - interpretation
+  gate: G8
+  covers:
+  - packaging_used=yes
+- id: TR-028
+  kind: mcdc
+  base: PP
+  changes:
+    packaging_used: yes_excluded
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - packaging_used=yes_excluded
+- id: TR-029
+  kind: mcdc
+  base: PP
+  changes:
+    packaging_used: unknown
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  gate: G8
+  covers:
+  - packaging_used=unknown
+- id: TR-030
+  kind: mcdc
+  base: PE_PACK
+  changes:
+    packaging_used: 'no'
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - packaging_used=no(film)
+- id: TR-031
+  kind: mcdc
+  base: CAN
+  changes:
+    material: aluminium
+    input_form: scrap
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-02
+    flags: []
+  gate: G7
+  covers:
+  - input_form=aluminium:scrap
+- id: TR-032
+  kind: mcdc
+  base: CAN
+  changes:
+    material: steel
+    input_form: scrap
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-01
+    flags: []
+  gate: G7
+  covers:
+  - input_form=steel:scrap
+- id: TR-033
+  kind: mcdc
+  base: CAN
+  changes:
+    can_metal: steel
+    material: steel
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags:
+    - route_unsupported
+  gate: G8
+  covers:
+  - can_metal=steel
+- id: TR-034
+  kind: mcdc
+  base: CAN
+  changes:
+    can_contents: butane
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=listed(butane)
+- id: TR-035
+  kind: mcdc
+  base: CAN
+  changes:
+    can_contents: other_product
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-04
+    flags: []
+  gate: G7
+  covers:
+  - can_contents=other_product
+- id: TR-036
+  kind: mcdc
+  base: CAN
+  changes:
+    can_contents: excluded_export_return
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-04
+    flags: []
+  gate: G7
+  covers:
+  - can_contents=excluded
+- id: TR-037
+  kind: mcdc
+  base: CAN
+  changes:
+    can_contents: unknown
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=unknown
+- id: TR-038
+  kind: mcdc
+  base: CAN
+  changes:
+    residue: other_contents
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  gate: G6
+  covers:
+  - residue=other_contents(can)
+- id: TR-039
+  kind: mcdc
+  base: CAN
+  changes:
+    can_designation:
+      foreign_matter_le_2pct: 'yes'
+      unmixed: 'yes'
+      compressed: 'yes'
+      compress_facility_ok: 'yes'
+      sorted_by_metal: 'yes'
+      registered: 'yes'
+      supplied_r41: 'yes'
+  expected:
+    outcome: CIRCULAR_RESOURCE
+    code: null
+    flags: []
+  gate: G3
+  covers:
+  - can_designation=all_yes
+- id: TR-040
+  kind: mcdc
+  base: CAN
+  changes:
+    can_designation:
+      foreign_matter_le_2pct: 'no'
+      unmixed: 'yes'
+      compressed: 'yes'
+      compress_facility_ok: 'yes'
+      sorted_by_metal: 'yes'
+      registered: 'yes'
+      supplied_r41: 'yes'
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_designation.foreign_matter_le_2pct=no
+- id: TR-041
+  kind: mcdc
+  base: CAN
+  changes:
+    can_designation:
+      foreign_matter_le_2pct: 'yes'
+      unmixed: 'no'
+      compressed: 'yes'
+      compress_facility_ok: 'yes'
+      sorted_by_metal: 'yes'
+      registered: 'yes'
+      supplied_r41: 'yes'
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_designation.unmixed=no
+- id: TR-042
+  kind: mcdc
+  base: CAN
+  changes:
+    can_designation:
+      foreign_matter_le_2pct: 'yes'
+      unmixed: 'yes'
+      compressed: 'no'
+      compress_facility_ok: 'yes'
+      sorted_by_metal: 'yes'
+      registered: 'yes'
+      supplied_r41: 'yes'
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_designation.compressed=no
+- id: TR-043
+  kind: mcdc
+  base: CAN
+  changes:
+    can_designation:
+      foreign_matter_le_2pct: 'yes'
+      unmixed: 'yes'
+      compressed: 'yes'
+      compress_facility_ok: 'no'
+      sorted_by_metal: 'yes'
+      registered: 'yes'
+      supplied_r41: 'yes'
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_designation.compress_facility_ok=no
+- id: TR-044
+  kind: mcdc
+  base: CAN
+  changes:
+    can_designation:
+      foreign_matter_le_2pct: 'yes'
+      unmixed: 'yes'
+      compressed: 'yes'
+      compress_facility_ok: 'yes'
+      sorted_by_metal: 'no'
+      registered: 'yes'
+      supplied_r41: 'yes'
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_designation.sorted_by_metal=no
+- id: TR-045
+  kind: mcdc
+  base: CAN
+  changes:
+    can_designation:
+      foreign_matter_le_2pct: 'yes'
+      unmixed: 'yes'
+      compressed: 'yes'
+      compress_facility_ok: 'yes'
+      sorted_by_metal: 'yes'
+      registered: 'no'
+      supplied_r41: 'yes'
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_designation.registered=no
+- id: TR-046
+  kind: mcdc
+  base: CAN
+  changes:
+    can_designation:
+      foreign_matter_le_2pct: 'yes'
+      unmixed: 'yes'
+      compressed: 'yes'
+      compress_facility_ok: 'yes'
+      sorted_by_metal: 'yes'
+      registered: 'yes'
+      supplied_r41: 'no'
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_designation.supplied_r41=no
+- id: TR-047
+  kind: mcdc
+  base: CAN
+  changes:
+    can_designation:
+      foreign_matter_le_2pct: 'yes'
+      unmixed: 'yes'
+      compressed: 'yes'
+      compress_facility_ok: 'yes'
+      sorted_by_metal: 'yes'
+      registered: unknown
+      supplied_r41: 'yes'
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_designation.registered=unknown
+- id: TR-048
+  kind: mcdc
+  base: PP
+  changes:
+    emission_facility: 'no'
+    public_facility: 'no'
+    daily_avg_kg: 50
+    construction_5t: 'no'
+    site_emits_designated: 'no'
+  expected:
+    outcome: HOUSEHOLD
+    code: null
+    flags: []
+  gate: G5
+  covers:
+  - business_site=all_no
+- id: TR-049
+  kind: mcdc
+  base: PP
+  changes:
+    emission_facility: 'yes'
+    public_facility: 'no'
+    daily_avg_kg: 50
+    construction_5t: 'no'
+    site_emits_designated: 'no'
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - business_site.emission_facility=yes
+- id: TR-050
+  kind: mcdc
+  base: PP
+  changes:
+    emission_facility: 'no'
+    public_facility: 'yes'
+    daily_avg_kg: 50
+    construction_5t: 'no'
+    site_emits_designated: 'no'
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - business_site.public_facility=yes
+- id: TR-051
+  kind: mcdc
+  base: PP
+  changes:
+    emission_facility: 'no'
+    public_facility: 'no'
+    daily_avg_kg: 500
+    construction_5t: 'no'
+    site_emits_designated: 'no'
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - business_site.daily_avg_kg=yes
+- id: TR-052
+  kind: mcdc
+  base: PP
+  changes:
+    emission_facility: 'no'
+    public_facility: 'no'
+    daily_avg_kg: 50
+    construction_5t: 'yes'
+    site_emits_designated: 'no'
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - business_site.construction_5t=yes
+- id: TR-053
+  kind: mcdc
+  base: PP
+  changes:
+    emission_facility: 'no'
+    public_facility: 'no'
+    daily_avg_kg: 50
+    construction_5t: 'no'
+    site_emits_designated: 'yes'
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - business_site.site_emits_designated=yes
+- id: TR-054
+  kind: mcdc
+  base: PP
+  changes:
+    emission_facility: unknown
+    public_facility: 'no'
+    daily_avg_kg: 50
+    construction_5t: 'no'
+    site_emits_designated: 'no'
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  gate: G5
+  covers:
+  - business_site=unknown
+- id: TR-055
+  kind: boundary
+  base: PP
+  changes:
+    emission_facility: 'no'
+    public_facility: 'no'
+    daily_avg_kg: 299
+    construction_5t: 'no'
+    site_emits_designated: 'no'
+  expected:
+    outcome: HOUSEHOLD
+    code: null
+    flags: []
+  gate: G5
+  covers:
+  - daily_avg_kg=299
+- id: TR-056
+  kind: boundary
+  base: PP
+  changes:
+    emission_facility: 'no'
+    public_facility: 'no'
+    daily_avg_kg: 300
+    construction_5t: 'no'
+    site_emits_designated: 'no'
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - daily_avg_kg=300
+- id: TR-057
+  kind: boundary
+  base: PP
+  changes:
+    oil_presence: present
+    oil_pct_evidenced: 4.9
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - oil_pct_evidenced=4.9
+- id: TR-058
+  kind: boundary
+  base: PP
+  changes:
+    oil_presence: present
+    oil_pct_evidenced: 5.0
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  gate: G6
+  covers:
+  - oil_pct_evidenced=5.0
+- id: TR-059
+  kind: masking
+  base: PP
+  changes:
+    discharged: 'no'
+    oil_presence: present
+  expected:
+    outcome: NOT_WASTE
+    code: null
+    flags: []
+  gate: G1
+  covers:
+  - NOT_WASTE>DESIGNATED
+- id: TR-060
+  kind: masking
+  base: PP
+  changes:
+    circular_recognized: 'yes'
+    material: pvc
+  expected:
+    outcome: CIRCULAR_RESOURCE
+    code: null
+    flags: []
+  gate: G2
+  covers:
+  - CIRCULAR>OUT_OF_SCOPE
+- id: TR-061
+  kind: masking
+  base: PP
+  changes:
+    law_exclusion: wastewater
+    oil_presence: present
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - EXCLUDED>DESIGNATED
+- id: TR-062
+  kind: masking
+  base: PP
+  changes:
+    emission_facility: 'no'
+    public_facility: 'no'
+    daily_avg_kg: 50
+    construction_5t: 'no'
+    site_emits_designated: 'no'
+    material: pvc
+  expected:
+    outcome: HOUSEHOLD
+    code: null
+    flags: []
+  gate: G5
+  covers:
+  - HOUSEHOLD>OUT_OF_SCOPE
+- id: TR-063
+  kind: masking
+  base: PP
+  changes:
+    material: pvc
+    oil_presence: present
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  gate: G6
+  covers:
+  - DESIGNATED>OUT_OF_SCOPE
+- id: TR-064
+  kind: masking
+  base: PP
+  changes:
+    foamed: 'yes'
+    packaging_used: 'yes'
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: null
+    flags: []
+  gate: G7
+  covers:
+  - OUT_OF_SCOPE>GENERAL(foam pack)
+- id: TR-065
+  kind: masking
+  base: PP
+  changes:
+    material: pvc
+    packaging_used: 'yes'
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: null
+    flags: []
+  gate: G7
+  covers:
+  - OUT_OF_SCOPE>GENERAL(pvc pack)
+- id: TR-066
+  kind: masking
+  base: PP
+  changes:
+    emission_facility: 'no'
+    public_facility: 'no'
+    daily_avg_kg: 50
+    construction_5t: 'no'
+    site_emits_designated: 'no'
+    oil_presence: present
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  gate: G6
+  covers:
+  - DESIGNATED via 시행령 제2조제6호 (household site + oil)
+  note: 지정폐기물 가능성이면 그 자체로 사업장(제2조제6호)이라 생활폐기물이 되지 않는다
+- id: TR-067
+  kind: metamorphic
+  base: PP
+  changes:
+    input_form: rigid
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - invariant:pp:scrap→rigid
+- id: TR-068
+  kind: metamorphic
+  base: PP
+  changes:
+    input_form: shredded
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - invariant:pp:scrap→shredded
+- id: TR-069
+  kind: metamorphic
+  base: PP
+  changes:
+    input_form: flake
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - invariant:pp:scrap→flake
+- id: TR-070
+  kind: metamorphic
+  base: PP
+  changes:
+    input_form: pellet
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - invariant:pp:scrap→pellet
+- id: TR-071
+  kind: metamorphic
+  base: PP
+  changes:
+    input_form: film
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - counterexample:film_not_packaging
+- id: TR-072
+  kind: metamorphic
+  base: PE_PACK
+  changes:
+    material: pet
+    input_form: bottle
+  expected:
+    outcome: GENERAL
+    code: 51-03-07
+    flags:
+    - interpretation
+  gate: G8
+  covers:
+  - invariant:pet_packaging:bottle
+- id: TR-073
+  kind: metamorphic
+  base: PE_PACK
+  changes:
+    material: pet
+    input_form: bale
+  expected:
+    outcome: GENERAL
+    code: 51-03-07
+    flags:
+    - interpretation
+  gate: G8
+  covers:
+  - invariant:pet_packaging:bale
+- id: TR-074
+  kind: metamorphic
+  base: PE_PACK
+  changes:
+    material: pet
+    input_form: flake
+  expected:
+    outcome: GENERAL
+    code: 51-03-07
+    flags:
+    - interpretation
+  gate: G8
+  covers:
+  - invariant:pet_packaging:flake
+- id: TR-075
+  kind: metamorphic
+  base: PP
+  changes:
+    material: pet
+    input_form: bottle
+    packaging_used: 'no'
+  expected:
+    outcome: GENERAL
+    code: 51-03-01
+    flags: []
+  gate: G8
+  covers:
+  - counterexample:bottle_not_packaging
+  note: 병 제조사의 미사용 불량 병처럼 포장에 쓰이지 않은 병
+- id: TR-076
+  kind: mcdc
+  base: PP
+  changes:
+    material: other
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: null
+    flags: []
+  gate: G7
+  covers:
+  - material=other
+- id: TR-077
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: radioactive
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=radioactive
+- id: TR-078
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: uncontained_gas
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=uncontained_gas
+- id: TR-079
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: livestock_manure
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=livestock_manure
+- id: TR-080
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: sewage_nightsoil
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=sewage_nightsoil
+- id: TR-081
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: livestock_disease
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=livestock_disease
+- id: TR-082
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: aquatic_disease
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=aquatic_disease
+- id: TR-083
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: ammunition
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=ammunition
+- id: TR-084
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: pet_funeral
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=pet_funeral
+- id: TR-085
+  kind: enumeration
+  base: PP
+  changes:
+    law_exclusion: fishery_byproduct_unmixed
+  expected:
+    outcome: EXCLUDED
+    code: null
+    flags: []
+  gate: G4
+  covers:
+  - law_exclusion=fishery_byproduct_unmixed
+- id: TR-086
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: agri_product
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=agri_product
+- id: TR-087
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: detergent
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=detergent
+- id: TR-088
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: cosmetics
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=cosmetics
+- id: TR-089
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: medicine
+    medicine_small: 'no'
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=medicine
+- id: TR-090
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: insecticide
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=insecticide
+- id: TR-091
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: clothing
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=clothing
+- id: TR-092
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: paper_product
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=paper_product
+- id: TR-093
+  kind: enumeration
+  base: CAN
+  changes:
+    can_contents: rubber_glove
+  expected:
+    outcome: GENERAL
+    code: 51-29-03
+    flags: []
+  gate: G8
+  covers:
+  - can_contents=rubber_glove
+- id: TR-094
+  kind: mcdc
+  base: PP
+  changes:
+    material: pe
+    foamed: 'yes'
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-06
+    flags: []
+  gate: G7
+  covers:
+  - foamed=yes(pe)
+- id: TR-095
+  kind: mcdc
+  base: PP
+  changes:
+    material: pet
+    input_form: flake
+    foamed: 'yes'
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-03-06
+    flags: []
+  gate: G7
+  covers:
+  - foamed=yes(pet)
+- id: TR-096
+  kind: masking
+  base: CAN
+  changes:
+    can_contents: other_product
+    can_designation:
+      foreign_matter_le_2pct: 'yes'
+      unmixed: 'yes'
+      compressed: 'yes'
+      compress_facility_ok: 'yes'
+      sorted_by_metal: 'yes'
+      registered: 'yes'
+      supplied_r41: 'yes'
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-04
+    flags: []
+  gate: G7
+  covers:
+  - designation_requires_listed_can
+  note: 제18조 품목이 아닌 캔은 준수사항을 모두 지켜도 지정 순환자원(폐금속캔류)이 아니다
+- id: TR-097
+  kind: mcdc
+  base: CAN
+  changes:
+    can_contents: medicine
+    medicine_small: 'yes'
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-04
+    flags: []
+  gate: G7
+  covers:
+  - medicine_small=yes
+- id: TR-098
+  kind: mcdc
+  base: CAN
+  changes:
+    can_contents: medicine
+    medicine_small: unknown
+  expected:
+    outcome: INSUFFICIENT_INFO
+    code: null
+    flags: []
+  gate: G8
+  covers:
+  - medicine_small=unknown

@@ -1,0 +1,95 @@
+# 결과 안내 (사람이 쓴 고정 문장, 판정에 쓰지 않는다)
+#
+# 판정 결과(outcome)를 화면 카드(ui.result)와 인계 객체(diagnosis-handoff-v1)로 바꿀 때 쓴다.
+#   result_type: WASTE_CODE(분류번호 있음) | NO_CODE
+#   category: 인계 객체의 구분. DESIGNATED_POSSIBLE은 v2에서 더한 값(지정폐기물 '가능성')
+#   action: 인계 객체 route_guidance.action (서버는 RECOMMEND_ROUTE일 때만 업체 추천으로 간다)
+#   conclusion: 결과 카드 첫 줄. {code}·{name}은 분류번호와 명칭
+#   reason: 결론의 이유 한 줄(규칙별 reason이 있으면 그것을 쓴다)
+#   next_step: 확정하면 무엇으로 이어지는지
+# OUT_OF_SCOPE는 후보 코드가 있어도 내보내지 않는다(D15: "범위 밖 · 지원 예정"만, 코드는 trace에만)
+
+version: 1
+
+codes:
+  "51-03-01": 폐합성수지류(폐염화비닐수지류는 제외한다)
+  "51-03-07": 플라스틱폐포장재
+  "51-29-03": 폐금속캔류
+
+outcomes:
+  GENERAL:
+    result_type: WASTE_CODE
+    category: GENERAL
+    action: RECOMMEND_ROUTE
+    conclusion: 분류번호는 {code}({name})이에요. 사업장일반폐기물이에요.
+    summary: 분류번호로 처리 공정과 업체 후보를 찾습니다.
+    next_step: 확정하면 경로 추천으로 넘어가요.
+  NOT_WASTE:
+    result_type: NO_CODE
+    category: null
+    action: NO_ROUTE_NEEDED
+    conclusion: 밖으로 내보내지 않는 물질이라 폐기물이 아니에요.
+    reason: 같은 공정에 다시 넣는 물질은 사업활동에 필요 없게 된 물질로 보지 않아요.
+    summary: 폐기물 처리 경로가 필요 없어요. 나중에 밖으로 내보내게 되면 다시 문진해 주세요.
+    next_step: 확정하면 처리 경로 없이 마무리돼요.
+  CIRCULAR_RESOURCE:
+    result_type: NO_CODE
+    category: null
+    action: NO_ROUTE_NEEDED
+    conclusion: 순환자원이라 폐기물로 보지 않아요.
+    summary: 순환자원 기준을 지키는 범위에서 거래하세요. 인정서·준수사항이 계속 유효한지 확인해 주세요.
+    next_step: 확정하면 처리 경로 없이 마무리돼요.
+  EXCLUDED:
+    result_type: NO_CODE
+    category: null
+    action: REFER_OTHER_LAW
+    conclusion: 폐기물관리법이 아니라 다른 법이 적용되는 물질이에요.
+    reason: 폐기물관리법 제3조에 따라 이 법의 적용에서 빠지는 물질이에요.
+    summary: 해당 물질을 다루는 법과 담당 기관의 기준에 따라 처리해 주세요.
+    next_step: 확정하면 다른 법 안내로 이어져요.
+  HOUSEHOLD:
+    result_type: NO_CODE
+    category: null
+    action: REFER_MUNICIPALITY
+    conclusion: 사업장폐기물이 아니라 생활폐기물이에요.
+    reason: 사업장폐기물 배출자 요건(배출시설, 하루 평균 300kg 이상 등)에 해당하지 않아요.
+    summary: 관할 시·군·구의 생활폐기물 배출 방법을 따라 주세요.
+    next_step: 확정하면 지자체 배출 안내로 이어져요.
+  DESIGNATED_POSSIBLE:
+    result_type: NO_CODE
+    category: DESIGNATED_POSSIBLE
+    action: NEEDS_TEST
+    conclusion: 지정폐기물일 수 있어서 일반 재활용 경로로 바로 보낼 수 없어요.
+    summary: 분석기관 시험이나 세척 등으로 지정폐기물이 아님을 확인한 뒤 다시 문진해 주세요. 확인 전에는 지정폐기물 처리 허가 업체에 맡겨야 해요.
+    next_step: 확정하면 시험·확인 안내로 이어져요.
+  OUT_OF_SCOPE:
+    result_type: NO_CODE
+    category: OUT_OF_SCOPE
+    action: MANUAL_CLASSIFICATION
+    conclusion: 아직 지원하지 않는 폐기물이에요(범위 밖 · 지원 예정).
+    reason: 지금은 PP·PE·PET와 알루미늄 캔만 판정해요.
+    summary: 범위 밖 · 지원 예정. 분류번호는 담당자나 관할 기관에 확인해 주세요.
+    next_step: 확정하면 담당자 확인 안내로 이어져요.
+
+# 규칙별 이유(그 규칙으로 결론이 났을 때 reason을 대신한다)
+rule_reasons:
+  CIR-RECOGNIZED: 순환자원 인정서를 받은 물질은 폐기물로 보지 않아요(순환경제사회 전환 촉진법 제21조).
+  CIR-CAN-DESIGNATED: 고시의 준수사항을 모두 지킨 금속캔은 지정 순환자원이라 폐기물로 보지 않아요.
+  DES-RESIDUE-UNKNOWN: 용기에 내용물이 남았는지 몰라서 지정폐기물 여부를 정할 수 없어요. 비우거나 세척한 뒤 다시 판정해 주세요.
+  DES-PAINT-CONTAINER: 페인트가 남은 용기는 폐페인트 용기(지정폐기물)에 해당할 수 있어요. 완전히 말라 6mm 이하로 남은 경우만 빠져요.
+  DES-RESIDUE-OTHER: 남은 내용물(기름·용제·약품·가스 등)에 따라 지정폐기물일 수 있어요. 비우거나 세척한 뒤 다시 판정해 주세요.
+  DES-OIL-UNKNOWN: 기름이 묻었는지 몰라서 폐유(지정폐기물) 여부를 정할 수 없어요.
+  DES-OIL-NO-EVIDENCE: 기름이 묻은 경우 기름성분 5% 미만을 분석성적서로 확인해야 해요. 성적서가 없어 정할 수 없어요.
+  DES-OIL-GE5: 분석성적서의 기름성분이 5% 이상이라 폐유(지정폐기물)에 해당할 수 있어요.
+  DES-CHEMICAL-ITSELF: 약품·시약 그 자체는 폐유독물질·부식성 폐기물·폐유기용제에 해당할 수 있어요.
+  SCO-NONSOLID-RESIN: 고체가 아닌 합성수지는 아직 판정하지 않아요(범위 밖 · 지원 예정).
+  SCO-FOAMED-PACKAGING: 발포 수지 포장재는 두 분류번호에 함께 해당해 아직 판정하지 않아요(범위 밖 · 지원 예정).
+
+# 플래그 안내(결과 assumptions와 인계 객체 assumptions에 들어간다)
+flags:
+  interpretation: 플라스틱폐포장재(51-03-07)는 별표 4에 정의가 없어, 시행규칙에 쓰인 뜻(자원재활용법 시행령 제18조의 합성수지 포장재)으로 해석했어요.
+  route_unsupported: 철 캔은 아직 업체 추천을 지원하지 않아요.
+
+# 판정을 끝내지 못했을 때(모른다고 답한 항목 때문에 막힘)
+unsupported:
+  message: "'모름'으로 답한 항목 때문에 판정을 끝내지 못했어요: {facts}. 판정 보드에서 답을 고치면 이어서 진행해요."

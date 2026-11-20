@@ -1,5 +1,7 @@
 # 서류 읽기 입출력 계약 (document-extraction-v1)
 
+> 기존 엔진 문서(2026-11-20 복원). 표 읽기 설계는 그대로 유효하다. 파일 경로는 v2에서 `app/domain/document.py` → `app/reading/contract.py`, `app/domain/tables.py` → `app/reading/tables.py`, `app/domain/ranges.py` → `app/engine/ranges.py`로 옮겼고, 판정 연결은 `app/interview/documents.py`가 한다.
+
 **이 문서는 계약만 정한다.** 서류에서 값을 읽어내는 구성요소(텍스트 해석, OCR, 프롬프트)는 구현하지 않고 나중으로 넘긴다. 지금의 업로드 흐름도 바꾸지 않는다. 계약 모델은 `app/domain/document.py`, 실행 가능한 검증은 `tests/test_document_contract.py`에 있다(이 문서의 JSON 예시를 테스트가 그대로 읽어 검증한다).
 
 > 0005부터: 서류에서 온 값은 바로 EVIDENCED가 되지 않는다. 읽은 값도 사람이 입력한 값과 같이 **검수 대기 후보**(`document_values`, UNVERIFIED)로 저장하고, 서버가 검수 완료로 적용(`…/values/apply`)한 값만 EVIDENCED가 된다(`docs/api/server-engine-contract.md` 3.1절). 아래 흐름의 "Fact(EVIDENCED) 적재"는 "후보 저장 → 검수 → 적용"으로 읽는다. 자동 읽기 엔드포인트는 미구현이다.
