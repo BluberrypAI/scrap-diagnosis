@@ -1,0 +1,29 @@
+stage: 10_is_waste
+title: 폐기물인가 (법 제2조제1호)
+order: 10
+on_no_match: continue
+rules:
+  # discharged가 모름이면 첫 규칙에서 막혀 INSUFFICIENT_INFO(blocking: discharged)가 된다(D11).
+  - id: WST-NOT-DISCHARGED
+    when: {fact: discharged, eq: "no"}
+    then: {outcome: NOT_WASTE}
+    basis:
+      - unit: ACT-WASTE/제2조제1호
+        quote: "사람의 생활이나 사업활동에 필요하지 아니하게 된 물질을 말한다"
+    decision: D3
+    grade: C
+    note: >-
+      같은 공정에 다시 넣는 등 밖으로 내보내지 않는 물질은 사업활동에 필요하지 않게 된 물질로 보지 않는다(D3).
+      "필요하지 아니하게 된"의 판단 기준을 배출 여부로 정한 것은 decisions.md 결정이다.
+
+  - id: WST-DISCHARGED
+    when: {fact: discharged, eq: "yes"}
+    then: continue
+    basis:
+      - unit: ACT-WASTE/제2조제1호
+        quote: "\"폐기물\"이란 쓰레기, 연소재(燃燒滓), 오니(汚泥), 폐유(廢油), 폐산(廢酸), 폐알칼리 및 동물의 사체(死體) 등으로서 사람의 생활이나 사업활동에 필요하지 아니하게 된 물질을 말한다."
+    decision: D3
+    grade: C
+    note: >-
+      밖으로 내보내는 물질은 폐기물 후보로 두고 다음 단계(순환자원 → 적용 제외 → 사업장)에서 지위를 가린다.
+      유상 판매여도 이 단계에서는 폐기물 후보로 본다. 폐기물이 아닌 것으로 보는 길은 순환자원(20단계)뿐이다.

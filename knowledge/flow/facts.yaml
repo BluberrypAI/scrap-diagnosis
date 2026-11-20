@@ -1,0 +1,232 @@
+# 사실 카탈로그 (판정 엔진의 입력 인터페이스)
+#
+# 판정 규칙(flow/*.yaml)이 조건에 쓸 수 있는 사실의 이름, 타입, 값 범위, 출처를 정한다.
+# 각 값이 어떤 결론으로 이어지는지는 여기 적지 않는다. 그건 규칙 작성자가 법령과 decisions.md에서 도출한다.
+#
+# 공통
+#   type: enum | bool3 | number | object
+#   bool3: [yes, no, unknown]  — 사용자가 모를 수 있는 예/아니오
+#   source: user(문진 답변) | document(서류: 업로드 → 검수 → 적용으로만 받음) | derived(다른 사실에서 계산)
+#   evidence: 서류 사실의 서류 종류(type), 화면 이름(label), 표 자동 읽기 항목 키(read_key)
+#   role: verdict(판정 입력) | verdict_and_handoff(판정 입력이면서 인계 객체로 전달)
+#   unknown: 값으로 'unknown'(모름)을 받을 수 있으면 true. 숫자 사실은 값이 없으면 모름이다
+
+version: 1
+
+facts:
+
+  # ---- 배출과 법적 지위 ------------------------------------------------------------------
+  - id: discharged
+    label: 사업장 밖으로 내보내는 물질인가(위탁·판매·처리업체 인계 등, 같은 공정에 다시 넣으면 아니요)
+    type: bool3
+    source: user
+    role: verdict
+
+  - id: law_exclusion
+    label: 아래 물질에 해당하나
+    type: enum
+    values:
+      none: 해당 없음
+      radioactive: 방사성 물질이나 그것으로 오염된 물질
+      uncontained_gas: 용기에 담기지 않은 기체
+      wastewater: 수질오염 방지시설로 들어가거나 공공수역으로 배출되는 폐수
+      livestock_manure: 가축분뇨
+      sewage_nightsoil: 하수·분뇨
+      livestock_disease: 가축전염병으로 처분 대상인 가축 사체·오염 물건·검역 불합격품
+      aquatic_disease: 수산생물 질병으로 처분 대상인 수산동물 사체·오염 물건·검역 불합격품
+      ammunition: 군에서 폐기하는 탄약
+      pet_funeral: 허가받은 동물장묘시설에서 처리하는 동물 사체
+      fishery_byproduct_unmixed: 다른 폐기물과 섞이지 않은 수산부산물만 따로 배출
+      unknown: 모름
+    source: user
+    role: verdict
+
+  - id: circular_recognized
+    label: 이 물질에 대해 순환자원 인정서를 받았나
+    type: bool3
+    source: user
+    role: verdict
+
+  # ---- 사업장 ---------------------------------------------------------------------------
+  - id: emission_facility
+    label: 대기·물·소음진동 배출시설을 설치·운영하는 사업장인가
+    type: bool3
+    source: user
+    role: verdict
+  - id: public_facility
+    label: 공공폐수처리시설·공공하수처리시설·분뇨처리시설·가축분뇨 공공처리시설·폐기물처리시설을 설치·운영하는 사업장인가
+    type: bool3
+    source: user
+    role: verdict
+  - id: daily_avg_kg
+    label: 이 사업장의 폐기물 1일 평균 배출량
+    type: number
+    unit: kg/day
+    min: 0
+    source: user
+    role: verdict
+  - id: construction_5t
+    label: 건설공사나 일련의 공사·작업으로 (착수부터 끝까지) 폐기물을 5톤 이상 배출하나
+    type: bool3
+    source: user
+    role: verdict
+  - id: site_emits_designated
+    label: 이 사업장에서 (이번 물질과 별개로) 지정폐기물이 나오나
+    type: bool3
+    source: user
+    role: verdict
+
+  # ---- 상태와 오염 ------------------------------------------------------------------------
+  - id: physical_state
+    label: 물리 상태
+    type: enum
+    values: {solid: 고체, liquid: 액체, semisolid: 반고체, unknown: 모름}
+    source: user
+    role: verdict
+  - id: oil_presence
+    label: 기름(절삭유·윤활유 등)이 묻었거나 섞였나
+    type: enum
+    values: {none: 없음, present: 있음, unknown: 모름}
+    source: user
+    role: verdict
+  - id: oil_pct_evidenced
+    label: 분석 서류(성적서)로 확인한 기름성분 함량
+    type: number
+    unit: "%"
+    min: 0
+    max: 100
+    source: document
+    role: verdict
+    evidence:
+      type: TEST_REPORT
+      label: 시험성적서(폐기물 분석전문기관)
+      read_key: oil_content_pct   # 성적서 표 자동 읽기(app/reading/test_items.py)의 항목 키
+    note: 서류 업로드 → 검수 → 적용으로만 값이 들어간다(버튼 답은 '모름'만). 불검출·'미만'은 구간 값이다
+  - id: residue
+    label: 용기·물건에 원래 내용물이 남아 있나
+    type: enum
+    values:
+      none: 남은 것 없음
+      paint_dried_within_6mm: 페인트가 남았지만 말라 있고 용기 바닥에서 6mm 이하
+      paint_other: 페인트가 남음(위 경우 외)
+      other_contents: 페인트 외 내용물(기름·용제·약품·가스 등)이 남음
+      unknown: 모름
+    source: user
+    role: verdict
+  - id: chemical_itself
+    label: 버리는 것이 약품·시약 그 자체인가
+    type: bool3
+    source: user
+    role: verdict
+
+  # ---- 재질과 형태 -----------------------------------------------------------------------
+  - id: material
+    label: 재질
+    type: enum
+    values:
+      pp: PP
+      pe: PE
+      pet: PET
+      pvc: PVC
+      other_resin: 그 밖의 합성수지(ABS, PS, PC 등)
+      synthetic_rubber: 합성고무
+      aluminium: 알루미늄
+      steel: 철
+      other: 합성수지·고무·금속이 아닌 것
+    source: user
+    role: verdict_and_handoff
+  - id: input_form
+    label: 현재 형태
+    type: enum
+    values:
+      scrap: 자투리·스크랩
+      rigid: 성형품·부품
+      film: 필름
+      shredded: 파쇄품
+      flake: 플레이크
+      pellet: 펠릿
+      bottle: 병
+      bale: 압축 묶음
+      film-bale: 필름 압축 묶음
+      can: 캔
+      other: 위 형태가 아님(액체·반고체 등)
+    allowed_by_material:
+      pp: [scrap, rigid, film, shredded, flake, pellet, bale, other]
+      pe: [scrap, rigid, film, shredded, flake, pellet, bale, film-bale, other]
+      pet: [bottle, bale, flake, other]
+      aluminium: [can, scrap, other]
+      steel: [can, scrap, other]
+    source: user
+    role: verdict_and_handoff
+    note: 서버(scrap-server develop)의 공정 자료가 받는 재질·형태 조합과 같다. 인계 객체에 그대로 넣는다.
+      재질을 먼저 묻고 그 재질의 형태만 선택지로 보여 준다(문진 계획 단계에서 정함)
+  - id: foamed
+    label: 발포된 수지(스티로폼, PE 폼 등)인가
+    type: bool3
+    source: user
+    role: verdict
+  - id: fishery_origin
+    label: 어망이나 양식용 부자(부표)에서 나왔나
+    type: enum
+    values: {none: 아님, fishing_net: 어망, aquaculture_buoy: 양식용 부자}
+    source: user
+    role: verdict
+
+  # ---- 포장 -------------------------------------------------------------------------------
+  - id: packaging_used
+    label: 제품이나 원료를 포장하는 데 쓰였던 것인가
+    type: enum
+    values:
+      "yes": 포장에 쓰였음
+      yes_excluded: 포장에 쓰였지만 수출용·연구용 견본·반품되어 폐기된 제품의 포장재
+      "no": 포장에 쓰인 적 없음
+      unknown: 모름
+    source: user
+    role: verdict
+
+  # ---- 캔 ---------------------------------------------------------------------------------
+  - id: can_contents
+    label: 캔에 원래 담겼던 제품
+    type: enum
+    values:
+      food_beverage: 음식료품(식품, 건강기능식품, 축산 가공품, 먹는물)
+      agri_product: 가공하지 않은 1차 농수축산물
+      detergent: 세제·비누 제품
+      cosmetics: 화장품, 애완동물 샴푸·린스
+      medicine: 의약품·의약외품
+      butane: 부탄가스 제품
+      insecticide: 가정용 살충·살균제
+      clothing: 의복·의복 액세서리
+      paper_product: 위생용 종이제품
+      rubber_glove: 가정용 고무장갑
+      excluded_export_return: 수출용·연구용 견본·반품되어 폐기된 제품
+      other_product: 위 외의 제품(페인트, 공업용 약품 등)
+      unknown: 모름
+    source: user
+    role: verdict
+  - id: medicine_small
+    label: 캔에 담겼던 의약품·의약외품이 내용량 30mL(또는 30g) 이하 제품이었나
+    type: bool3
+    source: user
+    role: verdict
+    note: can_contents가 medicine일 때만 묻는다
+  - id: can_metal
+    label: 캔 재질
+    type: enum
+    values: {aluminium: 알루미늄, steel: 철}
+    source: user
+    role: verdict_and_handoff
+  - id: can_designation
+    label: 캔을 순환자원으로 내보내기 위한 조치 상태
+    type: object
+    fields:
+      foreign_matter_le_2pct: 이물질이 무게 기준 2% 이하인가
+      unmixed: 다른 종류의 폐기물과 섞이지 않았나
+      compressed: 압축시설로 일정 규격으로 압축을 마쳤나
+      compress_facility_ok: 압축시설이 폐기물처리시설에 해당하면 설치승인·신고를 마쳤나(해당하지 않으면 yes)
+      sorted_by_metal: 철과 알루미늄을 분리했나
+      registered: 순환자원정보센터에 정보를 등록했나
+      supplied_r41: 금속제품 제조 용도로 공급하나
+    field_type: bool3
+    source: user
+    role: verdict

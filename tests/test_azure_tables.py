@@ -7,13 +7,13 @@ from types import SimpleNamespace as NS
 import pytest
 
 from app.config import Settings
-from app.domain.tables import TableRef
 from app.reading.azure_tables import (
     OcrDisabled,
     OcrFailed,
     analyze_layout,
     convert_layout_result,
 )
+from app.reading.tables import TableRef
 
 
 def _poly(x0, y0, x1, y1):

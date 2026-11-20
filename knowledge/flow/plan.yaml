@@ -1,0 +1,201 @@
+# 문진 계획: 무엇을 어떤 순서로 물을지 (사람이 정한다)
+#
+# 다음 질문 계산기(app/engine/planner.py)가 위에서부터 보면서 아래 조건을 모두 통과한 첫 질문을 낸다.
+#   1. 판정이 이미 끝났으면(INSUFFICIENT_INFO가 아니면) 묻지 않는다
+#   2. ask_if 조건이 참이 아니면 묻지 않는다(조건식은 SCHEMA.md와 같다)
+#   3. 질문의 사실이 이미 답해졌거나 자동으로 채워졌으면 묻지 않는다
+#   4. 관련성 가지치기: 그 사실에 가능한 답을 하나씩 넣어 봐도 판정 결과가 모두 같으면 묻지 않는다
+#
+# scope: company(회사별로 한 번 묻고 기억, 2026-11-20 B안) | waste(폐기물마다)
+# kind: single(사실 하나) | evidence(서류 요청: 업로드·검수로만 값을 받음) | group(묶음: "하나도 해당 없음"이면 none 값을 한꺼번에 채우고, 아니면 하나씩 묻는다)
+# text: 화면에 보일 질문 문장. help: 접어 두는 확인 방법(없으면 생략)
+# 묶음 항목의 ask: 묶음을 펼쳐 그 항목만 따로 물을 때의 질문 문장(선택지는 facts.yaml 값)
+# 체크 방식(kind=some)으로 고른 항목: pick이 있으면 그 값으로 바로 기록하고, 없으면 ask_picked로
+#   세부 값을 묻는다(선택지에서 '해당 없음' 값은 뺀다). 고른 항목을 같은 예/아니오로 다시 묻지 않는다
+# why: 질문 아래에 보일 '왜 묻는지' 한 줄(사람이 씀). 근거 조항은 그 답을 기다리는 규칙의 basis에서 자동으로 붙인다
+# 질문 문장은 판정에 쓰지 않는다. 쉬운 말 다듬기는 LLM 단계에서 붙인다
+# 순서 근거: 답하기 쉬운 것부터, 앞의 답이 뒤 질문을 줄이도록(재질 → 형태 → 포장·캔 → 오염 → 법 적용 → 순환자원)
+# 한 묶음에는 같은 축의 항목만 둔다(2026-11-20: '법적 확인' 묶음을 내보냄·다른 법 물질·인정서 질문 셋으로 나눔)
+# option_labels: 선택지 라벨을 이 질문에 맞게 바꾼다(값은 그대로)
+# variants: 조건(when)이 참이면 문장·이유·선택지(allowed)를 바꾼다. 판정에 쓰는 사실과 값은 그대로다
+
+version: 1
+
+# 다른 답에서 자동으로 채우는 값(질문 없이). 사용자가 직접 답한 값이 있으면 그 값이 이긴다.
+# 묻지 않고 두는 기본값(가정, D17). 결과·인계 객체에 가정으로 표시하고 판정 보드에서 고칠 수 있다
+assume:
+  - set: {discharged: "yes"}
+    note: 이 서비스에 등록한 폐기물이라 사업장 밖으로 내보내는 물질로 보고 판정했어요. 같은 공정에 다시 넣는 물질이면 판정 보드에서 '아니요'로 고쳐 주세요.
+
+derive:
+  - set: {physical_state: solid}
+    when: {fact: input_form, in: [scrap, rigid, shredded, flake, pellet, bottle, bale, film-bale, can, film]}
+    note: 형태 선택지는 모두 고체 형태다
+  - set: {can_metal: aluminium}
+    when: {all: [{fact: material, eq: aluminium}, {fact: input_form, eq: can}]}
+  - set: {can_metal: steel}
+    when: {all: [{fact: material, eq: steel}, {fact: input_form, eq: can}]}
+
+questions:
+  # ---- 폐기물 자체 --------------------------------------------------------------------------
+  - id: Q-MATERIAL
+    fact: material
+    scope: waste
+    kind: single
+    text: 어떤 재질인가요?
+    why: 재질에 따라 분류번호(폐합성수지류·폐금속캔류 등)와 지원 범위가 달라져요.
+    help: 제품 표시(재질 마크), 원료 구매 서류, 납품처 사양서에서 확인할 수 있어요.
+
+  - id: Q-FORM
+    fact: input_form
+    scope: waste
+    kind: single
+    ask_if: {fact: material, in: [pp, pe, pet, aluminium, steel]}
+    options_by: material          # facts.yaml의 allowed_by_material로 선택지를 좁힌다
+    always: true                  # 판정에 영향이 없어도 업체 추천(서버)에 넘겨야 해서 묻는다
+    text: 지금 어떤 형태인가요?
+    why: 지금 형태(자투리·파쇄품·캔 등)에 따라 처리 공정과 받을 수 있는 업체가 달라져요.
+
+  - id: Q-STATE
+    fact: physical_state
+    scope: waste
+    kind: single
+    note: 형태에서 자동으로 채워지지 않은 경우(범위 밖 재질 등)만 남는다
+    text: 지금 어떤 상태인가요?
+    why: 고체가 아닌 합성수지는 지정폐기물 기준이 따로 있어서 상태를 먼저 확인해요.
+
+  - id: Q-PLASTIC-KIND
+    kind: group
+    scope: waste
+    ask_if: {fact: material, in: [pp, pe, pet, pvc, other_resin]}
+    text: 아래 중 해당하는 것이 있나요?
+    why: 발포 수지·어망·양식용 부자는 별도 분류번호가 있어서 먼저 가려요.
+    items:
+      - {fact: foamed, pick: "yes", label: 스티로폼·PE 폼처럼 발포된 수지다, none: "no",
+         ask: "스티로폼·PE 폼처럼 발포된 수지인가요?"}
+      - {fact: fishery_origin, ask_picked: "어망인가요, 양식용 부자(부표)인가요?", label: 어망이나 양식용 부표에서 나왔다, none: none,
+         ask: "어망이나 양식용 부표에서 나왔나요?"}
+
+  - id: Q-PACKAGING
+    fact: packaging_used
+    scope: waste
+    kind: single
+    ask_if: {fact: material, in: [pp, pe, pet, pvc, other_resin]}
+    text: 제품이나 원료를 포장하는 데 쓰였던 것인가요?
+    why: 포장에 쓰였던 합성수지는 플라스틱폐포장재(51-03-07)로 따로 분류돼요.
+    help: 원료 포대, 제품 포장 필름, 완충재, 음료병처럼 무엇을 담거나 감쌌던 것이면 포장재예요.
+
+  - id: Q-CAN-CONTENTS
+    fact: can_contents
+    scope: waste
+    kind: single
+    ask_if: {fact: input_form, eq: can}
+    text: 캔에 원래 무엇이 담겨 있었나요?
+    why: 캔에 담겼던 제품에 따라 폐금속캔류(51-29-03)에 해당하는지가 정해져요.
+
+  - id: Q-MEDICINE-SMALL
+    fact: medicine_small
+    scope: waste
+    kind: single
+    ask_if: {fact: can_contents, eq: medicine}
+    text: 그 의약품·의약외품은 내용량 30mL(또는 30g) 이하 제품이었나요?
+    why: 소용량 의약품 캔은 폐금속캔류가 아니라 다른 분류로 봐요.
+
+  # ---- 오염 ---------------------------------------------------------------------------------
+  - id: Q-CONTAMINATION
+    kind: group
+    scope: waste
+    confirm_text: true            # 말로 한 '해당 없음'은 버튼으로 한 번 더 확인(지정폐기물 가능성을 지우는 답)
+    text: 아래 중 하나라도 해당하나요?
+    why: 기름·남은 내용물·약품이 있으면 지정폐기물일 수 있어 일반 재활용 업체로 보낼 수 없어요.
+    items:
+      - {fact: oil_presence, pick: present, label: 기름(절삭유·윤활유 등)이 묻었거나 섞여 있다, none: none,
+         ask: "기름(절삭유·윤활유 등)이 묻었거나 섞여 있나요?"}
+      - {fact: residue, ask_picked: "어떤 내용물이 남아 있나요?", label: 용기·물건에 원래 내용물(페인트·약품·기름·가스 등)이 남아 있다, none: none,
+         ask: "용기·물건에 원래 내용물이 남아 있나요?"}
+      - {fact: chemical_itself, pick: "yes", label: 버리는 것이 약품·시약 그 자체다, none: "no",
+         ask: "버리는 것이 약품·시약 그 자체인가요?"}
+
+  - id: Q-OIL-PCT
+    fact: oil_pct_evidenced
+    scope: waste
+    kind: evidence                # 질문 대신 서류를 요청한다(REQUEST_EVIDENCE). 검수·적용된 값만 쓴다
+    ask_if: {fact: oil_presence, eq: present}
+    note: 기름성분 5% 미만은 말로 확정하지 않는다(DES-OIL-NO-EVIDENCE). 서류가 없으면 '모름'으로 멈춘다
+    text: 기름이 묻은 경우 기름성분 함량을 분석성적서로 확인해야 해요. 성적서를 올려 주세요.
+    help: 폐기물 분석전문기관의 시험성적서에서 '기름성분'(노말헥산 추출물질) 항목을 확인해요. 성적서가 없으면 '서류가 없어요'를 눌러 주세요.
+
+  # ---- 법적 확인 ----------------------------------------------------------------------------
+  - id: Q-LAW-EXCLUSION
+    fact: law_exclusion
+    scope: waste
+    kind: single
+    text: 이 폐기물이 아래 중 하나인가요?
+    why: 이런 물질은 폐기물관리법이 아니라 각자의 법(원자력안전법·물환경보전법·가축분뇨법 등)으로 관리해요.
+    help: 공장에서 나온 플라스틱·캔은 대부분 '해당 없음'이에요.
+    # D16: 범위 안 재질의 고체 형태면 제3조제1항제1호(방사성 오염)만 묻는다. 판정 규칙은 그대로
+    variants:
+      - when:
+          all:
+            - {fact: material, in: [pp, pe, pet, aluminium, steel]}
+            - {fact: physical_state, eq: solid}
+        text: 방사성 물질에 오염됐거나 그럴 가능성이 있나요?
+        why: 방사성 물질과 그로 오염된 물질은 폐기물관리법이 아니라 원자력안전법으로 관리해요.
+        help: 원자력·방사선 시설에서 나온 것이 아니면 '아니요'예요.
+        allowed: [none, radioactive]
+        option_labels: {none: 아니요, radioactive: 예}
+
+  - id: Q-CIRCULAR-RECOGNIZED
+    fact: circular_recognized
+    scope: waste
+    kind: single
+    text: 이 폐기물을 '순환자원'으로 인정받은 적이 있나요?
+    why: 순환자원 인정은 폐기물을 원료로 다시 쓸 수 있다고 정부(기후에너지환경부)가 인정해 주는 제도예요. 인정받은 물질은 폐기물로 보지 않아요.
+    help: 따로 신청해서 '순환자원 인정서'를 받은 적이 없다면 '아니요'예요.
+    option_labels: {"yes": 예(인정서가 있어요), "no": 아니요}
+
+  - id: Q-CAN-CIRCULAR
+    kind: group
+    scope: waste
+    ask_if: {fact: input_form, eq: can}
+    text: 캔을 순환자원으로 내보내려면 아래를 모두 마쳐야 해요. 모두 마쳤나요?
+    why: 고시의 조치를 모두 마친 캔은 순환자원이라 폐기물로 보지 않아요.
+    items:
+      - {fact: can_designation.registered, label: 순환자원정보센터에 정보 등록}
+      - {fact: can_designation.compressed, label: 압축시설로 압축 완료}
+      - {fact: can_designation.sorted_by_metal, label: 철·알루미늄 분리}
+      - {fact: can_designation.foreign_matter_le_2pct, label: 이물질 2% 이하}
+      - {fact: can_designation.unmixed, label: 다른 폐기물과 섞지 않음}
+      - {fact: can_designation.compress_facility_ok, label: 압축시설 설치승인·신고(해당 시)}
+      - {fact: can_designation.supplied_r41, label: 금속제품 제조 용도로 공급}
+    all_yes_label: 모두 마쳤어요
+    not_all_label: 아니요 / 하나라도 안 했거나 모르겠어요
+    note: 하나라도 아니면 '아니요' 한 번으로 끝난다(모름·미충족은 폐기물, 고시 마목)
+
+  # ---- 사업장 (회사별로 한 번) ----------------------------------------------------------------
+  - id: Q-SITE-EMISSION
+    fact: emission_facility
+    scope: company
+    kind: single
+    text: 사업장에 대기·물·소음진동 배출시설이 있나요?
+    why: 배출시설이 있는 사업장의 폐기물은 사업장폐기물이에요. 없으면 생활폐기물일 수 있어요.
+    help: 배출시설 설치허가증이나 신고증명서가 있으면 '예'예요. 한 번 답하면 회사 정보로 기억해요.
+  - id: Q-SITE-DAILY
+    fact: daily_avg_kg
+    scope: company
+    kind: single
+    text: 사업장 전체 폐기물은 하루 평균 몇 kg 나오나요?
+    why: 하루 평균 300kg 이상 배출하는 사업장은 배출시설이 없어도 사업장폐기물이에요.
+    help: 올바로시스템의 연간 배출량을 작업일 수로 나눈 값이면 충분해요. 한 번 답하면 회사 정보로 기억해요.
+  - id: Q-SITE-OTHER
+    kind: group
+    scope: company
+    text: 사업장에 아래 중 해당하는 것이 있나요?
+    why: 공공처리시설·5톤 이상 공사·지정폐기물 배출 사업장도 사업장폐기물로 봐요.
+    items:
+      - {fact: public_facility, pick: "yes", label: 공공폐수·공공하수·분뇨·가축분뇨 공공처리·폐기물처리시설을 운영한다, none: "no",
+         ask: "공공폐수·공공하수·분뇨·가축분뇨 공공처리시설이나 폐기물처리시설을 운영하나요?"}
+      - {fact: construction_5t, pick: "yes", label: 공사나 일련의 작업으로 폐기물이 5톤 이상 나온다, none: "no",
+         ask: "공사나 일련의 작업으로 폐기물이 5톤 이상 나오나요?"}
+      - {fact: site_emits_designated, pick: "yes", label: 다른 공정에서 지정폐기물(폐유·폐산 등)이 나온다, none: "no",
+         ask: "다른 공정에서 지정폐기물(폐유·폐산 등)이 나오나요?"}

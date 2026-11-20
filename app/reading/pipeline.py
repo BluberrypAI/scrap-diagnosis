@@ -17,7 +17,8 @@ from pathlib import PurePath
 from typing import Literal
 
 from app.config import Settings
-from app.domain.document import (
+from app.reading.columns import ColumnRole, TableLayout, analyze_tables
+from app.reading.contract import (
     DocType,
     DocumentExtractionResult,
     ErrorCode,
@@ -27,10 +28,9 @@ from app.domain.document import (
     ItemStatus,
     WarningCode,
 )
-from app.domain.tables import TableExtraction
-from app.reading.columns import ColumnRole, TableLayout, analyze_tables
 from app.reading.mapper import map_test_report
 from app.reading.table_guard import validate_table_item
+from app.reading.tables import TableExtraction
 from app.reading.test_items import TEST_ITEMS
 
 Backend = Literal["auto", "local", "azure"]

@@ -1,0 +1,70 @@
+stage: 70_code
+title: 사업장일반폐기물 코드
+order: 70
+on_no_match: {outcome: INSUFFICIENT_INFO}
+rules:
+  # 여기까지 오면 사업장폐기물이며 지정폐기물 가능성이 없고 범위 안이다.
+  # packaging_used가 unknown이면 첫 규칙이 모름이 되어 막히고 packaging_used가 blocking_facts로 나간다(D8, D11).
+
+  - id: CODE-PLASTIC-PACKAGING
+    when:
+      all:
+        - {fact: material, in: [pp, pe, pet]}
+        - {fact: packaging_used, eq: "yes"}
+    then: {outcome: GENERAL, code: "51-03-07", flags: [interpretation]}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-07
+        quote: "51-03-07 플라스틱폐포장재"
+      - unit: RULE-WASTE/제66조제3항
+        quote: "재활용의무 대상인 종이팩, 유리병, 금속캔, 합성수지 재질의 포장재"
+      - unit: DEC-RESOURCE/제18조
+        quote: "합성수지재질의 포장재[용기류, 필름ㆍ시트형 포장재 및 쟁반형 용기(tray)를 포함하며"
+    decision: D7
+    grade: C
+
+  - id: CODE-PLASTIC-GENERAL
+    when:
+      all:
+        - {fact: material, in: [pp, pe, pet]}
+        - any:
+            - {fact: packaging_used, eq: "no"}
+            - {fact: packaging_used, eq: yes_excluded}
+    then: {outcome: GENERAL, code: "51-03-01"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-01
+        quote: "51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)"
+      - unit: DEC-RESOURCE/제18조
+        quote: "반품되어 폐기된 제품ㆍ포장재는 제외한다"
+    grade: A
+    note: 포장에 쓰인 적 없거나 시행령 제18조 단서(수출용·연구용 견본·반품 폐기)로 제외되면 재활용의무 포장재가 아니다.
+
+  - id: CODE-CAN-ALUMINIUM
+    when:
+      all:
+        - {fact: material, eq: aluminium}
+        - {fact: input_form, eq: can}
+        - fact: can_contents
+          in: [food_beverage, agri_product, detergent, cosmetics, butane, insecticide, clothing, paper_product, rubber_glove]
+    then: {outcome: GENERAL, code: "51-29-03"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-29-03
+        quote: "51-29-03 폐금속캔류(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조제1호에 해당하는 것을 말한다)"
+      - unit: DEC-RESOURCE/제18조
+        quote: "금속캔"
+    grade: A
+
+  - id: CODE-CAN-STEEL
+    when:
+      all:
+        - {fact: material, eq: steel}
+        - {fact: input_form, eq: can}
+        - fact: can_contents
+          in: [food_beverage, agri_product, detergent, cosmetics, butane, insecticide, clothing, paper_product, rubber_glove]
+    then: {outcome: GENERAL, code: "51-29-03", flags: [route_unsupported]}
+    basis:
+      - unit: RULE-WASTE/별표4/51-29-03
+        quote: "51-29-03 폐금속캔류(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조제1호에 해당하는 것을 말한다)"
+      - unit: DEC-RESOURCE/제18조
+        quote: "금속캔"
+    decision: D10
+    grade: C

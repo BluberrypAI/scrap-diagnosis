@@ -1,0 +1,241 @@
+# 자동 생성: tools/collect_law.py — 직접 고치지 않는다.
+# raw_sha256은 받은 원본 응답(인증키 제거)의 해시다.
+# refetch의 식별자로 같은 버전을 다시 받아 대조한다.
+documents:
+- key: ACT-WASTE
+  kind: law
+  name: 폐기물관리법
+  law_type: 법률
+  law_id: '001771'
+  mst: '279797'
+  promulgation_no: '21129'
+  promulgation_date: '20251111'
+  effective_date: '20261112'
+  fetched_at: '2026-11-20T10:24:21+09:00'
+  raw_sha256: ebf9f868f0808a1a4868f2adebd54859dca761130f57a53dc092bffe041d3014
+  refetch:
+    target: law
+    MST: '279797'
+  units:
+  - 제2조제1호
+  - 제2조제2호
+  - 제2조제3호
+  - 제2조제4호
+  - 제3조
+  file: articles/ACT-WASTE.json
+- key: DEC-WASTE
+  kind: law
+  name: 폐기물관리법 시행령
+  law_type: 대통령령
+  law_id: '005353'
+  mst: '291813'
+  promulgation_no: '36811'
+  promulgation_date: '20261110'
+  effective_date: '20261112'
+  fetched_at: '2026-11-20T10:24:21+09:00'
+  raw_sha256: 1b9dafd8ced2f35d334f96c59a81d15b4c24b44ae0af0ad95b74fc967c2e792d
+  refetch:
+    target: law
+    MST: '291813'
+  units:
+  - 제2조
+  - 제3조
+  - 별표1제1호가목1)
+  - 별표1제2호
+  - 별표1제4호
+  - 별표1제5호
+  - 별표1제6호
+  - 별표1제9호
+  file: articles/DEC-WASTE.json
+- key: RULE-WASTE
+  kind: law
+  name: 폐기물관리법 시행규칙
+  law_type: 기후에너지환경부령
+  law_id: 008567
+  mst: '291947'
+  promulgation_no: '00070'
+  promulgation_date: '20261112'
+  effective_date: '20261112'
+  fetched_at: '2026-11-20T10:24:21+09:00'
+  raw_sha256: a416aff997d3d15831a4e010b1f9fd9be0f0e06c6bdd2e5cbfa4256006155327
+  refetch:
+    target: law
+    MST: '291947'
+  units:
+  - 제4조의2
+  - 제17조의2
+  - 제10조제1호의2나목
+  - 제66조제3항
+  - 별표4/51-03
+  - 별표4/51-03-01
+  - 별표4/51-03-02
+  - 별표4/51-03-03
+  - 별표4/51-03-04
+  - 별표4/51-03-05
+  - 별표4/51-03-06
+  - 별표4/51-03-07
+  - 별표4/51-03-08
+  - 별표4/51-03-99
+  - 별표4/51-29
+  - 별표4/51-29-01
+  - 별표4/51-29-02
+  - 별표4/51-29-03
+  - 별표4/51-29-04
+  - 별표4/51-29-99
+  - 별표4/91-05-00
+  - 별표4의3/51-03-01
+  - 별표4의3/51-03-07
+  - 별표4의3/51-29-03
+  - 별표4의3/비고
+  - 별표5의3/R-3-3 재활용 기준 (1) 폐지·고철·폐포장재
+  file: articles/RULE-WASTE.json
+- key: ACT-CIRCULAR
+  kind: law
+  name: 순환경제사회 전환 촉진법
+  law_type: 법률
+  law_id: '012567'
+  mst: '283397'
+  promulgation_no: '21381'
+  promulgation_date: '20260219'
+  effective_date: '20260219'
+  fetched_at: '2026-11-20T10:24:21+09:00'
+  raw_sha256: e5f394f09b2afa06db6cd34e838dcd7a45a086992d1c384d59e5bec41b64af7f
+  refetch:
+    target: law
+    MST: '283397'
+  units:
+  - 제21조
+  - 제23조
+  file: articles/ACT-CIRCULAR.json
+- key: DEC-CIRCULAR
+  kind: law
+  name: 순환경제사회 전환 촉진법 시행령
+  law_type: 대통령령
+  law_id: '013056'
+  mst: '283785'
+  promulgation_no: '36161'
+  promulgation_date: '20260303'
+  effective_date: '20260303'
+  fetched_at: '2026-11-20T10:24:21+09:00'
+  raw_sha256: 41fad57ff29d425b240f096a1a38c183a74e4c46971c6560241a78c7fb903a70
+  refetch:
+    target: law
+    MST: '283785'
+  units:
+  - 제11조
+  file: articles/DEC-CIRCULAR.json
+- key: DEC-RESOURCE
+  kind: law
+  name: 자원의 절약과 재활용촉진에 관한 법률 시행령
+  law_type: 대통령령
+  law_id: '004610'
+  mst: '285563'
+  promulgation_no: '36269'
+  promulgation_date: '20260421'
+  effective_date: '20260421'
+  fetched_at: '2026-11-20T10:24:21+09:00'
+  raw_sha256: df031e5e00abd8cfb84528f2537fd81462b41eee6a007c15db3bc308d691fdbf
+  refetch:
+    target: law
+    MST: '285563'
+  units:
+  - 제18조
+  file: articles/DEC-RESOURCE.json
+- key: ACT-CHEMICAL
+  kind: law
+  name: 화학물질관리법
+  law_type: 법률
+  law_id: '000162'
+  mst: '285367'
+  promulgation_no: '21531'
+  promulgation_date: '20260407'
+  effective_date: '20261008'
+  fetched_at: '2026-11-20T10:24:21+09:00'
+  raw_sha256: f0e515299bfc547fb4008d1e4126cb8379f4316ad7d5f70077751bfa5ed3fc6b
+  refetch:
+    target: law
+    MST: '285367'
+  units:
+  - 제2조제2호
+  - 제2조제2호의2
+  - 제2조제2호의3
+  - 제2조제3호
+  - 제2조제4호
+  - 제2조제5호
+  - 제2조제6호
+  file: articles/ACT-CHEMICAL.json
+- key: NOTICE-CIRCULAR-DESIGNATION
+  kind: admin_rule
+  name: 순환자원 지정 등에 관한 고시
+  rule_type: 고시
+  rule_serial: '2100000279034'
+  issued_no: 2026-116
+  issued_date: '20260514'
+  effective_date: '20260514'
+  ministry: 기후에너지환경부
+  fetched_at: '2026-11-20T10:24:21+09:00'
+  raw_sha256: 002e1212f437276dbd676e7dd488945327449895ec80ea7e34e5025ce5937821
+  refetch:
+    target: admrul
+    ID: '2100000279034'
+  units:
+  - 제2조
+  - 제3조
+  - 별표1
+  - 별표2/일반적 준수사항
+  - 별표2/품목별 준수사항 다목 폐금속캔류
+  file: articles/NOTICE-CIRCULAR-DESIGNATION.json
+- key: NOTICE-CIRCULAR-CRITERIA
+  kind: admin_rule
+  name: 순환자원의 기준 및 용도에 관한 고시
+  rule_type: 고시
+  rule_serial: '2100000236752'
+  issued_no: 2024-46
+  issued_date: '20240228'
+  effective_date: '20240228'
+  ministry: 기후에너지환경부
+  fetched_at: '2026-11-20T10:24:21+09:00'
+  raw_sha256: c991bf443eb8ae0147dee47409983bf6ae62fb48edad0b7a21ade535cf970316
+  refetch:
+    target: admrul
+    ID: '2100000236752'
+  units:
+  - 제2조
+  file: articles/NOTICE-CIRCULAR-CRITERIA.json
+- key: INTERP-MOLEG-2018-PACKAGING
+  kind: interpretation
+  name: 환경부 등 - 원재료에 사용된 포장재가 재활용 의무 대상에 해당하는지 여부(「자원의 절약과 재활용촉진에 관한 법률 시행령」 제18조
+    등 관련)
+  source: 법제처 법령해석례
+  serial: '326279'
+  case_no: 18-0340
+  interpreted_on: '20180814'
+  authority: 법제처
+  fetched_at: '2026-11-20T10:24:21+09:00'
+  raw_sha256: 33cfb84bf509033cbce49f21864786d2572792db846dee6a0b9387da169aacfe
+  refetch:
+    target: expc
+    ID: '326279'
+  units:
+  - 질의요지
+  - 회답
+  - 이유
+  file: articles/INTERP-MOLEG-2018-PACKAGING.json
+- key: INTERP-ME-2026-STYROFOAM
+  kind: interpretation
+  name: 어떤 스티로폼들이 재활용의무 대상 포장재에 해당하는지?
+  source: 기후에너지환경부 법령해석
+  serial: '2750081'
+  case_no: null
+  interpreted_on: '20260721'
+  authority: 기후에너지환경부
+  fetched_at: '2026-11-20T10:24:21+09:00'
+  raw_sha256: 45d68fd2812e040ff23cfdee7c9d54e6ead8f3d945094e82373147faebc7dc31
+  refetch:
+    target: meCgmExpc
+    ID: '2750081'
+  units:
+  - 질의요지
+  - 회답
+  - 관련법령
+  file: articles/INTERP-ME-2026-STYROFOAM.json

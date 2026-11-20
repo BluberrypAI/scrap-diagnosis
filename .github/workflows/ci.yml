@@ -28,9 +28,6 @@ jobs:
           --health-interval 5s
           --health-retries 10
 
-    env:
-      LLM_PROVIDER: "off"
-
     steps:
       - uses: actions/checkout@v4
 
@@ -47,17 +44,19 @@ jobs:
           uv run ruff check .
           uv run ruff format --check .
 
-      - name: OpenAPI is up to date
-        run: uv run python scripts/export_openapi.py --check
-
-      - name: Rule data is built from knowledge/
-        run: uv run python tools/build_kb.py --check
+      - name: Golden dataset and judgment rules are consistent
+        run: |
+          uv run python tools/check_cases.py
+          uv run python tools/build_decision_table.py --check
+          uv run python tools/build_golden.py --check
+          uv run python tools/compare_flows.py check knowledge/flow
 
       - name: Migrations on PostgreSQL (upgrade, downgrade, upgrade)
         env:
           DATABASE_URL: postgresql+psycopg://wd:wd@localhost:5432/waste_diagnosis
         run: |
           uv run alembic upgrade head
+          uv run alembic check
           uv run alembic downgrade base
           uv run alembic upgrade head
 
@@ -69,6 +68,11 @@ jobs:
           TEST_DATABASE_URL: postgresql+psycopg://wd:wd@localhost:5432/postgres
         run: uv run pytest -q
 
-      - name: Golden scenarios (mock extractor, no AI calls)
-        run: uv run python scripts/eval.py --mock-extractor
+      - name: Interview plan on the golden dataset (no AI calls)
+        run: uv run python tools/simulate_interview.py
+
+      - name: Free-text pipeline on the golden dataset (fake extractors, no AI calls)
+        run: |
+          uv run python tools/eval_understand.py --mock
+          uv run python tools/eval_understand.py --oracle
 

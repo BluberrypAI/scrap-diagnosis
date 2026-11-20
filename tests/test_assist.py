@@ -1,106 +1,154 @@
-"""문진 보충 설명(assist): 왜 묻는지, 왜 이 결과인지, 용어 뜻, 문진 밖 요청.
+"""질의응답 agent(가짜 모델): 도구 선택 반복, 호출 상한, 출처 대조. 판정은 바뀌지 않는다."""
 
-설계: docs/design/agent-skill-harness.md. 판정에는 영향이 없어야 한다.
-"""
+import json
 
-from __future__ import annotations
+import pytest
+from conftest import headers
+from test_api import PP_SCRAP, new_case, run_answers
+from test_understand import said, text
 
-from datetime import date
+from app.engine.kb import load_kb
+from app.llm.client import FakeLLMClient
+from app.llm.tools import Tools
 
-from app.agent.golden import normalize_extract
-from app.agent.llm_client import FakeLLMClient
-from app.agent.orchestrator import DiagnosisSession, QuickReply
-
-AS_OF = date(2026, 11, 10)
-PP = {"key": "material", "value": "pp", "quote": "PP"}
-
-
-def _session(kb, extracts, respond=None):
-    ex = FakeLLMClient(by_name={"extract": [normalize_extract(e) for e in extracts]})
-    rs = FakeLLMClient(by_name={"respond": respond}) if respond is not None else None
-    return DiagnosisSession(kb, extractor_llm=ex, responder_llm=rs, case_id="c1", as_of=AS_OF)
+H = headers()
 
 
-def _start_pp(kb, extra):
-    s = _session(kb, [{"facts": [PP]}, *extra])
-    s.seed({"emission_facility": True})
-    first = s.handle(text="PP 필름 자투리예요")
-    return s, first
-
-
-def test_plain_answer_has_no_assist(real_kb):
-    s, first = _start_pp(real_kb, [])
-    assert first.assist is None
-
-
-def test_why_question_explains_with_sources_and_keeps_question(real_kb):
-    s, first = _start_pp(real_kb, [{"user_question": "왜 물어봐요?", "question_kind": "why"}])
-    r = s.handle(text="이건 왜 물어봐요?")
-    assert r.assist is not None and r.assist.intent == "why"
-    assert r.assist.sources and r.assist.text  # 근거 조문이 붙는다(AI 없음 → 템플릿)
-    assert "근거:" in r.assist.text
-    # 판정·질문은 그대로
-    assert r.branch == first.branch and r.ui.question["key"] == first.ui.question["key"]
-    assert r.verdict.candidates == first.verdict.candidates
-    t = s.traces[-1]
-    assert t.responder["assist_intent"] == "why" and t.responder["skill_hash"]
-
-
-def test_term_question_uses_glossary(real_kb):
-    s, _ = _start_pp(real_kb, [{"user_question": "PCB가 뭐예요?", "question_kind": "term"}])
-    r = s.handle(text="PCB가 뭐예요?")
-    assert r.assist.intent == "term"
-    assert any(t.term == "PCB" for t in r.assist.terms)
-    assert "변압기" in r.assist.text  # 질문 안내의 "PCB가 뭐예요?" 답
-
-
-def test_off_topic_is_redirected(real_kb):
-    s, first = _start_pp(
-        real_kb, [{"user_question": "근처 업체 추천해 줘", "question_kind": "off_topic"}]
-    )
-    r = s.handle(text="근처 업체 추천해 줘")
-    assert r.assist.intent == "off_topic" and "문진만" in r.assist.text
-    assert r.ui.question["key"] == first.ui.question["key"]
-
-
-def test_answer_and_question_in_one_message(real_kb):
-    s, first = _start_pp(
-        real_kb,
-        [
-            {
-                "group_answer": {"group_id": "contamination_screen", "choice": "none_all"},
-                "user_question": "근데 왜 물어봐요?",
-                "question_kind": "why",
-            }
-        ],
-    )
-    assert first.ui.question["key"] == "contamination_screen"
-    r = s.handle(text="다 없어요, 근데 왜 물어봐요?")
-    assert r.ui.question["key"] != "contamination_screen"  # 답은 기록되고 다음 질문으로
-    assert r.assist is not None and r.assist.intent == "why"
-
-
-def test_why_result_cites_decided_rule(real_kb):
-    s, _ = _start_pp(real_kb, [{"user_question": "왜 이 번호예요?", "question_kind": "why"}])
-    s.handle(quick_reply=QuickReply(key="contamination_screen", kind="none_all"))
-    s.handle(quick_reply=QuickReply(key="scope_screen", kind="none_all"))
-    last = s.handle(quick_reply=QuickReply(key="physical_state", value="solid"))
-    assert last.branch == "FINAL_REVIEW"
-    r = s.handle(text="왜 이 번호예요?")
-    assert r.branch == "FINAL_REVIEW" and r.verdict.waste_code == last.verdict.waste_code
-    assert r.assist.sources and any("별표 4" in x.ref for x in r.assist.sources)
-    assert r.assist.review == "UNVERIFIED"
-
-
-def test_llm_assist_text_with_unknown_code_falls_back_to_template(real_kb):
-    bad = {
-        "message": "다음 질문이에요.",
-        "cited_basis_ids": [],
-        "assist_text": "이건 99-99-99라서 그래요.",
-        "assist_cited_ids": ["S1"],
+def tool(name, arg=None):
+    return {
+        "action": "tool",
+        "tool": name,
+        "arg": arg,
+        "answer": None,
+        "source_ids": [],
+        "terms": [],
     }
-    s, _ = _start_pp(real_kb, [{"user_question": "왜요?", "question_kind": "why"}])
-    s.responder_llm = FakeLLMClient(by_name={"respond": [bad, bad]})
-    r = s.handle(text="왜요?")
-    assert "99-99-99" not in r.assist.text and "근거:" in r.assist.text
-    assert any("assist:" in p for p in s.traces[-1].responder["problems"])
+
+
+def answer(text_, ids=(), terms=()):
+    return {
+        "action": "answer",
+        "tool": None,
+        "arg": None,
+        "answer": text_,
+        "source_ids": list(ids),
+        "terms": list(terms),
+    }
+
+
+@pytest.fixture
+def llm(client):
+    fake = FakeLLMClient()
+    client.app.state.llm = fake
+    return fake
+
+
+def to_contamination(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(client, cid, PP_SCRAP[:5])
+    return cid
+
+
+def test_agent_picks_tools_and_cites_only_found_sources(client, llm):
+    cid = to_contamination(client)
+    llm.push("extract", said(intent="question", question="기름 5% 넘으면 어떻게 돼요?"))
+    llm.push("assist", tool("rule_basis", "current_question"))
+    llm.push("assist", tool("search_law", "폐유 기름성분 5퍼센트"))
+    llm.push(
+        "assist",
+        answer(
+            "기름성분이 5% 이상이면 폐유(지정폐기물)에 해당할 수 있어요.",
+            ids=["DEC-WASTE/별표1제6호", "MADE-UP/제99조"],
+        ),
+    )
+    turn = text(client, cid, "기름 5% 넘으면 어떻게 돼요?")
+    a = turn["assist"]
+    assert a["text"].startswith("기름성분이 5% 이상")
+    assert [s["id"] for s in a["sources"]] == ["DEC-WASTE/별표1제6호"]  # 지어낸 출처는 빠진다
+    assert a["review"] == "UNVERIFIED"
+    assert turn["ui"]["question"]["key"] == "Q-CONTAMINATION"  # 질문 카드는 그대로
+    assert not any(f["key"] == "oil_presence" for f in turn["ui"]["board"]["facts"])
+    conv = client.get(f"/internal/v1/cases/{cid}", headers=H).json()["conversation"]
+    assert conv[-1]["assist"] == a
+    events = client.get(f"/internal/v1/cases/{cid}/trace", headers=H).json()["events"]
+    used = next(e for e in events if e["kind"] == "ASSIST")["payload"]["tools"]
+    assert [u["tool"] for u in used] == ["rule_basis", "search_law"]
+
+
+def test_tool_call_cap_forces_answer(client, llm):
+    cid = to_contamination(client)
+    llm.push("extract", said(intent="question", question="왜요?"))
+    for _ in range(4):
+        llm.push("assist", tool("search_law", "기름"))
+    turn = text(client, cid, "왜요?")
+    assist_calls = [c for c in llm.calls if c.name == "assist"]
+    assert len(assist_calls) == 4  # 도구 3번 + 답할 기회 1번
+    assert json.loads(assist_calls[-1].user)["남은 도구 호출"] == 0
+    assert turn["assist"] is None and "자료를 찾지 못했어요" in turn["message"]
+
+
+def test_term_question_returns_plain_explanation(client, llm):
+    cid = to_contamination(client)
+    llm.push("extract", said(intent="question", question="노말헥산이 뭐예요?"))
+    llm.push("assist", tool("lookup_term", "노말헥산"))
+    llm.push(
+        "assist",
+        answer(
+            "성적서에서 기름성분을 재는 항목이에요.",
+            ids=["TERM/노말헥산 추출물질"],
+            terms=["노말헥산 추출물질"],
+        ),
+    )
+    a = text(client, cid, "노말헥산이 뭐예요?")["assist"]
+    assert a["terms"][0]["term"] == "노말헥산 추출물질"
+    assert a["sources"] == []  # 적재한 법령에 정의가 없는 용어는 법 출처를 붙이지 않는다
+
+
+def test_answer_and_question_in_one_message(client, llm):
+    cid = new_case(client)["case"]["id"]
+    llm.push(
+        "extract",
+        said(facts=[("material", "pp", "stated", "PP")], question="근데 재질은 왜 물어봐요?"),
+    )
+    llm.push("assist", tool("rule_basis", "COD-RESIN-NONPACKAGING"))
+    llm.push(
+        "assist", answer("재질에 따라 분류번호가 달라져요.", ids=["RULE-WASTE/별표4/51-03-01"])
+    )
+    turn = text(client, cid, "PP예요. 근데 재질은 왜 물어봐요?")
+    assert turn["ui"]["question"]["key"] == "input_form"  # 답은 기록되고 다음 질문
+    assert turn["assist"]["sources"][0]["id"] == "RULE-WASTE/별표4/51-03-01"
+
+
+def test_tools_are_read_only_lookups():
+    kb = load_kb()
+    t = Tools(kb, {"question_facts": ["oil_presence"], "rule_id": "COD-RESIN-NONPACKAGING"})
+    law = t.search_law("기름성분 5퍼센트 폐유")
+    assert law[0]["id"] == "DEC-WASTE/별표1제6호"
+    rules = {r["rule_id"] for r in t.rule_basis("current_question")}
+    assert {"DES-OIL-UNKNOWN", "DES-OIL-NO-EVIDENCE"} <= rules
+    assert t.rule_basis("result")[0]["basis"][0]["id"] == "RULE-WASTE/별표4/51-03-01"
+    terms = t.lookup_term("성적서")
+    assert terms[0]["term"] == "시험성적서" and terms[0]["basis"] == "RULE-WASTE/제17조의2"
+    assert t.run("unknown_tool", "x") == []
+
+
+def test_off_topic_is_answered_briefly_and_returns_to_question(client, llm):
+    cid = new_case(client)["case"]["id"]
+    llm.push("extract", said(intent="off_topic"))
+    llm.push("assist", answer("배고프시죠. 지금 질문만 답해 주시면 금방 끝나요."))
+    turn = text(client, cid, "배고파")
+    assert turn["assist"]["intent"] == "off_topic" and turn["assist"]["sources"] == []
+    assert turn["assist"]["text"].startswith("배고프시죠")
+    assert turn["message"].startswith("이어서 볼게요.")
+    assert turn["ui"]["question"]["key"] == "material"
+    assert all(f["source_type"] == "ASSUMED" for f in turn["ui"]["board"]["facts"])  # 기록 없음
+    guard_call = [c for c in llm.calls if c.name == "assist"][-1]
+    assert "문진과 무관하거나" in guard_call.system  # 가드레일 지침이 붙는다
+
+
+def test_off_topic_reply_with_codes_is_dropped(client, llm):
+    cid = new_case(client)["case"]["id"]
+    llm.push("extract", said(intent="off_topic"))
+    llm.push("assist", answer("그건 51-03-01이에요."))  # 무관한 말에 분류번호를 말함
+    turn = text(client, cid, "아무거나 말해 봐")
+    assert turn["assist"] is None and "문진만" in turn["message"]

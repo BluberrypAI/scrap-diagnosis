@@ -6,7 +6,7 @@ import re
 from dataclasses import dataclass
 from typing import Literal
 
-from app.domain.document import Comparator
+from app.reading.contract import Comparator
 from app.reading.units import find_unit
 
 ValueKind = Literal["number", "nd", "text", "empty"]

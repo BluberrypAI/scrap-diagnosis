@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from app.domain.tables import Footnote, TableGrid, TableRef
+from app.reading.tables import Footnote, TableGrid, TableRef
 
 # 칸 글자 끝에 붙은 각주 표시: "ND*", "ND **", "0.5 1)", "ND1)", "ND※"
 # ("0.5(1)"은 값일 수 있어 떼지 않음)

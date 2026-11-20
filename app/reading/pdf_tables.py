@@ -20,8 +20,8 @@ from dataclasses import dataclass
 
 import pdfplumber
 
-from app.domain.tables import BBox, Footnote, PageInfo, TableCell, TableExtraction, TableGrid
 from app.reading.common import link_continuations, parse_footnote_line, split_cell_marks
+from app.reading.tables import BBox, Footnote, PageInfo, TableCell, TableExtraction, TableGrid
 
 BACKEND = "pdfplumber"
 # 격자 경계를 같은 선으로 볼 거리(pt)

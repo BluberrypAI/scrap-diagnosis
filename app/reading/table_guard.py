@@ -9,11 +9,11 @@ from __future__ import annotations
 
 import re
 
-from app.domain.document import Comparator, ExtractedFactItem, ItemStatus
-from app.domain.tables import CellRef, FootnoteRef, TableGrid
 from app.reading.columns import ColumnRole, TableLayout
+from app.reading.contract import Comparator, ExtractedFactItem, ItemStatus
 from app.reading.mapper import LOW_CONFIDENCE
 from app.reading.rows import candidate_items, is_section_row, row_info, section_groups
+from app.reading.tables import CellRef, FootnoteRef, TableGrid
 from app.reading.test_items import BY_KEY
 from app.reading.units import convert
 from app.reading.values import numbers_in, parse_value, to_float

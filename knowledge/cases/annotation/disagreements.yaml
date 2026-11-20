@@ -1,0 +1,10 @@
+# 자동 생성: tools/annotation_agreement.py score
+# adjudication에 판정 조정 결과를 적는다:
+#   expected | annotator_b | rewrite(서술 고침) | spec(명세 고침)
+report:
+  n: 98
+  outcome_agreement: 1.0
+  cohen_kappa_outcome: 1.0
+  exact_agreement: 1.0
+  disagreements: 0
+items: []

@@ -1,0 +1,233 @@
+stage: 60_scope
+title: 범위 판단
+order: 60
+on_no_match: continue
+rules:
+  # 범위(D1): PP·PE·PET 합성수지(51-03-01, 51-03-07)와 금속캔(51-29-03). 그 밖은 OUT_OF_SCOPE.
+  # 50단계(지정폐기물 가능성)를 지난 뒤에만 여기 온다(D12).
+  # 범위 안으로 확정된 것은 모든 규칙이 거짓이라 on_no_match: continue로 70단계에 간다.
+
+  # 합성수지가 아닌 물질의 비고체: 폐산·폐알칼리·폐유기용제·폐유 등 지정폐기물일 가능성을 사실로 가릴 수 없다.
+  - id: SCOPE-NONSOLID-OTHER-UNDECIDED
+    when:
+      all:
+        - {fact: material, in: [other, synthetic_rubber]}
+        - {fact: physical_state, in: [liquid, semisolid]}
+    then: {outcome: INSUFFICIENT_INFO}
+    basis:
+      - unit: DEC-WASTE/별표1제2호
+        quote: "폐산(액체상태의 폐기물로서"
+      - unit: DEC-WASTE/별표1제4호
+        quote: "그 밖의 폐유기용제(가목 외의 유기용제를 말한다)"
+    grade: C
+    decision: D11
+    note: 법령·결정으로 정해지지 않아 보수적으로 막는다(undecided.md U6).
+
+  # D4: 고체가 아닌 합성수지는 판단하지 않고 범위 밖.
+  - id: SCOPE-NONSOLID-RESIN
+    when:
+      all:
+        - {fact: material, in: [pp, pe, pet, pvc, other_resin]}
+        - {fact: physical_state, in: [liquid, semisolid]}
+    then: {outcome: OUT_OF_SCOPE}
+    basis:
+      - unit: DEC-WASTE/별표1제1호가목1)
+        quote: "폐합성 수지(고체상태의 것은 제외한다)"
+    decision: D4
+    grade: C
+
+  - id: SCOPE-FISHING-NET
+    when:
+      all:
+        - {fact: material, in: [pp, pe, pet, pvc, other_resin]}
+        - {fact: fishery_origin, eq: fishing_net}
+    then: {outcome: OUT_OF_SCOPE, code: "51-03-08"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-08
+        quote: "51-03-08 폐어망"
+    decision: D1
+    grade: C
+    note: 전용 코드가 있어 51-03-01보다 우선한다고 본다(undecided.md U5).
+
+  - id: SCOPE-AQUACULTURE-BUOY
+    when:
+      all:
+        - {fact: material, in: [pp, pe, pet, pvc, other_resin]}
+        - {fact: fishery_origin, eq: aquaculture_buoy}
+    then: {outcome: OUT_OF_SCOPE, code: "51-03-05"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-05
+        quote: "51-03-05 양식용폐부자"
+    decision: D1
+    grade: C
+
+  # 발포 수지: 51-03-06(폐발포합성수지). 포장재이면 시행령 제18조제1호 대상이라 51-03-07과 겹쳐 정할 수 없다.
+  - id: SCOPE-FOAM-PACKAGING-UNDECIDED
+    when:
+      all:
+        - {fact: material, in: [pp, pe, other_resin]}
+        - {fact: foamed, eq: "yes"}
+        - any:
+            - {fact: packaging_used, eq: "yes"}
+            - {fact: packaging_used, eq: unknown}
+    then: {outcome: INSUFFICIENT_INFO}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-06
+        quote: "51-03-06 폐발포합성수지"
+      - unit: RULE-WASTE/별표4/51-03-07
+        quote: "51-03-07 플라스틱폐포장재"
+      - unit: INTERP-ME-2026-STYROFOAM/회답
+        quote: "합성수지재질의 포장재[용기류, 필름ㆍ시트형 포장재 및 쟁반형 용기(tray)를 포함하며"
+    decision: D11
+    grade: C
+    note: 발포 포장재가 51-03-06인지 51-03-07인지 법령·결정에 없다(undecided.md U3).
+
+  - id: SCOPE-FOAM
+    when:
+      all:
+        - {fact: material, in: [pp, pe, other_resin]}
+        - {fact: foamed, eq: "yes"}
+    then: {outcome: OUT_OF_SCOPE, code: "51-03-06"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-06
+        quote: "51-03-06 폐발포합성수지"
+    decision: D1
+    grade: C
+
+  # PVC: 51-03-01은 폐염화비닐수지류를 제외한다. 포장재이면 51-03-03과 51-03-07이 겹쳐 코드를 비운다.
+  - id: SCOPE-PVC-PACKAGING
+    when:
+      all:
+        - {fact: material, eq: pvc}
+        - any:
+            - {fact: packaging_used, eq: "yes"}
+            - {fact: packaging_used, eq: unknown}
+    then: {outcome: OUT_OF_SCOPE}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-01
+        quote: "폐합성수지류(폐염화비닐수지류는 제외한다)"
+    decision: D1
+    grade: C
+    note: 코드 후보가 둘(51-03-03, 51-03-07)이라 코드를 적지 않는다(undecided.md U4).
+
+  - id: SCOPE-PVC
+    when: {fact: material, eq: pvc}
+    then: {outcome: OUT_OF_SCOPE, code: "51-03-03"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-03
+        quote: "51-03-03 폐폴리염화비닐수지류"
+    decision: D1
+    grade: C
+
+  - id: SCOPE-SYNTHETIC-RUBBER
+    when: {fact: material, eq: synthetic_rubber}
+    then: {outcome: OUT_OF_SCOPE, code: "51-03-02"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-02
+        quote: "51-03-02 폐합성고무류"
+    decision: D1
+    grade: C
+
+  - id: SCOPE-OTHER-RESIN-PACKAGING
+    when:
+      all:
+        - {fact: material, eq: other_resin}
+        - any:
+            - {fact: packaging_used, eq: "yes"}
+            - {fact: packaging_used, eq: unknown}
+    then: {outcome: OUT_OF_SCOPE}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-07
+        quote: "51-03-07 플라스틱폐포장재"
+    decision: D1
+    grade: C
+    note: 코드 후보가 둘(51-03-01, 51-03-07)이라 코드를 적지 않는다(undecided.md U4).
+
+  - id: SCOPE-OTHER-RESIN
+    when: {fact: material, eq: other_resin}
+    then: {outcome: OUT_OF_SCOPE, code: "51-03-01"}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03-01
+        quote: "51-03-01 폐합성수지류(폐염화비닐수지류는 제외한다)"
+    decision: D1
+    grade: C
+
+  - id: SCOPE-OTHER-MATERIAL
+    when: {fact: material, eq: other}
+    then: {outcome: OUT_OF_SCOPE}
+    basis:
+      - unit: RULE-WASTE/별표4/51-03
+        quote: "51-03 폐합성고분자화합물"
+    decision: D1
+    grade: C
+    note: 코드 후보가 분명하지 않아 코드를 적지 않는다.
+
+  # 금속: 스크랩은 캔이 아니다.
+  - id: SCOPE-ALUMINIUM-SCRAP
+    when:
+      all:
+        - {fact: material, eq: aluminium}
+        - {fact: input_form, eq: scrap}
+    then: {outcome: OUT_OF_SCOPE, code: "51-29-02", flags: [interpretation]}
+    basis:
+      - unit: RULE-WASTE/별표4/51-29-02
+        quote: "51-29-02 비철금속"
+    decision: D1
+    grade: C
+    note: 알루미늄 스크랩을 비철금속으로 보는 것은 해석(undecided.md U9).
+
+  - id: SCOPE-STEEL-SCRAP
+    when:
+      all:
+        - {fact: material, eq: steel}
+        - {fact: input_form, eq: scrap}
+    then: {outcome: OUT_OF_SCOPE, code: "51-29-01", flags: [interpretation]}
+    basis:
+      - unit: RULE-WASTE/별표4/51-29-01
+        quote: "51-29-01 고철"
+    decision: D1
+    grade: C
+
+  # 캔: 51-29-03은 시행령 제18조제1호에 해당하는 것만. 제1호 타목(그 밖의 제품)은 합성수지 포장재로 한정되어 금속캔이 없다.
+  - id: SCOPE-CAN-OTHER-PRODUCT
+    when:
+      all:
+        - {fact: material, in: [aluminium, steel]}
+        - {fact: input_form, eq: can}
+        - {fact: can_contents, eq: other_product}
+    then: {outcome: OUT_OF_SCOPE, code: "51-29-04", flags: [interpretation]}
+    basis:
+      - unit: DEC-RESOURCE/제18조
+        quote: "가목부터 카목까지 외의 제품(합성수지재질의 포장재로 한정하되"
+      - unit: RULE-WASTE/별표4/51-29-04
+        quote: "51-29-04 폐금속용기류(폐금속캔류는 제외한다)"
+    grade: A
+    note: 코드 선택(51-29-04)은 해석이라 flags에 interpretation을 붙인다.
+
+  - id: SCOPE-CAN-EXPORT-RETURN
+    when:
+      all:
+        - {fact: material, in: [aluminium, steel]}
+        - {fact: input_form, eq: can}
+        - {fact: can_contents, eq: excluded_export_return}
+    then: {outcome: OUT_OF_SCOPE, code: "51-29-04", flags: [interpretation]}
+    basis:
+      - unit: DEC-RESOURCE/제18조
+        quote: "반품되어 폐기된 제품ㆍ포장재는 제외한다"
+      - unit: RULE-WASTE/별표4/51-29-04
+        quote: "51-29-04 폐금속용기류(폐금속캔류는 제외한다)"
+    grade: A
+
+  - id: SCOPE-CAN-MEDICINE-UNDECIDED
+    when:
+      all:
+        - {fact: material, in: [aluminium, steel]}
+        - {fact: input_form, eq: can}
+        - {fact: can_contents, eq: medicine}
+    then: {outcome: INSUFFICIENT_INFO}
+    basis:
+      - unit: DEC-RESOURCE/제18조
+        quote: "바이알ㆍ앰플ㆍPTP포장 제품으로서 내용량이 30밀리리터 이하 또는 30그램 이하인 제품"
+    decision: D11
+    grade: C
+    note: 의약품 캔의 소량 제외 여부를 알 사실이 없다(undecided.md U2).

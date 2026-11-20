@@ -1,0 +1,2312 @@
+{
+  "summary": {
+    "mode": "azure",
+    "model": "gpt-6-luna-2",
+    "prompt_version": "v2.1",
+    "cases": 98,
+    "verdict_accuracy": 1.0,
+    "clicks_mean": 4.918367346938775,
+    "extract_precision": 0.9849624060150376,
+    "extract_recall": 0.7189024390243902,
+    "wrong": 2,
+    "made_up": 16,
+    "risky_wrong": 0,
+    "llm_latency_ms_median": 6004,
+    "llm_latency_ms_max": 13267
+  },
+  "rows": [
+    {
+      "id": "G-001",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5041,
+        1811,
+        1593
+      ]
+    },
+    {
+      "id": "G-002",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-07",
+        [
+          "interpretation"
+        ]
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-07",
+        [
+          "interpretation"
+        ]
+      ],
+      "clicks": 5,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5671
+      ]
+    },
+    {
+      "id": "G-003",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 4,
+      "correct": 17,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        7888,
+        2070
+      ]
+    },
+    {
+      "id": "G-004",
+      "ok": true,
+      "expected": [
+        "NOT_WASTE",
+        null,
+        []
+      ],
+      "got": [
+        "NOT_WASTE",
+        null,
+        []
+      ],
+      "clicks": 0,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5162
+      ]
+    },
+    {
+      "id": "G-005",
+      "ok": true,
+      "expected": [
+        "INSUFFICIENT_INFO",
+        null,
+        []
+      ],
+      "got": [
+        "INSUFFICIENT_INFO",
+        null,
+        []
+      ],
+      "clicks": 0,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5765
+      ]
+    },
+    {
+      "id": "G-006",
+      "ok": true,
+      "expected": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "got": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "clicks": 6,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        10953,
+        2292
+      ]
+    },
+    {
+      "id": "G-007",
+      "ok": true,
+      "expected": [
+        "INSUFFICIENT_INFO",
+        null,
+        []
+      ],
+      "got": [
+        "INSUFFICIENT_INFO",
+        null,
+        []
+      ],
+      "clicks": 5,
+      "correct": 12,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        6551,
+        2164
+      ]
+    },
+    {
+      "id": "G-008",
+      "ok": true,
+      "expected": [
+        "CIRCULAR_RESOURCE",
+        null,
+        []
+      ],
+      "got": [
+        "CIRCULAR_RESOURCE",
+        null,
+        []
+      ],
+      "clicks": 0,
+      "correct": 12,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5358
+      ]
+    },
+    {
+      "id": "G-009",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        null,
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        null,
+        []
+      ],
+      "clicks": 6,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5392,
+        1774
+      ]
+    },
+    {
+      "id": "G-010",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        null,
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        null,
+        []
+      ],
+      "clicks": 6,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5872
+      ]
+    },
+    {
+      "id": "G-011",
+      "ok": true,
+      "expected": [
+        "INSUFFICIENT_INFO",
+        null,
+        []
+      ],
+      "got": [
+        "INSUFFICIENT_INFO",
+        null,
+        []
+      ],
+      "clicks": 5,
+      "correct": 10,
+      "wrong": 1,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        4286
+      ]
+    },
+    {
+      "id": "G-012",
+      "ok": true,
+      "expected": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "got": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "clicks": 5,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5152
+      ]
+    },
+    {
+      "id": "G-013",
+      "ok": true,
+      "expected": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "got": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "clicks": 4,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5242
+      ]
+    },
+    {
+      "id": "G-014",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 4,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        4865
+      ]
+    },
+    {
+      "id": "G-015",
+      "ok": true,
+      "expected": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "got": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "clicks": 4,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5736
+      ]
+    },
+    {
+      "id": "G-016",
+      "ok": true,
+      "expected": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "got": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "clicks": 4,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        4755
+      ]
+    },
+    {
+      "id": "G-017",
+      "ok": true,
+      "expected": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "got": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "clicks": 4,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        6454
+      ]
+    },
+    {
+      "id": "G-018",
+      "ok": true,
+      "expected": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "got": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "clicks": 5,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        6477
+      ]
+    },
+    {
+      "id": "G-019",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        "51-03-03",
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        "51-03-03",
+        []
+      ],
+      "clicks": 5,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5028
+      ]
+    },
+    {
+      "id": "G-020",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5576
+      ]
+    },
+    {
+      "id": "G-021",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        "51-03-02",
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        "51-03-02",
+        []
+      ],
+      "clicks": 4,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5386
+      ]
+    },
+    {
+      "id": "G-022",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5183
+      ]
+    },
+    {
+      "id": "G-023",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 6,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        7124
+      ]
+    },
+    {
+      "id": "G-024",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        "51-03-06",
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        "51-03-06",
+        []
+      ],
+      "clicks": 5,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        4878
+      ]
+    },
+    {
+      "id": "G-025",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        "51-03-08",
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        "51-03-08",
+        []
+      ],
+      "clicks": 4,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        9037
+      ]
+    },
+    {
+      "id": "G-026",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        "51-03-05",
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        "51-03-05",
+        []
+      ],
+      "clicks": 4,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5896
+      ]
+    },
+    {
+      "id": "G-027",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-07",
+        [
+          "interpretation"
+        ]
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-07",
+        [
+          "interpretation"
+        ]
+      ],
+      "clicks": 6,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        6001
+      ]
+    },
+    {
+      "id": "G-028",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        7052
+      ]
+    },
+    {
+      "id": "G-029",
+      "ok": true,
+      "expected": [
+        "INSUFFICIENT_INFO",
+        null,
+        []
+      ],
+      "got": [
+        "INSUFFICIENT_INFO",
+        null,
+        []
+      ],
+      "clicks": 5,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        7020
+      ]
+    },
+    {
+      "id": "G-030",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5984
+      ]
+    },
+    {
+      "id": "G-031",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        "51-29-02",
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        "51-29-02",
+        []
+      ],
+      "clicks": 4,
+      "correct": 8,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        4167
+      ]
+    },
+    {
+      "id": "G-032",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        "51-29-01",
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        "51-29-01",
+        []
+      ],
+      "clicks": 4,
+      "correct": 8,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        6233
+      ]
+    },
+    {
+      "id": "G-033",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        [
+          "route_unsupported"
+        ]
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        [
+          "route_unsupported"
+        ]
+      ],
+      "clicks": 4,
+      "correct": 17,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        7507
+      ]
+    },
+    {
+      "id": "G-034",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 5,
+      "correct": 15,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        8757,
+        1745
+      ]
+    },
+    {
+      "id": "G-035",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        "51-29-04",
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        "51-29-04",
+        []
+      ],
+      "clicks": 4,
+      "correct": 17,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        10198
+      ]
+    },
+    {
+      "id": "G-036",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        "51-29-04",
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        "51-29-04",
+        []
+      ],
+      "clicks": 5,
+      "correct": 16,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        8827
+      ]
+    },
+    {
+      "id": "G-037",
+      "ok": true,
+      "expected": [
+        "INSUFFICIENT_INFO",
+        null,
+        []
+      ],
+      "got": [
+        "INSUFFICIENT_INFO",
+        null,
+        []
+      ],
+      "clicks": 5,
+      "correct": 16,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        6830
+      ]
+    },
+    {
+      "id": "G-038",
+      "ok": true,
+      "expected": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "got": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "clicks": 4,
+      "correct": 16,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        10340
+      ]
+    },
+    {
+      "id": "G-039",
+      "ok": true,
+      "expected": [
+        "CIRCULAR_RESOURCE",
+        null,
+        []
+      ],
+      "got": [
+        "CIRCULAR_RESOURCE",
+        null,
+        []
+      ],
+      "clicks": 5,
+      "correct": 16,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        7960
+      ]
+    },
+    {
+      "id": "G-040",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 4,
+      "correct": 17,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        8451
+      ]
+    },
+    {
+      "id": "G-041",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 5,
+      "correct": 15,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        7526
+      ]
+    },
+    {
+      "id": "G-042",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 5,
+      "correct": 13,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        9880
+      ]
+    },
+    {
+      "id": "G-043",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 4,
+      "correct": 17,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        7246
+      ]
+    },
+    {
+      "id": "G-044",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 5,
+      "correct": 16,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        7832
+      ]
+    },
+    {
+      "id": "G-045",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 4,
+      "correct": 17,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        7784
+      ]
+    },
+    {
+      "id": "G-046",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 6,
+      "correct": 16,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        11265
+      ]
+    },
+    {
+      "id": "G-047",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 4,
+      "correct": 17,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        8413
+      ]
+    },
+    {
+      "id": "G-048",
+      "ok": true,
+      "expected": [
+        "HOUSEHOLD",
+        null,
+        []
+      ],
+      "got": [
+        "HOUSEHOLD",
+        null,
+        []
+      ],
+      "clicks": 5,
+      "correct": 13,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        7432
+      ]
+    },
+    {
+      "id": "G-049",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 13,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        6436
+      ]
+    },
+    {
+      "id": "G-050",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 12,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        8381
+      ]
+    },
+    {
+      "id": "G-051",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        7000,
+        2041
+      ]
+    },
+    {
+      "id": "G-052",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 12,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        7194
+      ]
+    },
+    {
+      "id": "G-053",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 13,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        7364
+      ]
+    },
+    {
+      "id": "G-054",
+      "ok": true,
+      "expected": [
+        "INSUFFICIENT_INFO",
+        null,
+        []
+      ],
+      "got": [
+        "INSUFFICIENT_INFO",
+        null,
+        []
+      ],
+      "clicks": 6,
+      "correct": 12,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        10841,
+        2056
+      ]
+    },
+    {
+      "id": "G-055",
+      "ok": true,
+      "expected": [
+        "HOUSEHOLD",
+        null,
+        []
+      ],
+      "got": [
+        "HOUSEHOLD",
+        null,
+        []
+      ],
+      "clicks": 5,
+      "correct": 13,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        8364
+      ]
+    },
+    {
+      "id": "G-056",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 13,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        8911
+      ]
+    },
+    {
+      "id": "G-057",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        4551
+      ]
+    },
+    {
+      "id": "G-058",
+      "ok": true,
+      "expected": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "got": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "clicks": 6,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        4738
+      ]
+    },
+    {
+      "id": "G-059",
+      "ok": true,
+      "expected": [
+        "NOT_WASTE",
+        null,
+        []
+      ],
+      "got": [
+        "NOT_WASTE",
+        null,
+        []
+      ],
+      "clicks": 0,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        6050
+      ]
+    },
+    {
+      "id": "G-060",
+      "ok": true,
+      "expected": [
+        "CIRCULAR_RESOURCE",
+        null,
+        []
+      ],
+      "got": [
+        "CIRCULAR_RESOURCE",
+        null,
+        []
+      ],
+      "clicks": 0,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5309
+      ]
+    },
+    {
+      "id": "G-061",
+      "ok": true,
+      "expected": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "got": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "clicks": 5,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        8152
+      ]
+    },
+    {
+      "id": "G-062",
+      "ok": true,
+      "expected": [
+        "HOUSEHOLD",
+        null,
+        []
+      ],
+      "got": [
+        "HOUSEHOLD",
+        null,
+        []
+      ],
+      "clicks": 5,
+      "correct": 13,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        7412
+      ]
+    },
+    {
+      "id": "G-063",
+      "ok": true,
+      "expected": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "got": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "clicks": 5,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5029
+      ]
+    },
+    {
+      "id": "G-064",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        null,
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        null,
+        []
+      ],
+      "clicks": 6,
+      "correct": 9,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        4426
+      ]
+    },
+    {
+      "id": "G-065",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        null,
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        null,
+        []
+      ],
+      "clicks": 5,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5013
+      ]
+    },
+    {
+      "id": "G-066",
+      "ok": true,
+      "expected": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "got": [
+        "DESIGNATED_POSSIBLE",
+        null,
+        []
+      ],
+      "clicks": 5,
+      "correct": 14,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        8457
+      ]
+    },
+    {
+      "id": "G-067",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        6228
+      ]
+    },
+    {
+      "id": "G-068",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 6,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5820
+      ]
+    },
+    {
+      "id": "G-069",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 6,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        6469
+      ]
+    },
+    {
+      "id": "G-070",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5788
+      ]
+    },
+    {
+      "id": "G-071",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5932
+      ]
+    },
+    {
+      "id": "G-072",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-07",
+        [
+          "interpretation"
+        ]
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-07",
+        [
+          "interpretation"
+        ]
+      ],
+      "clicks": 6,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        4561,
+        992
+      ]
+    },
+    {
+      "id": "G-073",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-07",
+        [
+          "interpretation"
+        ]
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-07",
+        [
+          "interpretation"
+        ]
+      ],
+      "clicks": 6,
+      "correct": 11,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5571
+      ]
+    },
+    {
+      "id": "G-074",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-07",
+        [
+          "interpretation"
+        ]
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-07",
+        [
+          "interpretation"
+        ]
+      ],
+      "clicks": 6,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        8381
+      ]
+    },
+    {
+      "id": "G-075",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-03-01",
+        []
+      ],
+      "clicks": 5,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        6086
+      ]
+    },
+    {
+      "id": "G-076",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        null,
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        null,
+        []
+      ],
+      "clicks": 4,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        6311
+      ]
+    },
+    {
+      "id": "G-077",
+      "ok": true,
+      "expected": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "got": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "clicks": 8,
+      "correct": 9,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        4085,
+        1139,
+        1168
+      ]
+    },
+    {
+      "id": "G-078",
+      "ok": true,
+      "expected": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "got": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "clicks": 8,
+      "correct": 7,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        4724,
+        2073
+      ]
+    },
+    {
+      "id": "G-079",
+      "ok": true,
+      "expected": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "got": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "clicks": 8,
+      "correct": 7,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5340
+      ]
+    },
+    {
+      "id": "G-080",
+      "ok": true,
+      "expected": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "got": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "clicks": 8,
+      "correct": 6,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        4321,
+        1949
+      ]
+    },
+    {
+      "id": "G-081",
+      "ok": true,
+      "expected": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "got": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "clicks": 8,
+      "correct": 7,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5252
+      ]
+    },
+    {
+      "id": "G-082",
+      "ok": true,
+      "expected": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "got": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "clicks": 7,
+      "correct": 7,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5743
+      ]
+    },
+    {
+      "id": "G-083",
+      "ok": true,
+      "expected": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "got": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "clicks": 8,
+      "correct": 8,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5489
+      ]
+    },
+    {
+      "id": "G-084",
+      "ok": true,
+      "expected": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "got": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "clicks": 9,
+      "correct": 6,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        6004
+      ]
+    },
+    {
+      "id": "G-085",
+      "ok": true,
+      "expected": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "got": [
+        "EXCLUDED",
+        null,
+        []
+      ],
+      "clicks": 3,
+      "correct": 5,
+      "wrong": 1,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        7996,
+        2204
+      ]
+    },
+    {
+      "id": "G-086",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 5,
+      "correct": 16,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        7329
+      ]
+    },
+    {
+      "id": "G-087",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 4,
+      "correct": 17,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        10475
+      ]
+    },
+    {
+      "id": "G-088",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 5,
+      "correct": 17,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        8905
+      ]
+    },
+    {
+      "id": "G-089",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 5,
+      "correct": 17,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        8132
+      ]
+    },
+    {
+      "id": "G-090",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 6,
+      "correct": 16,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        11809
+      ]
+    },
+    {
+      "id": "G-091",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 6,
+      "correct": 16,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        9284
+      ]
+    },
+    {
+      "id": "G-092",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 4,
+      "correct": 17,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        9646
+      ]
+    },
+    {
+      "id": "G-093",
+      "ok": true,
+      "expected": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "got": [
+        "GENERAL",
+        "51-29-03",
+        []
+      ],
+      "clicks": 6,
+      "correct": 16,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        10543
+      ]
+    },
+    {
+      "id": "G-094",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        "51-03-06",
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        "51-03-06",
+        []
+      ],
+      "clicks": 5,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        6191
+      ]
+    },
+    {
+      "id": "G-095",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        "51-03-06",
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        "51-03-06",
+        []
+      ],
+      "clicks": 5,
+      "correct": 10,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        5489
+      ]
+    },
+    {
+      "id": "G-096",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        "51-29-04",
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        "51-29-04",
+        []
+      ],
+      "clicks": 5,
+      "correct": 16,
+      "wrong": 0,
+      "made_up": 1,
+      "risky_wrong": 0,
+      "golden_user_facts": 16,
+      "llm_latency_ms": [
+        8980
+      ]
+    },
+    {
+      "id": "G-097",
+      "ok": true,
+      "expected": [
+        "OUT_OF_SCOPE",
+        "51-29-04",
+        []
+      ],
+      "got": [
+        "OUT_OF_SCOPE",
+        "51-29-04",
+        []
+      ],
+      "clicks": 5,
+      "correct": 18,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        13267
+      ]
+    },
+    {
+      "id": "G-098",
+      "ok": true,
+      "expected": [
+        "INSUFFICIENT_INFO",
+        null,
+        []
+      ],
+      "got": [
+        "INSUFFICIENT_INFO",
+        null,
+        []
+      ],
+      "clicks": 4,
+      "correct": 18,
+      "wrong": 0,
+      "made_up": 0,
+      "risky_wrong": 0,
+      "golden_user_facts": 17,
+      "llm_latency_ms": [
+        9307
+      ]
+    }
+  ]
+}

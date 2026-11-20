@@ -1,0 +1,17 @@
+stage: 10_is_waste
+title: 폐기물인가
+order: 10
+on_no_match: continue
+rules:
+  # 폐기물은 "필요하지 아니하게 된 물질"이다(법 제2조제1호). 사업장 밖으로 내보내지 않고
+  # 같은 공정에 다시 넣으면 필요하지 아니하게 된 것이 아니므로 폐기물이 아니다(D3).
+  # discharged가 unknown이면 이 규칙이 모름이 되어 단계가 막히고 discharged가 blocking_facts로 나간다(D11).
+  - id: WASTE-NOT-DISCHARGED
+    when: {fact: discharged, eq: "no"}
+    then: {outcome: NOT_WASTE}
+    basis:
+      - unit: ACT-WASTE/제2조제1호
+        quote: "사람의 생활이나 사업활동에 필요하지 아니하게 된 물질을 말한다"
+    decision: D3
+    grade: C
+    note: 이 단계가 맨 앞인 이유는 폐기물이 아니면 아래의 모든 폐기물 관련 판단(순환자원·적용 제외·사업장·지정폐기물)이 의미가 없기 때문이다.
