@@ -21,6 +21,7 @@ from app.interview import catalog as cat
 from app.interview import guard
 from app.interview import present as pr
 from app.llm import redact
+from app.llm.assist import run_agent
 from app.llm.extract import build_user, extract
 from app.persistence.models import Case, Message
 
@@ -103,6 +104,8 @@ class UnderstandMixin:
         assist = None
         if proposal.intent == "question" or proposal.question_text:
             assist = self.answer_question(case, proposal.question_text or masked, turn_id)
+            if assist is None:
+                notes.append("질문에 답할 자료를 찾지 못했어요.")
         elif proposal.intent == "off_topic":
             notes.append(OFF_TOPIC)
         elif proposal.intent == "unclear" and not recorded and not res.confirm:
@@ -140,6 +143,55 @@ class UnderstandMixin:
             case.pending = pending
         return labels
 
+    def case_snapshot(self, case: Case) -> dict:
+        """agent의 case_state 도구가 보는 요약(읽기 전용, 식별 정보 없음)."""
+        states = self.states(case)
+        step = self.step(case, states)
+        final = step.branch == "FINAL_REVIEW"
+        r = step.next.result
+        return {
+            "answers": {
+                k: cat.value_label(
+                    self.catalog, k, "unknown" if s.status == "DECLARED_UNKNOWN" else s.value
+                )
+                for k, s in states.items()
+            },
+            "question": (step.question or {}).get("text") or (step.plan_question or {}).get("text"),
+            "question_facts": step.asked_facts,
+            "branch": step.branch,
+            "outcome": r.outcome if final else None,
+            "code": pr.public_code(r) if final else None,
+            "rule_id": pr.deciding_rule(r) if final else None,
+        }
+
     def answer_question(self, case: Case, question: str, turn_id: str) -> dict | None:
-        """질의응답 agent(다음 단계에서 연결). 지금은 답하지 않는다."""
-        return None
+        """질의응답 agent: 자료를 찾아 답한다. 판정은 바꾸지 않는다. 실패하면 None."""
+        state = self.case_snapshot(case)
+        self.db.commit()  # AI를 기다리는 동안 DB 트랜잭션을 열어 두지 않는다
+        assist, calls, steps = run_agent(
+            self.llm,
+            self.kb,
+            question=question,
+            state=state,
+            max_tool_calls=self.settings.assist_max_tool_calls,
+            prompt_version=self.settings.prompt_version,
+        )
+        for call in calls:
+            self.trace_llm(case, turn_id, call, call.user)
+        self.trace(
+            case,
+            turn_id,
+            "ASSIST",
+            {
+                "tools": [
+                    {
+                        "tool": s["tool"],
+                        "arg": s["arg"],
+                        "ids": [r.get("id") or r.get("rule_id") for r in s["results"]],
+                    }
+                    for s in steps
+                ]
+            },
+            None,
+        )
+        return assist

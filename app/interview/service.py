@@ -263,9 +263,12 @@ class CaseService(DocumentMixin, UnderstandMixin):
             )
         )
 
-    def finish_turn(self, case: Case, turn_id: str, kind: str, payload: Any, prefix=None) -> dict:
+    def finish_turn(
+        self, case: Case, turn_id: str, kind: str, payload: Any, prefix=None, assist=None
+    ) -> dict:
         self.db.flush()
         step, turn = self.turn(case, turn_id, prefix)
+        turn["assist"] = assist
         self.log(
             case,
             turn_id,
@@ -273,6 +276,7 @@ class CaseService(DocumentMixin, UnderstandMixin):
             turn["message"],
             branch=step.branch,
             question_key=step.question["key"] if step.question else None,
+            assist=assist,
         )
         self.trace(case, turn_id, kind, payload, step)
         self.touch(case)
@@ -312,8 +316,9 @@ class CaseService(DocumentMixin, UnderstandMixin):
                 # 메모도 대화 중 말과 같이 읽는다(근거 문구가 메모에 있어야 기록된다)
                 prefix, _, payload, assist = self.understand(case, case.memo, turn_id)
                 self.trace(case, turn_id, "UNDERSTAND", {"memo": True, **payload}, None)
-        turn = self.finish_turn(case, turn_id, "CREATE", {"memo": case.memo}, prefix=prefix)
-        turn["assist"] = assist
+        turn = self.finish_turn(
+            case, turn_id, "CREATE", {"memo": case.memo}, prefix=prefix, assist=assist
+        )
         self.commit()
         return {"case": self.case_out(case), "turn": turn}
 
@@ -330,8 +335,7 @@ class CaseService(DocumentMixin, UnderstandMixin):
         if text is not None:
             self.log(case, turn_id, "user", text)
             prefix, kind, payload, assist = self.understand(case, text, turn_id)
-            turn = self.finish_turn(case, turn_id, kind, payload, prefix=prefix)
-            turn["assist"] = assist
+            turn = self.finish_turn(case, turn_id, kind, payload, prefix=prefix, assist=assist)
             self.commit()
             return turn
         label = self.answer(case, qr, turn_id)
@@ -629,7 +633,7 @@ class CaseService(DocumentMixin, UnderstandMixin):
                 if m.document_id:
                     row["document_id"] = m.document_id
             else:
-                row |= {"branch": m.branch, "question_key": m.question_key, "assist": None}
+                row |= {"branch": m.branch, "question_key": m.question_key, "assist": m.assist}
             out.append(row)
         return out
 

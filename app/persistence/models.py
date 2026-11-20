@@ -119,6 +119,7 @@ class Message(Base):
     branch: Mapped[str | None] = mapped_column(String(30), nullable=True)
     question_key: Mapped[str | None] = mapped_column(String(64), nullable=True)
     document_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    assist: Mapped[Any] = mapped_column(JSON, nullable=True)  # 질의응답 agent의 답(AI 말에만)
     at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 
