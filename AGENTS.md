@@ -23,6 +23,9 @@ Re:Source AI 조직의 **폐기물 문진 엔진(scrap-diagnosis, v2)**. 모든 
 ## 2. 공통 규칙
 
 1. **분류 판정을 LLM에 맡기지 않는다.** 판정은 `knowledge/flow/*.yaml` 규칙과 `app/engine/flow.py`만 한다. 확인되지 않은 값은 추정해 채우지 않고 '모름' 또는 아직 묻지 않음(UNASKED)으로 둔다
+   - LLM 출력은 `app/interview/guard.py`(카탈로그 값, 근거 문구가 말에 있는지)를 통과한 사실만 기록한다. 추측 답과 말로 한 오염 '없음'은 확인 버튼(CONFIRM_GUESS)을 거친다
+   - 무엇을 물을지는 다음 질문 계산기가 정한다. LLM은 질문 문장(턴 message)만 다듬는다
+   - 질의응답 agent의 도구는 읽기 전용이고, 답변 출처는 도구가 돌려준 결과만 쓴다(코드 대조). AI로 보내기 전에 식별 정보를 가린다(`app/llm/redact.py`, 실패하면 보내지 않음)
 2. **기존 엔진(v1)을 근거로 쓰지 않는다.** 참고했으면 커밋·문서에 "기존 엔진 참조"라고 적는다. 계약 모양을 맞추는 것은 괜찮다
 3. **법령은 API로 받는다.** 조문을 손으로 옮기지 않는다. 대상은 `knowledge/law/targets.yaml`(사람이 정함), 수집은 `tools/collect_law.py`, 결과 `articles/`·`manifest.yaml`은 손으로 고치지 않는다. 인증키(`LAW_API_OC`)는 `.env`에만 둔다
 4. **규칙마다 근거(basis: 조문 단위 + 인용문)를 붙인다.** 근거가 없으면 규칙을 만들지 말고 `decisions.md`에 해석 결정으로 남기거나 "해석 필요"로 멈춘다
@@ -44,6 +47,7 @@ Re:Source AI 조직의 **폐기물 문진 엔진(scrap-diagnosis, v2)**. 모든 
 | `knowledge/flow/` | 판정 규칙 7단계, 사실 카탈로그, 문진 계획, 결과 안내, 결정 기록, 규칙 형식 |
 | `app/engine/` | `flow.py` 규칙 실행기, `planner.py` 다음 질문 계산기, `kb.py` 지식 로더(kb_version, 재활용 유형표) |
 | `app/interview/` | 문진 서비스: 답 검증(`catalog.py`), 응답 만들기(`present.py`), DB 작업(`service.py`), 서류 업로드·검수·적용(`documents.py`) |
+| `app/llm/` | LLM 연결·가리기(복원), 추출(`extract.py`), 질의응답 agent(`assist.py`·`tools.py`), 질문 문장(`phrase.py`) |
 | `app/reading/` | 시험성적서 표 읽기(pdfplumber·Azure Document Intelligence). 기존 엔진에서 복원한 서류 읽기 기반이며 판정은 하지 않는다 |
 | `app/api/` | `/internal/v1` 경로·인증·오류 형식 |
 | `app/persistence/`, `alembic/` | SQLAlchemy 모델, 마이그레이션 |
@@ -62,6 +66,7 @@ uv run python tools/build_decision_table.py --check
 uv run python tools/build_golden.py --check      # 골든셋 동결 해시
 uv run python tools/compare_flows.py score knowledge/flow   # 판정 규칙 채점
 uv run python tools/simulate_interview.py        # 문진 계획: 결론 정확도·질문 수
+uv run python tools/eval_understand.py --mock    # 말 이해 흐름(AI 없음). 실제 AI 평가는 요청할 때만
 uv run python tools/collect_law.py               # 법령 다시 수집(키 필요, 개발 PC에서만)
 docker compose up -d db                          # PostgreSQL(호스트 포트 55432)
 TEST_DATABASE_URL=postgresql+psycopg://wd:wd@localhost:55432/postgres uv run python -m pytest -q

@@ -53,3 +53,4 @@ known-third-party = ["alembic"]  # 저장소의 alembic/ 폴더를 패키지로 
 "app/llm/extract.py" = ["E501"]
 "app/llm/assist.py" = ["E501"]
 "app/llm/phrase.py" = ["E501"]
+"tools/eval_understand.py" = ["E501"]

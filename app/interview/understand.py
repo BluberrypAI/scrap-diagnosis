@@ -116,6 +116,7 @@ class UnderstandMixin:
             "intent": proposal.intent,
             "accepted": [c.key for c in res.accepted],
             "confirm": [c.key for c in res.confirm],
+            "confirm_values": {c.key: c.value for c in res.confirm},
             "rejected": res.rejected,
             "group_none_all": res.group_none_all,
         }

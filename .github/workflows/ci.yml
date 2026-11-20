@@ -71,3 +71,8 @@ jobs:
       - name: Interview plan on the golden dataset (no AI calls)
         run: uv run python tools/simulate_interview.py
 
+      - name: Free-text pipeline on the golden dataset (fake extractors, no AI calls)
+        run: |
+          uv run python tools/eval_understand.py --mock
+          uv run python tools/eval_understand.py --oracle
+
