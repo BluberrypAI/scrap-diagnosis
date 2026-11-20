@@ -32,8 +32,6 @@ services:
       DB_CREATE_ALL: "false"
       # 기본값 없음: .env에 넣지 않으면 내부 API가 모두 401로 막힌다(fail-closed)
       ENGINE_SERVICE_TOKEN: ${ENGINE_SERVICE_TOKEN:-}
-      LLM_PROVIDER: ${LLM_PROVIDER:-off}
-      THREAD_LIMIT: ${THREAD_LIMIT:-40}
     command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8030"]
     ports:
       - "${ENGINE_PORT:-8030}:8030"

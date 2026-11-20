@@ -8,6 +8,9 @@
 #
 # scope: company(회사별로 한 번 묻고 기억, 2026-11-20 B안) | waste(폐기물마다)
 # kind: single(사실 하나) | group(묶음: "하나도 해당 없음"이면 none 값을 한꺼번에 채우고, 아니면 하나씩 묻는다)
+# text: 화면에 보일 질문 문장. help: 접어 두는 확인 방법(없으면 생략)
+# 묶음 항목의 ask: 묶음을 펼쳐 그 항목만 따로 물을 때의 질문 문장(선택지는 facts.yaml 값)
+# 질문 문장은 판정에 쓰지 않는다. 쉬운 말 다듬기는 LLM 단계에서 붙인다
 # 순서 근거: 답하기 쉬운 것부터, 앞의 답이 뒤 질문을 줄이도록(재질 → 형태 → 포장·캔 → 오염 → 법적 확인)
 
 version: 1
@@ -28,6 +31,8 @@ questions:
     fact: material
     scope: waste
     kind: single
+    text: 어떤 재질인가요?
+    help: 제품 표시(재질 마크), 원료 구매 서류, 납품처 사양서에서 확인할 수 있어요.
 
   - id: Q-FORM
     fact: input_form
@@ -36,12 +41,14 @@ questions:
     ask_if: {fact: material, in: [pp, pe, pet, aluminium, steel]}
     options_by: material          # facts.yaml의 allowed_by_material로 선택지를 좁힌다
     always: true                  # 판정에 영향이 없어도 업체 추천(서버)에 넘겨야 해서 묻는다
+    text: 지금 어떤 형태인가요?
 
   - id: Q-STATE
     fact: physical_state
     scope: waste
     kind: single
     note: 형태에서 자동으로 채워지지 않은 경우(범위 밖 재질 등)만 남는다
+    text: 지금 어떤 상태인가요?
 
   - id: Q-PLASTIC-KIND
     kind: group
@@ -49,26 +56,32 @@ questions:
     ask_if: {fact: material, in: [pp, pe, pet, pvc, other_resin]}
     text: 아래 중 해당하는 것이 있나요?
     items:
-      - {fact: foamed, label: 스티로폼·PE 폼처럼 발포된 수지다, none: "no"}
-      - {fact: fishery_origin, label: 어망이나 양식용 부표에서 나왔다, none: none}
+      - {fact: foamed, label: 스티로폼·PE 폼처럼 발포된 수지다, none: "no",
+         ask: "스티로폼·PE 폼처럼 발포된 수지인가요?"}
+      - {fact: fishery_origin, label: 어망이나 양식용 부표에서 나왔다, none: none,
+         ask: "어망이나 양식용 부표에서 나왔나요?"}
 
   - id: Q-PACKAGING
     fact: packaging_used
     scope: waste
     kind: single
     ask_if: {fact: material, in: [pp, pe, pet, pvc, other_resin]}
+    text: 제품이나 원료를 포장하는 데 쓰였던 것인가요?
+    help: 원료 포대, 제품 포장 필름, 완충재, 음료병처럼 무엇을 담거나 감쌌던 것이면 포장재예요.
 
   - id: Q-CAN-CONTENTS
     fact: can_contents
     scope: waste
     kind: single
     ask_if: {fact: input_form, eq: can}
+    text: 캔에 원래 무엇이 담겨 있었나요?
 
   - id: Q-MEDICINE-SMALL
     fact: medicine_small
     scope: waste
     kind: single
     ask_if: {fact: can_contents, eq: medicine}
+    text: 그 의약품·의약외품은 내용량 30mL(또는 30g) 이하 제품이었나요?
 
   # ---- 오염 ---------------------------------------------------------------------------------
   - id: Q-CONTAMINATION
@@ -76,9 +89,12 @@ questions:
     scope: waste
     text: 아래 중 하나라도 해당하나요?
     items:
-      - {fact: oil_presence, label: 기름(절삭유·윤활유 등)이 묻었거나 섞여 있다, none: none}
-      - {fact: residue, label: 용기·물건에 원래 내용물(페인트·약품·기름·가스 등)이 남아 있다, none: none}
-      - {fact: chemical_itself, label: 버리는 것이 약품·시약 그 자체다, none: "no"}
+      - {fact: oil_presence, label: 기름(절삭유·윤활유 등)이 묻었거나 섞여 있다, none: none,
+         ask: "기름(절삭유·윤활유 등)이 묻었거나 섞여 있나요?"}
+      - {fact: residue, label: 용기·물건에 원래 내용물(페인트·약품·기름·가스 등)이 남아 있다, none: none,
+         ask: "용기·물건에 원래 내용물이 남아 있나요?"}
+      - {fact: chemical_itself, label: 버리는 것이 약품·시약 그 자체다, none: "no",
+         ask: "버리는 것이 약품·시약 그 자체인가요?"}
 
   - id: Q-OIL-PCT
     fact: oil_pct_evidenced
@@ -86,6 +102,8 @@ questions:
     kind: single
     ask_if: {fact: oil_presence, eq: present}
     note: 분석성적서의 기름성분 수치. 서류가 없으면 '모름'
+    text: 분석성적서에 적힌 기름성분 함량은 몇 %인가요?
+    help: 폐기물 분석전문기관의 성적서 수치만 써 주세요. 성적서가 없으면 '모름'을 눌러 주세요.
 
   # ---- 법적 확인 ----------------------------------------------------------------------------
   - id: Q-LEGAL
@@ -93,9 +111,12 @@ questions:
     scope: waste
     text: 확인만 할게요. 아래에 해당하는 것이 있나요?
     items:
-      - {fact: discharged, label: 밖으로 내보내지 않고 같은 공정에 다시 넣는다, none: "yes", inverted: true}
-      - {fact: law_exclusion, label: 방사성 물질·폐수·가축분뇨·하수 등 다른 법 대상이다, none: none}
-      - {fact: circular_recognized, label: 이 물질로 순환자원 인정서를 받았다, none: "no"}
+      - {fact: discharged, label: 밖으로 내보내지 않고 같은 공정에 다시 넣는다, none: "yes", inverted: true,
+         ask: "이 물질을 사업장 밖으로 내보내나요(위탁·판매·처리업체 인계 등)?"}
+      - {fact: law_exclusion, label: 방사성 물질·폐수·가축분뇨·하수 등 다른 법 대상이다, none: none,
+         ask: "아래 중 해당하는 것이 있나요?"}
+      - {fact: circular_recognized, label: 이 물질로 순환자원 인정서를 받았다, none: "no",
+         ask: "이 물질로 순환자원 인정서를 받았나요?"}
 
   - id: Q-CAN-CIRCULAR
     kind: group
@@ -111,6 +132,7 @@ questions:
       - {fact: can_designation.compress_facility_ok, label: 압축시설 설치승인·신고(해당 시)}
       - {fact: can_designation.supplied_r41, label: 금속제품 제조 용도로 공급}
     all_yes_label: 모두 마쳤어요
+    not_all_label: 아니요 / 하나라도 안 했거나 모르겠어요
     note: 하나라도 아니면 '아니요' 한 번으로 끝난다(모름·미충족은 폐기물, 고시 마목)
 
   # ---- 사업장 (회사별로 한 번) ----------------------------------------------------------------
@@ -118,15 +140,22 @@ questions:
     fact: emission_facility
     scope: company
     kind: single
+    text: 사업장에 대기·물·소음진동 배출시설이 있나요?
+    help: 배출시설 설치허가증이나 신고증명서가 있으면 '예'예요. 한 번 답하면 회사 정보로 기억해요.
   - id: Q-SITE-DAILY
     fact: daily_avg_kg
     scope: company
     kind: single
+    text: 사업장 전체 폐기물은 하루 평균 몇 kg 나오나요?
+    help: 올바로시스템의 연간 배출량을 작업일 수로 나눈 값이면 충분해요. 한 번 답하면 회사 정보로 기억해요.
   - id: Q-SITE-OTHER
     kind: group
     scope: company
     text: 사업장에 아래 중 해당하는 것이 있나요?
     items:
-      - {fact: public_facility, label: 공공폐수·공공하수·분뇨·가축분뇨 공공처리·폐기물처리시설을 운영한다, none: "no"}
-      - {fact: construction_5t, label: 공사나 일련의 작업으로 폐기물이 5톤 이상 나온다, none: "no"}
-      - {fact: site_emits_designated, label: 다른 공정에서 지정폐기물(폐유·폐산 등)이 나온다, none: "no"}
+      - {fact: public_facility, label: 공공폐수·공공하수·분뇨·가축분뇨 공공처리·폐기물처리시설을 운영한다, none: "no",
+         ask: "공공폐수·공공하수·분뇨·가축분뇨 공공처리시설이나 폐기물처리시설을 운영하나요?"}
+      - {fact: construction_5t, label: 공사나 일련의 작업으로 폐기물이 5톤 이상 나온다, none: "no",
+         ask: "공사나 일련의 작업으로 폐기물이 5톤 이상 나오나요?"}
+      - {fact: site_emits_designated, label: 다른 공정에서 지정폐기물(폐유·폐산 등)이 나온다, none: "no",
+         ask: "다른 공정에서 지정폐기물(폐유·폐산 등)이 나오나요?"}
