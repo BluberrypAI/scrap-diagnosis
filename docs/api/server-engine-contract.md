@@ -1,6 +1,6 @@
 # scrap-server ↔ 문진 엔진 내부 API (v2)
 
-서버가 엔진을 부를 때의 규약이다. 경로·응답 모양은 v1(기존 엔진)과 맞췄다. 그래서 서버의 중계 코드(`backend/app/domains/diagnosis/`)와 웹의 `normalize.js`는 고치지 않아도 된다. 다만 웹의 재질 필터(`supportedMaterials.js`)는 v1 재질 값만 남기기 때문에, 새 값에 맞춰 고쳐야 한다(6절). 달라진 점은 6절에 모았다.
+서버가 엔진을 부를 때의 규약이다. 경로·응답 모양은 v1(기존 엔진)과 맞췄다. 그래서 서버의 중계 코드(`backend/app/domains/diagnosis/`)와 웹의 `normalize.js`는 고치지 않아도 된다. 웹의 재질 필터(`supportedMaterials.js`)는 v2 값(pp·pe·pet·aluminium)으로 바꿨다(scrap-web `feat/diagnosis-v2-materials`). 달라진 점은 6절에 모았다.
 
 ## 1. 기본
 
@@ -18,7 +18,7 @@
 |---|---|---|
 | `POST /cases` | `{memo?, quantity?, unit?, period?, confirmed_facts?, company_profile_version?}` | 201 `{case, turn}` |
 | `GET /cases?status=&page=&size=` | | `{items, pagingInfo}` (최근 갱신순) |
-| `GET /cases/{id}` | | `{case, latest_turn, conversation, verdicts, current_verdict, documents: [], handoff, recycling: null}` |
+| `GET /cases/{id}` | | `{case, latest_turn, conversation, verdicts, current_verdict, documents: [], handoff, recycling}` |
 | `POST /cases/{id}/diagnosis/messages` | `{text}` 또는 `{quick_reply}` (+ 선택 `confirmed_facts`, `company_profile_version`) | `TurnResponse` |
 | `POST /cases/{id}/confirm` | `{expected_code?}` | `{case, verdict, handoff, frozen_trace_rows}` |
 | `POST /cases/{id}/reopen` | `{reason?}` | `{case, superseded_verdict, turn}` |
@@ -77,12 +77,18 @@
 
 인계 객체 필드
 - 서버가 읽는 필드: `contract`, `case_id`, `verdict_version`, `result_type`, `waste_code`, `waste_name`, `category`, `outcome`, `route_guidance{action, summary, notes}`, `facts`, `review`, `timestamps{diagnosis_started_at, confirmed_at, as_of}`, `assumptions`
-- 그 밖의 필드: `basis[{id, type, unit, ref, excerpt, rule_id}]`, `kb`, `inputs`, `flags`, `rule_id`, `evidence: []`, `designated: null`
+- 그 밖의 필드: `basis[{id, type, unit, ref, excerpt, rule_id}]`, `kb`, `inputs`, `flags`, `rule_id`, `evidence: []`, `designated: null`, `recycling`(아래)
 - `facts`는 값이 정해진 사실만 담는다. 형식은 `{"material": {"value": "pp", "status": "CLAIMED", "source_type": "UTTERANCE"}}`이고, 묶음 항목은 `can_designation.registered`처럼 점으로 이은 키다.
 - **형태(`input_form`)를 문진에서 묻고 인계 객체에 넣는다.** 서버의 `inherited_form()`은 이 값을 바로 쓴다. 그래서 경로 화면에서 형태를 다시 묻지 않는다.
 - `physical_state`는 형태에서 자동으로 채운다(`DERIVED`, 값 `solid`).
 - `review`는 항상 `UNVERIFIED`다(전문가 검토 전).
 - `OUT_OF_SCOPE`는 후보 코드가 있어도 `waste_code`를 null로 둔다.
+
+재활용 유형(`recycling`, `recycling-types-v1`)
+- 시행규칙 별표 4의3(폐기물의 종류별 재활용 가능 유형)을 법령 API로 받아 분류번호 행을 읽은 값이다. 분류 판정이나 업체 허가 확인이 아니다(`facility_permit_verified: false`).
+- `status`: `table_listed`(표에 있음, `types{free, analysis, unmarked}`·`source`·`notes`·`version`·`checksum`을 채움) / `not_applicable`(업체 추천 대상 결과가 아님) / `not_covered`(표에 행이 없음) / `out_of_date`(문진 기준일이 별표 시행일보다 앞섬)
+- `free`는 사전 분석·확인 "해당 없음", `analysis`는 "해당"인 유형이다. `pages`는 API 본문에서 읽어 비어 있다.
+- `case_id`·`verdict_version`·`waste_code`·`as_of`로 판정과 묶는다. 건 상세의 최상위 `recycling`은 현재 확정 판정의 값과 같다.
 
 ## 6. v1과 달라진 점
 
@@ -90,5 +96,5 @@
 - **결과 값이 더해졌다**: outcome·category에 `DESIGNATED_POSSIBLE`. v1의 `INTERPRETATION_NEEDED`·`CODE_NEEDS_TEST`·`NO_GENERAL_CODE` 등은 나오지 않는다.
 - **없는 경로**: 서류 업로드·교체·값 적용·효력 해제(`/documents/...`)는 404 `NOT_FOUND`다. 기름 함량은 질문(`oil_pct_evidenced`, 분석성적서 수치)으로 받는다.
 - **회사 정보 기억**: 사업장 질문(`emission_facility`, `daily_avg_kg`, `public_facility`, `construction_5t`, `site_emits_designated`)의 답은 기업별로 기억한다. 같은 기업의 다음 건에는 `PROFILE`로 미리 채운다. 기업 데이터를 삭제하면 이 기억도 함께 지운다.
-- **재활용 유형표**: `recycling`은 아직 null이다. 서버는 이 값이 없으면 "R코드 미확인" 경고만 붙이고 계속 진행한다.
+- **재활용 유형표**: v1은 별표 PDF에서 손으로 옮긴 표였고, v2는 법령 API에서 받는다. 지금 범위는 51-03-01·51-03-07·51-29-03 세 행이다.
 - **DB 스키마가 새로 바뀌었다**: 마이그레이션은 `alembic/versions/0001`부터 다시 시작한다. v1 엔진이 쓰던 DB에는 그대로 올릴 수 없으므로 새 데이터베이스를 쓴다.

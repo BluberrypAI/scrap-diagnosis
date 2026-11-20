@@ -1,83 +1,82 @@
 # AGENTS.md
 
-Re:Source AI 조직의 **폐기물 진단 엔진(waste-diagnosis)**. 모든 AI 코딩 에이전트(Claude Code, Codex 등)의 공통 진입점이다.
-폐기물 분류번호를 문진으로 판정하고, 확정 결과를 경로추천 AI에 넘기는 인계 객체를 만든다. 로그인·회원·화면은 다른 레포 담당이므로 여기서 구현하지 않는다.
+Re:Source AI 조직의 **폐기물 문진 엔진(scrap-diagnosis, v2)**. 모든 AI 코딩 에이전트(Claude Code, Codex 등)의 공통 진입점이다.
+사용자의 답으로 폐기물 여부와 분류번호를 판정하고, 확정 결과를 인계 객체(`diagnosis-handoff-v1`)로 서버에 넘긴다. 로그인·회원·화면·업체 추천은 다른 레포 담당이므로 여기서 구현하지 않는다.
 
-원칙: **AI(LLM)는 제안하고, 규칙 엔진이 판정하고, 서버가 검증한다.** 분류번호는 규칙 엔진만 정한다.
+원칙: **판정은 규칙 엔진만 한다.** 규칙은 조문 단위 근거와 함께 YAML로 두고, 골든셋으로 검증한다. LLM은 말 이해·질문 문장 작성만 맡고(다음 단계), 그 출력도 검증한 사실만 엔진에 넣는다.
+
+범위(2026-11-19 결정): PP·PE·PET(51-03-01, 51-03-07), 알루미늄 캔(51-29-03). 지정폐기물은 "가능성"까지만. 범위 밖은 "범위 밖 · 지원 예정"으로만 안내한다.
 
 ## 1. 문서 지도 (작업 전에 필요한 것만 읽음)
 
 | 문서 | 언제 읽음 |
 | --- | --- |
-| [README.md](README.md) | 실행·테스트 명령, 설정 |
-| [docs/README.md](docs/README.md) | 문서 목차. 어떤 문서가 무엇인지 |
-| [docs/team/guide.md](docs/team/guide.md) | 다른 팀과의 경계, 팀원 확인사항 |
-| [docs/api/server-engine-contract.md](docs/api/server-engine-contract.md) | 서버가 부르는 API(`/internal/v1`), 오류 코드를 바꿀 때 |
-| [docs/handoff-contract.md](docs/handoff-contract.md) | 확정·인계 객체(`diagnosis-handoff-v1`)를 바꿀 때 |
-| [knowledge/README.md](knowledge/README.md) | 규칙 원본(법 규칙·소재·번호 대응·근거)을 고치거나 빌드할 때 |
-| [docs/rule-changes/](docs/rule-changes/) | 규칙 내용(판정)을 바꿀 때: 주제별 차이 보고서를 여기에 남김 |
-| [docs/ui/ui-contract.md](docs/ui/ui-contract.md), [docs/ui/ui-design.md](docs/ui/ui-design.md) | 화면(scrap-web)이 쓰는 응답 필드를 바꿀 때 |
-| [docs/llm-data-policy.md](docs/llm-data-policy.md) | AI 호출·프롬프트·Trace 기록을 바꿀 때 |
-| [docs/agent-changelog.md](docs/agent-changelog.md) | 에이전트 문서를 고칠 때 |
-| 팀 공통 규칙(조직 `.github`의 CONTRIBUTING.md) | 브랜치·커밋·PR을 만들 때, 다른 레포와의 경계·API 형식을 바꿀 때 |
+| [README.md](README.md) | 실행·검증 명령, 구조 |
+| [docs/api/server-engine-contract.md](docs/api/server-engine-contract.md) | 서버가 부르는 API(`/internal/v1`), 턴 응답·인계 객체·재활용 유형을 바꿀 때 |
+| [knowledge/flow/SCHEMA.md](knowledge/flow/SCHEMA.md) | 판정 규칙 형식과 평가 의미론(3값 논리, 첫 참 규칙, 막힘) |
+| [knowledge/flow/decisions.md](knowledge/flow/decisions.md) | 해석 결정(D1~). 규칙 내용을 바꾸기 전에 |
+| [knowledge/cases/README.md](knowledge/cases/README.md), [CHANGELOG.md](knowledge/cases/CHANGELOG.md) | 골든셋을 만들거나 고칠 때 |
+| [knowledge/law/targets.yaml](knowledge/law/targets.yaml) | 법령 수집 대상을 바꿀 때 |
+| 팀 공통 규칙(조직 `.github`의 CONTRIBUTING.md) | 브랜치·커밋·PR, 다른 레포와의 경계·API 형식을 바꿀 때 |
 
 ## 2. 공통 규칙
 
-1. **분류 판정을 LLM에 맡기지 않는다.** LLM 출력은 `app/agent/guard.py` 검증을 통과한 사실만 엔진에 들어간다. 확인되지 않은 값은 추정해 채우지 않고 비워 둔다
-2. **생성된 규칙 데이터는 손으로 고치지 않는다.** `data/real/`은 규칙 원본 `knowledge/`를 `tools/build_kb.py`로 빌드한 생성물이다. 규칙을 바꿀 때는 `knowledge/`(또는 빌드 로직)를 고치고 다시 빌드한다. `build_kb.py --check`가 CI와 테스트에서 생성물이 원본과 같은지 검사한다. 판정표 회귀 수치(`tools/legacy_regression.py`)가 바뀌면 이유를 보고한다. `data/real/`의 `regression/`(기존 엔진 판정표 기준)과 `scenarios/`는 빌드 대상이 아니다
-3. **API 형식**: 필드·엔드포인트 추가는 자유. 서버·화면이 쓰는 필드의 삭제·이름 변경·타입 변경은 하지 않는다. 필요하면 멈추고 사용자에게 확인한다(팀 규칙 1장). 바꾼 뒤에는 `scripts/export_openapi.py`로 `docs/api/openapi.json`을 다시 만든다
-4. **계약 문서 위치를 바꾸지 않는다.** `docs/handoff-contract.md`, `docs/document-extraction-contract.md`, `docs/ui/ui-contract.md`, `docs/api/server-engine-contract.md`는 코드·테스트가 경로를 참조한다
-5. **DB 스키마를 바꾸면 Alembic 마이그레이션을 같이 만든다.** SQLite와 PostgreSQL 모두에서 테스트한다. 확정된 Trace(`immutable`)는 고치거나 지우지 않는다(기업 데이터 삭제 경로만 예외)
-6. **동기 핸들러 안에서 AI를 부를 때는 DB 트랜잭션을 열어 둔 채 기다리지 않는다**(`CaseService._release_db`). `async def` 라우트 안에서 동기 DB·AI 호출을 하지 않는다
-7. 비밀값은 코드·커밋·로그에 쓰지 않는다. 로컬은 `.env`(git 제외), 변수 이름은 `.env.example`에 값 없이 둔다. `.env` 값을 출력하지 않는다
-8. 사용자에게 보이는 문서와 응답은 한국어로 쓴다. 코드 식별자와 커밋 메시지 제목은 영어로 쓴다(본문은 한국어 가능)
-9. develop·main에 직접 커밋하지 않는다. 작업 브랜치 `<종류>/<번호>-<설명>`(feat·fix·docs·chore·refactor·test)에서 커밋하고, push·PR·병합은 사용자가 요청할 때만 한다
-10. 화면은 scrap-web 담당이다. 예전 참조 화면(`web/`)은 scrap-web으로 옮긴 뒤 지웠고 `archive/reference-web-ui` 브랜치에 보관한다
+1. **분류 판정을 LLM에 맡기지 않는다.** 판정은 `knowledge/flow/*.yaml` 규칙과 `app/engine/flow.py`만 한다. 확인되지 않은 값은 추정해 채우지 않고 '모름' 또는 아직 묻지 않음(UNASKED)으로 둔다
+2. **기존 엔진(v1)을 근거로 쓰지 않는다.** 참고했으면 커밋·문서에 "기존 엔진 참조"라고 적는다. 계약 모양을 맞추는 것은 괜찮다
+3. **법령은 API로 받는다.** 조문을 손으로 옮기지 않는다. 대상은 `knowledge/law/targets.yaml`(사람이 정함), 수집은 `tools/collect_law.py`, 결과 `articles/`·`manifest.yaml`은 손으로 고치지 않는다. 인증키(`LAW_API_OC`)는 `.env`에만 둔다
+4. **규칙마다 근거(basis: 조문 단위 + 인용문)를 붙인다.** 근거가 없으면 규칙을 만들지 말고 `decisions.md`에 해석 결정으로 남기거나 "해석 필요"로 멈춘다
+5. **골든셋은 동결한다.** `knowledge/cases/golden.yaml`은 `tools/build_golden.py`로만 만들고 `golden.lock` 해시로 고정한다. 판정 규칙에 맞춰 골든셋을 고치지 않는다(반대 방향만). 바꿀 때는 버전을 올리고 `CHANGELOG.md`에 이유를 쓴다
+6. **문진 계획·결과 안내는 사람이 정한다.** 질문 순서·문장은 `plan.yaml`, 결과 문장·인계 행동은 `outcomes.yaml`. 문장은 판정에 쓰지 않는다
+7. **API 형식**: 필드·엔드포인트 추가는 자유. 서버·화면이 쓰는 필드의 삭제·이름 변경·타입 변경은 하지 않는다. 필요하면 멈추고 사용자에게 확인한다. 바꾸면 계약 문서를 같이 고친다
+8. **DB 스키마를 바꾸면 Alembic 마이그레이션을 같이 만든다**(`alembic check`가 통과해야 함). SQLite와 PostgreSQL 모두에서 테스트한다. 사실 기록은 append-only, 확정된 판정·Trace는 고치거나 지우지 않는다(기업 데이터 삭제 경로만 예외)
+9. 비밀값은 코드·커밋·로그에 쓰지 않는다. 로컬은 `.env`(git 제외), 변수 이름은 `.env.example`에 값 없이 둔다. `.env` 값을 출력하지 않는다
+10. 사용자에게 보이는 문서와 응답은 한국어로 쓴다. 코드 식별자와 커밋 메시지 제목은 영어로 쓴다(본문은 한국어 가능)
+11. develop·main에 직접 커밋하지 않는다. 작업 브랜치(`feat/…`, `fix/…` 등)에서 커밋하고, push·PR·병합은 사용자가 요청할 때만 한다
 
 ## 3. 구조
 
 | 경로 | 내용 |
 | --- | --- |
-| `app/rules/` | 규칙 모델·로더·3값 평가기·질문 선택기·답변 변환 |
-| `app/agent/` | 문진 오케스트레이터, 라우터, LLM 추출·응답·guard, 식별정보 가림 |
-| `app/domain/` | 사실(append-only)·판정·인계·서류 계약 모델 |
-| `app/api/` | FastAPI 라우트·서비스·스키마·오류·인증 |
-| `app/persistence/` | SQLAlchemy 모델·저장소, `alembic/` 마이그레이션 |
-| `knowledge/` | 규칙 원본: 법 규칙, 소재, 번호 대응표, 별표 4, 근거 문서, 사실 정의·설정 |
-| `data/real/` | 엔진이 읽는 규칙 데이터(`knowledge/`로 빌드한 생성물, 생성 규칙마다 `source_rule`·조문 위치) |
-| `data/sample/` | 테스트용 작은 규칙 데이터(손으로 관리, 빌드하지 않음) |
-| `tests/`, `scripts/`, `tools/` | 테스트, 평가·측정 스크립트, 규칙 빌드(`build_kb.py`)·판정표 회귀(`legacy_regression.py`) |
+| `knowledge/law/` | 법령 수집 대상·조문 단위 원문·manifest(원본 해시, 재조회 식별자) |
+| `knowledge/cases/` | 골든셋(입력 모델, 결정표, 상황 서술, 이중 주석, 동결본, 평가 기록) |
+| `knowledge/flow/` | 판정 규칙 7단계, 사실 카탈로그, 문진 계획, 결과 안내, 결정 기록, 규칙 형식 |
+| `app/engine/` | `flow.py` 규칙 실행기, `planner.py` 다음 질문 계산기, `kb.py` 지식 로더(kb_version, 재활용 유형표) |
+| `app/interview/` | 문진 서비스: 답 검증(`catalog.py`), 응답 만들기(`present.py`), DB 작업(`service.py`) |
+| `app/api/` | `/internal/v1` 경로·인증·오류 형식 |
+| `app/persistence/`, `alembic/` | SQLAlchemy 모델, 마이그레이션 |
+| `tools/` | 법령 수집, 골든셋 빌드·검사·평가, 규칙 비교, 가상 문진 |
+| `tests/` | 엔진·계산기·API 테스트(골든셋 98건 API 문진 포함) |
 
 ## 4. 명령어
 
 ```bash
 uv sync
-uv run pytest                                   # 테스트(SQLite)
-uv run ruff check . && uv run ruff format .     # 린트·포맷
-uv run python scripts/export_openapi.py --check # OpenAPI 최신 여부
-uv run python tools/build_kb.py                 # 규칙 원본(knowledge/) → data/real/ 빌드
-uv run python tools/build_kb.py --check         # 생성물이 원본과 같은지
-uv run python tools/legacy_regression.py        # 기존 엔진 판정표와 비교
-uv run python scripts/eval.py --mock-extractor  # 골든 시나리오(AI 없이)
-uv run python tools/review_kit.py export        # 전문가 검토 카드(build/review/)
-docker compose up -d db                         # PostgreSQL(호스트 포트 55432)
-TEST_DATABASE_URL=postgresql+psycopg://wd:wd@localhost:55432/postgres uv run pytest
+uv run python -m pytest -q                       # 테스트(SQLite). Windows는 `uv run pytest` 대신 이 형태
+uv run ruff check . && uv run ruff format .      # 린트·포맷
+uv run alembic upgrade head && uv run alembic check
+uv run python tools/check_cases.py               # 골든셋 근거·값 검사
+uv run python tools/build_decision_table.py --check
+uv run python tools/build_golden.py --check      # 골든셋 동결 해시
+uv run python tools/compare_flows.py score knowledge/flow   # 판정 규칙 채점
+uv run python tools/simulate_interview.py        # 문진 계획: 결론 정확도·질문 수
+uv run python tools/collect_law.py               # 법령 다시 수집(키 필요, 개발 PC에서만)
+docker compose up -d db                          # PostgreSQL(호스트 포트 55432)
+TEST_DATABASE_URL=postgresql+psycopg://wd:wd@localhost:55432/postgres uv run python -m pytest -q
 ```
 
 CI(`.github/workflows/ci.yml`)는 develop·main 대상 PR과 push에서 위 검사를 SQLite와 PostgreSQL 기준으로 실행한다.
 
 ## 5. 작업 종료 루프 (모든 작업 끝에 수행)
 
-1. **검증**: `uv run pytest`, `uv run ruff check .`, `uv run ruff format --check .`를 실행하고 결과를 그대로 보고한다. API를 바꿨으면 OpenAPI 검사, 규칙 원본이나 빌드를 바꿨으면 `build_kb.py --check`와 판정표 회귀도 실행한다
+1. **검증**: pytest, `ruff check`, `ruff format --check`를 실행하고 결과를 그대로 보고한다. 규칙·문진 계획을 바꿨으면 `compare_flows.py score`와 `simulate_interview.py`도, 골든셋을 바꿨으면 `check_cases.py`·`build_golden.py --check`도, DB 모델을 바꿨으면 `alembic check`도 실행한다
 2. **문서 영향 점검**: 아래 표로 영향을 판단하고 보고한다
 
    | 이번 작업에서 생긴 일 | 갱신 후보 |
    | --- | --- |
-   | API가 추가·변경됨 | `docs/api/server-engine-contract.md`, `docs/api/api-spec.md`, `docs/api/openapi.json` |
-   | 인계 객체가 바뀜 | `docs/handoff-contract.md` |
-   | 규칙 원본 구조·빌드 방식이 바뀜 | `knowledge/README.md`, `data/real/conversion_report.md`(빌드가 만듦), `docs/engine/algorithm.md` 2절 |
+   | API·턴 응답·인계 객체가 바뀜 | `docs/api/server-engine-contract.md` |
+   | 판정 해석을 새로 정함 | `knowledge/flow/decisions.md` |
+   | 골든셋이 바뀜 | `knowledge/cases/CHANGELOG.md`, `README.md` |
    | 실행 방법·환경변수가 바뀜 | `README.md`, `.env.example`, `docker-compose.yml` |
-   | 다른 팀이 알아야 할 변경 | `docs/team/guide.md`(팀원 확인사항) |
    | 공통 규칙이 부족해 잘못된 방향으로 작업함 | 이 파일 2장 |
 
-3. **에이전트 문서는 승인 후에만 고친다.** 고치면 `docs/agent-changelog.md`에 한 줄 기록한다. 사용자가 작업 지시와 함께 문서 변경을 요청한 경우는 그 요청을 승인으로 본다
+3. **에이전트 문서는 승인 후에만 고친다.** 고치면 [docs/agent-changelog.md](docs/agent-changelog.md)에 한 줄 기록한다. 사용자가 작업 지시와 함께 문서 변경을 요청한 경우는 그 요청을 승인으로 본다

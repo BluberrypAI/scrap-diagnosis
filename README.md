@@ -53,5 +53,5 @@ Windows에서 `uv run pytest`가 "trampoline" 오류로 실패하면 `uv run pyt
 ## 아직 없는 것
 
 - 말(자유 문장) 이해: 지금은 대화에 남기고 버튼 답을 안내한다
-- 서류 업로드·검수(기름 함량은 질문으로 받는다), 재활용 유형표(`recycling`, 지금은 null)
+- 서류 업로드·검수(기름 함량은 지금 질문으로 받는다)
 - 판례·행정심판 외부 정답(API 승인 후 `tools/collect_external_cases.py` 재실행)
