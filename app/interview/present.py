@@ -42,19 +42,21 @@ class FactState:
     at: datetime | None = None
     turn_id: str | None = None
     source_ref: str | None = None  # 서류 값: "문서id@v버전"
+    quote: str | None = None  # 말로 답한 근거 문구
 
 
 @dataclass
 class Step:
     """지금 상태에서 계산한 한 턴."""
 
-    branch: str  # ASK_FACT | FINAL_REVIEW | UNSUPPORTED
+    branch: str  # ASK_FACT | REQUEST_EVIDENCE | FINAL_REVIEW | UNSUPPORTED
     next: Next
     facts: dict  # 판정에 넣은 사실(UNASKED·자동 채움 포함)
     question: dict | None = None
     plan_question: dict | None = None
     asked_facts: list[str] = field(default_factory=list)
     requested_documents: list[dict] = field(default_factory=list)  # REQUEST_EVIDENCE일 때
+    sub_branch: str | None = None  # CONFIRM_GUESS: 말로 한 답을 버튼으로 확인
 
 
 def answers_of(states: dict[str, FactState]) -> dict:
@@ -64,13 +66,20 @@ def answers_of(states: dict[str, FactState]) -> dict:
     return answers
 
 
-def compute(kb: KB, states: dict[str, FactState], expanded: list[str]) -> Step:
+def compute(
+    kb: KB, states: dict[str, FactState], expanded: list[str], pending: list[dict] | None = None
+) -> Step:
     answers = answers_of(states)
     nxt = next_question(kb.stages, kb.plan, answers)
     facts = with_unasked(kb.plan, answers)
     if nxt.done:
         branch = "UNSUPPORTED" if nxt.result.outcome == "INSUFFICIENT_INFO" else "FINAL_REVIEW"
         return Step(branch, nxt, facts)
+    # 말로 한 답 중 확인이 필요한 것(추측·지정 가능성을 지우는 답)을 계획된 질문보다 먼저 확인한다
+    for p in pending or []:
+        if lookup(facts, p["fact"]) == UNASKED:
+            card = confirm_card(kb, p)
+            return Step("ASK_FACT", nxt, facts, card, None, [p["fact"]], sub_branch="CONFIRM_GUESS")
     q = nxt.question
     if q.get("kind") == "evidence":
         # 질문 대신 서류를 요청한다. 값은 업로드 → 검수 → 적용으로만 들어온다
@@ -86,6 +95,43 @@ def compute(kb: KB, states: dict[str, FactState], expanded: list[str]) -> Step:
     question = render_question(kb, q, nxt.facts, states, facts, expanded)
     asked = question["facts"]
     return Step("ASK_FACT", nxt, facts, question, q, asked)
+
+
+CONFIRM_PREFIX = "confirm:"
+
+
+def confirm_card(kb: KB, p: dict) -> dict:
+    """말로 한 답을 확인하는 카드: [예] [아니요] [모름]. 키는 'confirm:사실'."""
+    catalog = kb.plan.catalog
+    s = cat.spec(catalog, p["fact"]) or {"label": p["fact"]}
+    label = cat.value_label(catalog, p["fact"], p["value"])
+    lead = "확인할게요." if p.get("reason") == "risky" else f"'{p.get('quote', '')}'라고 하셨어요."
+    opts = [
+        {"label": f"예, {label}", "value": p["value"], "kind": "value"},
+        {"label": "아니요", "value": None, "kind": "expand"},
+        {"label": "모름", "value": None, "kind": "unknown"},
+    ]
+    return {
+        "key": CONFIRM_PREFIX + p["fact"],
+        "unit": "fact",
+        "facts": [p["fact"]],
+        "options": opts,
+        "text": f"{lead} {s['label']}: {label}, 맞나요?",
+        "help": (
+            "말로 답한 값은 판정에 쓰기 전에 한 번 확인해요. "
+            "아니면 '아니요'를 눌러 다시 골라 주세요."
+        ),
+        "input": "choice",
+        "value_type": cat.value_type(s) if "type" in s else None,
+        "allow_unknown": True,
+        "allow_free_number": False,
+        "measure_unit": None,
+        "items": [],
+        "answered_items": [],
+        "terms": [],
+        "guide": None,
+        "plan_id": None,
+    }
 
 
 def requested_documents(kb: KB, paths: list[str]) -> list[dict]:
@@ -328,7 +374,7 @@ def known_facts(kb: KB, states: dict[str, FactState], facts: dict) -> list[dict]
                 "status": status,
                 "source_type": source,
                 "source_label": SOURCE_LABELS.get(source, source),
-                "quote": None,
+                "quote": st.quote if st else None,
                 "recorded_at": iso(st.at) if st else None,
                 "editable": source not in ("DERIVED", "DOCUMENT"),
                 "edit": {

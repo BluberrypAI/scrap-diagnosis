@@ -73,6 +73,9 @@ class Case(Base):
     kb_version: Mapped[str] = mapped_column(String(64))
     as_of: Mapped[str] = mapped_column(String(10))  # 법 기준일(문진 시작일, Asia/Seoul)
     expanded: Mapped[list] = mapped_column(JSON, default=list)  # 펼친 묶음 질문 id
+    # 확인 버튼으로 다시 물을 말 답(추측, 지정폐기물 가능성을 지우는 답)
+    # [{fact, value, quote, reason: guess|risky}]
+    pending: Mapped[list] = mapped_column(JSON, default=list)
     questions_asked: Mapped[int] = mapped_column(Integer, default=0)
     company_profile_version: Mapped[str | None] = mapped_column(String(64), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
@@ -95,9 +98,9 @@ class FactRecord(Base):
     # UTTERANCE(질문에 답함) | SCREENING(묶음 '해당 없음') | PROFILE(회사 정보 기억)
     # | PROFILE_CONFIRMED(서버가 확인해 보낸 값) | DOCUMENT(검수한 서류 값)
     source_type: Mapped[str] = mapped_column(String(20))
-    source_ref: Mapped[str | None] = mapped_column(
-        String(64), nullable=True
-    )  # 서류: "문서id@v버전"
+    # 서류 값의 근거: "문서id@v버전"
+    source_ref: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    quote: Mapped[str | None] = mapped_column(Text, nullable=True)  # 말로 답한 근거 문구(가린 글)
     turn_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
     at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 

@@ -87,6 +87,7 @@ questions:
   - id: Q-CONTAMINATION
     kind: group
     scope: waste
+    confirm_text: true            # 말로 한 '해당 없음'은 버튼으로 한 번 더 확인(지정폐기물 가능성을 지우는 답)
     text: 아래 중 하나라도 해당하나요?
     items:
       - {fact: oil_presence, label: 기름(절삭유·윤활유 등)이 묻었거나 섞여 있다, none: none,

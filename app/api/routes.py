@@ -58,11 +58,12 @@ def auth(
 
 
 def service_dep(
+    request: Request,
     db: Annotated[Session, Depends(db_dep)],
     kb: Annotated[KB, Depends(kb_dep)],
     settings: Annotated[Settings, Depends(settings_dep)],
 ) -> CaseService:
-    return CaseService(db, kb, settings)
+    return CaseService(db, kb, settings, getattr(request.app.state, "llm", None))
 
 
 Service = Annotated[CaseService, Depends(service_dep)]
@@ -206,7 +207,7 @@ def _with_service(request: Request, method: str, *args, **kwargs):
         raise ApiError(400, "COMPANY_REQUIRED", "X-Company-Id가 필요합니다")
     app = request.app
     for db in app.state.db.session():
-        svc = CaseService(db, app.state.kb, app.state.settings)
+        svc = CaseService(db, app.state.kb, app.state.settings, getattr(app.state, "llm", None))
         svc.azure_client = getattr(app.state, "azure_client", None)  # 시험용 주입(기본 None)
         return getattr(svc, method)(svc.company(company_id), *args, **kwargs)
 

@@ -24,6 +24,7 @@ from app.interview import catalog as cat
 from app.interview import present as pr
 from app.interview.documents import DocumentMixin
 from app.interview.present import FactState, Step
+from app.interview.understand import UnderstandMixin
 from app.persistence.models import (
     Case,
     Company,
@@ -52,31 +53,15 @@ NEXT_ACTION = {
     "NEEDS_TEST": "시험·확인 안내",
     "MANUAL_CLASSIFICATION": "담당자 확인 안내",
 }
-REFUSALS = {
-    "서류가 없어요",
-    "서류 없어요",
-    "서류 없음",
-    "성적서가 없어요",
-    "성적서 없어요",
-    "없어요",
-}
-
-
-def is_refusal(text: str) -> bool:
-    """서류 카드의 '서류가 없어요' 버튼(웹은 이 문장을 text로 보낸다). 말 이해는 LLM 단계에서."""
-    return text.strip().rstrip(".!") in REFUSALS
-
-
-TEXT_NOT_READY = "지금은 말로 답하기를 준비하고 있어요. 아래 버튼으로 답해 주세요."
 
 
 def not_found() -> ApiError:
     return ApiError(404, "CASE_NOT_FOUND", "건을 찾을 수 없습니다")
 
 
-class CaseService(DocumentMixin):
-    def __init__(self, db: Session, kb: KB, settings: Settings) -> None:
-        self.db, self.kb, self.settings = db, kb, settings
+class CaseService(DocumentMixin, UnderstandMixin):
+    def __init__(self, db: Session, kb: KB, settings: Settings, llm: Any = None) -> None:
+        self.db, self.kb, self.settings, self.llm = db, kb, settings, llm
         self.catalog = kb.plan.catalog
         self.company_facts = {
             f for q in kb.plan.questions if q.get("scope") == "company" for f in question_facts(q)
@@ -109,7 +94,7 @@ class CaseService(DocumentMixin):
                 out.pop(r.fact, None)
             else:
                 out[r.fact] = FactState(
-                    r.value, r.status, r.source_type, r.at, r.turn_id, r.source_ref
+                    r.value, r.status, r.source_type, r.at, r.turn_id, r.source_ref, r.quote
                 )
         return out
 
@@ -149,6 +134,7 @@ class CaseService(DocumentMixin):
         source: str,
         turn_id: str | None,
         source_ref: str | None = None,
+        quote: str | None = None,
     ):
         if value == "retract":
             status, stored = "RETRACTED", None
@@ -164,6 +150,7 @@ class CaseService(DocumentMixin):
                 status=status,
                 source_type=source,
                 source_ref=source_ref,
+                quote=quote,
                 turn_id=turn_id,
             )
         )
@@ -213,7 +200,8 @@ class CaseService(DocumentMixin):
     # ---- 턴 ----------------------------------------------------------------------------------
 
     def step(self, case: Case, states: dict[str, FactState] | None = None) -> Step:
-        return pr.compute(self.kb, self.states(case) if states is None else states, case.expanded)
+        states = self.states(case) if states is None else states
+        return pr.compute(self.kb, states, case.expanded, case.pending)
 
     def turn(self, case: Case, turn_id: str, prefix: str | None = None) -> tuple[Step, dict]:
         states = self.states(case)
@@ -229,7 +217,7 @@ class CaseService(DocumentMixin):
             "turn_id": turn_id,
             "case_id": case.id,
             "branch": step.branch,
-            "sub_branch": None,
+            "sub_branch": step.sub_branch,
             "message": text,
             "assist": None,
             "kb_version": self.kb.version,
@@ -317,9 +305,15 @@ class CaseService(DocumentMixin):
                 self.record(case, row.fact, row.value, "PROFILE", turn_id)
         self.db.flush()
         self.apply_confirmed(case, body.get("confirmed_facts"), turn_id)
+        prefix, assist = None, None
         if case.memo:
             self.log(case, turn_id, "user", case.memo)
-        turn = self.finish_turn(case, turn_id, "CREATE", {"memo": case.memo})
+            if self.llm is not None:
+                # 메모도 대화 중 말과 같이 읽는다(근거 문구가 메모에 있어야 기록된다)
+                prefix, _, payload, assist = self.understand(case, case.memo, turn_id)
+                self.trace(case, turn_id, "UNDERSTAND", {"memo": True, **payload}, None)
+        turn = self.finish_turn(case, turn_id, "CREATE", {"memo": case.memo}, prefix=prefix)
+        turn["assist"] = assist
         self.commit()
         return {"case": self.case_out(case), "turn": turn}
 
@@ -335,16 +329,9 @@ class CaseService(DocumentMixin):
             raise ApiError(422, "VALIDATION_ERROR", "text와 quick_reply 중 하나만 보내 주세요")
         if text is not None:
             self.log(case, turn_id, "user", text)
-            step = self.step(case)
-            if step.branch == "REQUEST_EVIDENCE" and is_refusal(text):
-                # 서류 카드의 '서류가 없어요': 요청한 서류 사실을 '모름'으로 둔다
-                for f in step.asked_facts:
-                    self.record(case, f, "unknown", "UTTERANCE", turn_id)
-                turn = self.finish_turn(case, turn_id, "ANSWER", {"text": text, "refused": True})
-            else:
-                turn = self.finish_turn(
-                    case, turn_id, "TEXT", {"text": text}, prefix=TEXT_NOT_READY
-                )
+            prefix, kind, payload, assist = self.understand(case, text, turn_id)
+            turn = self.finish_turn(case, turn_id, kind, payload, prefix=prefix)
+            turn["assist"] = assist
             self.commit()
             return turn
         label = self.answer(case, qr, turn_id)
@@ -357,6 +344,8 @@ class CaseService(DocumentMixin):
     def answer(self, case: Case, qr: dict, turn_id: str) -> str:
         """버튼 답 하나를 사실 기록으로 바꾼다. 대화에 남길 라벨을 돌려준다."""
         key, kind = qr.get("key"), qr.get("kind", "value")
+        if isinstance(key, str) and key.startswith(pr.CONFIRM_PREFIX):
+            return self.answer_confirm(case, key[len(pr.CONFIRM_PREFIX) :], qr, turn_id)
         if kind in ("value", "unknown", "retract"):
             if cat.spec(self.catalog, key) is None:
                 raise ApiError(
@@ -408,6 +397,22 @@ class CaseService(DocumentMixin):
             return q.get("not_all_label") or pr.EXPAND_LABEL
         case.expanded = sorted({*case.expanded, q["id"]})
         return pr.EXPAND_LABEL
+
+    def answer_confirm(self, case: Case, fact: str, qr: dict, turn_id: str) -> str:
+        """확인 카드: 예(그 값으로 기록) / 아니요(원래 질문으로) / 모름."""
+        item = next((p for p in case.pending if p["fact"] == fact), None)
+        if item is None:
+            raise ApiError(422, "VALIDATION_ERROR", "확인할 답이 없습니다")
+        case.pending = [p for p in case.pending if p["fact"] != fact]
+        kind = qr.get("kind", "value")
+        case.questions_asked += 1
+        if kind == "expand":
+            return "아니요"
+        value = (
+            "unknown" if kind == "unknown" else self.validate_facts({fact: qr.get("value")})[fact]
+        )
+        self.record(case, fact, value, "UTTERANCE", turn_id, quote=item.get("quote"))
+        return cat.value_label(self.catalog, fact, value)
 
     def confirm(self, company: Company, case_id: str, expected: str | None) -> dict:
         case = self.get_case(company, case_id)
