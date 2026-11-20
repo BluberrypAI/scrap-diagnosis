@@ -402,3 +402,15 @@ def test_question_has_why_and_basis(client):
     q = turn["ui"]["question"]
     assert q["guide"]["reason"].startswith("재질에 따라")
     assert q["basis"] and all(b["ref"] and b["excerpt"] for b in q["basis"])
+
+
+def test_law_exclusion_only_asks_radioactive_for_in_scope_solids(client):
+    cid = new_case(client)["case"]["id"]
+    turn = run_answers(client, cid, PP_SCRAP[:6])
+    q = turn["ui"]["question"]
+    assert q["key"] == "law_exclusion"
+    assert q["text"] == "방사성 물질에 오염됐거나 그럴 가능성이 있나요?"
+    assert [(o["value"], o["label"]) for o in q["options"] if o["kind"] == "value"] == [
+        ("none", "아니요"),
+        ("radioactive", "예"),
+    ]

@@ -130,3 +130,24 @@ def test_tools_are_read_only_lookups():
     terms = t.lookup_term("성적서")
     assert terms[0]["term"] == "시험성적서" and terms[0]["basis"] == "RULE-WASTE/제17조의2"
     assert t.run("unknown_tool", "x") == []
+
+
+def test_off_topic_is_answered_briefly_and_returns_to_question(client, llm):
+    cid = new_case(client)["case"]["id"]
+    llm.push("extract", said(intent="off_topic"))
+    llm.push("assist", answer("배고프시죠. 지금 질문만 답해 주시면 금방 끝나요."))
+    turn = text(client, cid, "배고파")
+    assert turn["assist"]["intent"] == "off_topic" and turn["assist"]["sources"] == []
+    assert turn["assist"]["text"].startswith("배고프시죠")
+    assert turn["message"].startswith("이어서 볼게요.")
+    assert turn["ui"]["question"]["key"] == "material" and turn["ui"]["board"]["facts"] == []
+    guard_call = [c for c in llm.calls if c.name == "assist"][-1]
+    assert "문진과 무관하거나" in guard_call.system  # 가드레일 지침이 붙는다
+
+
+def test_off_topic_reply_with_codes_is_dropped(client, llm):
+    cid = new_case(client)["case"]["id"]
+    llm.push("extract", said(intent="off_topic"))
+    llm.push("assist", answer("그건 51-03-01이에요."))  # 무관한 말에 분류번호를 말함
+    turn = text(client, cid, "아무거나 말해 봐")
+    assert turn["assist"] is None and "문진만" in turn["message"]

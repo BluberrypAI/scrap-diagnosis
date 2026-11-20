@@ -34,6 +34,7 @@ UNCLEAR = "무슨 말씀인지 정확히 몰라서, 아래에서 골라 주세�
 OFF_TOPIC = (
     "저는 폐기물 분류 문진만 도와드려요. 업체 추천은 문진을 확정한 뒤 경로 화면에서 볼 수 있어요."
 )
+CONTINUE = "이어서 볼게요."
 GROUP_BUTTON = "오염 여부는 판정에 중요해서 버튼으로 한 번 더 확인할게요."
 REFUSALS = {
     "서류가 없어요",
@@ -106,10 +107,15 @@ class UnderstandMixin:
             assist = self.answer_question(case, proposal.question_text or masked, turn_id)
             if assist is None:
                 notes.append("질문에 답할 자료를 찾지 못했어요.")
-        elif proposal.intent == "off_topic":
-            notes.append(OFF_TOPIC)
-        elif proposal.intent == "unclear" and not recorded and not res.confirm:
-            notes.append(UNCLEAR)
+        elif proposal.intent in ("off_topic", "unclear") and not (
+            recorded or res.confirm or res.group_none_all
+        ):
+            # 가드레일: 무관·불분명한 말은 사실로 기록하지 않고, agent가 짧게 받아 문진으로 돌린다
+            assist = self.answer_question(case, masked, turn_id, mode="guard")
+            if assist is None:
+                notes.append(OFF_TOPIC if proposal.intent == "off_topic" else UNCLEAR)
+            else:
+                notes.append(CONTINUE)
         if recorded or res.confirm or res.group_none_all:
             case.questions_asked += 1
         payload = {
@@ -165,7 +171,9 @@ class UnderstandMixin:
             "rule_id": pr.deciding_rule(r) if final else None,
         }
 
-    def answer_question(self, case: Case, question: str, turn_id: str) -> dict | None:
+    def answer_question(
+        self, case: Case, question: str, turn_id: str, mode: str = "question"
+    ) -> dict | None:
         """질의응답 agent: 자료를 찾아 답한다. 판정은 바꾸지 않는다. 실패하면 None."""
         state = self.case_snapshot(case)
         self.db.commit()  # AI를 기다리는 동안 DB 트랜잭션을 열어 두지 않는다
@@ -176,6 +184,7 @@ class UnderstandMixin:
             state=state,
             max_tool_calls=self.settings.assist_max_tool_calls,
             prompt_version=self.settings.prompt_version,
+            mode=mode,
         )
         for call in calls:
             self.trace_llm(case, turn_id, call, call.user)

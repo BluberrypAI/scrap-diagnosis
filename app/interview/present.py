@@ -212,6 +212,14 @@ def with_why(kb: KB, card: dict, q: dict, facts: dict, ask: list[str]) -> dict:
     return card
 
 
+def apply_variant(q: dict, facts: dict) -> dict:
+    """조건이 맞는 첫 variant로 문장·이유·도움말·선택지를 바꾼 질문(판정 사실은 그대로)."""
+    for v in q.get("variants") or []:
+        if evaluate(v["when"], facts, set()) is TV.TRUE:
+            return {**q, **{k: v[k] for k in v if k != "when"}}
+    return q
+
+
 def render_question(
     kb: KB,
     q: dict,
@@ -220,6 +228,7 @@ def render_question(
     facts: dict,
     expanded: list[str],
 ) -> dict:
+    q = apply_variant(q, facts)
     return with_why(kb, _render_question(kb, q, ask, states, facts, expanded), q, facts, ask)
 
 
@@ -234,6 +243,11 @@ def _render_question(
     catalog = kb.plan.catalog
     if q.get("kind") != "group":
         out = _single(kb, ask[0], q.get("text"), q.get("help"), facts)
+        if q.get("allowed"):
+            keep = {str(cat.norm(v)) for v in q["allowed"]}
+            out["options"] = [
+                o for o in out["options"] if o["kind"] != "value" or str(o["value"]) in keep
+            ]
         labels = {str(cat.norm(k)): v for k, v in (q.get("option_labels") or {}).items()}
         for o in out["options"]:
             if o["kind"] == "value" and str(o["value"]) in labels:
