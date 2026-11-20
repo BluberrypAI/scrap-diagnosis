@@ -189,7 +189,66 @@ def annex_codes(text: str) -> dict[str, str]:
     return {k: squash(" ".join(v)) for k, v in rows.items()}
 
 
-def text_slice(text: str, start: str, end: str) -> str:
+R_CODE = re.compile(r"R-\d+(?:-\d+)?")
+TABLE_CODE = re.compile(r"^│\s*(\d{2}-\d{2}-\d{2})\s*│")
+
+
+def annex_table_rows(text: str) -> dict[str, dict]:
+    """재활용 가능 유형표(별표 4의3) 같은 상자 표의 분류번호 행.
+
+    한 행은 '│분류번호│종류│재활용 유형│사전 분석·확인 필요 여부│'이고, 같은 분류번호 안에서
+    '├'로 시작하는 안쪽 선이 하위 행(사전 분석 '해당 없음'과 '해당')을 나눈다.
+    돌려주는 값: {분류번호: {name, groups: [{types, analysis}], text}}
+    """
+    rows: dict[str, dict] = {}
+    cur = None
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        if m := TABLE_CODE.match(line):
+            cur = {"name": [], "groups": [{"types": [], "flag": []}]}
+            rows[m.group(1)] = cur
+        elif cur is None:
+            continue
+        elif line.startswith(("├", "└")):
+            cur = None  # 다음 분류번호 행 전의 가로선
+            continue
+        if "├" in line:
+            cur["groups"].append({"types": [], "flag": []})
+            continue
+        cells = [c.strip() for c in line.split("│")]
+        if len(cells) < 6:
+            continue
+        cur["name"].append(cells[2])
+        cur["groups"][-1]["types"].append(cells[3])
+        cur["groups"][-1]["flag"].append(cells[4])
+    out = {}
+    for code, r in rows.items():
+        groups = []
+        for g in r["groups"]:
+            types = R_CODE.findall(" ".join(g["types"]))
+            flag = "".join(g["flag"]).replace(" ", "")
+            groups.append({"types": types, "analysis": flag})
+        name = "".join(r["name"])
+        text = f"{code} {name} " + " ".join(
+            f"[{', '.join(g['types'])} / 사전 분석·확인 {g['analysis'] or '표시 없음'}]"
+            for g in groups
+        )
+        out[code] = {"name": name, "groups": groups, "text": squash(text)}
+    return out
+
+
+def recycling_types(groups: list[dict]) -> dict[str, list[str]]:
+    """사전 분석·확인 필요 여부로 나눈 재활용 유형: free(해당 없음)·analysis(해당)·unmarked."""
+    out: dict[str, list[str]] = {"free": [], "analysis": [], "unmarked": []}
+    for g in groups:
+        key = {"해당없음": "free", "해당": "analysis"}.get(g["analysis"], "unmarked")
+        out[key] += [t for t in g["types"] if t not in out[key]]
+    return out
+
+
+def text_slice(text: str, start: str, end: str | None) -> str:
     """start 문구부터 다음 end 문구 직전까지(공백 차이는 무시)."""
     flat = squash(text)
 
@@ -199,6 +258,8 @@ def text_slice(text: str, start: str, end: str) -> str:
     m = re.search(pat(start), flat)
     if not m:
         raise SystemExit(f"구간 시작 문구를 찾지 못함: {start}")
+    if end is None:  # 끝 문구가 없으면 별표 끝까지
+        return flat[m.start() :].strip()
     e = re.search(pat(end), flat[m.end() :])
     return flat[m.start() : m.end() + e.start()].strip() if e else flat[m.start() :]
 
@@ -244,9 +305,23 @@ def pick_annex(spec: dict, annexes: dict[str, dict]) -> list[dict]:
         if not got:
             raise SystemExit(f"{name}에서 분류번호 행을 찾지 못함: {spec['codes']}")
         return got
+    if "table_rows" in spec:
+        rows = annex_table_rows(a["text"])
+        missing = [c for c in spec["table_rows"] if c not in rows]
+        if missing:
+            raise SystemExit(f"{name}에서 표 행을 찾지 못함: {missing}")
+        return [
+            {
+                "id": f"{name}/{c}",
+                "title": a["title"],
+                "text": rows[c]["text"],
+                "recycling_types": recycling_types(rows[c]["groups"]),
+            }
+            for c in spec["table_rows"]
+        ]
     if "slice" in spec:
         s = spec["slice"]
-        text = text_slice(a["text"], s["from"], s["to"])
+        text = text_slice(a["text"], s["from"], s.get("to"))
         return [{"id": f"{name}/{spec['id']}", "title": a["title"], "text": text}]
     return [{"id": name, "title": a["title"], "text": squash(a["text"])}]
 

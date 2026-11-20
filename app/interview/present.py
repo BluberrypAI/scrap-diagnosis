@@ -7,6 +7,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
@@ -416,6 +418,54 @@ def handoff(
         "flags": list(result.flags),
         "rule_id": rule,
         "designated": None,
+        "recycling": recycling(
+            kb,
+            case_id=case_id,
+            version=version,
+            code=code,
+            as_of=as_of,
+            route=info.get("action") == "RECOMMEND_ROUTE",
+        ),
+    }
+
+
+def recycling(
+    kb: KB, *, case_id: str, version: int, code: str | None, as_of: str, route: bool
+) -> dict:
+    """재활용 가능 유형(recycling-types-v1). 별표 4의3 조회일 뿐 분류 판정이나 시설 허가가 아니다.
+
+    status: table_listed(표에 있음) | not_applicable(일반 경로 대상 아님)
+            | not_covered(표 자료 없음) | out_of_date(법 기준일이 별표 시행일보다 앞섬)
+    """
+    table = kb.recycling
+    base = {
+        "contract": "recycling-types-v1",
+        "case_id": case_id,
+        "verdict_version": version,
+        "waste_code": code,
+        "as_of": as_of,
+        "facility_permit_verified": False,
+    }
+    if not code or not route:
+        return {**base, "status": "not_applicable"}
+    row = table.rows.get(code) if table else None
+    if row is None:
+        return {**base, "status": "not_covered"}
+    source = {**table.source, "unit": row["unit"]}
+    if as_of < table.source["law_effective_from"]:
+        return {**base, "status": "out_of_date", "source": source}
+    checksum = hashlib.sha256(
+        json.dumps([row["text"], table.notes], ensure_ascii=False).encode()
+    ).hexdigest()
+    return {
+        **base,
+        "status": "table_listed",
+        "types": row["types"],
+        "source": source,
+        "pages": [],  # 법령 API 본문에서 읽어 쪽 번호가 없다
+        "notes": table.notes[:10],
+        "version": table.version,
+        "checksum": checksum,
     }
 
 

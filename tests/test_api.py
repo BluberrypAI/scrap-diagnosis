@@ -317,3 +317,33 @@ def test_catalog_and_health(client):
     keys = {f["key"] for f in facts}
     assert {"material", "input_form", "can_designation.registered"} <= keys
     assert client.get("/health").json()["status"] == "ok"
+
+
+def test_recycling_types_in_handoff(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(client, cid, PP_SCRAP)
+    h = client.post(f"/internal/v1/cases/{cid}/confirm", headers=H).json()["handoff"]
+    r = h["recycling"]
+    assert (r["contract"], r["status"], r["waste_code"]) == (
+        "recycling-types-v1",
+        "table_listed",
+        "51-03-01",
+    )
+    assert r["case_id"] == cid and r["verdict_version"] == h["verdict_version"]
+    assert r["as_of"] == h["timestamps"]["as_of"]
+    assert r["types"]["free"][:2] == ["R-1", "R-2"]
+    assert "R-8-1" in r["types"]["analysis"]
+    assert r["source"]["url"].startswith("https://www.law.go.kr/")
+    assert r["facility_permit_verified"] is False and r["version"] and r["checksum"]
+    assert len(r["notes"]) == 4
+    assert client.get(f"/internal/v1/cases/{cid}", headers=H).json()["recycling"] == r
+
+
+def test_recycling_not_applicable_without_route(client):
+    cid = new_case(client)["case"]["id"]
+    turn = run_answers(client, cid, [("material", "aluminium"), ("input_form", "scrap")])
+    while turn["branch"] == "ASK_FACT":
+        q = turn["ui"]["question"]
+        turn = reply(client, cid, q["key"], "none_all" if q["unit"] == "group" else "yes").json()
+    h = client.post(f"/internal/v1/cases/{cid}/confirm", headers=H).json()["handoff"]
+    assert h["recycling"]["status"] == "not_applicable"

@@ -602,7 +602,7 @@ class CaseService:
             "current_verdict": current_out,
             "documents": [],
             "handoff": current.handoff if current else None,
-            "recycling": None,
+            "recycling": (current.handoff or {}).get("recycling") if current else None,
         }
 
     def trace_out(self, company: Company, case_id: str) -> dict:

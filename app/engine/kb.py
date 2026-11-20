@@ -7,6 +7,8 @@ kb_version은 knowledge/flow/*.yaml과 법령 목록(manifest)의 해시다. 규
 from __future__ import annotations
 
 import hashlib
+import json
+import re
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -22,6 +24,16 @@ MANIFEST = ROOT / "knowledge" / "law" / "manifest.yaml"
 
 
 @dataclass(frozen=True)
+class RecyclingTable:
+    """시행규칙 별표 4의3(폐기물의 종류별 재활용 가능 유형). 분류 판정에는 쓰지 않는다."""
+
+    rows: dict[str, dict]  # 분류번호 → {unit, text, types{free, analysis, unmarked}}
+    notes: list[str]  # 비고 각 호
+    source: dict  # title, url, law_effective_from(YYYY-MM-DD), raw_sha256
+    version: str
+
+
+@dataclass(frozen=True)
 class KB:
     stages: list[Stage]
     plan: Plan
@@ -29,6 +41,38 @@ class KB:
     law_names: dict[str, str]
     version: str
     as_of_law: dict[str, str]  # 법령 키 → 시행일(YYYYMMDD)
+    recycling: RecyclingTable | None = None
+
+
+def load_recycling(law_dir: Path, docs: list[dict]) -> RecyclingTable | None:
+    meta = next((d for d in docs if d["key"] == "RULE-WASTE"), None)
+    if meta is None:
+        return None
+    units = json.loads((law_dir / meta["file"]).read_text(encoding="utf-8"))["units"]
+    rows, notes = {}, []
+    for u in units:
+        if not u["id"].startswith("별표4의3/"):
+            continue
+        name = u["id"].split("/", 1)[1]
+        if "recycling_types" in u:
+            rows[name] = {
+                "unit": f"RULE-WASTE/{u['id']}",
+                "text": u["text"],
+                "types": u["recycling_types"],
+            }
+        elif name == "비고":
+            body = re.sub(r"^비고\s*", "", u["text"])
+            notes = [n.strip() for n in re.split(r"\s*(?=\d\.\s)", body) if n.strip()]
+    if not rows:
+        return None
+    eff = str(meta["effective_date"])
+    source = {
+        "title": f"{meta['name']} 별표 4의3",
+        "url": f"https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq={meta['mst']}",
+        "law_effective_from": f"{eff[:4]}-{eff[4:6]}-{eff[6:8]}",
+        "raw_sha256": meta["raw_sha256"],
+    }
+    return RecyclingTable(rows, notes, source, f"annex4-3-{eff}-{meta['raw_sha256'][:12]}")
 
 
 def kb_version(flow_dir: Path = FLOW_DIR, manifest: Path = MANIFEST) -> str:
@@ -55,4 +99,5 @@ def load_kb(flow_dir: Path = FLOW_DIR, manifest: Path = MANIFEST) -> KB:
         law_names={d["key"]: d["name"] for d in docs},
         version=kb_version(flow_dir, manifest),
         as_of_law={d["key"]: str(d.get("effective_date") or "") for d in docs},
+        recycling=load_recycling(manifest.parent, docs),
     )
