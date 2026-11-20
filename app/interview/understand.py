@@ -133,7 +133,7 @@ class UnderstandMixin:
         labels = []
         for c in res.accepted:
             self.record(case, c.key, c.value, "UTTERANCE", turn_id, quote=c.quote)
-            labels.append(cat.value_label(self.catalog, c.key, c.value))
+            labels.append(self.ack_label(c.key, c.value))
         if res.group_none_all and step.plan_question:
             q = step.plan_question
             ask = [f for f in step.next.facts if f in question_facts(q)]
@@ -170,6 +170,18 @@ class UnderstandMixin:
             "code": pr.public_code(r) if final else None,
             "rule_id": pr.deciding_rule(r) if final else None,
         }
+
+    def ack_label(self, key: str, value: Any) -> str:
+        """'적었어요' 안내에 쓸 라벨. 예/아니요 답은 무엇에 대한 답인지 보이게 쓴다."""
+        q = next((q for q in self.kb.plan.questions if q.get("fact") == key), None)
+        labels = {str(cat.norm(k)): v for k, v in ((q or {}).get("option_labels") or {}).items()}
+        text = cat.value_label(self.catalog, key, value)
+        if str(value) in labels:
+            text = labels[str(value)]
+        spec = cat.spec(self.catalog, key) or {}
+        if spec.get("type") == "bool3" and q and q.get("text"):
+            return f"'{q['text']}' → {text}"
+        return text
 
     def answer_question(
         self, case: Case, question: str, turn_id: str, mode: str = "question"
