@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.engine.flow import norm
+from app.engine.ranges import NumRange
 
 BOOL3_LABELS = {"yes": "예", "no": "아니요", "unknown": "모름"}
 
@@ -53,8 +54,37 @@ def allows_unknown(s: dict) -> bool:
     return "unknown" in value_map(s)
 
 
-def validate(catalog: dict[str, dict], path: str, value: Any) -> Any:
-    """답 값을 저장 형식으로 바꾼다. 틀리면 FactValueError. 'unknown'은 그대로 돌려준다."""
+def is_document_fact(catalog: dict[str, dict], path: str) -> bool:
+    """서류로만 값을 받는 사실(facts.yaml source: document)."""
+    s = spec(catalog, path)
+    return bool(s and s.get("source") == "document")
+
+
+def _range(path: str, value: dict, s: dict) -> dict:
+    """서류의 구간 값({lo, lo_inc, hi, hi_inc}: '0.5 미만', 불검출)을 검사해 저장 형식으로."""
+    if not set(value) <= {"lo", "lo_inc", "hi", "hi_inc"} or not ({"lo", "hi"} & set(value)):
+        raise FactValueError(path, value, "구간 형식이 아님")
+    out = {}
+    for k in ("lo", "hi"):
+        v = value.get(k)
+        if v is None:
+            continue
+        if isinstance(v, bool) or not isinstance(v, int | float):
+            raise FactValueError(path, value, "구간 끝이 숫자가 아님")
+        if ("min" in s and v < s["min"]) or ("max" in s and v > s["max"]):
+            raise FactValueError(path, value, "구간이 값 범위를 벗어남")
+        out[k] = v
+        out[f"{k}_inc"] = bool(value.get(f"{k}_inc", k == "lo"))
+    if "lo" in out and "hi" in out and out["lo"] > out["hi"]:
+        raise FactValueError(path, value, "하한이 상한보다 큼")
+    return out
+
+
+def validate(catalog: dict[str, dict], path: str, value: Any, *, allow_range: bool = False) -> Any:
+    """답 값을 저장 형식으로 바꾼다. 틀리면 FactValueError. 'unknown'은 그대로 돌려준다.
+
+    allow_range: 서류 값만 구간({hi: 0.5, hi_inc: false} 등)을 받는다.
+    """
     s = spec(catalog, path)
     if s is None:
         raise FactValueError(path, value, "카탈로그에 없는 사실")
@@ -65,6 +95,10 @@ def validate(catalog: dict[str, dict], path: str, value: Any) -> Any:
         if not allows_unknown(s):
             raise FactValueError(path, value, "'모름'을 받지 않는 사실")
         return "unknown"
+    if s["type"] == "number" and isinstance(value, dict):
+        if not allow_range:
+            raise FactValueError(path, value, "구간 값은 서류로만 받음")
+        return _range(path, value, s)
     if s["type"] == "number":
         if isinstance(value, bool) or not isinstance(value, int | float):
             raise FactValueError(path, value, "숫자가 아님")
@@ -86,7 +120,9 @@ def value_label(catalog: dict[str, dict], path: str, value: Any) -> str:
         return "모름"
     if s["type"] == "number":
         unit = s.get("unit") or ""
-        return f"{value}{unit}"
+        if isinstance(value, dict):
+            return NumRange(**value).label(unit)
+        return f"{value:g}{unit}" if isinstance(value, float) else f"{value}{unit}"
     return value_map(s).get(str(norm(value)), str(value))
 
 

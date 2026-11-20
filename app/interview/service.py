@@ -22,12 +22,15 @@ from app.engine.kb import KB
 from app.engine.planner import question_facts
 from app.interview import catalog as cat
 from app.interview import present as pr
+from app.interview.documents import DocumentMixin
 from app.interview.present import FactState, Step
 from app.persistence.models import (
     Case,
     Company,
     CompanyFact,
     DeletionLog,
+    Document,
+    DocumentValue,
     FactRecord,
     Message,
     TraceEvent,
@@ -49,6 +52,21 @@ NEXT_ACTION = {
     "NEEDS_TEST": "시험·확인 안내",
     "MANUAL_CLASSIFICATION": "담당자 확인 안내",
 }
+REFUSALS = {
+    "서류가 없어요",
+    "서류 없어요",
+    "서류 없음",
+    "성적서가 없어요",
+    "성적서 없어요",
+    "없어요",
+}
+
+
+def is_refusal(text: str) -> bool:
+    """서류 카드의 '서류가 없어요' 버튼(웹은 이 문장을 text로 보낸다). 말 이해는 LLM 단계에서."""
+    return text.strip().rstrip(".!") in REFUSALS
+
+
 TEXT_NOT_READY = "지금은 말로 답하기를 준비하고 있어요. 아래 버튼으로 답해 주세요."
 
 
@@ -56,7 +74,7 @@ def not_found() -> ApiError:
     return ApiError(404, "CASE_NOT_FOUND", "건을 찾을 수 없습니다")
 
 
-class CaseService:
+class CaseService(DocumentMixin):
     def __init__(self, db: Session, kb: KB, settings: Settings) -> None:
         self.db, self.kb, self.settings = db, kb, settings
         self.catalog = kb.plan.catalog
@@ -90,7 +108,9 @@ class CaseService:
             if r.status == "RETRACTED":
                 out.pop(r.fact, None)
             else:
-                out[r.fact] = FactState(r.value, r.status, r.source_type, r.at, r.turn_id)
+                out[r.fact] = FactState(
+                    r.value, r.status, r.source_type, r.at, r.turn_id, r.source_ref
+                )
         return out
 
     def commit(self) -> None:
@@ -121,13 +141,21 @@ class CaseService:
                 {"session_kb_version": case.kb_version, "current_kb_version": self.kb.version},
             )
 
-    def record(self, case: Case, path: str, value: Any, source: str, turn_id: str | None):
+    def record(
+        self,
+        case: Case,
+        path: str,
+        value: Any,
+        source: str,
+        turn_id: str | None,
+        source_ref: str | None = None,
+    ):
         if value == "retract":
             status, stored = "RETRACTED", None
         elif value == "unknown":
             status, stored = "DECLARED_UNKNOWN", None
         else:
-            status, stored = "CLAIMED", value
+            status, stored = ("EVIDENCED" if source == "DOCUMENT" else "CLAIMED"), value
         self.db.add(
             FactRecord(
                 case_id=case.id,
@@ -135,6 +163,7 @@ class CaseService:
                 value=stored,
                 status=status,
                 source_type=source,
+                source_ref=source_ref,
                 turn_id=turn_id,
             )
         )
@@ -190,7 +219,8 @@ class CaseService:
         states = self.states(case)
         step = self.step(case, states)
         if case.status != "CODE_CONFIRMED":
-            case.status = "NEEDS_INFO" if step.branch == "UNSUPPORTED" else "DIAGNOSING"
+            waiting = step.branch in ("UNSUPPORTED", "REQUEST_EVIDENCE")
+            case.status = "NEEDS_INFO" if waiting else "DIAGNOSING"
         text = pr.message(self.kb, step)
         if prefix:
             text = f"{prefix} {text}"
@@ -212,7 +242,7 @@ class CaseService:
                 "result": pr.result_card(self.kb, step.next.result) if final else None,
                 "can_confirm": final and case.status != "CODE_CONFIRMED",
                 "suggested_replies": [],
-                "requested_documents": [],
+                "requested_documents": step.requested_documents,
                 "conflicts": [],
             },
         }
@@ -305,7 +335,16 @@ class CaseService:
             raise ApiError(422, "VALIDATION_ERROR", "text와 quick_reply 중 하나만 보내 주세요")
         if text is not None:
             self.log(case, turn_id, "user", text)
-            turn = self.finish_turn(case, turn_id, "TEXT", {"text": text}, prefix=TEXT_NOT_READY)
+            step = self.step(case)
+            if step.branch == "REQUEST_EVIDENCE" and is_refusal(text):
+                # 서류 카드의 '서류가 없어요': 요청한 서류 사실을 '모름'으로 둔다
+                for f in step.asked_facts:
+                    self.record(case, f, "unknown", "UTTERANCE", turn_id)
+                turn = self.finish_turn(case, turn_id, "ANSWER", {"text": text, "refused": True})
+            else:
+                turn = self.finish_turn(
+                    case, turn_id, "TEXT", {"text": text}, prefix=TEXT_NOT_READY
+                )
             self.commit()
             return turn
         label = self.answer(case, qr, turn_id)
@@ -329,6 +368,13 @@ class CaseService:
             if kind == "retract":
                 self.record(case, key, "retract", "UTTERANCE", turn_id)
                 return f"'{cat.spec(self.catalog, key)['label']}' 답을 지웠어요"
+            if kind == "value" and cat.is_document_fact(self.catalog, key):
+                raise ApiError(
+                    422,
+                    "VALIDATION_ERROR",
+                    "이 값은 서류로만 받습니다. 서류를 올려 검수해 주세요",
+                    {"problems": [{"key": key, "reason": "서류로만 받는 값"}]},
+                )
             value = self.validate_facts({key: "unknown" if kind == "unknown" else qr.get("value")})
             v = value[key]
             self.record(case, key, v, "UTTERANCE", turn_id)
@@ -575,6 +621,8 @@ class CaseService:
             row = {"turn_id": m.turn_id, "role": m.role, "text": m.text, "at": pr.iso(m.at)}
             if m.role == "user":
                 row["quick_reply"] = m.quick_reply
+                if m.document_id:
+                    row["document_id"] = m.document_id
             else:
                 row |= {"branch": m.branch, "question_key": m.question_key, "assist": None}
             out.append(row)
@@ -600,7 +648,7 @@ class CaseService:
             "conversation": self.conversation(case),
             "verdicts": [self.verdict_out(v) for v in verdicts],
             "current_verdict": current_out,
-            "documents": [],
+            "documents": self.documents_out(case),
             "handoff": current.handoff if current else None,
             "recycling": (current.handoff or {}).get("recycling") if current else None,
         }
@@ -701,6 +749,8 @@ class CaseService:
             "fact_records",
             "messages",
             "verdicts",
+            "document_values",
+            "documents",
             "company_facts",
             "cases",
             "companies",
@@ -716,6 +766,8 @@ class CaseService:
                 ("fact_records", FactRecord),
                 ("messages", Message),
                 ("verdicts", Verdict),
+                ("document_values", DocumentValue),
+                ("documents", Document),
             ):
                 res = self.db.execute(delete(model).where(model.case_id.in_(case_ids)))
                 counts[name] = res.rowcount or 0

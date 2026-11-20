@@ -89,11 +89,15 @@ class FactRecord(Base):
     case_id: Mapped[str] = mapped_column(ForeignKey("cases.id"), index=True)
     fact: Mapped[str] = mapped_column(String(96))
     value: Mapped[Any] = mapped_column(JSON, nullable=True)
-    # CLAIMED(답함) | DECLARED_UNKNOWN(모른다고 답함) | RETRACTED(철회, 아직 안 물어본 상태로)
+    # CLAIMED(답함) | EVIDENCED(검수한 서류 값) | DECLARED_UNKNOWN(모른다고 답함)
+    # | RETRACTED(철회·서류 효력 해제, 아직 안 물어본 상태로)
     status: Mapped[str] = mapped_column(String(20))
     # UTTERANCE(질문에 답함) | SCREENING(묶음 '해당 없음') | PROFILE(회사 정보 기억)
-    # | PROFILE_CONFIRMED(서버가 확인해 보낸 값)
+    # | PROFILE_CONFIRMED(서버가 확인해 보낸 값) | DOCUMENT(검수한 서류 값)
     source_type: Mapped[str] = mapped_column(String(20))
+    source_ref: Mapped[str | None] = mapped_column(
+        String(64), nullable=True
+    )  # 서류: "문서id@v버전"
     turn_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
     at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
@@ -111,7 +115,49 @@ class Message(Base):
     quick_reply: Mapped[Any] = mapped_column(JSON, nullable=True)
     branch: Mapped[str | None] = mapped_column(String(30), nullable=True)
     question_key: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    document_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
     at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class Document(Base):
+    """올린 서류. 원문 파일은 저장하지 않고 이름·형식·크기·해시와 자동 읽기 요약만 둔다."""
+
+    __tablename__ = "documents"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    case_id: Mapped[str] = mapped_column(ForeignKey("cases.id"), index=True)
+    filename: Mapped[str] = mapped_column(String(255))
+    content_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    size: Mapped[int] = mapped_column(Integer)
+    sha256: Mapped[str] = mapped_column(String(64))
+    version: Mapped[int] = mapped_column(Integer, default=1)  # 파일을 바꿀 때마다 1씩
+    # {"method": none|manual|table|manual+table, "candidates": {사실: 값}, "table_read"?: 요약}
+    extracted_facts: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class DocumentValue(Base):
+    """서류 값 한 줄. UNVERIFIED(검수 대기)는 판정에 쓰지 않고, APPLIED만 EVIDENCED 사실이 된다.
+
+    상태: UNVERIFIED → APPLIED | REJECTED, APPLIED → REVOKED(효력 해제·파일 교체)
+    """
+
+    __tablename__ = "document_values"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    document_id: Mapped[str] = mapped_column(ForeignKey("documents.id"), index=True)
+    case_id: Mapped[str] = mapped_column(ForeignKey("cases.id"), index=True)
+    document_version: Mapped[int] = mapped_column(Integer)
+    fact_key: Mapped[str] = mapped_column(String(96))
+    value: Mapped[Any] = mapped_column(JSON, nullable=True)
+    unit: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    status: Mapped[str] = mapped_column(String(12), default="UNVERIFIED")
+    reviewer: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class Verdict(Base):
@@ -141,7 +187,7 @@ class TraceEvent(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     case_id: Mapped[str] = mapped_column(ForeignKey("cases.id"), index=True)
     turn_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
-    # CREATE | ANSWER | TEXT | RETRACT | CONFIRM | REOPEN | REBASE
+    # CREATE | ANSWER | TEXT | RETRACT | DOCUMENT | APPLY | REVOKE | CONFIRM | REOPEN | REBASE
     kind: Mapped[str] = mapped_column(String(20))
     payload: Mapped[Any] = mapped_column(JSON, nullable=True)
     result: Mapped[Any] = mapped_column(JSON, nullable=True)

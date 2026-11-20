@@ -98,3 +98,15 @@ def test_duplicate_rule_id_rejected(tmp_path):
     rule = {"id": "X", "when": {"fact": "a", "eq": "1"}, "then": "continue"}
     with pytest.raises(FlowError):
         write_flow(tmp_path, {"10_is_waste": {"rules": [rule]}, "20_circular": {"rules": [rule]}})
+
+
+def test_range_values_use_three_valued_comparison():
+    from app.engine.flow import TV, compare
+
+    below = {"hi": 0.5, "hi_inc": False}  # 0.5 미만(불검출 포함)
+    assert compare("gte", below, 5) is TV.FALSE
+    assert compare("lt", below, 5) is TV.TRUE
+    straddle = {"hi": 7, "hi_inc": False}  # 7 미만: 5 이상일 수도 아닐 수도
+    assert compare("gte", straddle, 5) is TV.UNKNOWN
+    assert compare("gte", {"lo": 6, "lo_inc": True}, 5) is TV.TRUE
+    assert compare("exists", below, True) is TV.TRUE

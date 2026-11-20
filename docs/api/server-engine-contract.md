@@ -18,8 +18,12 @@
 |---|---|---|
 | `POST /cases` | `{memo?, quantity?, unit?, period?, confirmed_facts?, company_profile_version?}` | 201 `{case, turn}` |
 | `GET /cases?status=&page=&size=` | | `{items, pagingInfo}` (최근 갱신순) |
-| `GET /cases/{id}` | | `{case, latest_turn, conversation, verdicts, current_verdict, documents: [], handoff, recycling}` |
+| `GET /cases/{id}` | | `{case, latest_turn, conversation, verdicts, current_verdict, documents, handoff, recycling}` |
 | `POST /cases/{id}/diagnosis/messages` | `{text}` 또는 `{quick_reply}` (+ 선택 `confirmed_facts`, `company_profile_version`) | `TurnResponse` |
+| `POST /cases/{id}/documents` | multipart: `file`, 선택 `facts`(JSON 문자열) | 201 `{document, turn, values}` |
+| `POST /cases/{id}/documents/{doc}/versions` | multipart(위와 같음) | 201 `{document, turn, values}` |
+| `POST /cases/{id}/documents/{doc}/values/apply` | `{values: [{value_id?, fact_key?, value?, unit?, document_version, reviewer, reviewed_at, reject?}]}` | `TurnResponse` |
+| `POST /cases/{id}/documents/{doc}/revoke` | `{reason?, document_version?}` | `TurnResponse` |
 | `POST /cases/{id}/confirm` | `{expected_code?}` | `{case, verdict, handoff, frozen_trace_rows}` |
 | `POST /cases/{id}/reopen` | `{reason?}` | `{case, superseded_verdict, turn}` |
 | `POST /cases/{id}/rebase` | 없음 | `TurnResponse` |
@@ -40,13 +44,14 @@
 | `retract` | 사실 키 | 답을 지우고 아직 묻지 않은 상태로 되돌린다 |
 
 - 값 형식이 틀리면 422 `VALIDATION_ERROR`이고, `details.problems[{key, value, reason}]`에 이유가 담긴다.
-- `text`(자유 문장)는 아직 이해하지 못한다. 대화에 남기고, 같은 질문을 버튼으로 답해 달라고 안내한다.
+- `text`(자유 문장)는 아직 이해하지 못한다. 대화에 남기고, 같은 질문을 버튼으로 답해 달라고 안내한다. 예외: 서류 요청 단계에서 `서류가 없어요`(웹 서류 카드의 버튼)는 요청한 서류 사실을 '모름'으로 둔다.
+- 서류로만 받는 사실(지금은 `oil_pct_evidenced`)에 `kind: value`를 보내면 422다(`reason: 서류로만 받는 값`). `unknown`은 받는다.
 
 ## 4. 턴 응답 (`TurnResponse`)
 
 ```json
 {
-  "turn_id": "…", "case_id": "…", "branch": "ASK_FACT | FINAL_REVIEW | UNSUPPORTED",
+  "turn_id": "…", "case_id": "…", "branch": "ASK_FACT | REQUEST_EVIDENCE | FINAL_REVIEW | UNSUPPORTED",
   "message": "…", "assist": null, "kb_version": "…",
   "verdict": {"outcome", "waste_code", "waste_name", "category", "flags", "blocking_facts", "rule_id", "rationale", "review"},
   "ui": {"question", "board", "result", "can_confirm", "suggested_replies": [], "requested_documents": [], "conflicts": []}
@@ -57,9 +62,32 @@
   - `input`은 `choice`·`number`·`group` 중 하나다.
   - `options[]`의 `kind`는 `value`·`unknown`·`none_all`·`expand` 중 하나다.
   - 묶음 질문이면 `items`와 `answered_items`가 함께 온다. 펼친 묶음의 항목에는 `group` 필드가 붙는다.
+- `REQUEST_EVIDENCE`: 질문 대신 서류가 필요하다(기름이 묻은 경우의 기름성분 함량). `ui.question`은 null이고 `ui.requested_documents[{evidence_type, label, facts, fact_labels}]`(= `ui.board.documents_needed`)가 온다. 건 상태는 `NEEDS_INFO`다.
 - `FINAL_REVIEW`: 결론이 났다. `ui.result`가 오고 `can_confirm`은 true다.
 - `UNSUPPORTED`: '모름' 답 때문에 결론을 낼 수 없다. 건 상태는 `NEEDS_INFO`가 되고, `ui.board.pending`에 막힌 사실이 온다. 판정 보드에서 그 답을 고치면 이어서 진행한다.
-- 판정 보드 `ui.board.facts[].source_type`은 다섯 가지다: `UTTERANCE`(답함), `SCREENING`(묶음 답), `PROFILE`(회사 정보 기억), `PROFILE_CONFIRMED`(서버가 확인해 보낸 값), `DERIVED`(자동으로 채움).
+- 판정 보드 `ui.board.facts[].source_type`은 여섯 가지다: `UTTERANCE`(답함), `SCREENING`(묶음 답), `PROFILE`(회사 정보 기억), `PROFILE_CONFIRMED`(서버가 확인해 보낸 값), `DOCUMENT`(검수한 서류 값, `status: EVIDENCED`, 고칠 수 없음), `DERIVED`(자동으로 채움).
+
+## 4-1. 서류: 업로드 → 검수 → 적용
+
+엔진은 서류 원문과 값을 대조하지 않는다. **검수가 끝난 값만 판정에 쓴다.** 원문 파일은 저장하지 않는다(이름·형식·크기·SHA-256과 자동 읽기 요약만).
+
+1. **업로드** `POST …/documents`: 받는 형식은 PDF·사진·txt·md다. 사진은 OCR이 켜져 있을 때만 받고, 아니면 415 `UNSUPPORTED_DOCUMENT`다. 크기가 상한(`MAX_UPLOAD_BYTES`, 기본 10MB)을 넘으면 413이다.
+   - 값은 모두 `UNVERIFIED` 후보로만 저장한다. 판정은 바뀌지 않는다.
+   - `facts`로 직접 적은 값과 표 자동 읽기 값이 후보가 된다. 형식이 틀리면 422 `details.problems[{key, value, reason}]`다. 서류로 받지 않는 사실, 단위 불일치, 숫자 칸의 글자가 여기에 해당한다.
+   - 표 자동 읽기:
+     - 글자 있는 PDF는 엔진 안(pdfplumber)에서 읽는다.
+     - 스캔본·사진은 `ALLOW_DOCUMENT_OCR=true`와 Azure 키가 있을 때만 Azure Document Intelligence로 읽는다.
+     - 읽은 위치와 탈락 사유는 `document.extracted_facts.table_read`(`backend, source, route, items[{key, status, value_raw, unit_raw, page, quote, cell_ref, note, guard_reasons?}], not_found, warnings, errors`)에 담긴다. `key`는 엔진 사실 키다.
+   - 불검출과 `<0.5` 같은 값은 구간 `{hi, hi_inc}`다. 판정은 구간 전체가 조건을 만족하면 참, 전혀 만족하지 않으면 거짓, 걸치면 모름으로 본다.
+2. **적용** `…/values/apply`: 서버가 검수 결과를 보낸다.
+   - `value_id`에 `value`를 빼면 후보 값을 그대로 쓰고, `value`를 주면 고친 값으로 쓴다.
+   - `fact_key`만 주면 새 값을 만든다. `reject: true`는 `REJECTED`다.
+   - 적용한 값은 사실 이력에 `EVIDENCED`, `source_type: DOCUMENT`, `source_ref: "문서id@v버전"`으로 들어가고, 다시 판정한 `TurnResponse`를 돌려준다.
+   - `document_version`이 지금 버전과 다르면 409 `DOCUMENT_VERSION_MISMATCH`(`details: {document_id, current_version, sent_versions}`)다.
+3. **파일 교체** `…/versions`: 버전이 1 오르고, 이전 버전의 적용 값과 대기 후보는 `REVOKED`가 된다. 그 서류에서 온 사실은 철회돼 다시 서류 요청으로 돌아간다.
+4. **효력 해제** `…/revoke`: 그 서류(버전)의 적용 값을 `REVOKED`로 두고, 거기서 온 유효 사실을 철회한다.
+
+값 상태: `UNVERIFIED` → `APPLIED` | `REJECTED`, `APPLIED` → `REVOKED`. 인계 객체의 `evidence[{fact, document_id}]`에 서류로 확인한 사실이 담긴다.
 
 ## 5. 확정과 인계 객체 (`diagnosis-handoff-v1`)
 
@@ -94,7 +122,7 @@
 
 - **재질 값이 바뀌었다**: `pp`·`pe`·`pet`·`pvc`·`other_resin`·`synthetic_rubber`·`aluminium`·`steel`·`other`. v1의 `metal_can`·`plastic_packaging` 같은 값은 없다. 포장재 여부는 별도 사실 `packaging_used`로 묻는다.
 - **결과 값이 더해졌다**: outcome·category에 `DESIGNATED_POSSIBLE`. v1의 `INTERPRETATION_NEEDED`·`CODE_NEEDS_TEST`·`NO_GENERAL_CODE` 등은 나오지 않는다.
-- **없는 경로**: 서류 업로드·교체·값 적용·효력 해제(`/documents/...`)는 404 `NOT_FOUND`다. 기름 함량은 질문(`oil_pct_evidenced`, 분석성적서 수치)으로 받는다.
+- **서류**: 경로와 응답 모양은 v1과 같다. v2에서 서류로 받는 사실은 기름성분 함량 하나다. 그래서 자동 읽기도 그 항목만 후보로 만든다(다른 시험 항목은 `table_read`에서 빠진다).
 - **회사 정보 기억**: 사업장 질문(`emission_facility`, `daily_avg_kg`, `public_facility`, `construction_5t`, `site_emits_designated`)의 답은 기업별로 기억한다. 같은 기업의 다음 건에는 `PROFILE`로 미리 채운다. 기업 데이터를 삭제하면 이 기억도 함께 지운다.
 - **재활용 유형표**: v1은 별표 PDF에서 손으로 옮긴 표였고, v2는 법령 API에서 받는다. 지금 범위는 51-03-01·51-03-07·51-29-03 세 행이다.
-- **DB 스키마가 새로 바뀌었다**: 마이그레이션은 `alembic/versions/0001`부터 다시 시작한다. v1 엔진이 쓰던 DB에는 그대로 올릴 수 없으므로 새 데이터베이스를 쓴다.
+- **DB 스키마가 새로 바뀌었다**: 마이그레이션은 `alembic/versions/0001`부터 다시 시작한다(0002: 서류·서류 값). v1 엔진이 쓰던 DB에는 그대로 올릴 수 없으므로 새 데이터베이스를 쓴다.

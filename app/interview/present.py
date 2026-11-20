@@ -26,6 +26,7 @@ SOURCE_LABELS = {
     "PROFILE": "기업 정보",
     "PROFILE_CONFIRMED": "기업 정보(확인됨)",
     "DERIVED": "자동",
+    "DOCUMENT": "서류",
 }
 NONE_ALL_LABEL = "모두 해당 없음"
 EXPAND_LABEL = "해당하는 게 있어요 / 잘 모르겠어요"
@@ -36,10 +37,11 @@ class FactState:
     """사실 하나의 유효 값과 출처(마지막 기록)."""
 
     value: Any
-    status: str  # CLAIMED | DECLARED_UNKNOWN
+    status: str  # CLAIMED | EVIDENCED | DECLARED_UNKNOWN
     source_type: str
     at: datetime | None = None
     turn_id: str | None = None
+    source_ref: str | None = None  # 서류 값: "문서id@v버전"
 
 
 @dataclass
@@ -52,6 +54,7 @@ class Step:
     question: dict | None = None
     plan_question: dict | None = None
     asked_facts: list[str] = field(default_factory=list)
+    requested_documents: list[dict] = field(default_factory=list)  # REQUEST_EVIDENCE일 때
 
 
 def answers_of(states: dict[str, FactState]) -> dict:
@@ -69,9 +72,36 @@ def compute(kb: KB, states: dict[str, FactState], expanded: list[str]) -> Step:
         branch = "UNSUPPORTED" if nxt.result.outcome == "INSUFFICIENT_INFO" else "FINAL_REVIEW"
         return Step(branch, nxt, facts)
     q = nxt.question
+    if q.get("kind") == "evidence":
+        # 질문 대신 서류를 요청한다. 값은 업로드 → 검수 → 적용으로만 들어온다
+        return Step(
+            "REQUEST_EVIDENCE",
+            nxt,
+            facts,
+            None,
+            q,
+            list(nxt.facts),
+            requested_documents(kb, nxt.facts),
+        )
     question = render_question(kb, q, nxt.facts, states, facts, expanded)
     asked = question["facts"]
     return Step("ASK_FACT", nxt, facts, question, q, asked)
+
+
+def requested_documents(kb: KB, paths: list[str]) -> list[dict]:
+    """요청할 서류를 서류 종류별로 묶는다: [{evidence_type, label, facts, fact_labels}]."""
+    catalog = kb.plan.catalog
+    docs: dict[str, dict] = {}
+    for p in paths:
+        s = cat.spec(catalog, p) or {}
+        ev = s.get("evidence") or {"type": "DOCUMENT", "label": "서류"}
+        d = docs.setdefault(
+            ev["type"],
+            {"evidence_type": ev["type"], "label": ev["label"], "facts": [], "fact_labels": []},
+        )
+        d["facts"].append(p)
+        d["fact_labels"].append(s.get("label", p))
+    return list(docs.values())
 
 
 # ---- 질문 카드 -------------------------------------------------------------------------------
@@ -300,7 +330,7 @@ def known_facts(kb: KB, states: dict[str, FactState], facts: dict) -> list[dict]
                 "source_label": SOURCE_LABELS.get(source, source),
                 "quote": None,
                 "recorded_at": iso(st.at) if st else None,
-                "editable": source != "DERIVED",
+                "editable": source not in ("DERIVED", "DOCUMENT"),
                 "edit": {
                     "input": cat.input_kind(s) if s else "choice",
                     "value_type": cat.value_type(s) if s else None,
@@ -318,9 +348,10 @@ def known_facts(kb: KB, states: dict[str, FactState], facts: dict) -> list[dict]
 
 def board(kb: KB, step: Step, states: dict[str, FactState], questions_asked: int, max_q: int):
     catalog = kb.plan.catalog
-    if step.branch == "ASK_FACT":
+    if step.branch in ("ASK_FACT", "REQUEST_EVIDENCE"):
+        reason = "MISSING" if step.branch == "ASK_FACT" else "NEEDS_EVIDENCE"
         pending = [
-            {"key": f, "label": (cat.spec(catalog, f) or {}).get("label", f), "reason": "MISSING"}
+            {"key": f, "label": (cat.spec(catalog, f) or {}).get("label", f), "reason": reason}
             for f in step.asked_facts
         ]
     else:
@@ -340,13 +371,15 @@ def board(kb: KB, step: Step, states: dict[str, FactState], questions_asked: int
         "progress": {"questions_asked": questions_asked, "max_questions": max_q},
         "candidates_count": 0,
         "top_candidates": [],
-        "documents_needed": [],
+        "documents_needed": step.requested_documents,
     }
 
 
 def message(kb: KB, step: Step) -> str:
     if step.branch == "ASK_FACT":
         return step.question["text"]
+    if step.branch == "REQUEST_EVIDENCE":
+        return step.plan_question.get("text") or "확인할 서류를 올려 주세요."
     if step.branch == "FINAL_REVIEW":
         card = result_card(kb, step.next.result)
         return " ".join(x for x in (card["conclusion"], card["next_step"]) if x)
@@ -401,7 +434,11 @@ def handoff(
         "outcome": None if code else result.outcome,
         "route_guidance": {"action": info.get("action"), "summary": summary, "notes": notes},
         "facts": known,
-        "evidence": [],
+        "evidence": [
+            {"fact": p, "document_id": (s.source_ref or "").split("@")[0]}
+            for p, s in states.items()
+            if s.source_type == "DOCUMENT" and s.status == "EVIDENCED"
+        ],
         "basis": basis(kb, result),
         "review": "UNVERIFIED",
         "timestamps": {

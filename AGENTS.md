@@ -17,6 +17,7 @@ Re:Source AI 조직의 **폐기물 문진 엔진(scrap-diagnosis, v2)**. 모든 
 | [knowledge/flow/decisions.md](knowledge/flow/decisions.md) | 해석 결정(D1~). 규칙 내용을 바꾸기 전에 |
 | [knowledge/cases/README.md](knowledge/cases/README.md), [CHANGELOG.md](knowledge/cases/CHANGELOG.md) | 골든셋을 만들거나 고칠 때 |
 | [knowledge/law/targets.yaml](knowledge/law/targets.yaml) | 법령 수집 대상을 바꿀 때 |
+| [docs/design/test-report-table-extraction.md](docs/design/test-report-table-extraction.md) | 성적서 표 읽기(`app/reading/`)를 고칠 때(기존 엔진 문서, 복원) |
 | 팀 공통 규칙(조직 `.github`의 CONTRIBUTING.md) | 브랜치·커밋·PR, 다른 레포와의 경계·API 형식을 바꿀 때 |
 
 ## 2. 공통 규칙
@@ -28,10 +29,11 @@ Re:Source AI 조직의 **폐기물 문진 엔진(scrap-diagnosis, v2)**. 모든 
 5. **골든셋은 동결한다.** `knowledge/cases/golden.yaml`은 `tools/build_golden.py`로만 만들고 `golden.lock` 해시로 고정한다. 판정 규칙에 맞춰 골든셋을 고치지 않는다(반대 방향만). 바꿀 때는 버전을 올리고 `CHANGELOG.md`에 이유를 쓴다
 6. **문진 계획·결과 안내는 사람이 정한다.** 질문 순서·문장은 `plan.yaml`, 결과 문장·인계 행동은 `outcomes.yaml`. 문장은 판정에 쓰지 않는다
 7. **API 형식**: 필드·엔드포인트 추가는 자유. 서버·화면이 쓰는 필드의 삭제·이름 변경·타입 변경은 하지 않는다. 필요하면 멈추고 사용자에게 확인한다. 바꾸면 계약 문서를 같이 고친다
-8. **DB 스키마를 바꾸면 Alembic 마이그레이션을 같이 만든다**(`alembic check`가 통과해야 함). SQLite와 PostgreSQL 모두에서 테스트한다. 사실 기록은 append-only, 확정된 판정·Trace는 고치거나 지우지 않는다(기업 데이터 삭제 경로만 예외)
-9. 비밀값은 코드·커밋·로그에 쓰지 않는다. 로컬은 `.env`(git 제외), 변수 이름은 `.env.example`에 값 없이 둔다. `.env` 값을 출력하지 않는다
-10. 사용자에게 보이는 문서와 응답은 한국어로 쓴다. 코드 식별자와 커밋 메시지 제목은 영어로 쓴다(본문은 한국어 가능)
-11. develop·main에 직접 커밋하지 않는다. 작업 브랜치(`feat/…`, `fix/…` 등)에서 커밋하고, push·PR·병합은 사용자가 요청할 때만 한다
+8. **서류 값은 검수를 거쳐야 판정에 들어간다.** 업로드·자동 읽기 값은 `UNVERIFIED` 후보이고, 서버 검수(`values/apply`) 뒤에만 `EVIDENCED` 사실이 된다. `source: document` 사실은 버튼 답으로 받지 않는다. 실제 Azure 문서 인식은 비용이 들어 기본 꺼짐(`ALLOW_DOCUMENT_OCR`)이고, 테스트는 가짜 클라이언트로 한다
+9. **DB 스키마를 바꾸면 Alembic 마이그레이션을 같이 만든다**(`alembic check`가 통과해야 함). SQLite와 PostgreSQL 모두에서 테스트한다. 사실 기록은 append-only, 확정된 판정·Trace는 고치거나 지우지 않는다(기업 데이터 삭제 경로만 예외)
+10. 비밀값은 코드·커밋·로그에 쓰지 않는다. 로컬은 `.env`(git 제외), 변수 이름은 `.env.example`에 값 없이 둔다. `.env` 값을 출력하지 않는다
+11. 사용자에게 보이는 문서와 응답은 한국어로 쓴다. 코드 식별자와 커밋 메시지 제목은 영어로 쓴다(본문은 한국어 가능)
+12. develop·main에 직접 커밋하지 않는다. 작업 브랜치(`feat/…`, `fix/…` 등)에서 커밋하고, push·PR·병합은 사용자가 요청할 때만 한다
 
 ## 3. 구조
 
@@ -41,7 +43,8 @@ Re:Source AI 조직의 **폐기물 문진 엔진(scrap-diagnosis, v2)**. 모든 
 | `knowledge/cases/` | 골든셋(입력 모델, 결정표, 상황 서술, 이중 주석, 동결본, 평가 기록) |
 | `knowledge/flow/` | 판정 규칙 7단계, 사실 카탈로그, 문진 계획, 결과 안내, 결정 기록, 규칙 형식 |
 | `app/engine/` | `flow.py` 규칙 실행기, `planner.py` 다음 질문 계산기, `kb.py` 지식 로더(kb_version, 재활용 유형표) |
-| `app/interview/` | 문진 서비스: 답 검증(`catalog.py`), 응답 만들기(`present.py`), DB 작업(`service.py`) |
+| `app/interview/` | 문진 서비스: 답 검증(`catalog.py`), 응답 만들기(`present.py`), DB 작업(`service.py`), 서류 업로드·검수·적용(`documents.py`) |
+| `app/reading/` | 시험성적서 표 읽기(pdfplumber·Azure Document Intelligence). 기존 엔진에서 복원한 서류 읽기 기반이며 판정은 하지 않는다 |
 | `app/api/` | `/internal/v1` 경로·인증·오류 형식 |
 | `app/persistence/`, `alembic/` | SQLAlchemy 모델, 마이그레이션 |
 | `tools/` | 법령 수집, 골든셋 빌드·검사·평가, 규칙 비교, 가상 문진 |

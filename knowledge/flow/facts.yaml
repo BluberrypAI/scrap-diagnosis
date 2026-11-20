@@ -6,7 +6,8 @@
 # 공통
 #   type: enum | bool3 | number | object
 #   bool3: [yes, no, unknown]  — 사용자가 모를 수 있는 예/아니오
-#   source: user(문진 답변) | document(서류) | derived(다른 사실에서 계산)
+#   source: user(문진 답변) | document(서류: 업로드 → 검수 → 적용으로만 받음) | derived(다른 사실에서 계산)
+#   evidence: 서류 사실의 서류 종류(type), 화면 이름(label), 표 자동 읽기 항목 키(read_key)
 #   role: verdict(판정 입력) | verdict_and_handoff(판정 입력이면서 인계 객체로 전달)
 #   unknown: 값으로 'unknown'(모름)을 받을 수 있으면 true. 숫자 사실은 값이 없으면 모름이다
 
@@ -96,6 +97,11 @@ facts:
     max: 100
     source: document
     role: verdict
+    evidence:
+      type: TEST_REPORT
+      label: 시험성적서(폐기물 분석전문기관)
+      read_key: oil_content_pct   # 성적서 표 자동 읽기(app/reading/test_items.py)의 항목 키
+    note: 서류 업로드 → 검수 → 적용으로만 값이 들어간다(버튼 답은 '모름'만). 불검출·'미만'은 구간 값이다
   - id: residue
     label: 용기·물건에 원래 내용물이 남아 있나
     type: enum

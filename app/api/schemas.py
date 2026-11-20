@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class _Body(BaseModel):
@@ -40,3 +41,35 @@ class ConfirmIn(_Body):
 
 class ReopenIn(_Body):
     reason: str | None = Field(default=None, max_length=1000)
+
+
+class ApplyValueIn(_Body):
+    """검수한 서류 값 하나. value_id(검수 대기 후보) 또는 fact_key 중 하나는 있어야 한다.
+
+    value를 빼면 후보 값을 그대로 쓰고(value_id일 때), 주면 검수에서 고친 값으로 쓴다.
+    reject=true면 적용하지 않고 후보를 REJECTED로 둔다. reviewer·reviewed_at은 서버가 채운다.
+    """
+
+    value_id: str | None = Field(default=None, max_length=32)
+    fact_key: str | None = Field(default=None, max_length=96)
+    value: Any = None
+    unit: str | None = Field(default=None, max_length=30)
+    document_version: int = Field(ge=1)
+    reviewer: str | None = Field(default=None, max_length=200)
+    reviewed_at: datetime | None = None
+    reject: bool = False
+
+    @model_validator(mode="after")
+    def _ref(self) -> ApplyValueIn:
+        if not self.value_id and not self.fact_key:
+            raise ValueError("value_id 또는 fact_key가 필요합니다")
+        return self
+
+
+class ApplyIn(_Body):
+    values: list[ApplyValueIn] = Field(min_length=1, max_length=200)
+
+
+class RevokeIn(_Body):
+    reason: str | None = Field(default=None, max_length=1000)
+    document_version: int | None = Field(default=None, ge=1)

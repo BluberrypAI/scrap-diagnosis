@@ -3,7 +3,7 @@
 인증: Authorization: Bearer <ENGINE_SERVICE_TOKEN>(상수 시간 비교)
 + X-Company-Id(서버가 인증한 기업 ID).
 처음 보는 기업 ID는 엔진에 자동으로 만든다. 건은 기업별로 격리된다(다른 기업의 건은 404).
-서류 업로드·검수 경로는 v2에서 아직 없다(기름 함량은 질문으로 받는다).
+서류는 업로드 → 검수 대기 후보 → 서버 검수(apply) → EVIDENCED 사실로만 판정에 들어간다.
 """
 
 from __future__ import annotations
@@ -12,12 +12,13 @@ import hmac
 from collections.abc import Iterator
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Header, Path, Query, Request
+from fastapi import APIRouter, Depends, File, Form, Header, Path, Query, Request, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app.api.errors import ApiError
-from app.api.schemas import CaseCreateIn, ConfirmIn, MessageIn, ReopenIn
+from app.api.schemas import ApplyIn, CaseCreateIn, ConfirmIn, MessageIn, ReopenIn, RevokeIn
 from app.config import Settings
 from app.engine.kb import KB
 from app.interview import catalog as cat
@@ -125,6 +126,113 @@ def reopen(
 @router.post("/cases/{case_id}/rebase", dependencies=deps, summary="바뀐 규칙으로 다시 평가")
 def rebase(case_id: CaseId, svc: Service, company: CompanyDep) -> dict:
     return svc.rebase(company, case_id)
+
+
+DocId = Annotated[str, Path(pattern=_ID)]
+
+
+async def _read(file: UploadFile, limit: int) -> bytes:
+    data = await file.read(limit + 1)
+    if len(data) > limit:
+        raise ApiError(413, "FILE_TOO_LARGE", "파일이 너무 큽니다")
+    return data
+
+
+@router.post(
+    "/cases/{case_id}/documents",
+    status_code=201,
+    dependencies=deps,
+    summary="서류 업로드(값은 검수 대기 후보로만 저장)",
+)
+async def upload_document(
+    case_id: CaseId,
+    request: Request,
+    file: Annotated[UploadFile, File()],
+    facts: Annotated[str | None, Form()] = None,
+) -> JSONResponse:
+    settings = request.app.state.settings
+    data = await _read(file, settings.max_upload_bytes)
+    # DB·표 읽기(Azure 포함)는 동기 작업이라 스레드에서 한다(async 안에서 막지 않음)
+    return JSONResponse(
+        await run_in_threadpool(
+            _with_service,
+            request,
+            "upload_document",
+            case_id,
+            filename=file.filename or "document",
+            content_type=file.content_type,
+            data=data,
+            facts=facts,
+        ),
+        status_code=201,
+    )
+
+
+@router.post(
+    "/cases/{case_id}/documents/{doc_id}/versions",
+    status_code=201,
+    dependencies=deps,
+    summary="서류 파일 교체(새 버전, 이전 값은 효력 해제)",
+)
+async def replace_document(
+    case_id: CaseId,
+    doc_id: DocId,
+    request: Request,
+    file: Annotated[UploadFile, File()],
+    facts: Annotated[str | None, Form()] = None,
+) -> JSONResponse:
+    settings = request.app.state.settings
+    data = await _read(file, settings.max_upload_bytes)
+    return JSONResponse(
+        await run_in_threadpool(
+            _with_service,
+            request,
+            "replace_document",
+            case_id,
+            doc_id,
+            filename=file.filename or "document",
+            content_type=file.content_type,
+            data=data,
+            facts=facts,
+        ),
+        status_code=201,
+    )
+
+
+def _with_service(request: Request, method: str, *args, **kwargs):
+    """async 라우트에서 쓰는 동기 서비스 호출: 세션을 열고 인증한 기업으로 부른다."""
+    company_id = request.headers.get("x-company-id")
+    if not company_id:
+        raise ApiError(400, "COMPANY_REQUIRED", "X-Company-Id가 필요합니다")
+    app = request.app
+    for db in app.state.db.session():
+        svc = CaseService(db, app.state.kb, app.state.settings)
+        svc.azure_client = getattr(app.state, "azure_client", None)  # 시험용 주입(기본 None)
+        return getattr(svc, method)(svc.company(company_id), *args, **kwargs)
+
+
+@router.post(
+    "/cases/{case_id}/documents/{doc_id}/values/apply",
+    dependencies=deps,
+    summary="검수한 서류 값을 판정에 반영",
+)
+def apply_values(
+    case_id: CaseId, doc_id: DocId, body: ApplyIn, svc: Service, company: CompanyDep
+) -> dict:
+    items = [v.model_dump() for v in body.values]
+    return svc.apply_values(company, case_id, doc_id, items)
+
+
+@router.post(
+    "/cases/{case_id}/documents/{doc_id}/revoke", dependencies=deps, summary="서류 효력 해제"
+)
+def revoke_document(
+    case_id: CaseId, doc_id: DocId, svc: Service, company: CompanyDep, body: RevokeIn | None = None
+) -> dict:
+    body = body or RevokeIn()
+    return svc.revoke_document(
+        company, case_id, doc_id, reason=body.reason, document_version=body.document_version
+    )
 
 
 @router.get("/cases/{case_id}/trace", dependencies=deps, summary="판정 근거 추적")

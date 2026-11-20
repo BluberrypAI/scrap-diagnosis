@@ -5,6 +5,7 @@
 캔 순환자원 묶음은 '모두 마침' 또는 '아니요'로 답한다.
 """
 
+import json
 import sys
 from pathlib import Path
 
@@ -16,7 +17,37 @@ from simulate_interview import golden, truth  # noqa: E402
 from app.engine.flow import norm  # noqa: E402
 
 
+def evidence_turn(client, cid, turn, facts, h):
+    """서류 요청: 골든 사실에 값이 있으면 서류를 올려 검수·적용하고, 없으면 '서류가 없어요'."""
+    keys = [k for d in turn["ui"]["requested_documents"] for k in d["facts"]]
+    values = {k: truth(facts, k) for k in keys if truth(facts, k) is not None}
+    base = f"/internal/v1/cases/{cid}"
+    if not values:
+        res = client.post(f"{base}/diagnosis/messages", json={"text": "서류가 없어요"}, headers=h)
+        assert res.status_code == 200, res.text
+        return res.json()
+    up = client.post(
+        f"{base}/documents",
+        files={"file": ("values.txt", b"manual", "text/plain")},
+        data={"facts": json.dumps(values)},
+        headers=h,
+    )
+    assert up.status_code == 201, up.text
+    doc = up.json()["document"]
+    body = {
+        "values": [
+            {"value_id": v["id"], "document_version": doc["version"], "reviewer": "golden"}
+            for v in up.json()["values"]
+        ]
+    }
+    res = client.post(f"{base}/documents/{doc['id']}/values/apply", json=body, headers=h)
+    assert res.status_code == 200, res.text
+    return res.json()
+
+
 def answer_turn(client, cid, turn, facts, h):
+    if turn["branch"] == "REQUEST_EVIDENCE":
+        return evidence_turn(client, cid, turn, facts, h)
     q = turn["ui"]["question"]
     url = f"/internal/v1/cases/{cid}/diagnosis/messages"
 
@@ -44,7 +75,7 @@ def test_golden_cases_through_api(client):
         res = client.post("/internal/v1/cases", json={}, headers=h)
         cid, turn = res.json()["case"]["id"], res.json()["turn"]
         for _ in range(40):
-            if turn["branch"] != "ASK_FACT":
+            if turn["branch"] not in ("ASK_FACT", "REQUEST_EVIDENCE"):
                 break
             turn = answer_turn(client, cid, turn, facts, h)
         v = turn["verdict"]

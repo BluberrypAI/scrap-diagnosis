@@ -13,6 +13,8 @@ from typing import Any
 
 import yaml
 
+from app.engine.ranges import NumRange, range_satisfies
+
 OUTCOMES = {
     "NOT_WASTE",
     "CIRCULAR_RESOURCE",
@@ -118,6 +120,13 @@ def compare(op: str, value: Any, target: Any) -> TV:
         return TV.TRUE
     if value is None or value == "unknown":
         return TV.UNKNOWN
+    if isinstance(value, dict) and ("lo" in value or "hi" in value):
+        # 구간 값(서류의 '0.5 미만'·불검출): 구간 전체가 만족하면 참, 전혀 아니면 거짓, 걸치면 모름
+        try:
+            res = range_satisfies(NumRange(**value), op, target)
+        except (TypeError, ValueError):
+            return TV.UNKNOWN
+        return {True: TV.TRUE, False: TV.FALSE, None: TV.UNKNOWN}[res]
     value = norm(value)
     if op == "eq":
         ok = value == target
