@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
 
-from app.engine.flow import UNASKED, Result, lookup
+from app.engine.flow import TV, UNASKED, Result, evaluate, lookup
 from app.engine.kb import KB
 from app.engine.planner import Next, next_question, set_path, with_unasked
 from app.interview import catalog as cat
@@ -180,7 +180,50 @@ def _single(kb: KB, path: str, text: str | None, help_: str | None, facts: dict)
     }
 
 
+PICKED = "pick:"  # case.expanded 안에서 체크 방식으로 고른 항목 표시("pick:사실")
+
+
+def question_basis(kb: KB, facts: dict, ask: list[str], limit: int = 3) -> list[dict]:
+    """이 질문의 답을 기다리는 규칙(아직 참·거짓이 정해지지 않은 규칙)의 근거 조문."""
+    want, out, seen = set(ask), [], set()
+    for st in kb.stages:
+        for rule in st.rules:
+            unknowns: set[str] = set()
+            if evaluate(rule.when, facts, unknowns) is not TV.UNKNOWN or not unknowns & want:
+                continue
+            for b in rule.basis:
+                unit = b.get("unit") or ""
+                if not unit or unit in seen:
+                    continue
+                seen.add(unit)
+                key, _, rest = unit.partition("/")
+                ref = f"{kb.law_names.get(key, key)} {rest.replace('/', ' ')}".strip()
+                out.append({"id": unit, "type": "LAW", "ref": ref, "excerpt": b.get("quote")})
+                if len(out) >= limit:
+                    return out
+    return out
+
+
+def with_why(kb: KB, card: dict, q: dict, facts: dict, ask: list[str]) -> dict:
+    """질문 아래에 보일 '왜 묻는지'(guide.reason)와 펼쳐 볼 근거 조항(basis)."""
+    if q.get("why"):
+        card["guide"] = {"background": None, "reason": q["why"], "actions": [], "if_unknown": None}
+    card["basis"] = question_basis(kb, facts, ask)
+    return card
+
+
 def render_question(
+    kb: KB,
+    q: dict,
+    ask: list[str],
+    states: dict[str, FactState],
+    facts: dict,
+    expanded: list[str],
+) -> dict:
+    return with_why(kb, _render_question(kb, q, ask, states, facts, expanded), q, facts, ask)
+
+
+def _render_question(
     kb: KB,
     q: dict,
     ask: list[str],
@@ -191,6 +234,10 @@ def render_question(
     catalog = kb.plan.catalog
     if q.get("kind") != "group":
         out = _single(kb, ask[0], q.get("text"), q.get("help"), facts)
+        labels = {str(cat.norm(k)): v for k, v in (q.get("option_labels") or {}).items()}
+        for o in out["options"]:
+            if o["kind"] == "value" and str(o["value"]) in labels:
+                o["label"] = labels[str(o["value"])]
         out["plan_id"] = q["id"]
         return out
     items = {i["fact"]: i for i in q["items"]}
@@ -206,7 +253,15 @@ def render_question(
     if q["id"] in expanded and "all_yes_label" not in q:
         # 펼친 묶음: 남은 항목을 하나씩 단일 질문으로 묻는다
         item = items[ask[0]]
-        out = _single(kb, ask[0], item.get("ask") or item["label"], q.get("help"), facts)
+        picked = PICKED + ask[0] in expanded
+        text = (item.get("ask_picked") if picked else None) or item.get("ask") or item["label"]
+        out = _single(kb, ask[0], text, q.get("help"), facts)
+        if picked:
+            # 체크 방식으로 '해당한다'고 고른 항목: 세부 값만 묻는다('해당 없음' 값은 빼고)
+            none = str(cat.norm(item.get("none")))
+            out["options"] = [
+                o for o in out["options"] if o["kind"] != "value" or str(o["value"]) != none
+            ]
         out.update(plan_id=q["id"], group=q["id"], answered_items=answered)
         return out
     if "all_yes_label" in q:

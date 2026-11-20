@@ -45,7 +45,7 @@ def llm(client):
 
 def to_contamination(client):
     cid = new_case(client)["case"]["id"]
-    run_answers(client, cid, PP_SCRAP[:4])
+    run_answers(client, cid, PP_SCRAP[:5])
     return cid
 
 

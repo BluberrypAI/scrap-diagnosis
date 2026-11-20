@@ -4,7 +4,7 @@ import json
 from types import SimpleNamespace as NS
 
 from conftest import headers, make_client
-from test_api import PP_SCRAP, new_case, reply, run_answers
+from test_api import PP_SCRAP, new_case, reply, run_answers, typical
 
 from tests.pdf_fixtures import HEADER, _build, _table
 from tests.test_azure_tables import _Doc, _FakeClient, _FakePoller, _page, _poly
@@ -16,7 +16,7 @@ OIL = "oil_pct_evidenced"
 def to_evidence_request(client, h=H):
     """PP 스크랩, 기름이 묻었다고 답해 서류 요청 단계까지 간다."""
     cid = new_case(client, h=h)["case"]["id"]
-    run_answers(client, cid, PP_SCRAP[:4], h=h)
+    run_answers(client, cid, PP_SCRAP[:5], h=h)
     reply(client, cid, "Q-CONTAMINATION", "expand", h=h)
     reply(client, cid, "oil_presence", "present", h=h)
     reply(client, cid, "residue", "none", h=h)
@@ -49,7 +49,7 @@ def apply(client, cid, doc, values, **extra):
 def finish(client, cid, turn):
     while turn["branch"] == "ASK_FACT":
         q = turn["ui"]["question"]
-        turn = reply(client, cid, q["key"], "none_all" if q["unit"] == "group" else "yes").json()
+        turn = reply(client, cid, q["key"], typical(q)).json()
     return turn
 
 

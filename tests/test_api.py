@@ -6,12 +6,23 @@ H = headers()
 PP_SCRAP = [
     ("material", "pp"),
     ("input_form", "scrap"),
+    ("discharged", "yes"),
     ("Q-PLASTIC-KIND", "none_all"),
     ("packaging_used", "no"),
     ("Q-CONTAMINATION", "none_all"),
-    ("Q-LEGAL", "none_all"),
+    ("law_exclusion", "none"),
+    ("circular_recognized", "no"),
     ("emission_facility", "yes"),
 ]
+
+
+# 남은 질문에 답할 때의 기본 답(대부분 '예', 아래 사실은 흔한 답)
+DEFAULT = {"law_exclusion": "none", "circular_recognized": "no"}
+
+
+def typical(q):
+    """질문 카드에 대한 흔한 답: 묶음은 '모두 해당 없음', 단일은 DEFAULT 또는 '예'."""
+    return "none_all" if q["unit"] == "group" else DEFAULT.get(q["key"], "yes")
 
 
 def reply(client, case_id, key, value=None, kind=None, h=H):
@@ -116,7 +127,7 @@ def test_unknown_blocks_and_cannot_confirm(client):
     turn = run_answers(client, cid, answers)
     while turn["branch"] == "ASK_FACT":
         q = turn["ui"]["question"]
-        turn = reply(client, cid, q["key"], "none_all" if q["unit"] == "group" else "yes").json()
+        turn = reply(client, cid, q["key"], typical(q)).json()
     assert turn["branch"] == "UNSUPPORTED"
     assert [p["key"] for p in turn["ui"]["board"]["pending"]] == ["packaging_used"]
     res = client.post(f"/internal/v1/cases/{cid}/confirm", headers=H)
@@ -131,7 +142,7 @@ def test_unknown_blocks_and_cannot_confirm(client):
 
 def test_group_expand_asks_items_one_by_one(client):
     cid = new_case(client)["case"]["id"]
-    run_answers(client, cid, PP_SCRAP[:4])
+    run_answers(client, cid, PP_SCRAP[:5])
     turn = reply(client, cid, "Q-CONTAMINATION", "expand").json()
     q = turn["ui"]["question"]
     assert (q["key"], q["unit"], q["group"]) == ("oil_presence", "fact", "Q-CONTAMINATION")
@@ -142,14 +153,14 @@ def test_group_expand_asks_items_one_by_one(client):
 
 def test_oil_without_document_is_designated_possible(client):
     cid = new_case(client)["case"]["id"]
-    run_answers(client, cid, PP_SCRAP[:4])
+    run_answers(client, cid, PP_SCRAP[:5])
     reply(client, cid, "Q-CONTAMINATION", "expand")
     reply(client, cid, "oil_presence", "present")
     reply(client, cid, "residue", "none")
     reply(client, cid, "chemical_itself", "no")
     turn = reply(client, cid, "oil_pct_evidenced", "unknown").json()
     turn = (
-        run_answers(client, cid, [("Q-LEGAL", "none_all")])
+        run_answers(client, cid, [("law_exclusion", "none"), ("circular_recognized", "no")])
         if turn["branch"] == "ASK_FACT"
         else turn
     )
@@ -170,7 +181,7 @@ def test_out_of_scope_hides_candidate_code(client):
     turn = run_answers(client, cid, [("material", "aluminium"), ("input_form", "scrap")])
     while turn["branch"] == "ASK_FACT":
         q = turn["ui"]["question"]
-        turn = reply(client, cid, q["key"], "none_all" if q["unit"] == "group" else "yes").json()
+        turn = reply(client, cid, q["key"], typical(q)).json()
     r = turn["ui"]["result"]
     assert (r["outcome"], r["code"]) == ("OUT_OF_SCOPE", None)
     assert "지원 예정" in r["conclusion"]
@@ -189,9 +200,7 @@ def test_can_circular_not_all_done_is_one_click(client):
             assert q["options"][1]["kind"] == "expand"
             turn = reply(client, cid, "Q-CAN-CIRCULAR", "expand").json()
         else:
-            turn = reply(
-                client, cid, q["key"], "none_all" if q["unit"] == "group" else "yes"
-            ).json()
+            turn = reply(client, cid, q["key"], typical(q)).json()
     assert seen.count("Q-CAN-CIRCULAR") == 1
     assert turn["ui"]["result"]["code"] == "51-29-03"
 
@@ -344,14 +353,14 @@ def test_recycling_not_applicable_without_route(client):
     turn = run_answers(client, cid, [("material", "aluminium"), ("input_form", "scrap")])
     while turn["branch"] == "ASK_FACT":
         q = turn["ui"]["question"]
-        turn = reply(client, cid, q["key"], "none_all" if q["unit"] == "group" else "yes").json()
+        turn = reply(client, cid, q["key"], typical(q)).json()
     h = client.post(f"/internal/v1/cases/{cid}/confirm", headers=H).json()["handoff"]
     assert h["recycling"]["status"] == "not_applicable"
 
 
 def test_group_pick_asks_only_picked_items(client):
     cid = new_case(client)["case"]["id"]
-    turn = run_answers(client, cid, PP_SCRAP[:4])
+    turn = run_answers(client, cid, PP_SCRAP[:5])
     q = turn["ui"]["question"]
     assert q["key"] == "Q-CONTAMINATION" and q["allow_pick"] is True
     res = client.post(
@@ -360,12 +369,36 @@ def test_group_pick_asks_only_picked_items(client):
         headers=H,
     )
     turn = res.json()
-    assert turn["ui"]["question"]["key"] == "residue"  # 고른 항목만 묻는다
+    q = turn["ui"]["question"]
+    assert q["key"] == "residue"  # 세부 값이 여럿인 항목만 묻는다
+    assert q["text"] == "어떤 내용물이 남아 있나요?"
+    assert "none" not in [o["value"] for o in q["options"]]  # '남은 것 없음'은 뺀다
     facts = {f["key"]: f["value"] for f in turn["ui"]["board"]["facts"]}
     assert facts["oil_presence"] == "none" and facts["chemical_itself"] == "no"
     bad = client.post(
         f"/internal/v1/cases/{cid}/diagnosis/messages",
-        json={"quick_reply": {"key": "Q-LEGAL", "kind": "some", "value": ["material"]}},
+        json={"quick_reply": {"key": "Q-CONTAMINATION", "kind": "some", "value": ["material"]}},
         headers=H,
     )
     assert bad.status_code == 422
+
+
+def test_group_pick_records_single_value_items_without_asking_again(client):
+    cid = new_case(client)["case"]["id"]
+    run_answers(client, cid, PP_SCRAP[:5])
+    res = client.post(
+        f"/internal/v1/cases/{cid}/diagnosis/messages",
+        json={"quick_reply": {"key": "Q-CONTAMINATION", "kind": "some", "value": ["oil_presence"]}},
+        headers=H,
+    )
+    turn = res.json()
+    facts = {f["key"]: f["value"] for f in turn["ui"]["board"]["facts"]}
+    assert facts["oil_presence"] == "present"  # 체크한 순간 '있음'으로 기록
+    assert turn["branch"] == "REQUEST_EVIDENCE"  # 기름을 다시 묻지 않고 성적서로 넘어간다
+
+
+def test_question_has_why_and_basis(client):
+    turn = new_case(client)["turn"]
+    q = turn["ui"]["question"]
+    assert q["guide"]["reason"].startswith("재질에 따라")
+    assert q["basis"] and all(b["ref"] and b["excerpt"] for b in q["basis"])

@@ -40,7 +40,7 @@ def test_memo_facts_skip_first_questions(client, llm):
     )
     d = new_case(client, memo="PP 사출하고 남은 자투리예요")
     turn = d["turn"]
-    assert turn["ui"]["question"]["key"] == "Q-PLASTIC-KIND"
+    assert turn["ui"]["question"]["key"] == "discharged"
     assert turn["message"].startswith("알겠어요.")
     facts = {f["key"]: f for f in turn["ui"]["board"]["facts"]}
     assert facts["material"]["quote"] == "PP" and facts["input_form"]["value"] == "scrap"
@@ -97,7 +97,7 @@ def test_guess_rejected_returns_to_original_question(client, llm):
 
 def test_spoken_contamination_clear_needs_button(client, llm):
     cid = new_case(client)["case"]["id"]
-    run_answers(client, cid, PP_SCRAP[:4])
+    run_answers(client, cid, PP_SCRAP[:5])
     llm.push("extract", said(facts=[("oil_presence", "none", "stated", "기름은 안 묻었어요")]))
     turn = text(client, cid, "기름은 안 묻었어요")
     assert turn["ui"]["question"]["key"] == "confirm:oil_presence"
@@ -108,7 +108,7 @@ def test_spoken_contamination_clear_needs_button(client, llm):
 
 def test_spoken_none_all(client, llm):
     cid = new_case(client)["case"]["id"]
-    run_answers(client, cid, PP_SCRAP[:2])
+    run_answers(client, cid, PP_SCRAP[:3])
     llm.push("extract", said(none_all=True))
     turn = text(client, cid, "둘 다 아니에요")  # 발포·어망 묶음은 말로 받는다
     assert turn["ui"]["question"]["key"] == "packaging_used"

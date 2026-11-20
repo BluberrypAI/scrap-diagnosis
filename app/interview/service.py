@@ -436,9 +436,18 @@ class CaseService(DocumentMixin, UnderstandMixin):
             rest = [f for f in ask if f not in picked]
             for f, v in pr.group_none_values(self.kb, q, rest).items():
                 self.record(case, f, v, "SCREENING", turn_id)
-            case.expanded = sorted({*case.expanded, q["id"]})  # 고른 항목만 하나씩 묻는다
-            items = {i["fact"]: i["label"] for i in q["items"]}
-            return "해당: " + " / ".join(items[f] for f in picked)
+            items = {i["fact"]: i for i in q["items"]}
+            follow = []
+            for f in picked:
+                if "pick" in items[f]:
+                    # '해당한다'의 값이 하나뿐이면 바로 기록한다(같은 예/아니오를 다시 묻지 않음)
+                    self.record(case, f, str(cat.norm(items[f]["pick"])), "UTTERANCE", turn_id)
+                else:
+                    follow.append(f)  # 세부 값이 여럿이면 '해당 없음'을 뺀 질문으로 묻는다
+            if follow:
+                marks = {pr.PICKED + f for f in follow}
+                case.expanded = sorted({*case.expanded, q["id"], *marks})
+            return "해당: " + " / ".join(items[f]["label"] for f in picked)
         if "all_yes_label" in q:
             # 모두 마친 게 아니면 항목별로 묻지 않는다: 미충족·모름은 같은 결론(고시 마목)
             for f in ask:
