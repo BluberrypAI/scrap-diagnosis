@@ -24,7 +24,8 @@ SYSTEM = """당신은 폐기물 분류 문진을 돕는 설명 담당입니다. 
 매 단계 JSON 하나로, 도구를 하나 쓰거나(action=tool) 답합니다(action=answer).
 
 도구(모두 읽기 전용)
-- rule_basis(arg): 질문·결과가 어느 규칙과 조문에서 나왔는지. arg는 current_question(지금 질문), result(지금 결과), 사실 키, 규칙 id 중 하나
+- rule_basis(arg): 질문·결과가 어느 규칙과 조문에서 나왔는지. arg는 current_question(지금 질문), result(지금 결과), 사실 키, 규칙 id 중 하나.
+  "왜 ○○을 물어봐요?"처럼 특정 항목을 물으면 '사실 목록'에서 그 항목의 키를 찾아 arg로 넣습니다
 - search_law(arg): 적재한 법령 조문을 검색어로 찾음
 - lookup_term(arg): 용어의 쉬운 설명(용어집)과 질문 도움말
 - case_state(arg=null): 지금까지의 답·질문·판정
@@ -52,6 +53,17 @@ SCHEMA: dict[str, Any] = {
 }
 
 
+def fact_list(kb: KB) -> dict[str, str]:
+    """사실 키 → 이름. agent가 rule_basis에 넣을 키를 고르는 데 쓴다."""
+    out = {}
+    for fid, f in kb.plan.catalog.items():
+        if f["type"] == "object":
+            out |= {f"{fid}.{k}": v for k, v in f["fields"].items()}
+        else:
+            out[fid] = f["label"]
+    return out
+
+
 def run_agent(
     llm: LLMClient,
     kb: KB,
@@ -72,6 +84,7 @@ def run_agent(
             {
                 "질문": question,
                 "지금 상태 요약": {k: state.get(k) for k in ("question", "outcome", "code")},
+                "사실 목록": fact_list(kb),
                 "찾은 자료": steps,
                 "남은 도구 호출": remaining,
             },

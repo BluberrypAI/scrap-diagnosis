@@ -236,6 +236,8 @@ def render_question(
         "measure_unit": None,
         "items": [{"key": f, "label": items[f]["label"]} for f in ask],
         "answered_items": answered,
+        # 체크 방식: 해당하는 항목만 골라 kind=some으로 보낸다(고르지 않은 항목은 해당 없음)
+        "allow_pick": "all_yes_label" not in q and len(ask) > 1,
         "terms": [],
         "guide": None,
     }

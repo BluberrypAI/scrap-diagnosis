@@ -347,3 +347,25 @@ def test_recycling_not_applicable_without_route(client):
         turn = reply(client, cid, q["key"], "none_all" if q["unit"] == "group" else "yes").json()
     h = client.post(f"/internal/v1/cases/{cid}/confirm", headers=H).json()["handoff"]
     assert h["recycling"]["status"] == "not_applicable"
+
+
+def test_group_pick_asks_only_picked_items(client):
+    cid = new_case(client)["case"]["id"]
+    turn = run_answers(client, cid, PP_SCRAP[:4])
+    q = turn["ui"]["question"]
+    assert q["key"] == "Q-CONTAMINATION" and q["allow_pick"] is True
+    res = client.post(
+        f"/internal/v1/cases/{cid}/diagnosis/messages",
+        json={"quick_reply": {"key": "Q-CONTAMINATION", "kind": "some", "value": ["residue"]}},
+        headers=H,
+    )
+    turn = res.json()
+    assert turn["ui"]["question"]["key"] == "residue"  # 고른 항목만 묻는다
+    facts = {f["key"]: f["value"] for f in turn["ui"]["board"]["facts"]}
+    assert facts["oil_presence"] == "none" and facts["chemical_itself"] == "no"
+    bad = client.post(
+        f"/internal/v1/cases/{cid}/diagnosis/messages",
+        json={"quick_reply": {"key": "Q-LEGAL", "kind": "some", "value": ["material"]}},
+        headers=H,
+    )
+    assert bad.status_code == 422

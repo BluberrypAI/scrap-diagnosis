@@ -398,7 +398,7 @@ class CaseService(DocumentMixin, UnderstandMixin):
             self.record(case, key, v, "UTTERANCE", turn_id)
             case.questions_asked += 1
             return cat.value_label(self.catalog, key, v)
-        if kind not in ("none_all", "expand"):
+        if kind not in ("none_all", "expand", "some"):
             raise ApiError(422, "VALIDATION_ERROR", f"알 수 없는 답 종류: {kind}")
         q = self.groups.get(key)
         if q is None:
@@ -419,6 +419,26 @@ class CaseService(DocumentMixin, UnderstandMixin):
             for f, v in pr.group_none_values(self.kb, q, ask).items():
                 self.record(case, f, v, "SCREENING", turn_id)
             return q.get("all_yes_label") or pr.NONE_ALL_LABEL
+        if kind == "some":
+            picked = qr.get("value")
+            if (
+                "all_yes_label" in q
+                or not isinstance(picked, list)
+                or not picked
+                or not set(picked) <= set(ask)
+            ):
+                raise ApiError(
+                    422,
+                    "VALIDATION_ERROR",
+                    "고른 항목이 이 묶음 질문의 항목이 아닙니다",
+                    {"problems": [{"key": key, "value": picked, "reason": "묶음 항목 밖"}]},
+                )
+            rest = [f for f in ask if f not in picked]
+            for f, v in pr.group_none_values(self.kb, q, rest).items():
+                self.record(case, f, v, "SCREENING", turn_id)
+            case.expanded = sorted({*case.expanded, q["id"]})  # 고른 항목만 하나씩 묻는다
+            items = {i["fact"]: i["label"] for i in q["items"]}
+            return "해당: " + " / ".join(items[f] for f in picked)
         if "all_yes_label" in q:
             # 모두 마친 게 아니면 항목별로 묻지 않는다: 미충족·모름은 같은 결론(고시 마목)
             for f in ask:

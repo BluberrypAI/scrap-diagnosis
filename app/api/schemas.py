@@ -24,7 +24,8 @@ class CaseCreateIn(_Body):
 
 class QuickReplyIn(_Body):
     key: str = Field(max_length=96)
-    kind: Literal["value", "unknown", "none_all", "expand", "retract"] = "value"
+    # some: 묶음 체크 방식(value = 고른 항목 사실 키 목록, 고르지 않은 항목은 해당 없음)
+    kind: Literal["value", "unknown", "none_all", "expand", "some", "retract"] = "value"
     value: Any = None
 
 
