@@ -1,5 +1,6 @@
 """내부 API(/internal/v1) 테스트: 실제 knowledge/flow 규칙과 SQLite DB를 쓴다."""
 
+import pytest
 from conftest import headers, make_client
 
 H = headers()
@@ -121,6 +122,25 @@ def test_company_facts_remembered_for_next_case(client):
     assert turn["ui"]["question"]["key"] == "emission_facility"
 
 
+def test_edit_and_retract_do_not_change_company_facts(client):
+    first = new_case(client)["case"]["id"]
+    run_answers(client, first, PP_SCRAP)  # 첫 답 emission_facility=yes를 기억
+    # 같은 건에서 고치기·되돌리기를 해도 회사 기억은 그대로다
+    assert reply(client, first, "emission_facility", "no").status_code == 200
+    assert reply(client, first, "emission_facility", "retract").status_code == 200
+    second = new_case(client)["case"]["id"]
+    turn = run_answers(client, second, PP_SCRAP[:-1])
+    facts = {f["key"]: f for f in turn["ui"]["board"]["facts"]}
+    assert facts["emission_facility"]["source_type"] == "PROFILE"
+    assert facts["emission_facility"]["value"] == "yes"
+    # 기억에서 채운 값을 이 건에서 고쳐도 다음 건에는 기억한 값이 들어간다
+    assert reply(client, second, "emission_facility", "no").status_code == 200
+    third = new_case(client)["case"]["id"]
+    turn = run_answers(client, third, PP_SCRAP[:-1])
+    facts = {f["key"]: f for f in turn["ui"]["board"]["facts"]}
+    assert facts["emission_facility"]["value"] == "yes"
+
+
 def test_unknown_blocks_and_cannot_confirm(client):
     cid = new_case(client)["case"]["id"]
     answers = PP_SCRAP[:3] + [("packaging_used", "unknown")]
@@ -178,7 +198,8 @@ def test_oil_without_document_is_designated_possible(client):
 
 def test_out_of_scope_hides_candidate_code(client):
     cid = new_case(client)["case"]["id"]
-    turn = run_answers(client, cid, [("material", "aluminium"), ("input_form", "scrap")])
+    # 캔도 스크랩도 아닌 금속 형태는 범위 밖(D18)
+    turn = run_answers(client, cid, [("material", "aluminium"), ("input_form", "other")])
     while turn["branch"] == "ASK_FACT":
         q = turn["ui"]["question"]
         turn = reply(client, cid, q["key"], typical(q)).json()
@@ -203,6 +224,28 @@ def test_can_circular_not_all_done_is_one_click(client):
             turn = reply(client, cid, q["key"], typical(q)).json()
     assert seen.count("Q-CAN-CIRCULAR") == 1
     assert turn["ui"]["result"]["code"] == "51-29-03"
+    # '아니요'가 실수였다면 보드에서 한 항목을 고칠 때 묶음을 다시 묻는다(나머지 모름이 남지 않음)
+    turn = reply(client, cid, "can_designation.registered", "yes").json()
+    q = turn["ui"]["question"]
+    assert q["key"] == "Q-CAN-CIRCULAR"
+    assert "can_designation.registered" not in q["facts"]
+    turn = reply(client, cid, "Q-CAN-CIRCULAR", "none_all").json()
+    while turn["branch"] == "ASK_FACT":
+        q = turn["ui"]["question"]
+        turn = reply(client, cid, q["key"], typical(q)).json()
+    assert turn["ui"]["result"]["outcome"] == "CIRCULAR_RESOURCE"
+
+
+def test_board_edit_offers_unknown(client):
+    cid = new_case(client)["case"]["id"]
+    turn = run_answers(client, cid, PP_SCRAP[:3])
+    facts = {f["key"]: f for f in turn["ui"]["board"]["facts"]}
+    kinds = [o["kind"] for o in facts["discharged"]["edit"]["options"]]
+    assert kinds[-1] == "unknown" and kinds.count("unknown") == 1
+    # 고치기에서 '모름'을 고르면 모름으로 기록된다(되돌리기 없이)
+    turn = reply(client, cid, "discharged", "unknown").json()
+    facts = {f["key"]: f for f in turn["ui"]["board"]["facts"]}
+    assert facts["discharged"]["status"] == "DECLARED_UNKNOWN"
 
 
 def test_retract_returns_fact_to_unasked(client):
@@ -350,7 +393,7 @@ def test_recycling_types_in_handoff(client):
 
 def test_recycling_not_applicable_without_route(client):
     cid = new_case(client)["case"]["id"]
-    turn = run_answers(client, cid, [("material", "aluminium"), ("input_form", "scrap")])
+    turn = run_answers(client, cid, [("material", "aluminium"), ("input_form", "other")])
     while turn["branch"] == "ASK_FACT":
         q = turn["ui"]["question"]
         turn = reply(client, cid, q["key"], typical(q)).json()
@@ -453,3 +496,25 @@ def test_discharged_is_assumed_and_editable(client):
     cid = turn["case_id"]
     turn = run_answers(client, cid, PP_SCRAP[:2] + [("discharged", "no")])
     assert turn["ui"]["result"]["outcome"] == "NOT_WASTE"
+
+
+@pytest.mark.parametrize(("material", "code"), [("aluminium", "51-29-02"), ("steel", "51-29-01")])
+def test_metal_scrap_is_general_and_routes(client, material, code):
+    """D18: 알루미늄·철 스크랩은 범위 안. 지정 순환자원 준수사항은 묻지 않고 가정으로 밝힌다."""
+    cid = new_case(client)["case"]["id"]
+    turn = run_answers(client, cid, [("material", material), ("input_form", "scrap")])
+    seen = []
+    while turn["branch"] == "ASK_FACT":
+        q = turn["ui"]["question"]
+        seen.append(q["key"])
+        turn = reply(client, cid, q["key"], typical(q)).json()
+    assert not any(k.startswith("can_") or "designation" in k for k in seen)
+    assert turn["verdict"]["outcome"] == "GENERAL" and turn["verdict"]["waste_code"] == code
+    assert turn["verdict"]["flags"] == ["circular_designation_assumed"]
+    h = client.post(f"/internal/v1/cases/{cid}/confirm", headers=H).json()["handoff"]
+    assert (h["result_type"], h["waste_code"], h["category"]) == ("WASTE_CODE", code, "GENERAL")
+    assert h["route_guidance"]["action"] == "RECOMMEND_ROUTE"
+    assert h["facts"]["material"]["value"] == material
+    assert h["facts"]["input_form"]["value"] == "scrap"
+    assert any("순환자원" in a for a in h["assumptions"])
+    assert h["recycling"]["status"] == "table_listed"

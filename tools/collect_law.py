@@ -32,6 +32,10 @@ BASE = "https://www.law.go.kr/DRF"
 PAUSE = 1.5  # 호출 간격(초). 짧은 시간에 많이 부르면 서버가 연결을 끊는다
 
 
+class OpenApiError(RuntimeError):
+    """정상 XML로 반환된 OPEN API 인증·요청 오류."""
+
+
 class Api:
     def __init__(self, oc: str) -> None:
         self.oc = oc
@@ -47,7 +51,13 @@ class Api:
                 text = r.text
                 if not text.lstrip().startswith("<?xml"):
                     raise RuntimeError(f"XML이 아닌 응답: {path} {params.get('target')}")
+                root = ET.fromstring(text)
+                if root.tag == "Response" and root.findtext("result"):
+                    message = root.findtext("msg") or "알 수 없는 OPEN API 오류"
+                    raise OpenApiError(f"국가법령정보 OPEN API 오류: {message}")
                 return text.replace(self.oc, "***")
+            except OpenApiError:
+                raise
             except (httpx.HTTPError, RuntimeError) as e:
                 if attempt == 4:
                     raise

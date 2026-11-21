@@ -21,5 +21,5 @@ uv run python tools/build_golden.py --check          # 동결 해시 확인
 uv run python tools/evaluate_golden.py               # 커버리지·mutation score
 ```
 
-등급: A 조문 문언만으로 정해짐 / C 우리 해석 결정(2026-11-19~20). B(판례·공식 해석 외부 레이블)는 아직 없다(Step 3 미실시).
+등급: A 조문 문언만으로 정해짐 / B 판례·공식 해석으로 뒷받침됨(`external`) / C 우리 해석 결정(2026-11-19~20). 케이스 등급은 쓰인 파티션 중 가장 약한 근거(C > B > A)다. Step 3(2026-11-20~21)에서 법령해석례·부처 해석 70건과 판례 12건을 screening해 support 6건을 골랐고(`external/candidates.yaml`, 판례는 웹 원문 수집 `source.via: web`), v4에서 `discharged=no` 파티션을 B로 올렸다.
 `tools/cases_spec.py`는 기대 결과 계산용 명세 오라클이다. 판정 엔진은 이 모듈을 import하지 않는다.

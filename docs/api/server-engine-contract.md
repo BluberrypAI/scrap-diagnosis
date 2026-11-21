@@ -41,11 +41,13 @@
 | `unknown` | 사실 키 | 모른다고 답한다 |
 | `none_all` | 묶음 질문 키(예: `Q-CONTAMINATION`) | 묶음의 모든 항목이 해당 없음. 캔 순환자원 묶음(`Q-CAN-CIRCULAR`)에서는 "모두 마쳤어요"다 |
 | `expand` | 묶음 질문 키 | 해당하는 것이 있거나 모른다. 다음 턴부터 항목을 하나씩 단일 질문으로 묻는다. 캔 순환자원 묶음에서는 "하나라도 안 했거나 모름"으로 끝나고 항목별로 묻지 않는다 |
-| `retract` | 사실 키 | 답을 지우고 아직 묻지 않은 상태로 되돌린다 |
+| `retract` | 사실 키 | 답을 지우고 아직 묻지 않은 상태로 되돌린다. 웹 판정 보드는 2026-11-21부터 쓰지 않는다(고치기 하나로 합침, 기본값 사실에서는 기본값이 다시 채워짐). API 호환을 위해 남긴다 |
 
 - 값 형식이 틀리면 422 `VALIDATION_ERROR`이고, `details.problems[{key, value, reason}]`에 이유가 담긴다.
 - `text`(자유 문장)는 말 이해 흐름으로 처리한다(LLM이 켜져 있을 때, 4-2절). 꺼져 있으면 대화에 남기고 버튼 답을 안내한다. 서류 요청 단계의 `서류가 없어요`(웹 서류 카드의 버튼)는 AI 없이 요청한 서류 사실을 '모름'으로 둔다.
 - 확인 카드(`sub_branch: CONFIRM_GUESS`)의 키는 `confirm:사실`이다. `kind: value`는 그 값으로 기록(예), `expand`는 원래 질문으로(아니요), `unknown`은 모름.
+- 묶음 확인(`sub_branch: CONFIRM_GROUP`)은 일반 묶음 카드와 키·선택지가 같고 `text`만 "'말한 문장'라고 하셨어요. 그럼 아래 항목이 모두 해당 없는 게 맞나요?"로 바뀐다. 답도 묶음 질문과 같다(`none_all`·`expand`·`some`).
+- 확인 카드(`CONFIRM_GUESS`·`CONFIRM_GROUP`)에 `text`로 짧게 "응·네·맞아요"(묶음 확인은 "없어요"도)라고 하면 AI 없이 '예' 버튼으로, "아니·아뇨"(묶음 확인은 "있어요·모르겠어요"도)라고 하면 '아니요' 버튼으로 처리한다. 긴 문장은 추출 AI로 보내고, 묶음 확인에서 AI가 '모두 해당 없음'을 내면 다시 묻지 않고 그대로 기록한다.
 - 서류로만 받는 사실(지금은 `oil_pct_evidenced`)에 `kind: value`를 보내면 422다(`reason: 서류로만 받는 값`). `unknown`은 받는다.
 
 ## 4. 턴 응답 (`TurnResponse`)
@@ -66,6 +68,7 @@
 - `REQUEST_EVIDENCE`: 질문 대신 서류가 필요하다(기름이 묻은 경우의 기름성분 함량). `ui.question`은 null이고 `ui.requested_documents[{evidence_type, label, facts, fact_labels}]`(= `ui.board.documents_needed`)가 온다. 건 상태는 `NEEDS_INFO`다.
 - `FINAL_REVIEW`: 결론이 났다. `ui.result`가 오고 `can_confirm`은 true다.
 - `UNSUPPORTED`: '모름' 답 때문에 결론을 낼 수 없다. 건 상태는 `NEEDS_INFO`가 되고, `ui.board.pending`에 막힌 사실이 온다. 판정 보드에서 그 답을 고치면 이어서 진행한다.
+- 판정 보드 고치기: `ui.board.facts[].edit.options[]`는 `{label, value, kind}`이고 `kind`는 `value` 또는 `unknown`(모름)이다. 고른 선택지의 `kind`·`value`를 그대로 `quick_reply`로 보낸다. 서류로만 받는 사실은 `editable: false`다. 캔 순환자원 묶음 항목을 고치면 같은 묶음에서 '모름'인 항목을 지우고 묶음을 다시 묻는다('아니요' 한 번이 모든 항목을 모름으로 기록하기 때문).
 - 판정 보드 `ui.board.facts[].source_type`은 여섯 가지다: `UTTERANCE`(답함), `SCREENING`(묶음 답), `PROFILE`(회사 정보 기억), `PROFILE_CONFIRMED`(서버가 확인해 보낸 값), `DOCUMENT`(검수한 서류 값, `status: EVIDENCED`, 고칠 수 없음), `DERIVED`(자동으로 채움).
 
 ## 4-2. 말 이해와 질의응답 (LLM)
@@ -75,7 +78,7 @@
 1. **가리기**: AI로 보내기 전에 전화·이메일·사업자번호·주소를 토큰으로 바꾼다. 가린 뒤에도 남으면 보내지 않는다.
 2. **추출 AI**(한 턴에 1회): 의도(답 / 질문 / 무관 / 서류 없음 / 불명확)와 사실 후보 `[{key, value, certainty, quote}]`를 낸다.
 3. **검사기**(코드): 카탈로그 값인지, 근거 문구(`quote`)가 실제 말에 있는지, 서류로만 받는 사실이 아닌지 본다. 통과한 단정 답은 바로 기록한다(`source_type: UTTERANCE`, 보드 `quote`).
-4. **확인 카드**: 추측한 답("아마 PP일걸요")과 말로 한 오염 '없음'(지정폐기물 가능성을 지우는 답)은 바로 쓰지 않고 다음 턴에 `[예, 값] [아니요] [모름]` 카드로 묻는다(`sub_branch: CONFIRM_GUESS`). 오염 묶음의 '모두 해당 없음'을 말로 하면 묶음 카드를 버튼으로 다시 보여 준다.
+4. **확인 카드**: 추측한 답("아마 PP일걸요")은 바로 쓰지 않고 다음 턴에 `[예, 값] [아니요] [모름]` 카드로 묻는다(`sub_branch: CONFIRM_GUESS`). 말로 한 오염 '없음'(지정폐기물 가능성을 지우는 답)이나 오염 묶음의 '모두 해당 없음'은 항목마다 따로 묻지 않는다. 오염 묶음 차례에 남은 항목 전체를 묶음 확인 한 번으로 묻는다(`sub_branch: CONFIRM_GROUP`). 메모에서 미리 말했으면 앞 질문을 막지 않고 그 차례까지 기다린다. Trace `UNDERSTAND`의 `confirm`·`confirm_values`에는 묶음 확인으로 미룬 사실도 들어가고, `group_confirm`에 묶음 id가 남는다.
 5. **건 메모**(`POST /cases`의 `memo`)도 같은 흐름으로 읽어, 이미 말한 질문을 건너뛴다.
 6. **질의응답 agent**: 문진에 관한 질문이면 LLM이 읽기 전용 도구(`rule_basis`, `search_law`, `lookup_term`, `case_state`)를 골라 최대 3번 쓰고 답한다. 출처는 도구가 돌려준 조문만 남긴다(코드 대조). 응답은 턴의 `assist` `{intent, text, sources[{id, type, ref, excerpt}], terms[{term, plain, example}], review}`이고 대화 기록에도 남는다. 판정·질문 카드는 바뀌지 않는다. 문진과 무관한 요청은 답하지 않고 안내한다.
 7. **질문 문장 다듬기**: 턴 `message`만 쉬운 말로 바꾼다. `ui.question.text`(카드 문장)와 선택지는 고정이다. 원문에 없는 숫자가 생기면 버린다.
@@ -138,6 +141,6 @@ Trace에는 AI 호출마다 `LLM` 행(모델, 지연, 사용량, 가린 프롬�
 - **재질 값이 바뀌었다**: `pp`·`pe`·`pet`·`pvc`·`other_resin`·`synthetic_rubber`·`aluminium`·`steel`·`other`. v1의 `metal_can`·`plastic_packaging` 같은 값은 없다. 포장재 여부는 별도 사실 `packaging_used`로 묻는다.
 - **결과 값이 더해졌다**: outcome·category에 `DESIGNATED_POSSIBLE`. v1의 `INTERPRETATION_NEEDED`·`CODE_NEEDS_TEST`·`NO_GENERAL_CODE` 등은 나오지 않는다.
 - **서류**: 경로와 응답 모양은 v1과 같다. v2에서 서류로 받는 사실은 기름성분 함량 하나다. 그래서 자동 읽기도 그 항목만 후보로 만든다(다른 시험 항목은 `table_read`에서 빠진다).
-- **회사 정보 기억**: 사업장 질문(`emission_facility`, `daily_avg_kg`, `public_facility`, `construction_5t`, `site_emits_designated`)의 답은 기업별로 기억한다. 같은 기업의 다음 건에는 `PROFILE`로 미리 채운다. 기업 데이터를 삭제하면 이 기억도 함께 지운다.
+- **회사 정보 기억**: 사업장 질문(`emission_facility`, `daily_avg_kg`, `public_facility`, `construction_5t`, `site_emits_designated`)의 답은 기업별로 기억한다. 같은 기업의 다음 건에는 `PROFILE`로 미리 채운다. 회사 정보는 고정값이라, 기억이 없을 때 건의 첫 답만 기억하고 판정 보드의 고치기·되돌리기는 그 건의 판정만 바꾼다(기억을 바꾸거나 지우지 않음). 기업 데이터를 삭제하면 이 기억도 함께 지운다.
 - **재활용 유형표**: v1은 별표 PDF에서 손으로 옮긴 표였고, v2는 법령 API에서 받는다. 지금 범위는 51-03-01·51-03-07·51-29-03 세 행이다.
 - **DB 스키마가 새로 바뀌었다**: 마이그레이션은 `alembic/versions/0001`부터 다시 시작한다(0002: 서류·서류 값, 0003: 말 답 근거 문구·확인 대기·assist). v1 엔진이 쓰던 DB에는 그대로 올릴 수 없으므로 새 데이터베이스를 쓴다.

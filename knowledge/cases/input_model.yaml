@@ -5,12 +5,14 @@
 # 판정 엔진 설계와 독립적으로, 적재한 조문만 보고 작성했다(기존 엔진 참조 없음).
 #
 # 등급(grade): A 조문 문언만으로 정해짐 / B 공식 해석·판례 / C 우리 해석 결정(2026-11-19)
+#   B는 external(cases/external/candidates.yaml의 support·include 항목, "target/사건번호")을 함께 단다
 # 효과(effect): continue(다음 판단으로) 또는 결과 클래스(outcomes의 id)
 
 version: 1
 scope:
-  materials: [pp, pe, pet, aluminium_can]
-  codes: ["51-03-01", "51-03-07", "51-29-03"]
+  materials: [pp, pe, pet, aluminium_can, aluminium_scrap, steel_scrap]
+  codes: ["51-03-01", "51-03-07", "51-29-01", "51-29-02", "51-29-03"]
+  # 2026-11-21 D18: 알루미늄·철 스크랩(51-29-02·51-29-01)을 범위에 넣었다
   designated: 지정폐기물은 "가능성"까지만 판단하고 멈춘다
 
 # ---- 출력 클래스 -----------------------------------------------------------------------------
@@ -61,8 +63,10 @@ variables:
     role: verdict
     partitions:
       - {values: [yes], effect: continue, grade: A, basis: [ACT-WASTE/제2조제1호]}
-      - {values: [no], effect: NOT_WASTE, grade: C, basis: [ACT-WASTE/제2조제1호],
-         note: 같은 공정에 다시 넣는 불량품처럼 내보내지 않으면 문진 대상이 아님(결정 ③)}
+      - {values: [no], effect: NOT_WASTE, grade: B, basis: [ACT-WASTE/제2조제1호],
+         external: [prec/2002도3116],
+         note: 같은 공정에 다시 넣는 불량품처럼 내보내지 않으면 문진 대상이 아님(결정 ③).
+           폐기물 여부를 '사회통념상 사업활동에 필요한가'로 판단한 판례로 B 상향(2026-11-21)}
       - {values: [unknown], effect: INSUFFICIENT_INFO, grade: C}
 
   # 2. 법 적용 제외
@@ -190,7 +194,7 @@ variables:
          basis: [RULE-WASTE/별표4/51-03-02],
          note: 판정 조정 2026-11-20(G-021) — 기타 재질에서 분리해 후보 코드를 붙임}
       - {values: [aluminium, steel], effect: continue, grade: A,
-         note: 캔이면 캔 판단으로, 아니면 범위 밖(51-29-01·02)}
+         note: 캔이면 캔 판단, 스크랩이면 51-29-01·02(D18), 그 밖의 형태는 범위 밖}
       - {values: [other], effect: OUT_OF_SCOPE, grade: A}
   - id: input_form
     label: 현재 형태
@@ -209,9 +213,16 @@ variables:
       - {values: [other], effect: 물리 상태를 따로 확인, grade: C,
          note: 형태 선택지 밖(액체·반고체 등). 2026-11-20 문진 계획 평가에서 추가}
       - {values: [scrap, rigid, shredded, flake, pellet, bale, film-bale], effect: invariant,
-         note: 판정 불변. 인계 객체로 route에 전달}
-      - {values: ["aluminium:scrap", "steel:scrap"], effect: OUT_OF_SCOPE,
-         candidate: "51-29-02 / 51-29-01"}
+         note: 판정 불변(합성수지). 인계 객체로 route에 전달}
+      - {values: ["aluminium:scrap", "steel:scrap"], effect: GENERAL, grade: C,
+         code: "51-29-02 / 51-29-01", flags: [circular_designation_assumed],
+         basis: [RULE-WASTE/별표4/51-29-01, RULE-WASTE/별표4/51-29-02,
+                 NOTICE-CIRCULAR-DESIGNATION/별표1, NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항],
+         note: "D18(2026-11-21). 고철·비철금속 중 알루미늄은 지정 순환자원 대상(별표1)이지만 품목별 준수사항을
+           적재하지 않아 묻지 않는다. 일반적 준수사항 마목에 따라 조치·등록 완료 전에는 폐기물로 본다"}
+      - {values: ["aluminium:other", "steel:other"], effect: OUT_OF_SCOPE, grade: A,
+         candidate: "51-29-02 / 51-29-01",
+         note: 스크랩이 아닌 금속은 용기류(51-29-04)일 수 있어 범위 밖으로 둔다(D18)}
     metamorphic: 불변 파티션 안에서 형태만 바꾸면 결과가 같아야 한다
   - id: foamed
     label: 발포수지(스티로폼 등)인가

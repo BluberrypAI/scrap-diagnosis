@@ -78,7 +78,7 @@ def compute(
         return Step(branch, nxt, facts)
     # 말로 한 답 중 확인이 필요한 것(추측·지정 가능성을 지우는 답)을 계획된 질문보다 먼저 확인한다
     for p in pending or []:
-        if lookup(facts, p["fact"]) == UNASKED:
+        if "fact" in p and lookup(facts, p["fact"]) == UNASKED:
             card = confirm_card(kb, p)
             return Step("ASK_FACT", nxt, facts, card, None, [p["fact"]], sub_branch="CONFIRM_GUESS")
     q = nxt.question
@@ -95,6 +95,13 @@ def compute(
         )
     question = render_question(kb, q, nxt.facts, states, facts, expanded)
     asked = question["facts"]
+    said = next((p for p in pending or [] if p.get("group") == q["id"]), None)
+    if said is not None and question["unit"] == "group":
+        # 말로 한 '없음'은 항목마다 따로 묻지 않고, 남은 항목 전체를 한 번에 확인한다
+        question["text"] = (
+            f"'{said['quote']}'라고 하셨어요. 그럼 아래 항목이 모두 해당 없는 게 맞나요?"
+        )
+        return Step("ASK_FACT", nxt, facts, question, q, asked, sub_branch="CONFIRM_GROUP")
     return Step("ASK_FACT", nxt, facts, question, q, asked)
 
 
@@ -448,10 +455,10 @@ def edit_options(kb: KB, path: str, facts: dict) -> list[dict]:
     if path == "input_form":  # 형태는 재질에 맞는 것만 고를 수 있다
         material = lookup(facts, "material")
         allowed = (kb.plan.catalog["input_form"].get("allowed_by_material") or {}).get(material)
+    # 고치기 하나로 '모름'까지 고를 수 있게 모름 선택지(kind=unknown)도 준다(2026-11-21)
     return [
-        {"label": o["label"], "value": o["value"]}
+        {"label": o["label"], "value": o["value"], "kind": o["kind"]}
         for o in cat.options(kb.plan.catalog, path, allowed)
-        if o["kind"] == "value"
     ]
 
 
@@ -484,7 +491,9 @@ def known_facts(kb: KB, states: dict[str, FactState], facts: dict) -> list[dict]
                 "source_label": SOURCE_LABELS.get(source, source),
                 "quote": st.quote if st else None,
                 "recorded_at": iso(st.at) if st else None,
-                "editable": source not in ("DERIVED", "DOCUMENT"),
+                # 서류로만 받는 값은 버튼으로 고칠 수 없다(서류 검수로만 바뀜)
+                "editable": source not in ("DERIVED", "DOCUMENT")
+                and not cat.is_document_fact(catalog, path),
                 "edit": {
                     "input": cat.input_kind(s) if s else "choice",
                     "value_type": cat.value_type(s) if s else None,

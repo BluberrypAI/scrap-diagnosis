@@ -1,0 +1,44 @@
+name: Law Change Alert
+
+on:
+  schedule:
+    # 매일 09:17 KST. 정각의 공개 API·GitHub Actions 혼잡을 피한다.
+    - cron: "17 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: law-change-alert
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Check tracked laws and notify Discord on changes
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.LAW_DISCORD_WEBHOOK_URL }}
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: uv run python tools/check_law_updates.py --notify-discord --report law-change-report.json
+
+      - name: Upload comparison report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: law-change-report
+          path: law-change-report.json
+          if-no-files-found: ignore
+          retention-days: 14

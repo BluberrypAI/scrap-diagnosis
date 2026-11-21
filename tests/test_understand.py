@@ -95,15 +95,107 @@ def test_guess_rejected_returns_to_original_question(client, llm):
     assert turn["ui"]["question"]["key"] == "material" and turn["sub_branch"] is None
 
 
-def test_spoken_contamination_clear_needs_button(client, llm):
+def test_spoken_contamination_clears_confirmed_once_as_group(client, llm):
+    """말로 한 오염 '없음'은 항목마다 따로 묻지 않고 묶음 확인 한 번으로 받는다."""
     cid = new_case(client)["case"]["id"]
     run_answers(client, cid, PP_SCRAP[:5])
-    llm.push("extract", said(facts=[("oil_presence", "none", "stated", "기름은 안 묻었어요")]))
-    turn = text(client, cid, "기름은 안 묻었어요")
-    assert turn["ui"]["question"]["key"] == "confirm:oil_presence"
-    assert turn["ui"]["question"]["text"].startswith("확인할게요.")
-    turn = reply(client, cid, "confirm:oil_presence", "none").json()
-    assert "oil_presence" not in turn["ui"]["question"]["facts"]
+    msg = "안 묻었어 깨끗하게 세척함"
+    llm.push(
+        "extract",
+        said(
+            facts=[
+                ("oil_presence", "none", "stated", "안 묻었어"),
+                ("residue", "none", "stated", "깨끗하게 세척함"),
+            ]
+        ),
+    )
+    turn = text(client, cid, msg)
+    q = turn["ui"]["question"]
+    assert turn["sub_branch"] == "CONFIRM_GROUP" and q["key"] == "Q-CONTAMINATION"
+    assert q["facts"] == ["oil_presence", "residue", "chemical_itself"]  # 기록하지 않고 같이 확인
+    assert (
+        q["text"].startswith("'안 묻었어'라고 하셨어요.")
+        and "모두 해당 없는 게 맞나요" in q["text"]
+    )
+    assert "버튼으로 한 번 더" not in turn["message"]
+    turn = reply(client, cid, "Q-CONTAMINATION", kind="none_all").json()  # 한 번에 끝
+    assert turn["sub_branch"] is None
+    assert not {"oil_presence", "residue", "chemical_itself"} & set(turn["ui"]["question"]["facts"])
+    facts = {f["key"]: f["value"] for f in turn["ui"]["board"]["facts"]}
+    assert facts["oil_presence"] == "none" and facts["chemical_itself"] == "no"
+
+
+def group_confirm_card(client, llm):
+    cid = new_case(client)["case"]["id"]
+    run_answers(client, cid, PP_SCRAP[:5])
+    llm.push("extract", said(facts=[("oil_presence", "none", "stated", "안 묻었어")]))
+    turn = text(client, cid, "안 묻었어")
+    assert turn["sub_branch"] == "CONFIRM_GROUP"
+    return cid
+
+
+@pytest.mark.parametrize("msg", ["응", "네 맞아요.", "없어요"])
+def test_short_yes_on_group_confirm_clears_all(client, llm, msg):
+    """묶음 확인에 말로 '응'이라고 하면 모두 해당 없음으로 끝난다(AI 부르지 않음, 반복 안 함)."""
+    cid = group_confirm_card(client, llm)
+    calls = len(llm.calls)
+    turn = text(client, cid, msg)
+    assert len(llm.calls) == calls  # 짧은 예/아니요는 AI로 보내지 않는다
+    assert turn["sub_branch"] is None and turn["ui"]["question"]["key"] != "Q-CONTAMINATION"
+    facts = {f["key"]: f["value"] for f in turn["ui"]["board"]["facts"]}
+    assert facts["oil_presence"] == "none" and facts["residue"] == "none"
+    assert facts["chemical_itself"] == "no"
+    assert turn["message"].startswith("알겠어요. 모두 해당 없음")
+
+
+def test_spoken_yes_via_ai_on_group_confirm_clears_all(client, llm):
+    cid = group_confirm_card(client, llm)
+    llm.push("extract", said(none_all=True))
+    turn = text(client, cid, "응 그거 다 아니야")
+    assert turn["sub_branch"] is None and turn["ui"]["question"]["key"] != "Q-CONTAMINATION"
+    facts = {f["key"]: f["value"] for f in turn["ui"]["board"]["facts"]}
+    assert facts["chemical_itself"] == "no"
+
+
+@pytest.mark.parametrize("msg", ["아니", "있어요", "모르겠어요"])
+def test_short_no_on_group_confirm_asks_items(client, llm, msg):
+    cid = group_confirm_card(client, llm)
+    turn = text(client, cid, msg)
+    q = turn["ui"]["question"]
+    assert turn["sub_branch"] is None and q["group"] == "Q-CONTAMINATION"  # 항목별로 묻는다
+    assert "oil_presence" not in {f["key"] for f in turn["ui"]["board"]["facts"]}
+
+
+def test_short_yes_on_guess_confirm(client, llm):
+    cid = new_case(client)["case"]["id"]
+    llm.push("extract", said(facts=[("material", "pp", "guess", "아마 PP")]))
+    text(client, cid, "아마 PP일걸요")
+    turn = text(client, cid, "네")
+    assert turn["ui"]["question"]["key"] == "input_form"
+
+
+def test_spoken_contamination_clear_from_memo_waits_for_group_turn(client, llm):
+    """메모에서 미리 말한 '없음'은 앞 질문을 막지 않고, 오염 묶음 차례에 한 번 확인한다."""
+    llm.push(
+        "extract",
+        said(
+            facts=[
+                ("material", "pp", "stated", "PP"),
+                ("oil_presence", "none", "stated", "기름 안 묻음"),
+            ]
+        ),
+    )
+    d = new_case(client, memo="PP 자투리, 기름 안 묻음")
+    turn = d["turn"]
+    assert turn["sub_branch"] is None and not turn["ui"]["question"]["key"].startswith("confirm:")
+    cid, answers = d["case"]["id"], dict(PP_SCRAP)
+    for _ in range(10):
+        key = turn["ui"]["question"]["key"]
+        if key == "Q-CONTAMINATION":
+            break
+        turn = reply(client, cid, key, answers[key]).json()
+    assert turn["sub_branch"] == "CONFIRM_GROUP"
+    assert turn["ui"]["question"]["text"].startswith("'기름 안 묻음'라고 하셨어요.")
 
 
 def test_spoken_none_all(client, llm):
@@ -114,9 +206,10 @@ def test_spoken_none_all(client, llm):
     assert turn["ui"]["question"]["key"] == "packaging_used"
     reply(client, cid, "packaging_used", "no")
     llm.push("extract", said(none_all=True))
-    turn = text(client, cid, "다 해당 없어요")  # 오염 묶음은 버튼으로 다시 확인
+    turn = text(client, cid, "다 해당 없어요")  # 오염 묶음은 묶음 확인 한 번
     assert turn["ui"]["question"]["key"] == "Q-CONTAMINATION"
-    assert "버튼으로 한 번 더" in turn["message"]
+    assert turn["sub_branch"] == "CONFIRM_GROUP"
+    assert turn["ui"]["question"]["text"].startswith("'다 해당 없어요'라고 하셨어요.")
 
 
 def test_identifiers_are_masked_before_ai(client, llm):

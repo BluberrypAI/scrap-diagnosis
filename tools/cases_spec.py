@@ -122,7 +122,8 @@ def evaluate(f: dict) -> dict:
         out = "51-03-02"
     elif material == "other":
         out = ""
-    elif material in ("aluminium", "steel") and not is_can(f):
+    elif material in ("aluminium", "steel") and f.get("input_form") not in ("can", "scrap"):
+        # D18: 금속 스크랩만 범위 안. 그 밖의 형태는 용기류(51-29-04)일 수 있어 범위 밖으로 둔다
         out = "51-29-02" if material == "aluminium" else "51-29-01"
     elif material in PLASTICS and f.get("foamed") == "yes":
         # D13: 발포 포장재는 51-03-06과 51-03-07이 겹쳐 후보 코드를 정하지 않는다
@@ -144,6 +145,10 @@ def evaluate(f: dict) -> dict:
         return result("INSUFFICIENT_INFO", gate="G7")
 
     # G8 코드
+    if f.get("input_form") == "scrap" and material in ("aluminium", "steel"):
+        # D18: 고철(51-29-01)·비철금속(51-29-02). 지정 순환자원 준수사항은 묻지 않고 폐기물로 본다
+        code = "51-29-02" if material == "aluminium" else "51-29-01"
+        return result("GENERAL", code, ["circular_designation_assumed"], gate="G8")
     if is_can(f):
         if f.get("can_contents") not in CAN_LISTED or not medicine_ok:
             return result("INSUFFICIENT_INFO", gate="G8")
