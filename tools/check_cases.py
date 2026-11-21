@@ -4,6 +4,7 @@
 
 - 근거(basis) 참조 무결성: "문서키/단위ID"가 knowledge/law/articles에 실제로 있는지
 - 입력 모델: 파티션 값이 도메인 안에 있는지, 효과(effect)가 출력 클래스나 continue인지
+- 외부 레이블: B등급 파티션에 external이 있는지, external·screening.for 참조가 실제로 있는지
 """
 
 from __future__ import annotations
@@ -48,6 +49,36 @@ def check_basis(doc, units: set[str], errors: list[str], name: str) -> int:
         n += 1
         if ref not in units:
             errors.append(f"{name}: {where}: 적재되지 않은 근거 {ref!r}")
+    return n
+
+
+def check_external(model: dict, table: dict, errors: list[str]) -> int:
+    """B등급 파티션의 external과 candidates의 screening.for가 서로 맞는지 본다."""
+    cands = yaml.safe_load((CASES / "external" / "candidates.yaml").read_text(encoding="utf-8"))
+    chosen = {}
+    for c in cands["candidates"]:
+        s = c.get("screening") or {}
+        if s.get("decision") in ("support", "include"):
+            chosen[f"{c['target']}/{c.get('case_no') or c['id']}"] = s
+    trs = {t["id"] for t in table["test_requirements"]}
+    for key, s in chosen.items():
+        for tr in s.get("for", []):
+            if tr not in trs:
+                errors.append(f"candidates: {key}: 없는 TR {tr}")
+    n = 0
+    for var in model["variables"]:
+        for p in var.get("partitions", []):
+            ext = p.get("external", [])
+            if p.get("grade") == "B" and not ext:
+                errors.append(
+                    f"input_model: {var['id']}={p.get('values')}: B등급인데 external 없음"
+                )
+            for ref in ext:
+                n += 1
+                if ref not in chosen:
+                    errors.append(
+                        f"input_model: {var['id']}: support·include가 아닌 외부 참조 {ref!r}"
+                    )
     return n
 
 
@@ -147,6 +178,8 @@ def main() -> None:
     table = yaml.safe_load((CASES / "decision_table.yaml").read_text(encoding="utf-8"))
     nf = check_table_facts(model, table, errors)
     print(f"decision_table: TR {len(table['test_requirements'])}개, 사실값 {nf}개")
+    ne = check_external(model, table, errors)
+    print(f"external: B등급 파티션 외부 참조 {ne}개")
     golden_path = CASES / "golden.yaml"
     if golden_path.exists():
         golden = yaml.safe_load(golden_path.read_text(encoding="utf-8"))
