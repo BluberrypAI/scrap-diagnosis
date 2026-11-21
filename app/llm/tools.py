@@ -1,6 +1,6 @@
 """질의응답 agent의 도구. 모두 읽기 전용이다(사실 기록·판정을 바꾸는 도구는 없다).
 
-- search_law(query): 적재한 조문(knowledge/law/articles)에서 찾는다
+- search_law(query): 적재한 조문(knowledge/law/articles)에서 BM25로 찾는다(app/llm/law_search.py)
 - rule_basis(target): 질문·결과가 어느 규칙과 조문에서 나왔는지(현재 질문, 결과, 사실 키, 규칙 id)
 - lookup_term(term): 용어집(knowledge/flow/glossary.yaml)과 질문 도움말(plan.yaml)
 - case_state(): 지금 건의 답·질문·판정(서비스가 만든 요약을 그대로)
@@ -18,13 +18,9 @@ from typing import Any
 import yaml
 
 from app.engine.kb import FLOW_DIR, KB, MANIFEST
+from app.llm.law_search import LawIndex
 
 EXCERPT = 600
-
-
-def _bigrams(s: str) -> set[str]:
-    t = re.sub(r"\s+", "", s or "").lower()
-    return {t[i : i + 2] for i in range(len(t) - 1)} or ({t} if t else set())
 
 
 @lru_cache
@@ -42,6 +38,11 @@ def law_units(manifest: Path = MANIFEST) -> list[dict]:
                 }
             )
     return out
+
+
+@lru_cache
+def law_index() -> LawIndex:
+    return LawIndex(law_units())
 
 
 @lru_cache
@@ -67,18 +68,9 @@ class Tools:
         return fn(arg or "") if fn else []
 
     def search_law(self, query: str) -> list[dict]:
-        q = _bigrams(query)
-        if not q:
-            return []
-        scored = []
-        for u in self.units.values():
-            score = len(q & _bigrams(u["ref"] + " " + u["text"][:2000])) / len(q)
-            if score > 0.2:
-                scored.append((score, u))
-        scored.sort(key=lambda x: -x[0])
         return [
             {"id": u["id"], "type": "LAW", "ref": u["ref"], "excerpt": u["text"][:EXCERPT]}
-            for _, u in scored[:3]
+            for u in law_index().search(query, 3)
         ]
 
     def _rule_out(self, rule) -> dict:

@@ -49,6 +49,7 @@ uv run python tools/build_golden.py --check         # 골든셋 동결 해시
 uv run python tools/compare_flows.py score knowledge/flow   # 판정 규칙 채점(98/98)
 uv run python tools/simulate_interview.py           # 문진 계획: 결론 정확도·질문 수
 uv run python tools/eval_understand.py --mock       # 말 이해 흐름(AI 없이 기준선). --oracle은 상한선, 옵션 없이는 실제 AI(비용 듦)
+uv run python tools/eval_law_search.py              # 법령 검색 평가(dev). --split test는 검색 방식을 다 고친 뒤에만
 uv run alembic check                                # 모델과 마이그레이션이 같은지
 TEST_DATABASE_URL=postgresql+psycopg://wd:wd@localhost:55432/postgres uv run python -m pytest -q
 ```

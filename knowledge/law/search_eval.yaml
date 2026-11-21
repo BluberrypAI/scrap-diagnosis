@@ -1,0 +1,99 @@
+# 법령 검색(search_law) 평가셋. 사람이 관리한다(articles/·manifest.yaml과 달리 자동 생성 아님).
+# 실행: uv run python tools/eval_law_search.py
+#
+# 각 항목
+#   query:    검색어
+#   relevant: 정답 조문 단위 id(knowledge/law/articles). 이 중 하나라도 상위 3개(도구가 돌려주는 개수)에 있으면 적중
+#             빈 목록이면 "적재한 조문에 답이 없음" → 결과 0건이어야 맞음
+#   style:    keyword(질의응답 agent가 도구에 보낼 법한 핵심어) | spoken(사용자 말투 그대로) | negative
+#
+#   queries: dev. 검색 방식을 고칠 때 보는 쪽
+#   test:    보류. dev로 고친 뒤 마지막에만 본다. test 결과를 보고 검색 방식을 고치면 test가 아니게 된다
+#
+# v1 (2026-11-21): dev는 BM25 구현 전에, test는 BM25 첫 결과를 본 뒤·튜닝 전에 작성했다. 정답 표시는 사람 검토 전이다.
+version: 1
+test:
+  - {style: keyword, query: "사업장폐기물 범위", relevant: [ACT-WASTE/제2조제3호, DEC-WASTE/제2조]}
+  - {style: keyword, query: "배출시설 설치 사업장", relevant: [ACT-WASTE/제2조제3호, DEC-WASTE/제2조]}
+  - {style: keyword, query: "방사성 물질 적용 제외", relevant: [ACT-WASTE/제3조]}
+  - {style: keyword, query: "폐산 수소이온 농도", relevant: [DEC-WASTE/별표1제2호]}
+  - {style: keyword, query: "할로겐족 유기용제", relevant: [DEC-WASTE/별표1제4호]}
+  - {style: keyword, query: "PCBs 함유 폐기물", relevant: [DEC-WASTE/별표1제6호, RULE-WASTE/제17조의2]}
+  - {style: keyword, query: "폐어망 분류", relevant: [RULE-WASTE/별표4/51-03-08]}
+  - {style: keyword, query: "폐폴리염화비닐수지류", relevant: [RULE-WASTE/별표4/51-03-03]}
+  - {style: keyword, query: "폐금속용기류", relevant: [RULE-WASTE/별표4/51-29-04]}
+  - {style: keyword, query: "비철금속 알루미늄 순환자원", relevant: [NOTICE-CIRCULAR-DESIGNATION/별표1]}
+  - {style: keyword, query: "51-03-07", relevant: [RULE-WASTE/별표4/51-03-07, RULE-WASTE/별표4의3/51-03-07]}
+  - {style: keyword, query: "재활용환경성평가", relevant: [RULE-WASTE/별표4의3/비고]}
+  - {style: keyword, query: "순환자원 준수사항", relevant: ["NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항", NOTICE-CIRCULAR-DESIGNATION/제3조]}
+  - {style: keyword, query: "폐기물로 보지 아니하는 순환자원", relevant: [NOTICE-CIRCULAR-DESIGNATION/제3조, ACT-CIRCULAR/제21조, ACT-CIRCULAR/제23조]}
+  - {style: keyword, query: "금지물질 정의", relevant: [ACT-CHEMICAL/제2조제5호]}
+  - {style: keyword, query: "생태유해성물질", relevant: [ACT-CHEMICAL/제2조제2호의3]}
+  - {style: keyword, query: "포장재 재활용의무 수출 제외", relevant: [DEC-RESOURCE/제18조]}
+  - {style: keyword, query: "합성수지 포장재 쟁반형 용기", relevant: [INTERP-ME-2026-STYROFOAM/회답, DEC-RESOURCE/제18조]}
+  - {style: spoken, query: "사업장에서 나온 쓰레기는 다 사업장폐기물이에요?", relevant: [ACT-WASTE/제2조제3호, DEC-WASTE/제2조]}
+  - {style: spoken, query: "페인트 섞인 폐기물은 어떻게 돼요", relevant: [DEC-WASTE/별표1제5호]}
+  - {style: spoken, query: "캔은 어떤 분류번호예요", relevant: [RULE-WASTE/별표4/51-29-03, RULE-WASTE/별표4의3/51-29-03]}
+  - {style: spoken, query: "순환자원으로 인정받으려면 뭐가 필요해요", relevant: [ACT-CIRCULAR/제21조, DEC-CIRCULAR/제11조, NOTICE-CIRCULAR-CRITERIA/제2조]}
+  - {style: spoken, query: "이물질이 섞이면 순환자원이 안 되나요", relevant: [NOTICE-CIRCULAR-CRITERIA/제2조, "NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항"]}
+  - {style: negative, query: "폐기물 처리 비용 단가", relevant: []}
+  - {style: negative, query: "수은 용출 기준", relevant: []}
+  - {style: negative, query: "산업안전보건법 보호구", relevant: []}
+  - {style: negative, query: "택배 박스 버리는 날", relevant: []}
+queries:
+  # --- keyword: 정의·범위
+  - {style: keyword, query: "폐기물 정의", relevant: [ACT-WASTE/제2조제1호]}
+  - {style: keyword, query: "생활폐기물 정의", relevant: [ACT-WASTE/제2조제2호]}
+  - {style: keyword, query: "사업장폐기물 정의", relevant: [ACT-WASTE/제2조제3호]}
+  - {style: keyword, query: "지정폐기물 정의", relevant: [ACT-WASTE/제2조제4호, DEC-WASTE/제3조]}
+  - {style: keyword, query: "지정폐기물 종류", relevant: [DEC-WASTE/제3조, ACT-WASTE/제2조제4호]}
+  - {style: keyword, query: "폐기물관리법 적용 범위", relevant: [ACT-WASTE/제3조]}
+  - {style: keyword, query: "폐기물관리법 적용 제외 물질", relevant: [ACT-WASTE/제3조]}
+  - {style: keyword, query: "대통령령으로 정하는 사업장 범위", relevant: [DEC-WASTE/제2조]}
+  - {style: keyword, query: "폐기물관리법 제2조", relevant: [ACT-WASTE/제2조제1호, ACT-WASTE/제2조제2호, ACT-WASTE/제2조제3호, ACT-WASTE/제2조제4호]}
+  # --- keyword: 지정폐기물 별표 1
+  - {style: keyword, query: "폐유 기름성분 5퍼센트", relevant: [DEC-WASTE/별표1제6호]}
+  - {style: keyword, query: "부식성 폐기물 폐산 폐알칼리", relevant: [DEC-WASTE/별표1제2호]}
+  - {style: keyword, query: "폐유기용제", relevant: [DEC-WASTE/별표1제4호]}
+  - {style: keyword, query: "폐페인트 폐래커", relevant: [DEC-WASTE/별표1제5호]}
+  - {style: keyword, query: "폐유독물질", relevant: [DEC-WASTE/별표1제9호]}
+  - {style: keyword, query: "액체상태 폐합성수지 지정폐기물", relevant: [DEC-WASTE/별표1제1호가목1)]}
+  - {style: keyword, query: "사업장폐기물배출자 확인 유해물질", relevant: [RULE-WASTE/제17조의2]}
+  # --- keyword: 분류번호·재활용 유형
+  - {style: keyword, query: "폐합성수지류 분류번호", relevant: [RULE-WASTE/별표4/51-03-01]}
+  - {style: keyword, query: "플라스틱폐포장재", relevant: [RULE-WASTE/별표4/51-03-07, RULE-WASTE/별표4의3/51-03-07]}
+  - {style: keyword, query: "폐금속캔류", relevant: [RULE-WASTE/별표4/51-29-03, RULE-WASTE/별표4의3/51-29-03, "NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류"]}
+  - {style: keyword, query: "폐발포합성수지 스티로폼", relevant: [RULE-WASTE/별표4/51-03-06, INTERP-ME-2026-STYROFOAM/질의요지, INTERP-ME-2026-STYROFOAM/회답]}
+  - {style: keyword, query: "고철 분류번호", relevant: [RULE-WASTE/별표4/51-29-01, RULE-WASTE/별표4/91-05-00]}
+  - {style: keyword, query: "폐기물 종류별 세부분류", relevant: [RULE-WASTE/제4조의2]}
+  - {style: keyword, query: "R-3-3 재활용 기준", relevant: ["RULE-WASTE/별표5의3/R-3-3 재활용 기준 (1) 폐지·고철·폐포장재"]}
+  - {style: keyword, query: "폐합성수지류 재활용 가능 유형", relevant: [RULE-WASTE/별표4의3/51-03-01]}
+  - {style: keyword, query: "폐지 고철 폐기물처리 신고", relevant: [RULE-WASTE/제66조제3항]}
+  # --- keyword: 순환자원·재활용 의무
+  - {style: keyword, query: "순환자원 인정 기준", relevant: [ACT-CIRCULAR/제21조, DEC-CIRCULAR/제11조]}
+  - {style: keyword, query: "순환자원 지정 고시", relevant: [ACT-CIRCULAR/제23조, NOTICE-CIRCULAR-DESIGNATION/제2조]}
+  - {style: keyword, query: "순환자원 이물질 기준", relevant: [NOTICE-CIRCULAR-CRITERIA/제2조]}
+  - {style: keyword, query: "순환자원 지정대상 품목", relevant: [NOTICE-CIRCULAR-DESIGNATION/별표1]}
+  - {style: keyword, query: "재활용의무 대상 포장재", relevant: [DEC-RESOURCE/제18조]}
+  - {style: keyword, query: "원재료 포장재 최종단계 제품 소비자", relevant: [INTERP-MOLEG-2018-PACKAGING/질의요지, INTERP-MOLEG-2018-PACKAGING/회답, INTERP-MOLEG-2018-PACKAGING/이유]}
+  # --- keyword: 화학물질관리법
+  - {style: keyword, query: "인체급성유해성물질", relevant: [ACT-CHEMICAL/제2조제2호]}
+  - {style: keyword, query: "사고대비물질", relevant: [ACT-CHEMICAL/제2조제6호]}
+
+  # --- spoken: 사용자 말투
+  - {style: spoken, query: "폐기물이 뭐예요?", relevant: [ACT-WASTE/제2조제1호]}
+  - {style: spoken, query: "왜 사업장폐기물이에요?", relevant: [ACT-WASTE/제2조제3호, DEC-WASTE/제2조]}
+  - {style: spoken, query: "생활폐기물이랑 사업장폐기물 차이가 뭐예요", relevant: [ACT-WASTE/제2조제2호, ACT-WASTE/제2조제3호]}
+  - {style: spoken, query: "지정폐기물이면 뭐가 달라요", relevant: [ACT-WASTE/제2조제4호, DEC-WASTE/제3조]}
+  - {style: spoken, query: "기름 묻은 것도 지정폐기물인가요", relevant: [DEC-WASTE/별표1제6호]}
+  - {style: spoken, query: "스티로폼 포장재는 어떻게 분류돼요", relevant: [RULE-WASTE/별표4/51-03-06, INTERP-ME-2026-STYROFOAM/질의요지, INTERP-ME-2026-STYROFOAM/회답]}
+  - {style: spoken, query: "알루미늄 캔도 순환자원이 될 수 있나요", relevant: [NOTICE-CIRCULAR-DESIGNATION/별표1, "NOTICE-CIRCULAR-DESIGNATION/별표2/품목별 준수사항 다목 폐금속캔류", ACT-CIRCULAR/제23조]}
+  - {style: spoken, query: "성적서는 왜 내야 해요", relevant: [RULE-WASTE/제17조의2]}
+  - {style: spoken, query: "분류번호는 어디에 나와 있어요", relevant: [RULE-WASTE/제4조의2]}
+
+  # --- negative: 적재한 조문에 답이 없음 → 0건
+  - {style: negative, query: "용출 기준", relevant: []}
+  - {style: negative, query: "납 기준값 mg/L", relevant: []}
+  - {style: negative, query: "카드뮴 함량", relevant: []}
+  - {style: negative, query: "근로기준법 연차휴가", relevant: []}
+  - {style: negative, query: "부가가치세 신고 기한", relevant: []}
