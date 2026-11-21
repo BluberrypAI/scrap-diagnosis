@@ -436,6 +436,8 @@ class CaseService(DocumentMixin, UnderstandMixin):
         else:
             ask = [f for f in question_facts(q) if f not in states]
         case.questions_asked += 1
+        # 묶음 확인(말로 한 '없음')은 이 묶음 답으로 끝난다
+        case.pending = [p for p in case.pending if p.get("group") != q["id"]]
         if kind == "none_all":
             for f, v in pr.group_none_values(self.kb, q, ask).items():
                 self.record(case, f, v, "SCREENING", turn_id)
@@ -508,10 +510,10 @@ class CaseService(DocumentMixin, UnderstandMixin):
 
     def answer_confirm(self, case: Case, fact: str, qr: dict, turn_id: str) -> str:
         """확인 카드: 예(그 값으로 기록) / 아니요(원래 질문으로) / 모름."""
-        item = next((p for p in case.pending if p["fact"] == fact), None)
+        item = next((p for p in case.pending if p.get("fact") == fact), None)
         if item is None:
             raise ApiError(422, "VALIDATION_ERROR", "확인할 답이 없습니다")
-        case.pending = [p for p in case.pending if p["fact"] != fact]
+        case.pending = [p for p in case.pending if p.get("fact") != fact]
         kind = qr.get("kind", "value")
         case.questions_asked += 1
         if kind == "expand":

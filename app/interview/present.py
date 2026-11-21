@@ -78,7 +78,7 @@ def compute(
         return Step(branch, nxt, facts)
     # 말로 한 답 중 확인이 필요한 것(추측·지정 가능성을 지우는 답)을 계획된 질문보다 먼저 확인한다
     for p in pending or []:
-        if lookup(facts, p["fact"]) == UNASKED:
+        if "fact" in p and lookup(facts, p["fact"]) == UNASKED:
             card = confirm_card(kb, p)
             return Step("ASK_FACT", nxt, facts, card, None, [p["fact"]], sub_branch="CONFIRM_GUESS")
     q = nxt.question
@@ -95,6 +95,13 @@ def compute(
         )
     question = render_question(kb, q, nxt.facts, states, facts, expanded)
     asked = question["facts"]
+    said = next((p for p in pending or [] if p.get("group") == q["id"]), None)
+    if said is not None and question["unit"] == "group":
+        # 말로 한 '없음'은 항목마다 따로 묻지 않고, 남은 항목 전체를 한 번에 확인한다
+        question["text"] = (
+            f"'{said['quote']}'라고 하셨어요. 그럼 아래 항목이 모두 해당 없는 게 맞나요?"
+        )
+        return Step("ASK_FACT", nxt, facts, question, q, asked, sub_branch="CONFIRM_GROUP")
     return Step("ASK_FACT", nxt, facts, question, q, asked)
 
 

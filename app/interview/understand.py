@@ -3,8 +3,9 @@
 한 턴의 흐름(workflow)
 1. 식별 정보를 가린다(redact). 가리기에 실패하면 AI로 보내지 않는다(fail-closed)
 2. 추출 AI가 의도와 사실 후보를 낸다. DB 트랜잭션을 닫고 부른다(연결을 붙잡지 않게)
-3. 검사기가 카탈로그·근거 문구로 거른다. 단정한 답은 바로 기록하고, 추측한 답과 말로 한
-   '지정폐기물 가능성을 지우는 답'은 확인 버튼(CONFIRM_GUESS)으로 미룬다
+3. 검사기가 카탈로그·근거 문구로 거른다. 단정한 답은 바로 기록하고, 추측한 답은 확인
+   버튼(CONFIRM_GUESS)으로, 말로 한 '지정폐기물 가능성을 지우는 답'은 그 묶음 차례에
+   한 번에 묻는 묶음 확인(CONFIRM_GROUP)으로 미룬다
 4. 문진에 관한 질문은 질의응답 agent(app/llm/assist.py)가 자료를 찾아 답한다. 판정은 바꾸지 않는다
 무엇을 물을지와 판정은 이 모듈이 정하지 않는다(다음 질문 계산기·규칙 엔진).
 """
@@ -35,7 +36,6 @@ OFF_TOPIC = (
     "저는 폐기물 분류 문진만 도와드려요. 업체 추천은 문진을 확정한 뒤 경로 화면에서 볼 수 있어요."
 )
 CONTINUE = "이어서 볼게요."
-GROUP_BUTTON = "오염 여부는 판정에 중요해서 버튼으로 한 번 더 확인할게요."
 REFUSALS = {
     "서류가 없어요",
     "서류 없어요",
@@ -49,6 +49,26 @@ REFUSALS = {
 def is_refusal(text: str) -> bool:
     """서류 카드의 '서류가 없어요' 버튼(웹은 이 문장을 text로 보낸다). AI 없이 바로 처리한다."""
     return text.strip().rstrip(".!") in REFUSALS
+
+
+# 확인 카드("…맞나요?")에 대한 짧은 말 답. AI 없이 바로 처리한다(공백·문장부호 무시)
+YES = {"응", "어", "네", "예", "ㅇㅇ", "ㅇ", "넵", "네네", "맞아", "맞아요", "맞습니다",
+       "그래", "그래요", "응맞아", "네맞아요", "예맞아요", "맞음", "ok", "yes"}  # fmt: skip
+NO = {"아니", "아니요", "아니오", "아뇨", "아니야", "ㄴㄴ", "아닌데", "아니에요", "no"}
+# 묶음 확인("모두 해당 없는 게 맞나요?")에서만: '없다'는 '맞다', '있다·모른다'는 '아니다'
+GROUP_YES = {"없어", "없어요", "없음", "없습니다", "다없어", "다없어요", "해당없음", "해당없어요",
+             "모두해당없음", "다해당없어요"}  # fmt: skip
+GROUP_NO = {"있어", "있어요", "있음", "있습니다", "몰라", "몰라요", "모르겠어", "모르겠어요"}
+
+
+def short_reply(text: str, group: bool = False) -> str | None:
+    """'yes' | 'no' | None(짧은 예/아니요가 아님)."""
+    s = "".join(ch for ch in text.lower() if ch.isalnum() or "ㄱ" <= ch <= "ㅣ")
+    if s in YES or (group and s in GROUP_YES):
+        return "yes"
+    if s in NO or (group and s in GROUP_NO):
+        return "no"
+    return None
 
 
 class UnderstandMixin:
@@ -73,6 +93,10 @@ class UnderstandMixin:
             for f in step.asked_facts:
                 self.record(case, f, "unknown", "UTTERANCE", turn_id)
             return None, "ANSWER", {"text": text, "refused": True}, None
+        group = step.sub_branch == "CONFIRM_GROUP"
+        reply = short_reply(text, group) if step.sub_branch else None
+        if reply is not None:
+            return self.answer_confirm_text(case, step, reply, text, turn_id)
         if self.llm is None:
             return NO_LLM, "TEXT", {"text": text}, None
         try:
@@ -93,12 +117,18 @@ class UnderstandMixin:
         if proposal is None:
             return FAILED, "TEXT", {"error": call.error}, None
         res = guard.check(self.kb, proposal, masked, step.question, step.plan_question)
+        confirmed_group = None
+        if step.sub_branch == "CONFIRM_GROUP" and proposal.group_none_all:
+            # 묶음 확인 카드("모두 해당 없는 게 맞나요?")를 본 뒤 말로 '맞다'고 한 답이 곧 확인이다
+            confirmed_group = step.plan_question["id"]
+            res.group_confirm.pop(confirmed_group, None)
         notes: list[str] = []
         recorded = self.apply_proposal(case, step, res, turn_id)
+        if confirmed_group:
+            self.answer(case, {"key": confirmed_group, "kind": "none_all"}, turn_id)
+            recorded.append(f"'{step.plan_question.get('text', '')}' → 모두 해당 없음")
         if recorded:
             notes.append("알겠어요. " + ", ".join(recorded) + "(으)로 적었어요.")
-        if res.group_needs_button:
-            notes.append(GROUP_BUTTON)
         if proposal.intent == "refuse_document" and step.branch == "REQUEST_EVIDENCE":
             for f in step.asked_facts:
                 self.record(case, f, "unknown", "UTTERANCE", turn_id)
@@ -108,7 +138,7 @@ class UnderstandMixin:
             if assist is None:
                 notes.append("질문에 답할 자료를 찾지 못했어요.")
         elif proposal.intent in ("off_topic", "unclear") and not (
-            recorded or res.confirm or res.group_none_all
+            recorded or res.confirm or res.group_none_all or res.group_confirm
         ):
             # 가드레일: 무관·불분명한 말은 사실로 기록하지 않고, agent가 짧게 받아 문진으로 돌린다
             assist = self.answer_question(case, masked, turn_id, mode="guard")
@@ -116,17 +146,39 @@ class UnderstandMixin:
                 notes.append(OFF_TOPIC if proposal.intent == "off_topic" else UNCLEAR)
             else:
                 notes.append(CONTINUE)
-        if recorded or res.confirm or res.group_none_all:
-            case.questions_asked += 1
+        if not confirmed_group and (
+            recorded or res.confirm or res.group_none_all or res.group_confirm
+        ):
+            case.questions_asked += 1  # 묶음 확인을 마친 답은 answer()가 이미 셌다
+        deferred = {f: v for g in res.group_confirm.values() for f, v in g["facts"].items()}
         payload = {
             "intent": proposal.intent,
             "accepted": [c.key for c in res.accepted],
-            "confirm": [c.key for c in res.confirm],
-            "confirm_values": {c.key: c.value for c in res.confirm},
+            "confirm": [c.key for c in res.confirm] + list(deferred),
+            "confirm_values": {c.key: c.value for c in res.confirm} | deferred,
             "rejected": res.rejected,
             "group_none_all": res.group_none_all,
+            "group_confirm": sorted(res.group_confirm),
         }
         return (" ".join(notes) or None), "UNDERSTAND", payload, assist
+
+    def answer_confirm_text(
+        self, case: Case, step, reply: str, text: str, turn_id: str
+    ) -> tuple[str | None, str, dict, Any]:
+        """확인 카드에 말로 '응'·'아니'라고 한 답을 그 카드의 버튼 답으로 바꾼다."""
+        q = step.question
+        if step.sub_branch == "CONFIRM_GROUP":
+            qr = {"key": q["key"], "kind": "none_all" if reply == "yes" else "expand"}
+        else:  # CONFIRM_GUESS: [예, 값] / [아니요]
+            yes = next(o for o in q["options"] if o["kind"] == "value")
+            qr = (
+                {"key": q["key"], "kind": "value", "value": yes["value"]}
+                if reply == "yes"
+                else {"key": q["key"], "kind": "expand"}
+            )
+        label = self.answer(case, qr, turn_id)
+        prefix = f"알겠어요. {label}(으)로 적었어요." if reply == "yes" else None
+        return prefix, "ANSWER", {"text": text, "confirm_reply": reply, "quick_reply": qr}, None
 
     def apply_proposal(self, case: Case, step, res: guard.GuardResult, turn_id: str) -> list[str]:
         """검사를 통과한 값을 기록하고, 확인이 필요한 값은 확인 목록에 둔다. 기록한 값의 라벨."""
@@ -140,13 +192,20 @@ class UnderstandMixin:
             for f, v in pr.group_none_values(self.kb, q, ask).items():
                 self.record(case, f, v, "SCREENING", turn_id)
             labels.append(f"'{q.get('text', '')}' → 모두 해당 없음")
-        if res.confirm:
-            pending = [p for p in case.pending if p["fact"] not in {c.key for c in res.confirm}]
+        if res.confirm or res.group_confirm:
+            keys = {c.key for c in res.confirm}
+            pending = [
+                p
+                for p in case.pending
+                if p.get("fact") not in keys and p.get("group") not in res.group_confirm
+            ]
             for c in res.confirm:
-                reason = "guess" if c.certainty == "guess" else "risky"
                 pending.append(
-                    {"fact": c.key, "value": c.value, "quote": c.quote, "reason": reason}
+                    {"fact": c.key, "value": c.value, "quote": c.quote, "reason": "guess"}
                 )
+            for gid, g in res.group_confirm.items():
+                # 묶음 확인: 그 묶음 차례에 '모두 해당 없는 게 맞나요?' 한 번으로 묻는다
+                pending.append({"group": gid, "facts": g["facts"], "quote": g["quote"]})
             case.pending = pending
         return labels
 
