@@ -4,7 +4,7 @@
 
 원칙: **판정은 규칙 엔진만 한다.** 규칙은 조문 단위 근거와 함께 YAML로 두고, 정답 사례(골든셋)로 검증한다. LLM은 사용자 말에서 사실 후보를 제안하고(코드가 검사), 문진에 관한 질문에 자료를 찾아 답하고(읽기 전용 도구를 쓰는 agent), 질문 문장을 다듬기만 한다. 무엇을 물을지와 판정은 코드가 정한다.
 
-- 범위: PP·PE·PET(51-03-01, 51-03-07), 알루미늄 캔(51-29-03). 지정폐기물은 "가능성"까지만 판단한다
+- 범위: PP·PE·PET(51-03-01, 51-03-07), 금속캔(51-29-03), 알루미늄·철 스크랩(51-29-02, 51-29-01, 2026-11-21 D18). 지정폐기물은 "가능성"까지만 판단한다
 - 범위 밖은 "범위 밖 · 지원 예정"으로만 안내한다(후보 코드는 trace에만 남긴다)
 
 ## 구조
@@ -12,7 +12,7 @@
 | 경로 | 내용 |
 | --- | --- |
 | `knowledge/law/` | 법령 원문(조문 단위 JSON)과 수집 목록. `targets.yaml`(사람이 정함) → `tools/collect_law.py` → `articles/`, `manifest.yaml` |
-| `knowledge/cases/` | 골든셋(정답 사례 98건, 동결 해시 `golden.lock`)과 주석·평가 기록 |
+| `knowledge/cases/` | 골든셋(정답 사례 100건, 동결 해시 `golden.lock`)과 주석·평가 기록 |
 | `knowledge/flow/` | 판정 규칙(`10_is_waste`~`70_code`), 사실 카탈로그(`facts.yaml`), 문진 계획(`plan.yaml`), 결과 안내(`outcomes.yaml`), 결정 기록(`decisions.md`), 규칙 형식(`SCHEMA.md`) |
 | `app/engine/` | 규칙 실행기(`flow.py`, 3값 논리), 다음 질문 계산기(`planner.py`), 지식 로더(`kb.py`) |
 | `app/interview/` | 문진 서비스: 답 검증, 질문 카드·판정 보드·결과 카드·인계 객체 만들기, 회사 정보 기억, 서류(업로드·검수·적용·해제) |
@@ -41,7 +41,7 @@ uv run uvicorn app.main:app --port 8030      # API 문서 http://localhost:8030/
 ## 검증
 
 ```bash
-uv run python -m pytest -q                          # 단위·API 테스트(골든셋 98건을 API로 끝까지 문진하는 테스트 포함)
+uv run python -m pytest -q                          # 단위·API 테스트(골든셋 100건을 API로 끝까지 문진하는 테스트 포함)
 uv run ruff check . && uv run ruff format --check .
 uv run python tools/check_cases.py                  # 골든셋 근거·값 검사
 uv run python tools/build_decision_table.py --check # 결정표 생성물이 최신인지

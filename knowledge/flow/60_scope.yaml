@@ -1,5 +1,5 @@
 stage: 60_scope
-title: "다루는 범위인가 (D1: PP·PE·PET 51-03-01·51-03-07, 금속캔 51-29-03)"
+title: "다루는 범위인가 (D1: PP·PE·PET 51-03-01·51-03-07, 금속캔 51-29-03, D18: 금속 스크랩 51-29-01·51-29-02)"
 order: 60
 on_no_match: continue
 # 순서 근거
@@ -42,28 +42,30 @@ rules:
     grade: C
     note: 합성수지·고무·금속이 아닌 물질은 적재한 별표 4 범위로 후보 코드를 정할 수 없어 code를 비운다.
 
-  - id: SCO-STEEL-SCRAP
+  # 금속 스크랩은 범위 안(D18)이라 70_code에서 코드를 낸다. 캔도 스크랩도 아닌 금속(완제품·부품 등)은
+  # 폐금속용기류(51-29-04)일 수도 있어 범위 밖으로 둔다.
+  - id: SCO-STEEL-OTHER
     when:
       all:
         - {fact: material, eq: steel}
-        - {fact: input_form, eq: scrap}
+        - {fact: input_form, eq: other}
     then: {outcome: OUT_OF_SCOPE, code: "51-29-01"}
     basis:
       - unit: RULE-WASTE/별표4/51-29-01
         quote: "51-29-01 고철"
-    decision: D1
+    decision: D18
     grade: C
 
-  - id: SCO-ALUMINIUM-SCRAP
+  - id: SCO-ALUMINIUM-OTHER
     when:
       all:
         - {fact: material, eq: aluminium}
-        - {fact: input_form, eq: scrap}
+        - {fact: input_form, eq: other}
     then: {outcome: OUT_OF_SCOPE, code: "51-29-02"}
     basis:
       - unit: RULE-WASTE/별표4/51-29-02
         quote: "51-29-02 비철금속"
-    decision: D1
+    decision: D18
     grade: C
 
   # 캔이 자원재활용법 시행령 제18조제1호의 금속캔인지. 금속캔은 제1호 가~차목 제품의 포장에 쓰인 것이다

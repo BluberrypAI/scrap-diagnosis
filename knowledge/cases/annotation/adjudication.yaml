@@ -54,3 +54,15 @@ items:
       소용량(TR-097 → OUT_OF_SCOPE 51-29-04)과 모름(TR-098 → INSUFFICIENT_INFO) 케이스를 추가했다
     changed: [knowledge/flow/facts.yaml, tools/cases_spec.py, tools/build_decision_table.py, knowledge/cases/input_model.yaml,
               knowledge/cases/situations.yaml, knowledge/cases/annotation/guideline.md(12)]
+  - id: G-031, G-032, G-099, G-100
+    tr: TR-031, TR-032, TR-099, TR-100
+    date: "2026-11-21"
+    decided_by: 사용자
+    disagreement: 없음(범위 결정 변경). 기존 B 라벨(G-031·G-032 OUT_OF_SCOPE)은 이전 범위 가이드라인 기준이다
+    decision: spec
+    reason: >-
+      범위를 알루미늄·철 스크랩까지 넓혔다(decisions.md D18). 금속 스크랩은 GENERAL 51-29-02·51-29-01과
+      circular_designation_assumed, 스크랩이 아닌 금속 형태는 범위 밖을 유지한다(G-099). 범위 안 스크랩도
+      지정폐기물 가능성을 먼저 본다(G-100). B 블라인드 재라벨은 후속 작업이다.
+    changed: [tools/cases_spec.py, tools/build_decision_table.py, knowledge/cases/input_model.yaml,
+              knowledge/cases/situations.yaml(G-099·G-100 추가), knowledge/cases/annotation/guideline.md(7·14)]

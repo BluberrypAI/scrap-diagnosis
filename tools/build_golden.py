@@ -132,7 +132,7 @@ def build() -> str:
         cases.append(case)
     if len({c["tr"] for c in cases}) != len(trs):
         sys.exit("모든 TR에 상황 서술이 하나씩 있어야 합니다.")
-    doc = {"version": 4, "frozen_on": "2026-11-21", "n": len(cases), "cases": cases}
+    doc = {"version": 5, "frozen_on": "2026-11-21", "n": len(cases), "cases": cases}
     header = (
         "# 골든 데이터셋 (동결본). 자동 생성: tools/build_golden.py — 직접 고치지 않는다.\n"
         "# 판정 규칙 작성자(사람·LLM)에게 보여 주지 않는다. 변경은 CHANGELOG.md에 사유를 남긴다.\n"

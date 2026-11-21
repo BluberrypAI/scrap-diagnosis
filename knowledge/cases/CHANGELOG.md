@@ -25,3 +25,10 @@
 - TR-001·TR-003은 조문 문언(A)으로 정해지는 케이스라 등급은 그대로 두고 판례를 `external`로만 단다
 - 케이스 등급 계산을 C > B > A(가장 약한 근거)로 바꾸고, 골든 케이스에 `external`(support·include로 고른 외부 레이블)을 붙인다. `check_cases.py`가 B등급 파티션의 external과 `screening.for` TR을 검사한다
 - 기대 결과(outcome·code·flags)는 바뀌지 않았다. 98건 그대로
+
+## v5 (2026-11-21) 범위 확대: 알루미늄·철 스크랩 (D18)
+- 범위에 `51-29-02`(알루미늄 스크랩)과 `51-29-01`(철 스크랩)을 넣었다. 서버에 공정·업체 자료가 있는데 문진이 범위 밖으로 끊던 조합이다
+- G-031(알루미늄 스크랩)·G-032(철 스크랩): `OUT_OF_SCOPE` → `GENERAL 51-29-02`·`GENERAL 51-29-01`, `flags: [circular_designation_assumed]`(등급 C)
+- 추가 2건: G-099(스크랩이 아닌 알루미늄 형태 → `OUT_OF_SCOPE 51-29-02`), G-100(절삭유 묻은 철 스크랩 → `DESIGNATED_POSSIBLE`)
+- 명세(`tools/cases_spec.py`)·입력 모델·가이드라인(7·14번)을 고쳤다. Annotator B 블라인드 재라벨(G-031·G-032·G-099·G-100)은 아직 하지 않았다(`annotation/adjudication.yaml`)
+- 결과: 100건
