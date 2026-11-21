@@ -2,8 +2,8 @@
 golden_cases: 98
 coverage:
   partition:
-    covered: 45
-    total: 45
+    covered: 46
+    total: 46
     missing: []
   domain_value:
     covered: 76

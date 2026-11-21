@@ -4,6 +4,7 @@
     uv run python tools/build_golden.py --check   # 동결 해시가 맞는지(변경 감지)
 
 situations.yaml(상황) + decision_table.yaml(기대 결과) + input_model.yaml(근거·등급)을 합친다.
+external/candidates.yaml에서 support·include로 고른 판례·해석은 케이스의 external에 단다.
 동결 뒤 golden.yaml을 바꾸려면 knowledge/cases/CHANGELOG.md에 사유를 적고 다시 생성한다.
 판정 규칙을 작성하는 쪽(사람·LLM)에는 이 파일을 보여 주지 않는다(데이터 누수 방지).
 """
@@ -21,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CASES = ROOT / "knowledge" / "cases"
 GOLDEN = CASES / "golden.yaml"
 LOCK = CASES / "golden.lock"
+EXTERNAL = CASES / "external" / "candidates.yaml"
 
 
 def load(name: str):
@@ -53,12 +55,29 @@ def facts_of(tr: dict, baselines: dict) -> dict:
     return facts
 
 
-def basis_and_grade(tr: dict, facts: dict, model: dict) -> tuple[list[str], str]:
+def external_key(c: dict) -> str:
+    """외부 레이블 참조 키: "target/사건번호"(사건번호가 없으면 일련번호)."""
+    return f"{c['target']}/{c.get('case_no') or c['id']}"
+
+
+def external_by_tr() -> dict[str, list[str]]:
+    """screening에서 support·include로 고른 항목을 TR별로 모은다."""
+    out: dict[str, list[str]] = {}
+    for c in yaml.safe_load(EXTERNAL.read_text(encoding="utf-8"))["candidates"]:
+        s = c.get("screening") or {}
+        if s.get("decision") in ("support", "include"):
+            for tr in s.get("for", []):
+                out.setdefault(tr, []).append(external_key(c))
+    return out
+
+
+def basis_and_grade(tr: dict, facts: dict, model: dict) -> tuple[list[str], str, list[str]]:
     variables = {v["id"]: v for v in model["variables"]}
     outcomes = {o["id"]: o for o in model["outcomes"]}
     groups = model.get("group_rules", {})
     basis: list[str] = list(outcomes[tr["expected"]["outcome"]].get("basis", []))
     grades: list[str] = []
+    external: list[str] = []
     keys = set(tr["changes"])
     if tr["kind"] == "baseline":
         keys |= {"material", "packaging_used", "can_contents", "can_metal"}
@@ -70,6 +89,7 @@ def basis_and_grade(tr: dict, facts: dict, model: dict) -> tuple[list[str], str]
         p = partition_for(var, value) if not isinstance(value, dict) else None
         if p:
             basis += p.get("basis", [])
+            external += p.get("external", [])
             grades.append(p.get("grade", "A"))
         else:
             basis += var.get("basis", [])
@@ -80,35 +100,39 @@ def basis_and_grade(tr: dict, facts: dict, model: dict) -> tuple[list[str], str]
     code = tr["expected"]["code"]
     if code and f"RULE-WASTE/별표4/{code}" not in basis:
         basis.append(f"RULE-WASTE/별표4/{code}")
-    grade = "C" if "C" in grades else "A"
-    return list(dict.fromkeys(basis)), grade
+    # 가장 약한 근거가 케이스 등급이 된다: C(우리 해석) > B(판례·공식 해석) > A(조문 문언)
+    grade = next((g for g in ("C", "B") if g in grades), "A")
+    return list(dict.fromkeys(basis)), grade, external
 
 
 def build() -> str:
     model = load("input_model.yaml")
     table = load("decision_table.yaml")
     trs = {t["id"]: t for t in table["test_requirements"]}
+    support = external_by_tr()
     cases = []
     for s in load("situations.yaml")["cases"]:
         tr = trs[s["tr"]]
         facts = facts_of(tr, table["baselines"])
-        basis, grade = basis_and_grade(tr, facts, model)
-        cases.append(
-            {
-                "id": s["id"],
-                "tr": s["tr"],
-                "kind": tr["kind"],
-                "covers": tr["covers"],
-                "situation": " ".join(s["situation"].split()),
-                "expected": tr["expected"],
-                "basis": basis,
-                "grade": grade,
-                "source": "명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)",
-            }
-        )
+        basis, grade, external = basis_and_grade(tr, facts, model)
+        case = {
+            "id": s["id"],
+            "tr": s["tr"],
+            "kind": tr["kind"],
+            "covers": tr["covers"],
+            "situation": " ".join(s["situation"].split()),
+            "expected": tr["expected"],
+            "basis": basis,
+            "grade": grade,
+            "source": "명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)",
+        }
+        external = list(dict.fromkeys(external + support.get(s["tr"], [])))
+        if external:
+            case["external"] = external
+        cases.append(case)
     if len({c["tr"] for c in cases}) != len(trs):
         sys.exit("모든 TR에 상황 서술이 하나씩 있어야 합니다.")
-    doc = {"version": 3, "frozen_on": "2026-11-20", "n": len(cases), "cases": cases}
+    doc = {"version": 4, "frozen_on": "2026-11-21", "n": len(cases), "cases": cases}
     header = (
         "# 골든 데이터셋 (동결본). 자동 생성: tools/build_golden.py — 직접 고치지 않는다.\n"
         "# 판정 규칙 작성자(사람·LLM)에게 보여 주지 않는다. 변경은 CHANGELOG.md에 사유를 남긴다.\n"

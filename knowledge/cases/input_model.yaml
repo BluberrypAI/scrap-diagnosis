@@ -5,6 +5,7 @@
 # 판정 엔진 설계와 독립적으로, 적재한 조문만 보고 작성했다(기존 엔진 참조 없음).
 #
 # 등급(grade): A 조문 문언만으로 정해짐 / B 공식 해석·판례 / C 우리 해석 결정(2026-11-19)
+#   B는 external(cases/external/candidates.yaml의 support·include 항목, "target/사건번호")을 함께 단다
 # 효과(effect): continue(다음 판단으로) 또는 결과 클래스(outcomes의 id)
 
 version: 1
@@ -61,8 +62,10 @@ variables:
     role: verdict
     partitions:
       - {values: [yes], effect: continue, grade: A, basis: [ACT-WASTE/제2조제1호]}
-      - {values: [no], effect: NOT_WASTE, grade: C, basis: [ACT-WASTE/제2조제1호],
-         note: 같은 공정에 다시 넣는 불량품처럼 내보내지 않으면 문진 대상이 아님(결정 ③)}
+      - {values: [no], effect: NOT_WASTE, grade: B, basis: [ACT-WASTE/제2조제1호],
+         external: [prec/2002도3116],
+         note: 같은 공정에 다시 넣는 불량품처럼 내보내지 않으면 문진 대상이 아님(결정 ③).
+           폐기물 여부를 '사회통념상 사업활동에 필요한가'로 판단한 판례로 B 상향(2026-11-21)}
       - {values: [unknown], effect: INSUFFICIENT_INFO, grade: C}
 
   # 2. 법 적용 제외

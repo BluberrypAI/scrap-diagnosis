@@ -1,7 +1,7 @@
 # 골든 데이터셋 (동결본). 자동 생성: tools/build_golden.py — 직접 고치지 않는다.
 # 판정 규칙 작성자(사람·LLM)에게 보여 주지 않는다. 변경은 CHANGELOG.md에 사유를 남긴다.
-version: 3
-frozen_on: '2026-11-20'
+version: 4
+frozen_on: '2026-11-21'
 n: 98
 cases:
 - id: G-001
@@ -19,6 +19,11 @@ cases:
   - RULE-WASTE/별표4/51-03-01
   grade: A
   source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+  external:
+  - prec/2001도70
+  - prec/2002도6081
+  - prec/2009두6681
+  - prec/2019두43474
 - id: G-002
   tr: TR-002
   kind: baseline
@@ -58,6 +63,11 @@ cases:
   - RULE-WASTE/별표4/51-29-03
   grade: A
   source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+  external:
+  - prec/2001도70
+  - prec/2002도6081
+  - prec/2009두6681
+  - prec/2019두43474
 - id: G-004
   tr: TR-004
   kind: mcdc
@@ -71,8 +81,10 @@ cases:
     flags: []
   basis:
   - ACT-WASTE/제2조제1호
-  grade: C
+  grade: B
   source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+  external:
+  - prec/2002도3116
 - id: G-005
   tr: TR-005
   kind: mcdc
@@ -931,6 +943,8 @@ cases:
   - DEC-WASTE/제2조
   grade: A
   source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+  external:
+  - meCgmExpc/2732325
 - id: G-056
   tr: TR-056
   kind: boundary
@@ -948,6 +962,8 @@ cases:
   - RULE-WASTE/별표4/51-03-01
   grade: A
   source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+  external:
+  - meCgmExpc/2732325
 - id: G-057
   tr: TR-057
   kind: boundary
@@ -1000,6 +1016,8 @@ cases:
   - RULE-WASTE/제17조의2
   grade: C
   source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+  external:
+  - prec/2002도3116
 - id: G-060
   tr: TR-060
   kind: masking
