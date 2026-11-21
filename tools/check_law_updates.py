@@ -1,13 +1,12 @@
 """추적 중인 법령·행정규칙의 변경을 감지하고 선택적으로 Discord에 알린다.
 
 법령 스냅샷이나 판정 규칙은 수정하지 않는다. 현재 ``manifest.yaml``과 공식
-국가법령정보 OPEN API 응답을 비교해 변경 사실만 보고한다.
+국가법령정보센터의 공개 최신본 페이지를 비교해 변경 사실만 보고한다.
 
     uv run python tools/check_law_updates.py
     uv run python tools/check_law_updates.py --notify-discord --report report.json
 
 필요한 환경변수:
-- LAW_API_OC: 국가법령정보 OPEN API 인증값
 - DISCORD_WEBHOOK_URL: ``--notify-discord`` 사용 시 Discord 웹훅
 """
 
@@ -15,8 +14,10 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import html
 import json
 import os
+import re
 import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -26,14 +27,10 @@ import httpx
 import yaml
 from dotenv import load_dotenv
 
-try:  # 직접 실행과 pytest import를 모두 지원한다.
-    from collect_law import Api, collect_admin_rule, collect_law
-except ModuleNotFoundError:  # pragma: no cover - 실행 위치에 따른 import 차이
-    from tools.collect_law import Api, collect_admin_rule, collect_law
-
 ROOT = Path(__file__).resolve().parents[1]
 LAW_DIR = ROOT / "knowledge" / "law"
 DISCORD_LIMIT = 2000
+PUBLIC_BASE = "https://www.law.go.kr"
 
 
 @dataclass(frozen=True)
@@ -48,6 +45,58 @@ class LawChange:
     version_changed: bool
     source_changed: bool
     tracked_units_changed: bool
+
+
+class PublicLawClient:
+    """인증 없이 공개되는 국가법령정보센터 최신본 페이지를 조회한다."""
+
+    def __init__(self) -> None:
+        self.client = httpx.Client(
+            timeout=30,
+            follow_redirects=True,
+            headers={"User-Agent": "BlueberrypAI-law-change-alert/1.0"},
+        )
+
+    def current_metadata(self, baseline: dict) -> dict:
+        category = "법령" if baseline["kind"] == "law" else "행정규칙"
+        response = self.client.get(f"{PUBLIC_BASE}/{category}/{baseline['name']}")
+        response.raise_for_status()
+        return parse_current_metadata(response.text, baseline)
+
+
+def _hidden_value(page: str, element_id: str) -> str:
+    pattern = (
+        rf'<input\b(?=[^>]*\bid=["\']{re.escape(element_id)}["\'])'
+        r'(?=[^>]*\bvalue=["\']([^"\']*)["\'])[^>]*>'
+    )
+    match = re.search(pattern, page, flags=re.IGNORECASE)
+    return html.unescape(match.group(1)).strip() if match else ""
+
+
+def _compact_date(value: str) -> str:
+    return "".join(part.zfill(2) for part in value.split("."))
+
+
+def parse_current_metadata(page: str, baseline: dict) -> dict:
+    """공개 최신본 페이지에서 비교에 필요한 식별자와 시행일만 읽는다."""
+    is_law = baseline["kind"] == "law"
+    version_field = "mst" if is_law else "rule_serial"
+    version = _hidden_value(page, "lsiSeq" if is_law else "admRulSeq")
+    actual_name = _hidden_value(page, "lsNm" if is_law else "admNm")
+    if not version or actual_name != baseline["name"]:
+        raise RuntimeError(f"최신본 페이지 확인 실패: {baseline['name']}")
+
+    effective_match = re.search(r"\[시행\s+(\d{4}\.\s*\d{1,2}\.\s*\d{1,2})\.\]", page)
+    effective_date = (
+        _compact_date(re.sub(r"\s+", "", effective_match.group(1))) if effective_match else ""
+    )
+    return {
+        "key": baseline["key"],
+        "kind": baseline["kind"],
+        "name": actual_name,
+        version_field: version,
+        "effective_date": effective_date,
+    }
 
 
 def _fingerprint(value: Any) -> str:
@@ -87,29 +136,36 @@ def compare_document(
     )
 
 
-def detect_changes(api: Api, law_dir: Path = LAW_DIR) -> list[LawChange]:
-    """targets의 법령·행정규칙을 재조회하되 저장된 파일은 변경하지 않는다."""
-    targets = yaml.safe_load((law_dir / "targets.yaml").read_text(encoding="utf-8"))
+def detect_changes(client: PublicLawClient, law_dir: Path = LAW_DIR) -> list[LawChange]:
+    """추적 중인 법령·행정규칙의 공개 최신본 버전을 저장된 기준값과 비교한다."""
     manifest = yaml.safe_load((law_dir / "manifest.yaml").read_text(encoding="utf-8"))
-    baseline = {item["key"]: item for item in manifest["documents"]}
     changes: list[LawChange] = []
-    jobs = [(collect_law, item) for item in targets.get("laws", [])] + [
-        (collect_admin_rule, item) for item in targets.get("admin_rules", [])
-    ]
-    for fetch, target in jobs:
-        saved = baseline[target["key"]]
-        article = json.loads((law_dir / saved["file"]).read_text(encoding="utf-8"))
-        current_meta, current_body = fetch(api, target)
-        change = compare_document(saved, article["units"], current_meta, current_body)
-        if change:
-            changes.append(change)
+    tracked = [item for item in manifest["documents"] if item["kind"] in {"law", "admin_rule"}]
+    for saved in tracked:
+        current = client.current_metadata(saved)
+        if _version(saved) == _version(current):
+            continue
+        changes.append(
+            LawChange(
+                key=saved["key"],
+                name=saved["name"],
+                kind=saved["kind"],
+                previous_version=_version(saved),
+                current_version=_version(current),
+                previous_effective_date=str(saved.get("effective_date") or ""),
+                current_effective_date=str(current.get("effective_date") or ""),
+                version_changed=True,
+                source_changed=False,
+                tracked_units_changed=False,
+            )
+        )
     return changes
 
 
 def discord_message(changes: list[LawChange], run_url: str | None = None) -> str:
     lines = [f"⚖️ 추적 법령 변경 감지: {len(changes)}건"]
     for change in changes:
-        impact = "사용 조문 변경" if change.tracked_units_changed else "법령 버전/원문 변경"
+        impact = "사용 조문 변경" if change.tracked_units_changed else "법령 버전 변경"
         effective = change.current_effective_date or "미확인"
         lines.extend(
             [
@@ -153,11 +209,7 @@ def main() -> None:
     args = parser.parse_args()
 
     load_dotenv(ROOT / ".env")
-    oc = os.getenv("LAW_API_OC", "").strip()
-    if not oc:
-        sys.exit("LAW_API_OC가 없습니다")
-
-    changes = detect_changes(Api(oc))
+    changes = detect_changes(PublicLawClient())
     payload = report_payload(changes)
     if args.report:
         args.report.write_text(
