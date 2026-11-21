@@ -31,7 +31,7 @@ jobs:
       - name: Check tracked laws and notify Discord on changes
         env:
           LAW_API_OC: ${{ secrets.LAW_API_OC }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.LAW_DISCORD_WEBHOOK_URL }}
           GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: uv run python tools/check_law_updates.py --notify-discord --report law-change-report.json
 
