@@ -14,6 +14,8 @@ version: 1
 codes:
   "51-03-01": 폐합성수지류(폐염화비닐수지류는 제외한다)
   "51-03-07": 플라스틱폐포장재
+  "51-29-01": 고철
+  "51-29-02": 비철금속
   "51-29-03": 폐금속캔류
 
 outcomes:
@@ -67,7 +69,7 @@ outcomes:
     category: OUT_OF_SCOPE
     action: MANUAL_CLASSIFICATION
     conclusion: 아직 지원하지 않는 폐기물이에요(범위 밖 · 지원 예정).
-    reason: 지금은 PP·PE·PET와 알루미늄 캔만 판정해요.
+    reason: 지금은 PP·PE·PET, 금속캔, 알루미늄·철 스크랩만 판정해요.
     summary: 범위 밖 · 지원 예정. 분류번호는 담당자나 관할 기관에 확인해 주세요.
     next_step: 확정하면 담당자 확인 안내로 이어져요.
 
@@ -89,6 +91,7 @@ rule_reasons:
 flags:
   interpretation: 플라스틱폐포장재(51-03-07)는 별표 4에 정의가 없어, 시행규칙에 쓰인 뜻(자원재활용법 시행령 제18조의 합성수지 포장재)으로 해석했어요.
   route_unsupported: 철 캔은 아직 업체 추천을 지원하지 않아요.
+  circular_designation_assumed: 고철·알루미늄 스크랩은 지정 순환자원 준수사항을 마치고 순환자원정보센터에 등록하면 폐기물로 보지 않아요. 등록하지 않은 것으로 보고 폐기물로 판정했어요.
 
 # 판정을 끝내지 못했을 때(모른다고 답한 항목 때문에 막힘)
 unsupported:

@@ -11,7 +11,7 @@ documents:
   promulgation_no: '21129'
   promulgation_date: '20251111'
   effective_date: '20261112'
-  fetched_at: '2026-11-20T10:24:21+09:00'
+  fetched_at: '2026-11-21T22:53:47+09:00'
   raw_sha256: ebf9f868f0808a1a4868f2adebd54859dca761130f57a53dc092bffe041d3014
   refetch:
     target: law
@@ -32,7 +32,7 @@ documents:
   promulgation_no: '36811'
   promulgation_date: '20261110'
   effective_date: '20261112'
-  fetched_at: '2026-11-20T10:24:21+09:00'
+  fetched_at: '2026-11-21T22:53:47+09:00'
   raw_sha256: 1b9dafd8ced2f35d334f96c59a81d15b4c24b44ae0af0ad95b74fc967c2e792d
   refetch:
     target: law
@@ -56,7 +56,7 @@ documents:
   promulgation_no: '00070'
   promulgation_date: '20261112'
   effective_date: '20261112'
-  fetched_at: '2026-11-20T10:24:21+09:00'
+  fetched_at: '2026-11-21T22:53:47+09:00'
   raw_sha256: a416aff997d3d15831a4e010b1f9fd9be0f0e06c6bdd2e5cbfa4256006155327
   refetch:
     target: law
@@ -85,6 +85,8 @@ documents:
   - 별표4/91-05-00
   - 별표4의3/51-03-01
   - 별표4의3/51-03-07
+  - 별표4의3/51-29-01
+  - 별표4의3/51-29-02
   - 별표4의3/51-29-03
   - 별표4의3/비고
   - 별표5의3/R-3-3 재활용 기준 (1) 폐지·고철·폐포장재
@@ -98,7 +100,7 @@ documents:
   promulgation_no: '21381'
   promulgation_date: '20260219'
   effective_date: '20260219'
-  fetched_at: '2026-11-20T10:24:21+09:00'
+  fetched_at: '2026-11-21T22:53:47+09:00'
   raw_sha256: e5f394f09b2afa06db6cd34e838dcd7a45a086992d1c384d59e5bec41b64af7f
   refetch:
     target: law
@@ -116,7 +118,7 @@ documents:
   promulgation_no: '36161'
   promulgation_date: '20260303'
   effective_date: '20260303'
-  fetched_at: '2026-11-20T10:24:21+09:00'
+  fetched_at: '2026-11-21T22:53:47+09:00'
   raw_sha256: 41fad57ff29d425b240f096a1a38c183a74e4c46971c6560241a78c7fb903a70
   refetch:
     target: law
@@ -133,7 +135,7 @@ documents:
   promulgation_no: '36269'
   promulgation_date: '20260421'
   effective_date: '20260421'
-  fetched_at: '2026-11-20T10:24:21+09:00'
+  fetched_at: '2026-11-21T22:53:47+09:00'
   raw_sha256: df031e5e00abd8cfb84528f2537fd81462b41eee6a007c15db3bc308d691fdbf
   refetch:
     target: law
@@ -150,7 +152,7 @@ documents:
   promulgation_no: '21531'
   promulgation_date: '20260407'
   effective_date: '20261008'
-  fetched_at: '2026-11-20T10:24:21+09:00'
+  fetched_at: '2026-11-21T22:53:47+09:00'
   raw_sha256: f0e515299bfc547fb4008d1e4126cb8379f4316ad7d5f70077751bfa5ed3fc6b
   refetch:
     target: law
@@ -173,7 +175,7 @@ documents:
   issued_date: '20260514'
   effective_date: '20260514'
   ministry: 기후에너지환경부
-  fetched_at: '2026-11-20T10:24:21+09:00'
+  fetched_at: '2026-11-21T22:53:47+09:00'
   raw_sha256: 002e1212f437276dbd676e7dd488945327449895ec80ea7e34e5025ce5937821
   refetch:
     target: admrul
@@ -194,7 +196,7 @@ documents:
   issued_date: '20240228'
   effective_date: '20240228'
   ministry: 기후에너지환경부
-  fetched_at: '2026-11-20T10:24:21+09:00'
+  fetched_at: '2026-11-21T22:53:47+09:00'
   raw_sha256: c991bf443eb8ae0147dee47409983bf6ae62fb48edad0b7a21ade535cf970316
   refetch:
     target: admrul
@@ -211,7 +213,7 @@ documents:
   case_no: 18-0340
   interpreted_on: '20180814'
   authority: 법제처
-  fetched_at: '2026-11-20T10:24:21+09:00'
+  fetched_at: '2026-11-21T22:53:47+09:00'
   raw_sha256: 33cfb84bf509033cbce49f21864786d2572792db846dee6a0b9387da169aacfe
   refetch:
     target: expc
@@ -229,7 +231,7 @@ documents:
   case_no: null
   interpreted_on: '20260721'
   authority: 기후에너지환경부
-  fetched_at: '2026-11-20T10:24:21+09:00'
+  fetched_at: '2026-11-21T22:53:47+09:00'
   raw_sha256: 45d68fd2812e040ff23cfdee7c9d54e6ead8f3d945094e82373147faebc7dc31
   refetch:
     target: meCgmExpc

@@ -9,8 +9,9 @@ procedure:
 - 'G4 law_exclusion: 해당→EXCLUDED, unknown→INSUFFICIENT_INFO'
 - 'G5 business_site: 하나라도 yes→통과, 모두 no→HOUSEHOLD, 그 외→INSUFFICIENT_INFO (지정 가능성이면 제2조제6호로 사업장)'
 - G6 chemical_itself·residue·oil 중 하나라도 → DESIGNATED_POSSIBLE
-- G7 PVC·기타수지·발포·어망·부표·비캔 금속·비고체·제18조 외 캔 → OUT_OF_SCOPE
-- G8 캔→51-29-03(철은 route_unsupported), 포장재→51-03-07(interpretation), 아니면 51-03-01
+- G7 PVC·기타수지·발포·어망·부표·캔·스크랩 외 금속·비고체·제18조 외 캔 → OUT_OF_SCOPE
+- G8 금속 스크랩→51-29-01·51-29-02(circular_designation_assumed), 캔→51-29-03(철은 route_unsupported), 포장재→51-03-07(interpretation),
+  아니면 51-03-01
 baselines:
   PP:
     discharged: 'yes'
@@ -77,22 +78,22 @@ baselines:
       registered: 'no'
       supplied_r41: 'yes'
 summary:
-  total: 98
+  total: 100
   by_kind:
     baseline: 3
-    mcdc: 56
+    mcdc: 58
     boundary: 4
     masking: 9
     metamorphic: 9
     enumeration: 17
   by_outcome:
-    GENERAL: 43
+    GENERAL: 45
     NOT_WASTE: 2
     INSUFFICIENT_INFO: 7
     EXCLUDED: 11
     CIRCULAR_RESOURCE: 3
-    OUT_OF_SCOPE: 19
-    DESIGNATED_POSSIBLE: 10
+    OUT_OF_SCOPE: 18
+    DESIGNATED_POSSIBLE: 11
     HOUSEHOLD: 3
 test_requirements:
 - id: TR-001
@@ -465,10 +466,11 @@ test_requirements:
     material: aluminium
     input_form: scrap
   expected:
-    outcome: OUT_OF_SCOPE
+    outcome: GENERAL
     code: 51-29-02
-    flags: []
-  gate: G7
+    flags:
+    - circular_designation_assumed
+  gate: G8
   covers:
   - input_form=aluminium:scrap
 - id: TR-032
@@ -478,10 +480,11 @@ test_requirements:
     material: steel
     input_form: scrap
   expected:
-    outcome: OUT_OF_SCOPE
+    outcome: GENERAL
     code: 51-29-01
-    flags: []
-  gate: G7
+    flags:
+    - circular_designation_assumed
+  gate: G8
   covers:
   - input_form=steel:scrap
 - id: TR-033
@@ -1420,3 +1423,31 @@ test_requirements:
   gate: G8
   covers:
   - medicine_small=unknown
+- id: TR-099
+  kind: mcdc
+  base: CAN
+  changes:
+    material: aluminium
+    input_form: other
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-02
+    flags: []
+  gate: G7
+  covers:
+  - input_form=aluminium:other
+- id: TR-100
+  kind: mcdc
+  base: CAN
+  changes:
+    material: steel
+    input_form: scrap
+    oil_presence: present
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  gate: G6
+  covers:
+  - oil=present(steel:scrap)
+  note: 범위 안 금속 스크랩도 지정폐기물 가능성(G6)을 먼저 본다

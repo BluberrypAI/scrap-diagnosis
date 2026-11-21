@@ -1,8 +1,8 @@
 # 골든 데이터셋 (동결본). 자동 생성: tools/build_golden.py — 직접 고치지 않는다.
 # 판정 규칙 작성자(사람·LLM)에게 보여 주지 않는다. 변경은 CHANGELOG.md에 사유를 남긴다.
-version: 4
+version: 5
 frozen_on: '2026-11-21'
-n: 98
+n: 100
 cases:
 - id: G-001
   tr: TR-001
@@ -507,9 +507,10 @@ cases:
   situation: 저희는 대기 배출시설 허가를 받은 알루미늄 부품 가공 공장이고, 절삭·절단 후 남는 알루미늄 자투리를 하루 평균 50kg 정도 고철 업체에 판매합니다. 캔이 아니라
     가공 스크랩입니다. 고체 상태이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다.
   expected:
-    outcome: OUT_OF_SCOPE
+    outcome: GENERAL
     code: 51-29-02
-    flags: []
+    flags:
+    - circular_designation_assumed
   basis:
   - RULE-WASTE/별표4/51-29-02
   grade: A
@@ -522,9 +523,10 @@ cases:
   situation: 저희 공장은 대기 배출시설 허가를 받은 철 구조물 제작 공장이고, 철판을 자르고 남은 철 스크랩이 하루 평균 50kg 정도 나와 고철 업체에 넘깁니다. 캔이 아니라
     가공 자투리입니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다.
   expected:
-    outcome: OUT_OF_SCOPE
+    outcome: GENERAL
     code: 51-29-01
-    flags: []
+    flags:
+    - circular_designation_assumed
   basis:
   - RULE-WASTE/별표4/51-29-01
   grade: A
@@ -1670,5 +1672,38 @@ cases:
   basis:
   - DEC-RESOURCE/제18조
   - RULE-WASTE/별표4/51-29-03
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-099
+  tr: TR-099
+  kind: mcdc
+  covers:
+  - input_form=aluminium:other
+  situation: 저희는 대기 배출시설 허가를 받은 알루미늄 압출 공장이고, 품질 검사에서 떨어진 알루미늄 압출 프레임 완제품이 하루 평균 50kg 정도 나와 업체에 판매합니다.
+    캔이 아니고, 가공하다 남은 자투리·스크랩도 아닌 완제품 형태 그대로입니다. 고체이고 기름은 묻지 않았으며 남은 내용물이나 약품은 없습니다.
+  expected:
+    outcome: OUT_OF_SCOPE
+    code: 51-29-02
+    flags: []
+  basis:
+  - RULE-WASTE/별표4/51-29-02
+  grade: C
+  source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)
+- id: G-100
+  tr: TR-100
+  kind: mcdc
+  covers:
+  - oil=present(steel:scrap)
+  situation: 저희 공장은 대기 배출시설 허가를 받은 기계 가공 공장이고, 선반 가공 후 남은 철 스크랩이 하루 평균 50kg 정도 나와 고철 업체에 넘깁니다. 캔이 아니라
+    가공 자투리입니다. 고체이고 남은 내용물이나 약품은 없지만, 절삭유가 묻어 있고 기름 함량을 분석한 서류는 없습니다.
+  expected:
+    outcome: DESIGNATED_POSSIBLE
+    code: null
+    flags: []
+  basis:
+  - ACT-WASTE/제2조제4호
+  - DEC-WASTE/제3조
+  - DEC-WASTE/별표1제6호
+  - RULE-WASTE/제17조의2
   grade: C
   source: 명세 기반 생성(Annotator A) · 블라인드 검증(Annotator B)

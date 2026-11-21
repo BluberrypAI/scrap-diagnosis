@@ -2,10 +2,44 @@ stage: 70_code
 title: 분류 코드 (시행규칙 별표 4, 자원재활용법 시행령 제18조)
 order: 70
 on_no_match: continue
-# 60단계를 continue로 통과한 것은 제18조제1호 금속캔이거나, 고체·비발포·어망/부자 아닌 PP·PE·PET다.
+# 60단계를 continue로 통과한 것은 제18조제1호 금속캔, 금속 스크랩(D18), 고체·비발포·어망/부자 아닌 PP·PE·PET다.
 # 합성수지 안에서 51-03-07(플라스틱폐포장재)을 51-03-01(폐합성수지류)보다 앞에 둔다:
 # 51-03-07이 포장재라는 더 좁은 범위이기 때문이다(D7).
 rules:
+  # D18: 고철·비철금속 중 알루미늄은 지정 순환자원 대상(지정 고시 별표 1)이다. 품목별 준수사항을 적재하지 않아
+  # 묻지 않고, 일반적 준수사항 마목대로 조치·등록 완료 전에는 폐기물로 본다(circular_designation_assumed).
+  - id: COD-SCRAP-ALUMINIUM
+    when:
+      all:
+        - {fact: material, eq: aluminium}
+        - {fact: input_form, eq: scrap}
+    then: {outcome: GENERAL, code: "51-29-02", flags: [circular_designation_assumed]}
+    basis:
+      - unit: RULE-WASTE/별표4/51-29-02
+        quote: "51-29-02 비철금속"
+      - unit: NOTICE-CIRCULAR-DESIGNATION/별표1
+        quote: "폐지류 고철 폐금속캔류 비철금속 중 알루미늄"
+      - unit: NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+        quote: "조치를 완료하고 다목에 따른 정보 등록을 완료하기 전까지는 폐기물로 보고"
+    decision: D18
+    grade: C
+
+  - id: COD-SCRAP-STEEL
+    when:
+      all:
+        - {fact: material, eq: steel}
+        - {fact: input_form, eq: scrap}
+    then: {outcome: GENERAL, code: "51-29-01", flags: [circular_designation_assumed]}
+    basis:
+      - unit: RULE-WASTE/별표4/51-29-01
+        quote: "51-29-01 고철"
+      - unit: NOTICE-CIRCULAR-DESIGNATION/별표1
+        quote: "폐지류 고철 폐금속캔류 비철금속 중 알루미늄"
+      - unit: NOTICE-CIRCULAR-DESIGNATION/별표2/일반적 준수사항
+        quote: "조치를 완료하고 다목에 따른 정보 등록을 완료하기 전까지는 폐기물로 보고"
+    decision: D18
+    grade: C
+
   - id: COD-CAN-ALUMINIUM
     when:
       all:

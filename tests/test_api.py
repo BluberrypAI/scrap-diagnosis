@@ -1,5 +1,6 @@
 """내부 API(/internal/v1) 테스트: 실제 knowledge/flow 규칙과 SQLite DB를 쓴다."""
 
+import pytest
 from conftest import headers, make_client
 
 H = headers()
@@ -197,7 +198,8 @@ def test_oil_without_document_is_designated_possible(client):
 
 def test_out_of_scope_hides_candidate_code(client):
     cid = new_case(client)["case"]["id"]
-    turn = run_answers(client, cid, [("material", "aluminium"), ("input_form", "scrap")])
+    # 캔도 스크랩도 아닌 금속 형태는 범위 밖(D18)
+    turn = run_answers(client, cid, [("material", "aluminium"), ("input_form", "other")])
     while turn["branch"] == "ASK_FACT":
         q = turn["ui"]["question"]
         turn = reply(client, cid, q["key"], typical(q)).json()
@@ -391,7 +393,7 @@ def test_recycling_types_in_handoff(client):
 
 def test_recycling_not_applicable_without_route(client):
     cid = new_case(client)["case"]["id"]
-    turn = run_answers(client, cid, [("material", "aluminium"), ("input_form", "scrap")])
+    turn = run_answers(client, cid, [("material", "aluminium"), ("input_form", "other")])
     while turn["branch"] == "ASK_FACT":
         q = turn["ui"]["question"]
         turn = reply(client, cid, q["key"], typical(q)).json()
@@ -494,3 +496,25 @@ def test_discharged_is_assumed_and_editable(client):
     cid = turn["case_id"]
     turn = run_answers(client, cid, PP_SCRAP[:2] + [("discharged", "no")])
     assert turn["ui"]["result"]["outcome"] == "NOT_WASTE"
+
+
+@pytest.mark.parametrize(("material", "code"), [("aluminium", "51-29-02"), ("steel", "51-29-01")])
+def test_metal_scrap_is_general_and_routes(client, material, code):
+    """D18: 알루미늄·철 스크랩은 범위 안. 지정 순환자원 준수사항은 묻지 않고 가정으로 밝힌다."""
+    cid = new_case(client)["case"]["id"]
+    turn = run_answers(client, cid, [("material", material), ("input_form", "scrap")])
+    seen = []
+    while turn["branch"] == "ASK_FACT":
+        q = turn["ui"]["question"]
+        seen.append(q["key"])
+        turn = reply(client, cid, q["key"], typical(q)).json()
+    assert not any(k.startswith("can_") or "designation" in k for k in seen)
+    assert turn["verdict"]["outcome"] == "GENERAL" and turn["verdict"]["waste_code"] == code
+    assert turn["verdict"]["flags"] == ["circular_designation_assumed"]
+    h = client.post(f"/internal/v1/cases/{cid}/confirm", headers=H).json()["handoff"]
+    assert (h["result_type"], h["waste_code"], h["category"]) == ("WASTE_CODE", code, "GENERAL")
+    assert h["route_guidance"]["action"] == "RECOMMEND_ROUTE"
+    assert h["facts"]["material"]["value"] == material
+    assert h["facts"]["input_form"]["value"] == "scrap"
+    assert any("순환자원" in a for a in h["assumptions"])
+    assert h["recycling"]["status"] == "table_listed"

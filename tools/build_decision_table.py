@@ -281,6 +281,25 @@ def build() -> list[dict]:
     for v, cov in (("yes", "medicine_small=yes"), ("unknown", "medicine_small=unknown")):
         t.append(tr("mcdc", "CAN", {"can_contents": "medicine", "medicine_small": v}, [cov]))
 
+    # v5 범위 확대(2026-11-21, D18): 금속 스크랩은 범위 안, 그 밖의 금속 형태는 범위 밖 유지
+    t.append(
+        tr(
+            "mcdc",
+            "CAN",
+            {"material": "aluminium", "input_form": "other"},
+            ["input_form=aluminium:other"],
+        )
+    )
+    t.append(
+        tr(
+            "mcdc",
+            "CAN",
+            {"material": "steel", "input_form": "scrap", "oil_presence": "present"},
+            ["oil=present(steel:scrap)"],
+            note="범위 안 금속 스크랩도 지정폐기물 가능성(G6)을 먼저 본다",
+        )
+    )
+
     for i, item in enumerate(t, 1):
         item["id"] = f"TR-{i:03d}"
     return [{"id": x.pop("id"), **x} for x in t]
@@ -303,8 +322,9 @@ def render(trs: list[dict]) -> str:
             "G5 business_site: 하나라도 yes→통과, 모두 no→HOUSEHOLD, 그 외→INSUFFICIENT_INFO"
             " (지정 가능성이면 제2조제6호로 사업장)",
             "G6 chemical_itself·residue·oil 중 하나라도 → DESIGNATED_POSSIBLE",
-            "G7 PVC·기타수지·발포·어망·부표·비캔 금속·비고체·제18조 외 캔 → OUT_OF_SCOPE",
-            "G8 캔→51-29-03(철은 route_unsupported),"
+            "G7 PVC·기타수지·발포·어망·부표·캔·스크랩 외 금속·비고체·제18조 외 캔 → OUT_OF_SCOPE",
+            "G8 금속 스크랩→51-29-01·51-29-02(circular_designation_assumed),"
+            " 캔→51-29-03(철은 route_unsupported),"
             " 포장재→51-03-07(interpretation), 아니면 51-03-01",
         ],
         "baselines": BASELINES,
