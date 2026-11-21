@@ -41,7 +41,7 @@
 | `unknown` | 사실 키 | 모른다고 답한다 |
 | `none_all` | 묶음 질문 키(예: `Q-CONTAMINATION`) | 묶음의 모든 항목이 해당 없음. 캔 순환자원 묶음(`Q-CAN-CIRCULAR`)에서는 "모두 마쳤어요"다 |
 | `expand` | 묶음 질문 키 | 해당하는 것이 있거나 모른다. 다음 턴부터 항목을 하나씩 단일 질문으로 묻는다. 캔 순환자원 묶음에서는 "하나라도 안 했거나 모름"으로 끝나고 항목별로 묻지 않는다 |
-| `retract` | 사실 키 | 답을 지우고 아직 묻지 않은 상태로 되돌린다 |
+| `retract` | 사실 키 | 답을 지우고 아직 묻지 않은 상태로 되돌린다. 웹 판정 보드는 2026-11-21부터 쓰지 않는다(고치기 하나로 합침, 기본값 사실에서는 기본값이 다시 채워짐). API 호환을 위해 남긴다 |
 
 - 값 형식이 틀리면 422 `VALIDATION_ERROR`이고, `details.problems[{key, value, reason}]`에 이유가 담긴다.
 - `text`(자유 문장)는 말 이해 흐름으로 처리한다(LLM이 켜져 있을 때, 4-2절). 꺼져 있으면 대화에 남기고 버튼 답을 안내한다. 서류 요청 단계의 `서류가 없어요`(웹 서류 카드의 버튼)는 AI 없이 요청한 서류 사실을 '모름'으로 둔다.
@@ -66,6 +66,7 @@
 - `REQUEST_EVIDENCE`: 질문 대신 서류가 필요하다(기름이 묻은 경우의 기름성분 함량). `ui.question`은 null이고 `ui.requested_documents[{evidence_type, label, facts, fact_labels}]`(= `ui.board.documents_needed`)가 온다. 건 상태는 `NEEDS_INFO`다.
 - `FINAL_REVIEW`: 결론이 났다. `ui.result`가 오고 `can_confirm`은 true다.
 - `UNSUPPORTED`: '모름' 답 때문에 결론을 낼 수 없다. 건 상태는 `NEEDS_INFO`가 되고, `ui.board.pending`에 막힌 사실이 온다. 판정 보드에서 그 답을 고치면 이어서 진행한다.
+- 판정 보드 고치기: `ui.board.facts[].edit.options[]`는 `{label, value, kind}`이고 `kind`는 `value` 또는 `unknown`(모름)이다. 고른 선택지의 `kind`·`value`를 그대로 `quick_reply`로 보낸다. 서류로만 받는 사실은 `editable: false`다. 캔 순환자원 묶음 항목을 고치면 같은 묶음에서 '모름'인 항목을 지우고 묶음을 다시 묻는다('아니요' 한 번이 모든 항목을 모름으로 기록하기 때문).
 - 판정 보드 `ui.board.facts[].source_type`은 여섯 가지다: `UTTERANCE`(답함), `SCREENING`(묶음 답), `PROFILE`(회사 정보 기억), `PROFILE_CONFIRMED`(서버가 확인해 보낸 값), `DOCUMENT`(검수한 서류 값, `status: EVIDENCED`, 고칠 수 없음), `DERIVED`(자동으로 채움).
 
 ## 4-2. 말 이해와 질의응답 (LLM)
@@ -138,6 +139,6 @@ Trace에는 AI 호출마다 `LLM` 행(모델, 지연, 사용량, 가린 프롬�
 - **재질 값이 바뀌었다**: `pp`·`pe`·`pet`·`pvc`·`other_resin`·`synthetic_rubber`·`aluminium`·`steel`·`other`. v1의 `metal_can`·`plastic_packaging` 같은 값은 없다. 포장재 여부는 별도 사실 `packaging_used`로 묻는다.
 - **결과 값이 더해졌다**: outcome·category에 `DESIGNATED_POSSIBLE`. v1의 `INTERPRETATION_NEEDED`·`CODE_NEEDS_TEST`·`NO_GENERAL_CODE` 등은 나오지 않는다.
 - **서류**: 경로와 응답 모양은 v1과 같다. v2에서 서류로 받는 사실은 기름성분 함량 하나다. 그래서 자동 읽기도 그 항목만 후보로 만든다(다른 시험 항목은 `table_read`에서 빠진다).
-- **회사 정보 기억**: 사업장 질문(`emission_facility`, `daily_avg_kg`, `public_facility`, `construction_5t`, `site_emits_designated`)의 답은 기업별로 기억한다. 같은 기업의 다음 건에는 `PROFILE`로 미리 채운다. 기업 데이터를 삭제하면 이 기억도 함께 지운다.
+- **회사 정보 기억**: 사업장 질문(`emission_facility`, `daily_avg_kg`, `public_facility`, `construction_5t`, `site_emits_designated`)의 답은 기업별로 기억한다. 같은 기업의 다음 건에는 `PROFILE`로 미리 채운다. 회사 정보는 고정값이라, 기억이 없을 때 건의 첫 답만 기억하고 판정 보드의 고치기·되돌리기는 그 건의 판정만 바꾼다(기억을 바꾸거나 지우지 않음). 기업 데이터를 삭제하면 이 기억도 함께 지운다.
 - **재활용 유형표**: v1은 별표 PDF에서 손으로 옮긴 표였고, v2는 법령 API에서 받는다. 지금 범위는 51-03-01·51-03-07·51-29-03 세 행이다.
 - **DB 스키마가 새로 바뀌었다**: 마이그레이션은 `alembic/versions/0001`부터 다시 시작한다(0002: 서류·서류 값, 0003: 말 답 근거 문구·확인 대기·assist). v1 엔진이 쓰던 DB에는 그대로 올릴 수 없으므로 새 데이터베이스를 쓴다.

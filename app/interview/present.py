@@ -448,10 +448,10 @@ def edit_options(kb: KB, path: str, facts: dict) -> list[dict]:
     if path == "input_form":  # 형태는 재질에 맞는 것만 고를 수 있다
         material = lookup(facts, "material")
         allowed = (kb.plan.catalog["input_form"].get("allowed_by_material") or {}).get(material)
+    # 고치기 하나로 '모름'까지 고를 수 있게 모름 선택지(kind=unknown)도 준다(2026-11-21)
     return [
-        {"label": o["label"], "value": o["value"]}
+        {"label": o["label"], "value": o["value"], "kind": o["kind"]}
         for o in cat.options(kb.plan.catalog, path, allowed)
-        if o["kind"] == "value"
     ]
 
 
@@ -484,7 +484,9 @@ def known_facts(kb: KB, states: dict[str, FactState], facts: dict) -> list[dict]
                 "source_label": SOURCE_LABELS.get(source, source),
                 "quote": st.quote if st else None,
                 "recorded_at": iso(st.at) if st else None,
-                "editable": source not in ("DERIVED", "DOCUMENT"),
+                # 서류로만 받는 값은 버튼으로 고칠 수 없다(서류 검수로만 바뀜)
+                "editable": source not in ("DERIVED", "DOCUMENT")
+                and not cat.is_document_fact(catalog, path),
                 "edit": {
                     "input": cat.input_kind(s) if s else "choice",
                     "value_type": cat.value_type(s) if s else None,

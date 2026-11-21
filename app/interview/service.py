@@ -143,6 +143,12 @@ class CaseService(DocumentMixin, UnderstandMixin):
             status, stored = "DECLARED_UNKNOWN", None
         else:
             status, stored = ("EVIDENCED" if source == "DOCUMENT" else "CLAIMED"), value
+        if (
+            path in self.company_facts
+            and source in ("UTTERANCE", "SCREENING")
+            and status == "CLAIMED"
+        ):
+            self.remember_first(case, path, stored)
         self.db.add(
             FactRecord(
                 case_id=case.id,
@@ -155,23 +161,35 @@ class CaseService(DocumentMixin, UnderstandMixin):
                 turn_id=turn_id,
             )
         )
-        if path in self.company_facts and source in ("UTTERANCE", "SCREENING"):
-            self.remember(case, path, stored if status == "CLAIMED" else None)
 
-    def remember(self, case: Case, path: str, value: Any) -> None:
+    def remember_first(self, case: Case, path: str, value: Any) -> None:
+        """회사 정보는 고정값이다. 기억이 없을 때 이 건의 첫 답만 기억한다.
+
+        고치기·되돌리기(같은 건에 이미 기록이 있는 사실)는 이 건의 판정만 바꾸고
+        회사 기억은 바꾸거나 지우지 않는다(2026-11-21 결정).
+        """
+        answered = self.db.scalar(
+            select(FactRecord.id)
+            .where(FactRecord.case_id == case.id, FactRecord.fact == path)
+            .limit(1)
+        )
+        if answered is not None:
+            return
         row = self.db.scalar(
             select(CompanyFact).where(
                 CompanyFact.company_id == case.company_id, CompanyFact.fact == path
             )
         )
-        if value is None:
-            if row is not None:
-                self.db.delete(row)
-            return
         if row is None:
-            row = CompanyFact(company_id=case.company_id, fact=path)
-            self.db.add(row)
-        row.value, row.source_case_id, row.updated_at = value, case.id, now()
+            self.db.add(
+                CompanyFact(
+                    company_id=case.company_id,
+                    fact=path,
+                    value=value,
+                    source_case_id=case.id,
+                    updated_at=now(),
+                )
+            )
 
     def validate_facts(self, facts: dict[str, Any]) -> dict[str, Any]:
         out, problems = {}, []
@@ -398,6 +416,7 @@ class CaseService(DocumentMixin, UnderstandMixin):
             v = value[key]
             self.record(case, key, v, "UTTERANCE", turn_id)
             self.drop_dependents(case, key, v, turn_id)
+            self.reopen_all_yes_group(case, key, turn_id)
             case.questions_asked += 1
             return cat.value_label(self.catalog, key, v)
         if kind not in ("none_all", "expand", "some"):
@@ -468,6 +487,24 @@ class CaseService(DocumentMixin, UnderstandMixin):
         allowed = (self.catalog["input_form"].get("allowed_by_material") or {}).get(value)
         if value is None or not allowed or form.value not in allowed:
             self.record(case, "input_form", "retract", "UTTERANCE", turn_id)
+
+    def reopen_all_yes_group(self, case: Case, key: str, turn_id: str) -> None:
+        """'모두 마쳤나' 묶음 항목을 고치면, 같은 묶음의 '모름' 답을 지워 묶음을 다시 묻게 한다.
+
+        이 묶음은 '아니요' 한 번에 모든 항목을 모름으로 기록한다. 실제로 틀린 항목 하나만
+        고치면 나머지가 모름으로 남아 결론이 바뀌지 않으므로, 나머지는 다시 묻는다.
+        """
+        group = next(
+            (q for q in self.groups.values() if "all_yes_label" in q and key in question_facts(q)),
+            None,
+        )
+        if group is None:
+            return
+        states = self.states(case)
+        for f in question_facts(group):
+            st = states.get(f)
+            if f != key and st is not None and st.status == "DECLARED_UNKNOWN":
+                self.record(case, f, "retract", "UTTERANCE", turn_id)
 
     def answer_confirm(self, case: Case, fact: str, qr: dict, turn_id: str) -> str:
         """확인 카드: 예(그 값으로 기록) / 아니요(원래 질문으로) / 모름."""
