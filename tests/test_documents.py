@@ -24,6 +24,9 @@ def to_evidence_request(client, h=H):
     return cid, turn
 
 
+PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 16  # 매직 바이트 검사를 통과하는 최소 PNG 앞부분
+
+
 def upload(client, cid, *, facts=None, name="values.txt", data=b"manual", ctype="text/plain"):
     form = {"facts": json.dumps(facts)} if facts is not None else {}
     return client.post(
@@ -234,7 +237,7 @@ def test_photo_is_read_with_ocr_when_enabled(tmp_path):
         fake = _FakeClient(_FakePoller(_photo_result()))
         c.app.state.azure_client = fake
         cid, _ = to_evidence_request(c)
-        body = upload(c, cid, name="photo.png", data=b"img", ctype="image/png").json()
+        body = upload(c, cid, name="photo.png", data=PNG, ctype="image/png").json()
         assert body["document"]["extracted_facts"]["table_read"]["source"] == "ocr"
         assert [(v["fact_key"], v["value"]) for v in body["values"]] == [(OIL, 1.2)]
         assert len(fake.calls) == 1  # Azure는 사진 한 장에 한 번만 부른다

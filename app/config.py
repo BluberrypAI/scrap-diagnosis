@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     azure_openai_deployment: str | None = None
     azure_openai_api_version: str = "2024-10-21"
     llm_timeout_seconds: float = 20.0
+    # 호출 1번의 출력 토큰 상한(추론 토큰 포함). 넘으면 응답이 잘려 그 호출은 실패로 처리된다
+    llm_max_output_tokens: int = 16000
     # 호출별 추론 강도(추론 모델만). 비우면 모델 기본값
     extract_reasoning_effort: Literal["minimal", "low", "medium", "high"] | None = "medium"
     respond_reasoning_effort: Literal["minimal", "low", "medium", "high"] | None = None
@@ -40,6 +42,7 @@ class Settings(BaseSettings):
 
     # 서류(성적서) 업로드·자동 읽기. 원문 파일은 저장하지 않고 해시·크기만 남긴다
     max_upload_bytes: int = 10 * 1024 * 1024
+    max_documents_per_case: int = 20  # 건당 서류 수 상한(교체 버전은 세지 않음)
     document_table_reading: bool = True  # PDF·이미지의 시험성적서 표 자동 읽기(검수 대기 후보만)
     # 스캔본 PDF·사진 읽기(Azure Document Intelligence). 기본 꺼짐: 켜고 키를 넣을 때만 과금된다.
     # 켜면 원본 쪽 이미지를 Azure로 보낸다(엔진과 같은 구독·리전 리소스만 쓴다)

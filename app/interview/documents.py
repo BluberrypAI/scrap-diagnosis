@@ -51,6 +51,39 @@ def file_kind(filename: str, content_type: str | None) -> str | None:
     return None
 
 
+# 사진 형식별 파일 앞부분(매직 바이트). SVG는 스크립트를 담을 수 있어 받지 않는다
+_IMAGE_SIGNATURES = (
+    b"\xff\xd8\xff",  # JPEG
+    b"\x89PNG\r\n\x1a\n",  # PNG
+    b"II*\x00",  # TIFF(리틀 엔디언)
+    b"MM\x00*",  # TIFF(빅 엔디언)
+    b"BM",  # BMP
+)
+_HEIF_BRANDS = {b"heic", b"heix", b"hevc", b"hevx", b"mif1", b"msf1", b"heif"}
+
+
+def content_matches(kind: str, data: bytes) -> bool:
+    """확장자·Content-Type이 말하는 형식과 실제 내용이 맞는지 본다(이름만 바꾼 실행 파일 등 거부)."""
+    if kind == "pdf":
+        return b"%PDF-" in data[:1024]
+    if kind == "image":
+        if data.startswith(_IMAGE_SIGNATURES):
+            return True
+        return data[4:8] == b"ftyp" and data[8:12] in _HEIF_BRANDS
+    if kind == "text":
+        head = data[:65536]
+        if b"\x00" in head:
+            return False
+        for encoding in ("utf-8", "cp949"):
+            try:
+                head.decode(encoding)
+                return True
+            except UnicodeDecodeError:
+                continue
+        return False
+    return False
+
+
 def item_value(item: ExtractedFactItem) -> Any:
     """FOUND 항목의 값. 불검출은 '검출한계 미만', 부등호 값은 구간이다(값을 지어내지 않음)."""
     if item.below_detection_limit:
@@ -156,7 +189,7 @@ class DocumentMixin:
         if len(data) > self.settings.max_upload_bytes:
             raise ApiError(413, "FILE_TOO_LARGE", "파일이 너무 큽니다")
         kind = file_kind(filename, content_type)
-        if kind is None:
+        if kind is None or not content_matches(kind, data):
             raise ApiError(415, "UNSUPPORTED_DOCUMENT", "PDF·사진·텍스트 파일만 올릴 수 있습니다")
         if kind == "image" and not self.settings.ocr_enabled:
             raise ApiError(
@@ -339,6 +372,14 @@ class DocumentMixin:
         case = self.get_case(company, case_id)
         self.writable(case)
         kind = self.check_file(filename, content_type, data)
+        # 건당 서류 수 상한: 사진·스캔본 읽기(OCR)는 쪽마다 과금되므로 반복 업로드를 묶어 둔다
+        count = len(self.db.scalars(select(Document.id).where(Document.case_id == case.id)).all())
+        if count >= self.settings.max_documents_per_case:
+            raise ApiError(
+                409,
+                "TOO_MANY_DOCUMENTS",
+                f"서류는 한 건에 {self.settings.max_documents_per_case}개까지 올릴 수 있습니다",
+            )
         manual = self.parse_facts(facts)
         doc = Document(
             id=new_id(),
