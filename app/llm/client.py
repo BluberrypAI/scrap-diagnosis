@@ -59,6 +59,7 @@ class AzureOpenAIClient:
         self.model = settings.azure_openai_deployment or ""
         # 모델이 받지 않는 선택 인자는 한 번 거절되면 이후 계속 뺀다
         self._unsupported: set[str] = set()
+        self._max_output_tokens = settings.llm_max_output_tokens
         self._effort = {
             "extract": settings.extract_reasoning_effort,
             "respond": settings.respond_reasoning_effort,
@@ -98,7 +99,11 @@ class AzureOpenAIClient:
                 "json_schema": {"name": name, "strict": True, "schema": schema},
             },
         )
-        optional: dict[str, Any] = {"temperature": 0}
+        # max_completion_tokens를 받지 않는 예전 모델이면 _create가 이 인자를 빼고 다시 부른다
+        optional: dict[str, Any] = {
+            "temperature": 0,
+            "max_completion_tokens": self._max_output_tokens,
+        }
         if self._effort.get(name):
             optional["reasoning_effort"] = self._effort[name]
         try:
